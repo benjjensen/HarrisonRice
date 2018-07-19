@@ -5,7 +5,6 @@ num_rows = 32;
 num_runs = 26;
 cam1 = zeros(num_rows*num_runs,1);
 spot = 0;
-camacho_carrier = zeros(num_rows,num_runs,64);
 for row = 1:num_rows
     for run = 1:num_runs
         num_carriers = 0;
@@ -27,12 +26,9 @@ for row = 1:num_rows
 %                 end
 %             end
 %         end
-        i = 0;
         for loc = 1:2:127
-            i = i+1;
             if camacho(row,run,loc) - camacho(row,run,loc+1) > threshold
                 num_carriers = num_carriers + 1;
-                camacho_carrier(row,run,i) = true;
             end
         end
         spot = spot + 1;
@@ -42,7 +38,6 @@ end
 num_rows = 32;
 num_runs = 26;
 cam2 = zeros(num_rows*num_runs,1);
-camacho_carrier2 = zeros(num_rows,num_runs,64);
 spot = 0;
 for row = 1:num_rows
     for run = 1:num_runs
@@ -64,12 +59,9 @@ for row = 1:num_rows
 %                 end
 %             end
 %         end
-        i = 0;
         for loc = 1:2:127
-            i = i+1;
             if tx2camacho(row,run,loc) - tx2camacho(row,run,loc+1) > tx2threshold
                 num_carriers = num_carriers + 1;
-                camacho_carrier2(row,run,i) = true;
             end
         end
         spot = spot + 1;
@@ -79,7 +71,6 @@ end
 num_rows = 32;
 num_runs = 28;
 chambers1 = zeros(num_rows*num_runs,1);
-chambers_carrier = zeros(num_rows,num_runs,64);
 spot = 0;
 for row = 1:num_rows
     for run = 1:num_runs
@@ -102,12 +93,9 @@ for row = 1:num_rows
 %                 end
 %             end
 %         end
-        i = 0;
         for loc = 1:2:127
-            i = i+1;
             if chambers(row,run,loc) - chambers(row,run,loc+1) > threshold
                 num_carriers = num_carriers + 1;
-                chambers_carrier(row,run,i) = true;
             end
         end
         spot = spot + 1;
@@ -117,7 +105,6 @@ end
 num_rows = 32;
 num_runs = 28;
 chambers2 = zeros(num_rows*num_runs,1);
-chambers_carrier2 = zeros(num_rows,num_runs,64);
 spot = 0;
 for row = 1:num_rows
     for run = 1:num_runs
@@ -139,12 +126,9 @@ for row = 1:num_rows
 %                 end
 %             end
 %         end
-        i = 0;
         for loc = 1:2:127
-            i = i+1;
             if tx2chambers(row,run,loc) - tx2chambers(row,run,loc+1) > tx2threshold
                 num_carriers = num_carriers + 1;
-                chambers_carrier2(row,run,spot) = true;
             end
         end
         spot = spot + 1;
@@ -154,7 +138,6 @@ end
 num_rows = 65;
 num_runs = 61;
 conference1 = zeros(num_rows*num_runs,1);
-conference_carrier = zeros(num_rows,num_runs,64);
 spot = 0;
 for row = 1:num_rows
     for run = 1:num_runs
@@ -177,12 +160,9 @@ for row = 1:num_rows
 %                 end
 %             end
 %         end
-        i = 0;
         for loc = 1:2:127
-            i = i+1;
             if conference(row,run,loc) - conference(row,run,loc+1) > threshold
                 num_carriers = num_carriers + 1;
-                conference_carrier(row,run,i) = true;
             end
         end
         spot = spot + 1;
@@ -192,7 +172,6 @@ end
 num_rows = 65;
 num_runs = 61;
 conference2 = zeros(num_rows*num_runs,1);
-conference_carrier2 = zeros(num_rows,num_runs,64);
 spot = 0;
 for row = 1:num_rows
     for run = 1:num_runs
@@ -214,12 +193,9 @@ for row = 1:num_rows
 %                 end
 %             end
 %         end
-        i = 0;
         for loc = 1:2:127
-            i = i+1;
             if tx2conference(row,run,loc) - tx2conference(row,run,loc+1) > tx2threshold
                 num_carriers = num_carriers + 1;
-                conference_carrier2(row,run,i) = true;
             end
         end
         spot = spot + 1;
@@ -229,7 +205,6 @@ end
 num_rows = 29;
 num_runs = 33;
 harrison1 = zeros(num_rows*num_runs,1);
-harrison_carrier = zeros(num_rows,num_runs,64);
 spot = 0;
 for row = 1:num_rows
     for run = 1:num_runs
@@ -252,12 +227,9 @@ for row = 1:num_rows
 %                 end
 %             end
 %         end
-        i = 0;
         for loc = 1:2:127
-            i = i+1;
             if harrison(row,run,loc) - harrison(row,run,loc+1) > threshold
                 num_carriers = num_carriers + 1;
-                harrison_carrier(row,run,i) = true;
             end
         end
         spot = spot + 1;
@@ -267,7 +239,6 @@ end
 num_rows = 30;
 num_runs = 34;
 harrison2 = zeros(num_rows*num_runs,1);
-harrison_carrier2 = zeros(num_rows,num_runs,64);
 spot = 0;
 for row = 1:num_rows
     for run = 1:num_runs
@@ -289,12 +260,9 @@ for row = 1:num_rows
 %                 end
 %             end
 %         end
-        i = 0;
         for loc = 1:2:127
-            i = i+1;
             if tx2harrison(row,run,loc) - tx2harrison(row,run,loc+1) > tx2threshold
                 num_carriers = num_carriers + 1;
-                harrison_carrier2(row,run,i) = true;
             end
         end
         spot = spot + 1;
@@ -304,7 +272,6 @@ end
 num_rows = 31;
 num_runs = 26;
 smalley1 = zeros(num_rows*num_runs,1);
-smalley_carrier = zeros(num_rows,num_runs,64);
 spot = 0;
 for row = 1:num_rows
     for run = 1:num_runs
@@ -327,12 +294,9 @@ for row = 1:num_rows
 %                 end
 %             end
 %         end
-        i = 0;
         for loc = 1:2:127
-            i = i+1;
             if smalley(row,run,loc) - smalley(row,run,loc+1) > threshold
                 num_carriers = num_carriers + 1;
-                smalley_carrier(row,run,i) = true;
             end
         end
         spot = spot + 1;
@@ -342,7 +306,6 @@ end
 num_rows = 32;
 num_runs = 26;
 smalley2 = zeros(num_rows*num_runs,1);
-smalley_carrier2 = zeros(num_rows,num_runs,64);
 spot = 0;
 for row = 1:num_rows
     for run = 1:num_runs
@@ -364,12 +327,9 @@ for row = 1:num_rows
 %                 end
 %             end
 %         end
-        i = 0;
         for loc = 1:2:127
-            i = i+1;
             if tx2smalley(row,run,loc) - tx2smalley(row,run,loc+1) > tx2threshold
                 num_carriers = num_carriers + 1;
-                smalley_carrier2(row,run,i) = true;
             end
         end
         spot = spot + 1;
