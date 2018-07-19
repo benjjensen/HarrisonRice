@@ -1,5 +1,4 @@
 close all;
-
 load('camacho_pwelch.mat');
 load('chambers_pwelch.mat');
 load('complete_pwelch.mat');
@@ -15,7 +14,7 @@ load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
 %%%%% SET DBLIMIT 
-dblimit = 28.25;
+dblimit = 20;
 
 for Harrison = 1:1   
     %%%%% PART 1 - DETERMINES THE BEST LOCATION %%%%%
