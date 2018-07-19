@@ -1,4 +1,4 @@
-
+close all;
 load('camacho_pwelch.mat');
 load('chambers_pwelch.mat');
 load('complete_pwelch.mat');
