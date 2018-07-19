@@ -1,4 +1,3 @@
-
 close all;
 
 load('camacho.mat');
