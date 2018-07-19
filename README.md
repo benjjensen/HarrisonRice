@@ -1,5 +1,3 @@
-# HarrisonRice Research
+HarrisonRice Research
 
-# Successfully committed from Nathan's computer
-
-Also Testing - Kalin
+This repository is for sharing files within the research team.
