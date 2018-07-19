@@ -1,6 +1,6 @@
 close all;
 threshold = 13;
-tx2threshold = 28;
+tx2threshold = 26;
 num_rows = 32;
 num_runs = 26;
 cam1 = zeros(num_rows*num_runs,1);
@@ -348,3 +348,105 @@ title('Conference');
 figure(4);
 histogram(smalley2)
 title('Smalley');
+
+camacho_best_carrier = zeros(1,64);
+camacho_best_carrier2 = zeros(1,64);
+chambers_best_carrier = zeros(1,64);
+chambers_best_carrier2 = zeros(1,64);
+conference_best_carrier = zeros(1,64);
+conference_best_carrier2 = zeros(1,64);
+harrison_best_carrier = zeros(1,64);
+harrison_best_carrier2 = zeros(1,64);
+smalley_best_carrier = zeros(1,64);
+smalley_best_carrier2 = zeros(1,64);
+
+[~,Icam1] = max(cam1);
+[~,Icam2] = max(cam1);
+[~,Ichamb1] = max(chambers1);
+[~,Ichamb2] = max(chambers2);
+[~,Iconf1] = max(conference1);
+[~,Iconf2] = max(conference2);
+[~,Iharr1] = max(harrison1);
+[~,Iharr2] = max(harrison2);
+[~,Ismall1] = max(smalley1);
+[~,Ismall2] = max(smalley2);
+[num_rows,num_runs,~] = size(camacho);
+row = floor(Icam1/num_rows) + 1;
+run = mod(Icam1,num_runs);
+for loc = 1:2:127
+    if camacho(row,run,loc) - camacho(row,run,loc+1) > threshold
+        camacho_best_carrier(1,(loc+1)/2) = 1;
+    end
+end
+[num_rows,num_runs,~] = size(tx2camacho);
+row = floor(Icam2/num_rows) + 1;
+run = mod(Icam2,num_runs);
+for loc = 1:2:127
+    if tx2camacho(row,run,loc) - tx2camacho(row,run,loc+1) > tx2threshold
+        camacho_best_carrier2(1,(loc+1)/2) = 1;
+    end
+end
+[num_rows,num_runs,~] = size(chambers);
+row = floor(Ichamb1/num_rows) + 1;
+run = mod(Ichamb1,num_runs);
+for loc = 1:2:127
+    if chambers(row,run,loc) - chambers(row,run,loc+1) > threshold
+        chambers_best_carrier(1,(loc+1)/2) = 1;
+    end
+end
+[num_rows,num_runs,~] = size(tx2chambers);
+row = floor(Ichamb2/num_rows) + 1;
+run = mod(Ichamb2,num_runs);
+for loc = 1:2:127
+    if tx2chambers(row,run,loc) - tx2chambers(row,run,loc+1) > tx2threshold
+        chambers_best_carrier2(1,(loc+1)/2) = 1;
+    end
+end
+[num_rows,num_runs,~] = size(conference);
+row = floor(Iconf1/num_rows) + 1;
+run = mod(Iconf1,num_runs);
+for loc = 1:2:127
+    if conference(row,run,loc) - conference(row,run,loc+1) > threshold
+        conference_best_carrier(1,(loc+1)/2) = 1;
+    end
+end
+[num_rows,num_runs,~] = size(tx2conference);
+row = floor(Iconf2/num_rows) + 1;
+run = mod(Iconf2,num_runs);
+for loc = 1:2:127
+    if tx2conference(row,run,loc) - tx2conference(row,run,loc+1) > tx2threshold
+        conference_best_carrier2(1,(loc+1)/2) = 1;
+    end
+end
+[num_rows,num_runs,~] = size(harrison);
+row = floor(Iharr1/num_rows) + 1;
+run = mod(Iharr1,num_runs);
+for loc = 1:2:127
+    if harrison(row,run,loc) - harrison(row,run,loc+1) > threshold
+        harrison_best_carrier(1,(loc+1)/2) = 1;
+    end
+end
+[num_rows,num_runs,~] = size(tx2harrison);
+row = floor(Iharr2/num_rows) + 1;
+run = mod(Iharr2,num_runs);
+for loc = 1:2:127
+    if tx2harrison(row,run,loc) - tx2harrison(row,run,loc+1) > tx2threshold
+        harrison_best_carrier2(1,(loc+1)/2) = 1;
+    end
+end
+[num_rows,num_runs,~] = size(smalley);
+row = floor(Ismall1/num_rows) + 1;
+run = mod(Ismall1,num_runs);
+for loc = 1:2:127
+    if smalley(row,run,loc) - smalley(row,run,loc+1) > threshold
+        smalley_best_carrier(1,(loc+1)/2) = 1;
+    end
+end
+[num_rows,num_runs,~] = size(tx2smalley);
+row = floor(Ismall2/num_rows) + 1;
+run = mod(Ismall2,num_runs);
+for loc = 1:2:127
+    if tx2smalley(row,run,loc) - tx2smalley(row,run,loc+1) > tx2threshold
+        smalley_best_carrier2(1,(loc+1)/2) = 1;
+    end
+end
