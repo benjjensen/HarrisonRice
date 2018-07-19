@@ -14,7 +14,7 @@ load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
 %%%%% SET DBLIMIT 
-dblimit = 20;
+dblimit = 25;
 
 for Harrison = 1:1   
     %%%%% PART 1 - DETERMINES THE BEST LOCATION %%%%%
@@ -23,14 +23,14 @@ for Harrison = 1:1
     [~,r,c] = size(tx2harrison_pwelch); 
                         %(If changing this file, change lines 22 & 23 as well)
 
-    complete_signal = nan(64,r-1,c);     %%Uses the size of the data array, minus one
-    complete_noisefloor = nan(64,r-1,c);
-    difference = nan(64,r-1,c);
-    carriers_above = nan(r-1,c);
+    complete_signal = nan(64,r,c);     %%Uses the size of the data array, minus one
+    complete_noisefloor = nan(64,r,c);
+    difference = nan(64,r,c);
+    carriers_above = nan(r,c);
     best = [0,0,0];
     mc = 0;
     
-    for temp = 1:(r-1)
+    for temp = 1:(r)
         for loops = 1:c
             complete_signal(:,temp,loops) = tx2harrison_pwelch(1:2:end,temp,loops);
             complete_noisefloor(:,temp,loops) = tx2harrison_pwelch(2:2:end,temp,loops);
@@ -90,14 +90,14 @@ for Smalley = 1:1
     [~,r,c] = size(tx2smalley_pwelch); 
                         %(If changing this file, change lines 89 & 90 as well)
 
-    complete_signal = nan(64,r-1,c);     %%Uses the size of the data array, minus one
-    complete_noisefloor = nan(64,r-1,c);
-    difference = nan(64,r-1,c);
-    carriers_above = nan(r-1,c);
+    complete_signal = nan(64,r,c);     %%Uses the size of the data array, minus one
+    complete_noisefloor = nan(64,r,c);
+    difference = nan(64,r,c);
+    carriers_above = nan(r,c);
     best = [0,0,0];
     mc = 0;
     
-    for temp = 1:(r-1)
+    for temp = 1:(r)
         for loops = 1:c
             complete_signal(:,temp,loops) = tx2smalley_pwelch(1:2:end,temp,loops);
             complete_noisefloor(:,temp,loops) = tx2smalley_pwelch(2:2:end,temp,loops);
@@ -157,15 +157,15 @@ for Chambers = 1:1
     [~,r,c] = size(tx2chambers_pwelch); 
                         %(If changing this file, change lines 157 & 158 as well)
                         
-    complete_signal = nan(64,r-1,c);     %%Uses the size of the data array, minus one
-    complete_noisefloor = nan(64,r-1,c);
-    difference = nan(64,r-1,c);
-    carriers_above = nan(r-1,c);
+    complete_signal = nan(64,r,c);     %%Uses the size of the data array, minus one
+    complete_noisefloor = nan(64,r,c);
+    difference = nan(64,r,c);
+    carriers_above = nan(r,c);
     best = [0,0,0];
     mc = 0;
 
 
-    for temp = 1:(r-1)
+    for temp = 1:(r)
         for loops = 1:c
             complete_signal(:,temp,loops) = tx2chambers_pwelch(1:2:end,temp,loops);
             complete_noisefloor(:,temp,loops) = tx2chambers_pwelch(2:2:end,temp,loops);
@@ -224,15 +224,15 @@ for Camacho = 1:1
     [~,r,c] = size(tx2camacho_pwelch); 
                         %(If changing this file, change lines 224 & 225 as well)
                         
-    complete_signal = nan(64,r-1,c);     %%Uses the size of the data array, minus one
-    complete_noisefloor = nan(64,r-1,c);
-    difference = nan(64,r-1,c);
-    carriers_above = nan(r-1,c);
+    complete_signal = nan(64,r,c);     %%Uses the size of the data array, minus one
+    complete_noisefloor = nan(64,r,c);
+    difference = nan(64,r,c);
+    carriers_above = nan(r,c);
     best = [0,0,0];
     mc = 0;
 
 
-    for temp = 1:(r-1)
+    for temp = 1:(r)
         for loops = 1:c
             complete_signal(:,temp,loops) = tx2camacho_pwelch(1:2:end,temp,loops);
             complete_noisefloor(:,temp,loops) = tx2camacho_pwelch(2:2:end,temp,loops);
@@ -292,15 +292,15 @@ for Conference = 1:1
     [~,r,c] = size(tx2conference_pwelch); 
                         %(If changing this file, change lines 292 & 293 as well)
                         
-    complete_signal = nan(64,r-1,c);     %%Uses the size of the data array, minus one
-    complete_noisefloor = nan(64,r-1,c);
-    difference = nan(64,r-1,c);
-    carriers_above = nan(r-1,c);
+    complete_signal = nan(64,r,c);     %%Uses the size of the data array, minus one
+    complete_noisefloor = nan(64,r,c);
+    difference = nan(64,r,c);
+    carriers_above = nan(r,c);
     best = [0,0,0];
     mc = 0;
 
 
-    for temp = 1:(r-1)
+    for temp = 1:(r)
         for loops = 1:c
             complete_signal(:,temp,loops) = tx2conference_pwelch(1:2:end,temp,loops);
             complete_noisefloor(:,temp,loops) = tx2conference_pwelch(2:2:end,temp,loops);
