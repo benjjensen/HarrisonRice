@@ -4,7 +4,7 @@
 %closes all figure windows
 close all;
 
-for m = 3 : 6   %cycles through a range of m values
+for m = 5 : 8   %cycles through a range of m values
     %creates a new figure
     figure();
     for r = 4 : 7   %cycles through a range of r values
@@ -20,7 +20,7 @@ for m = 3 : 6   %cycles through a range of m values
             
             alphaValues = zeros(1,m);
             
-            %determines a,b,c,ect. values
+            %determines a,b,c,etc. values
             for num = 1 : m
                 alphaValues(1, num) = 2^(num-1);
             end
