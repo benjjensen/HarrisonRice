@@ -1,4 +1,17 @@
 
+load('camacho_pwelch.mat');
+load('chambers_pwelch.mat');
+load('complete_pwelch.mat');
+load('conference_pwelch.mat');
+load('harrison_pwelch.mat');
+load('smalley_pwelch.mat');
+
+load('tx2_pwelch.mat');
+load('tx2camacho_pwelch.mat');
+load('tx2chambers_pwelch.mat');
+load('tx2conference_pwelch.mat');
+load('tx2harrison_pwelch.mat');
+load('tx2smalley_pwelch.mat');
 
 %%%%% SET DBLIMIT 
 dblimit = 15;
