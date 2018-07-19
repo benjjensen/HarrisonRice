@@ -14,7 +14,7 @@ load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
 %%%%% SET DBLIMIT 
-dblimit = 24;
+dblimit = 26;
 
 for Harrison = 1:1   
     %%%%% PART 1 - DETERMINES THE BEST LOCATION %%%%%
