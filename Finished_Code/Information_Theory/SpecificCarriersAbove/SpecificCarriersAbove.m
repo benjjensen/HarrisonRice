@@ -14,11 +14,11 @@ load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
 %%%%% SET DBLIMIT 
-<<<<<<< HEAD
+%<<<<<<< HEAD
 dblimit = 26;
-=======
-dblimit = 27;
->>>>>>> a43090b820c1118b9317042b3bbff362f25f4dea
+%=======
+%dblimit = 27;
+%>>>>>>> a43090b820c1118b9317042b3bbff362f25f4dea
 
 for Harrison = 1:1   
     %%%%% PART 1 - DETERMINES THE BEST LOCATION %%%%%
@@ -369,5 +369,28 @@ bar(cam_specific_carriers_above(:,2),'DisplayName',['Camacho - ' num2str(cacount
 bar(con_specific_carriers_above(:,2),'DisplayName',['Conference - ' num2str(cocount)]);
 legend;
 hold off
+
+
+for ClearVariables = 1:1
+    clear c;
+    clear cacount;
+    clear Camacho;
+    clear carriers;
+    clear Chambers;
+    clear chcount;
+    clear cocount;
+    clear Conference;
+    clear count;
+    clear Harrison;
+    clear hcount
+    clear loops;
+    clear mc;
+    clear r;
+    clear scount;
+    clear Smalley;
+    clear temp;
+    clear best;
+end
+    clear ClearVariables;
 
 
