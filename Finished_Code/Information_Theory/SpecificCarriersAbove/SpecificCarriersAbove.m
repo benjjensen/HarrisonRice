@@ -17,7 +17,7 @@ load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
 %%%%% SET DBLIMIT 
-dblimit = 29;
+dblimit = 27;
     
 [har_specific_carriers_above, hcount] = specCarriers(tx2harrison_pwelch, 9, dblimit);
 [sma_specific_carriers_above, scount] = specCarriers(tx2smalley_pwelch, 7, dblimit);
@@ -26,7 +26,6 @@ dblimit = 29;
 [con_specific_carriers_above, cocount] = specCarriers(tx2conference_pwelch, 1, dblimit);
 
 %%%%% PART III - GRAPHS
-
 hold on
 title(['\fontsize{12} Tx_2 @' num2str(dblimit) ' dB']);
 bar(har_specific_carriers_above(:,2),'DisplayName',['Harrison - ' num2str(hcount)]);
@@ -36,7 +35,6 @@ bar(cam_specific_carriers_above(:,2),'DisplayName',['Camacho - ' num2str(cacount
 bar(con_specific_carriers_above(:,2),'DisplayName',['Conference - ' num2str(cocount)]);
 legend;
 hold off
-
 
 for ClearVariables = 1:1
     clear c;
@@ -60,7 +58,6 @@ for ClearVariables = 1:1
 end
     clear ClearVariables;
 
-    
     %Include a Harrison count for comparison?
 function [specific_carriers_above, count] = specCarriers(file, scale, dblimit)
  %%%%% PART 1 - DETERMINES THE BEST LOCATION %%%%%
@@ -87,7 +84,7 @@ function [specific_carriers_above, count] = specCarriers(file, scale, dblimit)
             end
             count = 0;
             for carriers = 1:64
-                if difference(carriers,temp,loops) >= dblimit
+                if ((difference(carriers,temp,loops) >= dblimit))
                     count = count + 1;
                 end
             end
