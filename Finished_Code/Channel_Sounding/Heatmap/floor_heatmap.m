@@ -31,8 +31,6 @@ hold on;
 floormap = imagesc(Floor);
 floormap.XData = [13; 315];
 floormap.YData = [61; 137];
-% myColor = colormap(flipud(colormap('hot')));
-% colormap(myColor);
 colormap('jet')
 floormap.AlphaData = .6;
 set(floormap,'AlphaData',~isnan(Floor));
