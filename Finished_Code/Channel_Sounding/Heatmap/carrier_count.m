@@ -386,7 +386,7 @@ bar(camacho_best_carrier2,'DisplayName',['Camacho - ' num2str(sum(camacho_best_c
 bar(conference_best_carrier2,'DisplayName',['Conference - ' num2str(sum(conference_best_carrier2))]);
 legend;
 hold off
-=======
+
 close all;
 threshold = 13;
 tx2threshold = 28;
@@ -737,4 +737,4 @@ title('Conference');
 figure(4);
 histogram(smalley2)
 title('Smalley');
->>>>>>> 732d415cf9dfc4dab81ebf18295170bfc7f950a6
+
