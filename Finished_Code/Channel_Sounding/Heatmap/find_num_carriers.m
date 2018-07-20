@@ -1,9 +1,11 @@
-function [carrier_list] = find_num_carriers(data,threshold)
+function [carrier_list,floor] = find_num_carriers(data,threshold)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 [num_rows,num_runs,~] = size(data);
 num_carrier_list = zeros(num_rows*num_runs,1);
 spot = 0;
+row_carriers = zeros(num_runs,1);
+room = nan(num_rows,num_runs);
 for row = 1:num_rows
     for run = 1:num_runs
         num_carriers = 0;
@@ -38,8 +40,11 @@ for row = 1:num_rows
             spot = spot + 1;
             num_carrier_list(spot,1) = num_carriers;
         end
+        row_carriers(run) = num_carriers;
     end
+    room(row,1:num_runs) = row_carriers;
 end
 carrier_list = num_carrier_list;
+floor = room;
 end
 
