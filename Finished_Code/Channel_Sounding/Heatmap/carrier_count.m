@@ -15,7 +15,7 @@ load('tx2harrison.mat');
 load('tx2smalley.mat');
 
 threshold = 13;
-tx2threshold = 27;
+tx2threshold = 28.5;
 num_rows = 32;
 num_runs = 26;
 cam1 = zeros(num_rows*num_runs,1);
