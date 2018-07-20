@@ -25,7 +25,6 @@ tx2threshold = 28;
 [~,tx2Floor] = find_num_carriers(tx2xx,tx2threshold);
 
 figure(1);
-subplot(2,1,1);
 I = imread('floor_plan.png');
 imshow(I);
 hold on;
@@ -40,7 +39,7 @@ set(floormap,'AlphaData',~isnan(Floor));
 colorbar;
 hold off;
 
-subplot(2,1,2);
+figure(2)
 imshow(I);
 hold on;
 tx2floormap = imagesc(tx2Floor);
