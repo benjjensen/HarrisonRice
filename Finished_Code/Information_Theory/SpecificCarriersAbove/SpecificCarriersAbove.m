@@ -367,3 +367,26 @@ legend;
 hold off
 
 
+for ClearVariables = 1:1
+    clear c;
+    clear cacount;
+    clear Camacho;
+    clear carriers;
+    clear Chambers;
+    clear chcount;
+    clear cocount;
+    clear Conference;
+    clear count;
+    clear Harrison;
+    clear hcount
+    clear loops;
+    clear mc;
+    clear r;
+    clear scount;
+    clear Smalley;
+    clear temp;
+    clear best;
+end
+    clear ClearVariables;
+
+
