@@ -14,7 +14,7 @@ load('tx2harrison.mat');
 load('tx2smalley.mat');
 
 array_mesh_all();
-pwelch_all_2();
+array_mesh_all2();
 Nfft = 2*64;
 FF = -0.5:1/Nfft:0.5-1/Nfft;
 FF = 20*FF;
