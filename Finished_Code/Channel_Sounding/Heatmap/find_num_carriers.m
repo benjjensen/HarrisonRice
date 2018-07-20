@@ -27,14 +27,17 @@ for row = 1:num_rows
 %                 end
 %             end
 %         end
-
-        for loc = 1:2:127
-            if data(row,run,loc) - data(row,run,loc+1) > threshold
-                num_carriers = num_carriers + 1;
+        if data(row,run,1) == 0
+            num_carriers = nan;
+        else
+            for loc = 1:2:127
+                if data(row,run,loc) - data(row,run,loc+1) > threshold
+                    num_carriers = num_carriers + 1;
+                end
             end
+            spot = spot + 1;
+            num_carrier_list(spot,1) = num_carriers;
         end
-        spot = spot + 1;
-        num_carrier_list(spot,1) = num_carriers;
     end
 end
 carrier_list = num_carrier_list;

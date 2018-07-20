@@ -83,12 +83,6 @@ for row = 1:num_rows
             end
         end
         
-%         for loc = 1:2:length(YYplot)
-%             dif = hall_pwelch(row,runs,loc) - hall_pwelch(row,runs,loc+1);
-%             if(dif > 7)
-%                 a = a + 1;
-%             end
-%         end
         HH(runs) = num_carriers;
         
         tx2HH(runs) = tx2num_carriers;
@@ -177,42 +171,9 @@ end
 % %         Hall(24-x,y) = Hallway(y,x);
 %     end
 % end
-%%%internet method
-% Floor(90,345) = -20;
-% [height,width,depth] = size(I);
-% OverlayImage=[];
-% X(1:331) = Floor(:,1);
-% Y(1:508) = Floor(1,:);
-% F = scatteredInterpolant(X,Y, Floor(:,:), 'linear');
-% for i = 1:height-1
-%    for j = 1:width-1
-%           OverlayImage(i,j) = F(i,j);
-%    end
-% end
-% alpha = (~isnan(OverlayImage))*0.6;
-% imshow(picture);
-% hold on
-% OverlayImage = imshow( OverlayImage );
-% % Set the color limits to be relative to the data values
-% caxis auto  
-% colormap( OverlayImage.Parent, jet );
-% colorbar( OverlayImage.Parent );
-% % Set the AlphaData to be the transparency matrix created earlier
-% set( OverlayImage, 'AlphaData', alpha );
 
-%%%original method
-% figure(1);
-% imshow(I);
-% figure(2);
-% % hold on;
-% set(gcf, 'Position', [0 1000 1500 400]);
-% heat = heatmap(Floor);
-% myColor = colormap(colormap('jet'));
-% % myColor = colormap(flipud(colormap('hot')));
-% heat.Colormap = myColor;
-% heat.MissingDataColor = 'white';
-% % alpha(heat,0);
-% grid off;
+
+
 figure(1);
 subplot(2,1,1);
 I = imread('floor_plan.png');
