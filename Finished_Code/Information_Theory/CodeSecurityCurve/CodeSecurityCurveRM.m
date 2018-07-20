@@ -63,7 +63,8 @@ for m = 3 : 10   %cycles through a range of m values
             
             %plots curves
             hold on;
-            plot(graphIndexes,graphWeights,'DisplayName',['RM(' num2str(r) ',' num2str(m) '), k = ' num2str(k) ', rate = ' num2str(round(rate,2))]);
+            plot(graphIndexes,graphWeights,'DisplayName',['RM(' num2str(r) ...
+                ',' num2str(m) '), k = ' num2str(k) ', rate = ' num2str(round(rate,2))]);
             grid on;
             title({['\fontsize{12}Security Curve for RM:  m = ' num2str(m) ''] ; ...
                 ['\fontsize{11}n = ' num2str(n)]});
