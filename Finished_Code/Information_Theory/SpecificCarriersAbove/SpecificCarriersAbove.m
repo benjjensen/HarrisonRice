@@ -14,11 +14,11 @@ load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
 %%%%% SET DBLIMIT 
-<<<<<<< HEAD
+%<<<<<<< HEAD
 dblimit = 26;
-=======
-dblimit = 27;
->>>>>>> a43090b820c1118b9317042b3bbff362f25f4dea
+%=======
+%dblimit = 27;
+%>>>>>>> a43090b820c1118b9317042b3bbff362f25f4dea
 
 for Harrison = 1:1   
     %%%%% PART 1 - DETERMINES THE BEST LOCATION %%%%%
