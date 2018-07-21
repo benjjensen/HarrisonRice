@@ -17,7 +17,7 @@ load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
 %%%%% SET DBLIMIT 
-dblimit = 27;
+dblimit = 28;
     
 [har_specific_carriers_above, hcount] = specCarriers(tx2harrison_pwelch, 9, dblimit);
 [sma_specific_carriers_above, scount] = specCarriers(tx2smalley_pwelch, 7, dblimit);
@@ -59,6 +59,7 @@ for ClearVariables = 1:1
 end
     clear ClearVariables;
 
+       
     %Include a Harrison count for comparison?
 function [specific_carriers_above, count] = specCarriers(file, scale, dblimit)
  %%%%% PART 1 - DETERMINES THE BEST LOCATION %%%%%
