@@ -1,9 +1,17 @@
-function [carrier_list] = find_num_carriers(data,threshold)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+function [carrier_list,floor] = find_num_carriers(data,threshold)
+%find_num_carriers Finds the number of carriers above the specified
+%                   threshold
+%   Compares each carrier with the noise on the carrier and if the
+%   difference is greater than the threshold it is counted as a good
+%   carrier.  If there is no data a nan is inputed for the number of
+%   carriers.  Alternate method of finding the average noise floor is done
+%   by uncommenting the commented code and commenting out the current for
+%   loop where the variable is loc.
 [num_rows,num_runs,~] = size(data);
 num_carrier_list = zeros(num_rows*num_runs,1);
 spot = 0;
+row_carriers = zeros(num_runs,1);
+room = nan(num_rows,num_runs);
 for row = 1:num_rows
     for run = 1:num_runs
         num_carriers = 0;
@@ -27,16 +35,22 @@ for row = 1:num_rows
 %                 end
 %             end
 %         end
-
-        for loc = 1:2:127
-            if data(row,run,loc) - data(row,run,loc+1) > threshold
-                num_carriers = num_carriers + 1;
+        if data(row,run,1) == 0
+            num_carriers = nan;
+        else
+            for loc = 1:2:127
+                if data(row,run,loc) - data(row,run,loc+1) > threshold
+                    num_carriers = num_carriers + 1;
+                end
             end
+            spot = spot + 1;
+            num_carrier_list(spot,1) = num_carriers;
         end
-        spot = spot + 1;
-        num_carrier_list(spot,1) = num_carriers;
+        row_carriers(run) = num_carriers;
     end
+    room(row,1:num_runs) = row_carriers;
 end
 carrier_list = num_carrier_list;
+floor = room;
 end
 

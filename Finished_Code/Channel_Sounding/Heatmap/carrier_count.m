@@ -15,7 +15,7 @@ load('tx2harrison.mat');
 load('tx2smalley.mat');
 
 threshold = 10;
-tx2threshold = 25;
+tx2threshold = 18;
 
 cam1 = find_num_carriers(camacho,threshold);
 cam2 = find_num_carriers(tx2camacho,tx2threshold);
