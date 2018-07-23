@@ -4,7 +4,7 @@
 %closes all figure windows
 close all;
 
-for m = 3 : 10   %cycles through a range of m values
+for m = 2 : 10   %cycles through a range of m values
     %creates a new figure
     figure();
     for r = 1 : 10   %cycles through a range of r values
