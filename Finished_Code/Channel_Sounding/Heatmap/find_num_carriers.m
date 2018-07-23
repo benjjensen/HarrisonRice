@@ -15,6 +15,7 @@ room = nan(num_rows,num_runs);
 for row = 1:num_rows
     for run = 1:num_runs
         num_carriers = 0;
+        spot = spot + 1;
 % %         If you want to find it based on the average noise floor
 % %         uncomment this code.
 %         noise_floor = 0;
@@ -43,8 +44,10 @@ for row = 1:num_rows
                     num_carriers = num_carriers + 1;
                 end
             end
-            spot = spot + 1;
             num_carrier_list(spot,1) = num_carriers;
+            if(num_carriers == 64)
+                j = 1;
+            end
         end
         row_carriers(run) = num_carriers;
     end
