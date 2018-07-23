@@ -16,14 +16,15 @@ load('tx2conference_pwelch.mat');
 load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
-%%%%% SET DBLIMIT 
-dblimit = 27;
-    
+%%% SET DBLIMIT 
+dblimit = 28;
+                  %Different scales are used to allow us to see each on the graph 
 [har_specific_carriers_above, hcount] = specCarriers(tx2harrison_pwelch, 9, dblimit);
 [sma_specific_carriers_above, scount] = specCarriers(tx2smalley_pwelch, 7, dblimit);
 [cha_specific_carriers_above, chcount] = specCarriers(tx2chambers_pwelch, 5, dblimit);
 [cam_specific_carriers_above, cacount] = specCarriers(tx2camacho_pwelch, 3, dblimit);
 [con_specific_carriers_above, cocount] = specCarriers(tx2conference_pwelch, 1, dblimit);
+
 
 %%%%% PART III - GRAPHS
 hold on
@@ -35,6 +36,7 @@ bar(cam_specific_carriers_above(:,2),'DisplayName',['Camacho - ' num2str(cacount
 bar(con_specific_carriers_above(:,2),'DisplayName',['Conference - ' num2str(cocount)]);
 legend;
 hold off
+
 
 for ClearVariables = 1:1
     clear c;
@@ -58,6 +60,7 @@ for ClearVariables = 1:1
 end
     clear ClearVariables;
 
+       
     %Include a Harrison count for comparison?
 function [specific_carriers_above, count] = specCarriers(file, scale, dblimit)
  %%%%% PART 1 - DETERMINES THE BEST LOCATION %%%%%

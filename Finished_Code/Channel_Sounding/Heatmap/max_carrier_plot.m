@@ -47,7 +47,7 @@ for threshold = 0:.1:35
 end
 
 x = linspace(0,35,351);
-figure(2)
+figure(1)
 hold on;
 plot(x,mm_cam,'DisplayName','Camacho');
 plot(x,mm_cham,'DisplayName','Chambers');
