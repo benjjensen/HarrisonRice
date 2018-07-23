@@ -10,6 +10,7 @@ classdef codeInfo
         H
         percentLeaked
         carrierRate
+        percentH
     end
 end
 
