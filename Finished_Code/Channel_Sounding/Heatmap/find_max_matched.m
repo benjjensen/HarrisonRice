@@ -13,13 +13,13 @@ for carrier = 1:64
            cam = cam + 1;
        end
        if chambers(1,carrier) ~= 0
-           cham = cam + 1;
+           cham = cham + 1;
        end
        if conference(1,carrier) ~= 0
-           conf = cam + 1;
+           conf = conf + 1;
        end
        if smalley(1,carrier) ~= 0
-           smal = cam + 1;
+           smal = smal + 1;
        end
    end
 end
