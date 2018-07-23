@@ -48,5 +48,3 @@ ylabel('Number of Carriers');
 % xlim(x);
 legend;
 hold off;
-
-% max_carrier_plot();
