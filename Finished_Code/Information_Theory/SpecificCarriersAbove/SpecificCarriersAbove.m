@@ -16,17 +16,17 @@ load('tx2conference_pwelch.mat');
 load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
-%%%%% SET DBLIMIT 
+%%% SET DBLIMIT 
 dblimit = 28;
-    
+                  %Different scales are used to allow us to see each on the graph 
 [har_specific_carriers_above, hcount] = specCarriers(tx2harrison_pwelch, 9, dblimit);
 [sma_specific_carriers_above, scount] = specCarriers(tx2smalley_pwelch, 7, dblimit);
 [cha_specific_carriers_above, chcount] = specCarriers(tx2chambers_pwelch, 5, dblimit);
 [cam_specific_carriers_above, cacount] = specCarriers(tx2camacho_pwelch, 3, dblimit);
 [con_specific_carriers_above, cocount] = specCarriers(tx2conference_pwelch, 1, dblimit);
 
-%%%%% PART III - GRAPHS
 
+%%%%% PART III - GRAPHS
 hold on
 title(['\fontsize{12} Tx_2 @' num2str(dblimit) ' dB']);
 bar(har_specific_carriers_above(:,2),'DisplayName',['Harrison - ' num2str(hcount)]);
@@ -36,6 +36,7 @@ bar(cam_specific_carriers_above(:,2),'DisplayName',['Camacho - ' num2str(cacount
 bar(con_specific_carriers_above(:,2),'DisplayName',['Conference - ' num2str(cocount)]);
 legend;
 hold off
+
 
 for ClearVariables = 1:1
     clear c;
