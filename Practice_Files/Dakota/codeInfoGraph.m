@@ -83,8 +83,8 @@ for dB = 250 : 312
             eval(sprintf('name = vars%d{%d,1};',dB,i));
             eval(sprintf('plotRate = %s.carrierRate;', name));
             eval(sprintf('plotPercentLeaked = 100 - %s.percentLeaked;', name));
-            scatter(plotRate, plotPercentLeaked,[],colors(33-counter,:));
-            text(plotRate,plotPercentLeaked,num2str(i));
+            scatter3(plotRate, plotPercentLeaked,[],colors(33-counter,:));
+%             text(plotRate,plotPercentLeaked,num2str(i));
         end
 %         dBTitle = round(double(dB/10),1);
 %         title(sprintf('Code Efficiency with %.1f dB Limit',dBTitle));
