@@ -21,7 +21,7 @@ for dB = 250 : 312
 %             percentLeaked(counter,i) = plotPercentLeaked;
 %             plotCode(counter,i) = i;
 %             myColors(counter,:) = colors(33-counter,:);
-            scatter3(plotRate, plotPercentLeaked,counter,[],colors(33-counter,:));
+            scatter3(plotRate, plotPercentLeaked,i,[],colors(33-counter,:));
         end
 %         scatter3(rate(counter,:), percentLeaked(counter,:),plotCode(counter,:)...
 %             ,[],colors(33-counter,:));
