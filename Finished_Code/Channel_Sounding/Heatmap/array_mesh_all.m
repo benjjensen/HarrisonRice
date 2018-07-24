@@ -114,7 +114,7 @@ xx = zeros(90,345,Nfft);
 %     end
 % end
 
-
+% Adds the conference room data to the whole array
 num_rows = 65;
 num_runs = 61;
 for row = 1:num_rows
@@ -122,6 +122,7 @@ for row = 1:num_rows
         xx(row,run,:) = conference(num_rows+1-row,num_runs+1-run,:);
     end
 end
+% Adds the hallway data to the whole array
 num_rows = 23;
 num_runs = 300;
 for row = 1:num_rows
@@ -129,13 +130,16 @@ for row = 1:num_rows
         xx(row+67,run+40,:) = hall_pwelch(run,num_rows+1-row,:);
     end
 end
+% Adds the data from Dr. Harrison's room to the array
 num_rows = 29;
 num_runs = 33;
 for row = 1:num_rows
     for run = 1:num_runs
         xx(36+row,63+run,:) = harrison(num_rows+1-row,run,:);
     end
+    
 end
+% Adds the data from Dr. Smalley's office to the whole array
 num_rows = 31;
 num_runs = 26;
 for row = 1:num_rows
@@ -143,6 +147,7 @@ for row = 1:num_rows
         xx(34+row,119+run,:) = smalley(num_rows+1-row,num_runs+1-run,:);
     end
 end
+% Adds the data from Dr. Camacho's office to the whole array
 num_rows = 32;
 num_runs = 26;
 for row = 1:num_rows
@@ -150,7 +155,7 @@ for row = 1:num_rows
         xx(33+row,149+run,:) = camacho(num_rows+1-row,run,:);
     end
 end
-
+% Adds the data from Michael Chambers office to the whole array
 num_rows = 32;
 num_runs = 28;
 for row = 1:num_rows
