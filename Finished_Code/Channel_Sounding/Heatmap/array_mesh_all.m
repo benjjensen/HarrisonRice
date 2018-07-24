@@ -1,3 +1,6 @@
+% Created by Dakota Flanary
+% Combines all of the data from the separate rooms into one matrix.
+
 Nfft = 2*64;
 xx = zeros(90,345,Nfft);
 % 
