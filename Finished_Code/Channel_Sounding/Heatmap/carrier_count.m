@@ -1,3 +1,6 @@
+% Created by Dakota Flanary
+% Find's the good carriers at the best location based on a certain
+% threshold and graphs them on a bar graph.
 
 close all;
 
@@ -14,9 +17,11 @@ load('tx2hallway.mat');
 load('tx2harrison.mat');
 load('tx2smalley.mat');
 
+% The chosen dB attenuation
 threshold = 10;
-tx2threshold = 0;
+tx2threshold = 25;
 
+% Finds the max number of carriers in each room with the given threshold
 cam1 = find_num_carriers(camacho,threshold);
 cam2 = find_num_carriers(tx2camacho,tx2threshold);
 chambers1 = find_num_carriers(chambers,threshold);
@@ -28,6 +33,8 @@ harrison2 = find_num_carriers(tx2harrison,tx2threshold);
 smalley1 = find_num_carriers(smalley,threshold);
 smalley2 = find_num_carriers(tx2smalley,tx2threshold);
 
+% Makes a histogram of the rooms and the distribution of the number of
+% carriers in throughout the rooms
 figure(2);
 histogram(cam2)
 title('Camacho');
@@ -52,7 +59,8 @@ chambers_best_carrier2 = find_best_carriers(chambers2,tx2chambers,2,tx2threshold
 conference_best_carrier = find_best_carriers(conference1,conference,1,threshold);
 conference_best_carrier2 = find_best_carriers(conference2,tx2conference,1,tx2threshold);
 
-
+% Makes the bar graph comparing the carriers from the best spot from each
+% room and plots them on the same graph.
 figure(5);
 hold on;
 title(['\fontsize{12} Tx_2 @' num2str(tx2threshold) ' dB']);
