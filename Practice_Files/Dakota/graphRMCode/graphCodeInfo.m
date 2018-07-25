@@ -12,7 +12,7 @@ for dB = 250 : 312
         counter = counter + 1;
 %         figure(dB);
 %         hold on;
-        for i = 1:45
+        for i = 1:54
             
             eval(sprintf('name = vars%d{%d,1};',dB,i));
             eval(sprintf('plotRate = %s.carrierRate;', name));
