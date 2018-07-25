@@ -6,7 +6,7 @@ max_har = mm_har(251:321,1);
 max_sma = mm_smal(251:321,1);
 ratio = max_sma./max_har;
 for m = 2 : 10
-    for u = 1 : m
+    for u = 1 : m-1
         
         weights = RMWeightHier(u,m,false);
         
