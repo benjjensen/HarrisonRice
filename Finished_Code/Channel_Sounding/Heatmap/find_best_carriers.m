@@ -1,8 +1,10 @@
+% Created by Dakota Flanary
 function [best_carriers] = find_best_carriers(carrier_map,data_map,magic_number,threshold)
 %find_best_carriers Finds the specific carriers that are above the
 %threshold
 %   Finds the specific carriers where the data on the carrier is more than
 %   the threshold above the noise on that carrier
+%   Returns an array where the non-zero indices represent the good carriers
 carriers = zeros(1,64);
 [~,index] = max(carrier_map);
 [~,num_runs,~] = size(data_map);
