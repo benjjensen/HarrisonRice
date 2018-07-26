@@ -1,4 +1,4 @@
-
+tic;
 close all;
 load('mm_har.mat');
 load('mm_sma.mat');
@@ -6,7 +6,7 @@ load('mm_sma.mat');
 max_har = mm_har(251:321,1);
 max_sma = mm_smal(251:321,1);
 ratio = max_sma./max_har;
-for m = 1 : 10
+for m = 1 : 20
     for u = 1 : m
         
         weights = RMWeightHier(u,m,false);
@@ -78,8 +78,8 @@ colors = jet(32);
 counter = 0;
 
 %%%%All on same Plot%%%%
-% figure();
-% hold on;
+figure();
+hold on;
 %%%%
 firstNum = nan;
 secondNum = nan;
@@ -89,8 +89,8 @@ for dB = 250 : 312
     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         counter = counter + 1;
         %%%All on different Plots%%%%
-        figure(dB);
-        hold on;
+%         figure(dB);
+%         hold on;
         %%%%
         
         for i = 1:codesPerdB
@@ -99,7 +99,7 @@ for dB = 250 : 312
             searchName = name(14:end);
             [~, lengthName] = size(searchName);
             %%%All on different Plots%%%%
-            counter2 = 0;
+%             counter2 = 0;
             %%%%
             firstIndex = nan;
             for index = 1 :lengthName
@@ -130,46 +130,46 @@ for dB = 250 : 312
             plotdB = categorical(plotdB1);
             plotIndex(i) = i;
             %%%All on different Plots%%%%
-            scatter3(plotRate(i), plotPercentH(i), plotdB(i));
-
-            if istrue
-                scatter3(plotOneRate, plotOnePercentH,plotOnedB,50,'k', '*');
-                istrue = false;
-            end
+%             scatter3(plotRate(i), plotPercentH(i), plotdB(i));
+% 
+%             if istrue
+%                 scatter3(plotOneRate, plotOnePercentH,plotOnedB,50,'k', '*');
+%                 istrue = false;
+%             end
             %%%%
         end
         %%%All on same Plot%%%%
-%         scatter3(plotRate, plotPercentH,plotdB,[],colors(33-counter,:),'DisplayName', sprintf('%.1f dB Limit', dB/10));
+        scatter3(plotRate, plotPercentH,plotdB,[],colors(33-counter,:),'DisplayName', sprintf('%.1f dB Limit', dB/10));
 %         %%%%
         
         
         %%%All on different Plots%%%%
         
-        dBTitle = round(double(dB/10),1);
-        title(sprintf('Code Efficiency with %.1f dB Limit',dBTitle));
-        xlabel('Throughput Rate');
-        ylabel('Equivocation (%)');
-        ylim([0 100]);
-        xlim([0 50]);
-        grid on;
-        hold off;
+%         dBTitle = round(double(dB/10),1);
+%         title(sprintf('Code Efficiency with %.1f dB Limit',dBTitle));
+%         xlabel('Throughput Rate');
+%         ylabel('Equivocation (%)');
+%         ylim([0 100]);
+%         xlim([0 50]);
+%         grid on;
+%         hold off;
         %%%%
     end
 end
 
-
 %%%All on same Plot%%%%
-% scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
-% title('Code Efficiency');
-% xlabel('Throughput Rate');
-% ylabel('Equivocation (%)');
-% zlabel('dB Level');
-% ylim([0 100]);
-% xlim([0 50]);
-% legend;
-% grid on;
-% hold off;
+scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
+title('Code Efficiency');
+xlabel('Throughput Rate');
+ylabel('Equivocation (%)');
+zlabel('dB Level');
+ylim([0 100]);
+xlim([0 50]);
+legend;
+grid on;
+hold off;
 
+toc;
 
 
 
