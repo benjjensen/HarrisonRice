@@ -143,6 +143,8 @@ for dB = 250 : 312
 %         %%%%
         
         
+%       plot3(plotRate, plotPercentH,plotdB);
+        
         %%%All on different Plots%%%%
         
         dBTitle = round(double(dB/10),1);
