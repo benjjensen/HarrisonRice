@@ -17,7 +17,7 @@ load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
 %%% SET DBLIMIT 
-dblimit = 26;
+dblimit = 26.9;
 
             %Different scales are used to allow us to see each on the graph 
     [har_specific_carriers_above, hcount] = specCarriers(tx2harrison_pwelch, 9, dblimit);
@@ -46,50 +46,22 @@ dblimit = 26;
         end
     end
 
-% maxRatio = zeros(1, 35);
-% for dblimit = 1:35      %% Pretty much just randomly picked this range
-%     max = 0;
-%                   %Different scales are used to allow us to see each on the graph 
-%     [har_specific_carriers_above, hcount] = specCarriers(tx2harrison_pwelch, 9, dblimit);
-%     [sma_specific_carriers_above, scount] = specCarriers(tx2smalley_pwelch, 7, dblimit);
-%     [cha_specific_carriers_above, chcount] = specCarriers(tx2chambers_pwelch, 5, dblimit);
-%     [cam_specific_carriers_above, cacount] = specCarriers(tx2camacho_pwelch, 3, dblimit);
-%     [con_specific_carriers_above, cocount] = specCarriers(tx2conference_pwelch, 1, dblimit);
-% 
-%     %%%%% OPTIONAL - COMPARE ARRAYS TO HARRISONS
-%     for car = 1:64
-%         if ((har_specific_carriers_above(car, 2) == 0) && (sma_specific_carriers_above(car,2) ~= 0))
-%             sma_specific_carriers_above(car,2) = 0;
-%             scount = scount - 1;
-%         end
-%         if ((har_specific_carriers_above(car, 2) == 0) && (cha_specific_carriers_above(car,2) ~= 0))
-%             cha_specific_carriers_above(car,2) = 0;
-%             chcount = chcount - 1;
-%         end
-%         if ((har_specific_carriers_above(car, 2) == 0) && (cam_specific_carriers_above(car,2) ~= 0))
-%             cam_specific_carriers_above(car,2) = 0;
-%             cacount = cacount - 1;
-%         end
-%         if ((har_specific_carriers_above(car, 2) == 0) && (con_specific_carriers_above(car,2) ~= 0))
-%             con_specific_carriers_above(car,2) = 0;
-%             cocount = cocount - 1;
-%         end
-%     end
-%     
-%     if (scount > max)
-%         max = scount;
-%     end
-%     if (chcount > max)
-%         max = chcount;
-%     end
-%     if (cacount > max)
-%         max = cacount;
-%     end
-%     if (cocount > max)
-%         max = cocount;
-%     end
-%     maxRatio(dblimit) = (max/hcount);
-% end
+            %%%%% OPTIONAL - USE CARRIERS ONLY HARRISON HAS
+harrisonOnlyCarriers = har_specific_carriers_above;
+ocount = 0;
+for car = 1:64
+    if ((har_specific_carriers_above(car, 2) ~= 0) && (sma_specific_carriers_above(car,2) ~= 0))
+        harrisonOnlyCarriers(64,2) = 0;   
+    elseif ((har_specific_carriers_above(car, 2) ~= 0) && (cha_specific_carriers_above(car,2) ~= 0))
+         harrisonOnlyCarriers(64,2) = 0;
+    elseif ((har_specific_carriers_above(car, 2) ~= 0) && (cam_specific_carriers_above(car,2) ~= 0))
+         harrisonOnlyCarriers(64,2) = 0;    
+    elseif ((har_specific_carriers_above(car, 2) ~= 0) && (con_specific_carriers_above(car,2) ~= 0))
+        harrisonOnlyCarriers(64,2) = 0;
+    elseif (har_specific_carriers_above(car, 2) ~= 0)
+        ocount = ocount + 1;
+    end
+end     
 
 %%%%% PART III - GRAPHS
 figure()
