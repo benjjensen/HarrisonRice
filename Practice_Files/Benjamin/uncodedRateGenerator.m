@@ -30,12 +30,12 @@ for dblimit = min:stepSize:max
     for car = 1:64
         if ((har_specific_carriers_above(car, 2) ~= 0) && (sma_specific_carriers_above(car,2) ~= 0))
             onlyHarrisons(car, 2) = 0;
-%         elseif ((har_specific_carriers_above(car, 2) ~= 0) && (cha_specific_carriers_above(car,2) ~= 0))
-%             onlyHarrisons(car, 2) = 0;
-%         elseif ((har_specific_carriers_above(car, 2) ~= 0) && (cam_specific_carriers_above(car,2) ~= 0))
-%             onlyHarrisons(car, 2) = 0;
-%         elseif ((har_specific_carriers_above(car, 2) ~= 0) && (con_specific_carriers_above(car,2) ~= 0))
-%             onlyHarrisons(car ,2) = 0;
+        elseif ((har_specific_carriers_above(car, 2) ~= 0) && (cha_specific_carriers_above(car,2) ~= 0))
+            onlyHarrisons(car, 2) = 0;
+        elseif ((har_specific_carriers_above(car, 2) ~= 0) && (cam_specific_carriers_above(car,2) ~= 0))
+            onlyHarrisons(car, 2) = 0;
+        elseif ((har_specific_carriers_above(car, 2) ~= 0) && (con_specific_carriers_above(car,2) ~= 0))
+            onlyHarrisons(car ,2) = 0;
         elseif (har_specific_carriers_above(car, 2) ~= 0)
             ocount = ocount + 1;
         end

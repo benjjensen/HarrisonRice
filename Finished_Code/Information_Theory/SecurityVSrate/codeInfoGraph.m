@@ -1,8 +1,9 @@
 
 close all;
+uncodedRateGenerator;
 load('mm_har.mat');
 load('mm_sma.mat');
-load('harrisonOnlyCarriers.mat')
+%load('harrisonOnlyCarriers.mat')
 
 
 max_har = mm_har(251:321,1);
