@@ -141,9 +141,11 @@ for dB = 250 : 312
 %         scatter3(plotRate, plotPercentH,plotdB,[],colors(33-counter,:),'DisplayName', sprintf('%.1f dB Limit', dB/10));
 %         %%%%
         
-        
-%       plot3(plotRate, plotPercentH,plotdB);
-        
+      %%%% Used to find the codes (plots a line between each point so you
+      %%%% can trace)
+      plot3(plotRate, plotPercentH,plotdB);
+      %%%%
+      
         %%%All on different Plots%%%%
         
         dBTitle = round(double(dB/10),1);
