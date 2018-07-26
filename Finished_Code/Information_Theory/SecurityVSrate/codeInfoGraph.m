@@ -79,6 +79,7 @@ for dB = 250 : 312
     end
 end
 colors = jet(32);
+color = jet(41);
 counter = 0;
 
 %%%%All on same Plot%%%%
@@ -94,12 +95,12 @@ plotOnedB = zeros(1,320);
 plotdB = zeros(1, 55);
 plotIndex = zeros(1,55);
 
-uncodedRate = zeros(1,55);
-uncodedSecrecy = ones(1,55);
+uncodedRate = zeros(1,32);
+uncodedSecrecy = ones(1,32);
 uncodedSecrecy = uncodedSecrecy.*100;
-uncodeddB1 = zeros(1,55);
 
 for dB = 250 : 312
+
     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         counter = counter + 1;
         %%%All on different Plots%%%%
@@ -107,10 +108,27 @@ for dB = 250 : 312
         % hold on;
         %%%%
         
+        %%%%UNCODED WITH MORE CARRIERS%%%%
+        for p = 1: max_sma(dB-249)
+            extraCarriersRate(p) = harrisonOnlyCarriers(counter, 2) + p;
+            extraCarriersH(p) = 100*harrisonOnlyCarriers(counter, 2)/(harrisonOnlyCarriers(counter, 2) + p);
+ 
+            eval(sprintf('extraExtra(p) = "Harr: %d, Smal: %d, %.1f dB";',harrisonOnlyCarriers(counter, 2)+p,p,dB/10));
+            plotextraExtra = categorical(extraExtra);
+        end
+        if max_sma(dB-249,1) ~= 0
+            
+            scatter3(extraCarriersRate, extraCarriersH, plotextraExtra,[],'g', 'd','DisplayName', sprintf('UC %.1f', dB/10));
+            clear extraExtra;
+            clear plotextraExtra;
+            clear extraCarriersH;
+            clear extraCarriersRate;
+        end
+        
         
         %%%%% UNCODED %%%%%%%
             uncodedRate(counter) = harrisonOnlyCarriers(counter, 2);
-            uncodeddB1(counter) = harrisonOnlyCarriers(counter,1);
+            eval(sprintf('uncodeddB1(counter) = "UC %d dB";',dB/10));
             %eval(sprintf('uncodeddB1(counter) = "%.1f dB";',dB/10));
             uncodeddB = categorical(uncodeddB1);
         
@@ -183,7 +201,8 @@ end
 
 %%%All on same Plot%%%%
 scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
-scatter3(uncodedRate, uncodedSecrecy, uncodeddB, [], 'r', 's', 'DisplayName', 'Uncoded');        
+scatter3(uncodedRate, uncodedSecrecy, uncodeddB, [], 'r', 's', 'DisplayName', 'UC Perfect');        
+
 title('Code Efficiency');
 xlabel('Throughput Rate');
 ylabel('Equivocation (%)');
