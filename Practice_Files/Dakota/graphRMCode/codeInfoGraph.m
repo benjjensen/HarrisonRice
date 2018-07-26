@@ -5,7 +5,7 @@ tic;
 max_har = mm_har(251:321,1);
 max_sma = mm_smal(251:321,1);
 ratio = max_sma./max_har;
-mmax = 10;
+mmax = 20;
 imax = 0;
 for j = 2 : mmax
     imax = imax + j;
@@ -111,12 +111,12 @@ for dB = 250 : 312
         sss = categorical(ss);
 %         scatter3(rate,percentLeaked,sss.',36,colors(33-counter,:),'o');
         
-        set(gca,'zticklabel',ss)
 
     end
 end
 % set(gca, 'XScale', 'log');
 % set(gca, 'YScale', 'log');
+set(gca,'zticklabel',ss)
 title('Code Efficiency');
 xlabel('Throughput Rate');
 ylabel('Equivocation (%)');
