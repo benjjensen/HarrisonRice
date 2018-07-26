@@ -1,18 +1,18 @@
 /**
 @file pUV_acquire_main.cpp
 * This is a simple example program which acquires 8192 blocks (8GBytes) of data into onboard memory (continuously) then reads it into system memory, and demonstrates use of the acquired data
-
-TO COMPILE:
-[adm85@paqresearch1 ~/Downloads/AD12_14_16-05oct16_el6_el7_r0_64bit_Software/Linux/src]$ g++ -g _AppSource/acquire_custom.cpp _AppSource/AppDll.cpp _DllSource/DllDriverApi.cpp _DllSource/DllLibMain.cpp _DllSource/DllLibLoadSvf.cpp -o acquire_custom -lrt
-
 */
+
+//TODO: Clean up commented-out sections, remove windows-specific sections (?), update git on this computer so that this can be pushed to github
 
 #include <cstdlib>
 #include <signal.h>
 #include <ctime>
 #include <iostream>
 #include "uvAPI.h"
-//#include "glitchTest.h"
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 
 /*
@@ -34,6 +34,14 @@ void acquire_set_session(uvAPI * pUV);
 Handles the exit signal given by pressing ctrl-c.
 */
 void exit_signal_handler(int signal);
+
+/*
+Adds a timestamp to the given filename, before any file type.
+
+The timestamp will be of the format
+_YYYY-mm-dd__HH-MM-SS
+*/
+void timestamp_filename(std::string &selected_name);
 
 /*
 Default values for SetupBoard. These may change due to acquire_parser.
@@ -71,6 +79,8 @@ unsigned int Fiducial = 0;
 unsigned int forceCal = 0;
 double Frequency = 0.0;
 
+const std::string output_folder = "./data/";
+const std::string default_output_extension = ".dat";
 char * user_outputfile = NULL;
 int early_exit;
 
@@ -130,9 +140,12 @@ int main(int argc, char ** argv)
 		return  -1;
 	}
 
+	std::string filename = output_folder + (user_outputfile == NULL ? output_file[BoardNum] : user_outputfile);
+	timestamp_filename(filename);
+	
 	// open the data disk file
 	// if the user specified a name, use that name, else use the default name
-	if ((disk_fd = uv->X_CreateFile(user_outputfile == NULL ? output_file[BoardNum] : user_outputfile)) < 0)
+	if ((disk_fd = uv->X_CreateFile((char *)filename.c_str())) < 0)
 	{ 
 		if(sysMem)
 		{
@@ -140,7 +153,7 @@ int main(int argc, char ** argv)
 		}
 		exit(1);
 	}
-
+	
 	timespec start_time;
 	clock_gettime(CLOCK_REALTIME, &start_time);
 	unsigned int data_written_megabytes = 0;
@@ -251,12 +264,40 @@ int main(int argc, char ** argv)
 	return 0;
 }
 
+std::string get_current_timestamp()
+{
+	std::time_t t = std::time(0);
+	std::tm* time = std::localtime(&t);
+	
+	std::stringstream timestamp;
+	
+	timestamp << std::setfill('0');
+	timestamp << "_" << time->tm_year + 1900 << "-" << std::setw(2) << time->tm_mon + 1 << "-" << std::setw(2) << time->tm_mday;
+	timestamp << "__" << std::setw(2) << time->tm_hour << "-" << std::setw(2) << time->tm_min << "-" << std::setw(2) << time->tm_sec;
+	
+	return timestamp.str();
+}
 
+void timestamp_filename(std::string &selected_name)
+{
+	std::string timestamp = get_current_timestamp();
+	
+	size_t extension_index = selected_name.rfind('.');
+	
+	if(extension_index == std::string::npos)
+	{
+		selected_name += timestamp;
+		selected_name += default_output_extension;
+	}
+	else
+	{
+		selected_name.insert(extension_index, timestamp);
+	}
+}
 
 void exit_signal_handler(int signal)
 {
 	if(continueReadingData) {
-		//std::cout << "----Exit signal received in loop----" << std::endl;
 		fflush(stdout);
 		continueReadingData = false;
 	}
