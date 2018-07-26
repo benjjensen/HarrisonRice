@@ -1,5 +1,7 @@
 
 close all;
+
+uncodedRateGenerator;
 load('mm_har.mat');
 load('mm_sma.mat');
 load('harrisonOnlyCarriers.mat')
