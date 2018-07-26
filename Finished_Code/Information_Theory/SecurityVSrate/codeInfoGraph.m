@@ -151,8 +151,10 @@ for dB = 250 : 312
     end
 end
 %%%All on same Plot%%%%
-scatter(plotOneRate, plotOnePercentH,50,'k', '*', 'DisplayName', 'Rate One Codes');
-%scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', 'filled');%,[],k,:,'DisplayName', sprintf('%.1f dB Limit', dB/10));
+    %%%Choose Plot Type%%%%
+    scatter(plotOneRate, plotOnePercentH,50,'k', '*', 'DisplayName', 'Rate One Codes');
+    %scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', 'filled');%,[],k,:,'DisplayName', sprintf('%.1f dB Limit', dB/10));
+    %%%%
 title('Code Efficiency');
 xlabel('Throughput Rate');
 ylabel('Equivocation (%)');
@@ -162,6 +164,7 @@ xlim([0 50]);
 legend;
 grid on;
 hold off;
+%%%%
 
 
 
