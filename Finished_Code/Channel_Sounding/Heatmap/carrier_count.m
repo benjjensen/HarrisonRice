@@ -19,7 +19,7 @@ load('tx2smalley.mat');
 
 % The chosen dB attenuation
 threshold = 10;
-tx2threshold = 25;
+tx2threshold = 27;
 
 % Finds the max number of carriers in each room with the given threshold
 cam1 = find_num_carriers(camacho,threshold);
