@@ -12,7 +12,7 @@ for dB = 250 : 312
         counter = counter + 1;
 %         figure(dB);
 %         hold on;
-        for i = 1:45
+        for i = 1:54
             
             eval(sprintf('name = vars%d{%d,1};',dB,i));
             eval(sprintf('plotRate = %s.carrierRate;', name));
@@ -21,7 +21,7 @@ for dB = 250 : 312
 %             percentLeaked(counter,i) = plotPercentLeaked;
 %             plotCode(counter,i) = i;
 %             myColors(counter,:) = colors(33-counter,:);
-            scatter3(plotRate, plotPercentLeaked,counter,[],colors(33-counter,:));
+            scatter3(plotRate, plotPercentLeaked,i,[],colors(33-counter,:));
         end
 %         scatter3(rate(counter,:), percentLeaked(counter,:),plotCode(counter,:)...
 %             ,[],colors(33-counter,:));

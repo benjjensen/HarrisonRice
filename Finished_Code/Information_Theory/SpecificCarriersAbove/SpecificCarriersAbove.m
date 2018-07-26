@@ -1,7 +1,7 @@
 % Determines which specific carriers are above a set dblimit for each room
     % Graphs them on a graph, scaled so you can see each room. Uses Tx2
     
-%close all;
+close all;
 load('camacho_pwelch.mat');
 load('chambers_pwelch.mat');
 load('complete_pwelch.mat');
