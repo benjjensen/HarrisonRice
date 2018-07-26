@@ -16,16 +16,83 @@ load('tx2conference_pwelch.mat');
 load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
-%%%%% SET DBLIMIT 
-dblimit = 27;
-    
-[har_specific_carriers_above, hcount] = specCarriers(tx2harrison_pwelch, 9, dblimit);
-[sma_specific_carriers_above, scount] = specCarriers(tx2smalley_pwelch, 7, dblimit);
-[cha_specific_carriers_above, chcount] = specCarriers(tx2chambers_pwelch, 5, dblimit);
-[cam_specific_carriers_above, cacount] = specCarriers(tx2camacho_pwelch, 3, dblimit);
-[con_specific_carriers_above, cocount] = specCarriers(tx2conference_pwelch, 1, dblimit);
+%%% SET DBLIMIT 
+dblimit = 26;
+
+            %Different scales are used to allow us to see each on the graph 
+    [har_specific_carriers_above, hcount] = specCarriers(tx2harrison_pwelch, 9, dblimit);
+    [sma_specific_carriers_above, scount] = specCarriers(tx2smalley_pwelch, 7, dblimit);
+    [cha_specific_carriers_above, chcount] = specCarriers(tx2chambers_pwelch, 5, dblimit);
+    [cam_specific_carriers_above, cacount] = specCarriers(tx2camacho_pwelch, 3, dblimit);
+    [con_specific_carriers_above, cocount] = specCarriers(tx2conference_pwelch, 1, dblimit);
+
+            %%%%% OPTIONAL - COMPARE ARRAYS TO HARRISONS
+    for car = 1:64
+        if ((har_specific_carriers_above(car, 2) == 0) && (sma_specific_carriers_above(car,2) ~= 0))
+            sma_specific_carriers_above(car,2) = 0;
+            scount = scount - 1;
+        end
+        if ((har_specific_carriers_above(car, 2) == 0) && (cha_specific_carriers_above(car,2) ~= 0))
+            cha_specific_carriers_above(car,2) = 0;
+            chcount = chcount - 1;
+        end
+        if ((har_specific_carriers_above(car, 2) == 0) && (cam_specific_carriers_above(car,2) ~= 0))
+            cam_specific_carriers_above(car,2) = 0;
+            cacount = cacount - 1;
+        end
+        if ((har_specific_carriers_above(car, 2) == 0) && (con_specific_carriers_above(car,2) ~= 0))
+            con_specific_carriers_above(car,2) = 0;
+            cocount = cocount - 1;
+        end
+    end
+
+% maxRatio = zeros(1, 35);
+% for dblimit = 1:35      %% Pretty much just randomly picked this range
+%     max = 0;
+%                   %Different scales are used to allow us to see each on the graph 
+%     [har_specific_carriers_above, hcount] = specCarriers(tx2harrison_pwelch, 9, dblimit);
+%     [sma_specific_carriers_above, scount] = specCarriers(tx2smalley_pwelch, 7, dblimit);
+%     [cha_specific_carriers_above, chcount] = specCarriers(tx2chambers_pwelch, 5, dblimit);
+%     [cam_specific_carriers_above, cacount] = specCarriers(tx2camacho_pwelch, 3, dblimit);
+%     [con_specific_carriers_above, cocount] = specCarriers(tx2conference_pwelch, 1, dblimit);
+% 
+%     %%%%% OPTIONAL - COMPARE ARRAYS TO HARRISONS
+%     for car = 1:64
+%         if ((har_specific_carriers_above(car, 2) == 0) && (sma_specific_carriers_above(car,2) ~= 0))
+%             sma_specific_carriers_above(car,2) = 0;
+%             scount = scount - 1;
+%         end
+%         if ((har_specific_carriers_above(car, 2) == 0) && (cha_specific_carriers_above(car,2) ~= 0))
+%             cha_specific_carriers_above(car,2) = 0;
+%             chcount = chcount - 1;
+%         end
+%         if ((har_specific_carriers_above(car, 2) == 0) && (cam_specific_carriers_above(car,2) ~= 0))
+%             cam_specific_carriers_above(car,2) = 0;
+%             cacount = cacount - 1;
+%         end
+%         if ((har_specific_carriers_above(car, 2) == 0) && (con_specific_carriers_above(car,2) ~= 0))
+%             con_specific_carriers_above(car,2) = 0;
+%             cocount = cocount - 1;
+%         end
+%     end
+%     
+%     if (scount > max)
+%         max = scount;
+%     end
+%     if (chcount > max)
+%         max = chcount;
+%     end
+%     if (cacount > max)
+%         max = cacount;
+%     end
+%     if (cocount > max)
+%         max = cocount;
+%     end
+%     maxRatio(dblimit) = (max/hcount);
+% end
 
 %%%%% PART III - GRAPHS
+figure()
 hold on
 title(['\fontsize{12} Tx_2 @' num2str(dblimit) ' dB']);
 bar(har_specific_carriers_above(:,2),'DisplayName',['Harrison - ' num2str(hcount)]);
@@ -57,7 +124,7 @@ for ClearVariables = 1:1
     clear best;
 end
     clear ClearVariables;
-
+   
     %Include a Harrison count for comparison?
 function [specific_carriers_above, count] = specCarriers(file, scale, dblimit)
  %%%%% PART 1 - DETERMINES THE BEST LOCATION %%%%%
