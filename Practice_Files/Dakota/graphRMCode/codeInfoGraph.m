@@ -1,12 +1,17 @@
 close all;
 load('mm_har.mat');
 load('mm_sma.mat');
-
+tic;
 max_har = mm_har(251:321,1);
 max_sma = mm_smal(251:321,1);
 ratio = max_sma./max_har;
-for m = 2 : 10
-    for u = 1 : m-1
+mmax = 10;
+imax = 0;
+for j = 2 : mmax
+    imax = imax + j;
+end
+for m = 2 : mmax
+    for u = 1 : m
         
         weights = RMWeightHier(u,m,false);
         
@@ -71,6 +76,7 @@ for dB = 250 : 312
 end
 colors = jet(32);
 counter = 0;
+j = 0;
 figure();
 hold on;
 for dB = 250 : 312
@@ -78,13 +84,20 @@ for dB = 250 : 312
         counter = counter + 1;
 %         figure(dB);
 %         hold on;
-        for i = 1:45
+        for i = 1:imax
             
             eval(sprintf('name = vars%d{%d,1};',dB,i));
             eval(sprintf('plotRate = %s.carrierRate;', name));
             eval(sprintf('plotPercentLeaked = 100 - %s.percentLeaked;', name));
-            scatter(plotRate, plotPercentLeaked,[],colors(33-counter,:));
-            text(plotRate,plotPercentLeaked,num2str(i));
+            eval(sprintf('m = %s.m;', name));
+            eval(sprintf('u = %s.u;', name));
+            if m == u
+                j = j + 1;
+                scatter3(plotRate, plotPercentLeaked,dB-249,72,colors(33-counter,:),'*');
+            else
+                scatter3(plotRate, plotPercentLeaked,dB-249,[],colors(33-counter,:),'o');
+            end
+%             text(plotRate,plotPercentLeaked,num2str(i));
         end
 %         dBTitle = round(double(dB/10),1);
 %         title(sprintf('Code Efficiency with %.1f dB Limit',dBTitle));
@@ -106,7 +119,7 @@ xlim([0 50]);
 hold off;
 
 
-
+toc;
 
 % code = RMWeightHier(1,10, false);
 % code(1,913-1);
