@@ -1,12 +1,14 @@
-tic;
+
 close all;
 load('mm_har.mat');
 load('mm_sma.mat');
+load('harrisonOnlyCarriers.mat')
+
 
 max_har = mm_har(251:321,1);
 max_sma = mm_smal(251:321,1);
 ratio = max_sma./max_har;
-for m = 1 : 20
+for m = 1 : 10
     for u = 1 : m
         
         weights = RMWeightHier(u,m,false);
@@ -78,20 +80,37 @@ colors = jet(32);
 counter = 0;
 
 %%%%All on same Plot%%%%
-figure();
-hold on;
+ figure();
+ hold on;
 %%%%
 firstNum = nan;
 secondNum = nan;
 counter2 = 0;
 istrue = false;
+
+plotOnedB = zeros(1,320);
+plotdB = zeros(1, 55);
+plotIndex = zeros(1,55);
+
+uncodedRate = zeros(1,55);
+uncodedSecrecy = ones(1,55);
+uncodedSecrecy = uncodedSecrecy.*100;
+uncodeddB1 = zeros(1,55);
+
 for dB = 250 : 312
     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         counter = counter + 1;
         %%%All on different Plots%%%%
-%         figure(dB);
-%         hold on;
+        % figure(dB);
+        % hold on;
         %%%%
+        
+        
+        %%%%% UNCODED %%%%%%%
+            uncodedRate(counter) = harrisonOnlyCarriers(counter, 2);
+            uncodeddB1(counter) = harrisonOnlyCarriers(counter,1);
+            %eval(sprintf('uncodeddB1(counter) = "%.1f dB";',dB/10));
+            uncodeddB = categorical(uncodeddB1);
         
         for i = 1:codesPerdB
             eval(sprintf('name = vars%d{%d,1};',dB,i));
@@ -99,7 +118,7 @@ for dB = 250 : 312
             searchName = name(14:end);
             [~, lengthName] = size(searchName);
             %%%All on different Plots%%%%
-%             counter2 = 0;
+            % counter2 = 0;
             %%%%
             firstIndex = nan;
             for index = 1 :lengthName
@@ -129,6 +148,7 @@ for dB = 250 : 312
             eval(sprintf('plotdB1(i) = "RM(%d,%d): %.1f dB";',NameU,NameM,dB/10));
             plotdB = categorical(plotdB1);
             plotIndex(i) = i;
+            
             %%%All on different Plots%%%%
 %             scatter3(plotRate(i), plotPercentH(i), plotdB(i));
 % 
@@ -136,15 +156,16 @@ for dB = 250 : 312
 %                 scatter3(plotOneRate, plotOnePercentH,plotOnedB,50,'k', '*');
 %                 istrue = false;
 %             end
+%             scatter(uncodedRate, uncodedSecrecy, [], 'r', 'd', 'DisplayName', 'Uncoded');
             %%%%
+            
         end
         %%%All on same Plot%%%%
         scatter3(plotRate, plotPercentH,plotdB,[],colors(33-counter,:),'DisplayName', sprintf('%.1f dB Limit', dB/10));
-%         %%%%
+        %%%%
         
         
         %%%All on different Plots%%%%
-        
 %         dBTitle = round(double(dB/10),1);
 %         title(sprintf('Code Efficiency with %.1f dB Limit',dBTitle));
 %         xlabel('Throughput Rate');
@@ -157,8 +178,10 @@ for dB = 250 : 312
     end
 end
 
+
 %%%All on same Plot%%%%
 scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
+scatter3(uncodedRate, uncodedSecrecy, uncodeddB, [], 'r', 's', 'DisplayName', 'Uncoded');        
 title('Code Efficiency');
 xlabel('Throughput Rate');
 ylabel('Equivocation (%)');
@@ -168,20 +191,3 @@ xlim([0 50]);
 legend;
 grid on;
 hold off;
-
-toc;
-
-
-
-% code = RMWeightHier(1,10, false);
-% code(1,913-1);
-%times for all on the same plot
-%u = 10       time = 13.174488 sec
-%u = 11       time = 14.240076 sec
-%u = 12       time = 16.579242 sec
-%u = 13       time = 21.042370 sec
-%u = 14       time = 25.359594 sec
-%u = 15       time = 28.869974 sec
-%u = 16       time = 36.175124 sec
-%u = 17       time = 47.315544 sec
-%u = 18       time = 67.304076 sec
