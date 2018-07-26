@@ -1,7 +1,9 @@
+
 close all;
 load('mm_har.mat');
 load('mm_sma.mat');
 load('harrisonOnlyCarriers.mat')
+
 
 max_har = mm_har(251:321,1);
 max_sma = mm_smal(251:321,1);
@@ -64,6 +66,7 @@ for m = 1 : 10
         end
     end
 end
+codesPerdB = (m +1)*(m/2);
 
 for dB = 250 : 312
     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
@@ -77,41 +80,45 @@ colors = jet(32);
 counter = 0;
 
 %%%%All on same Plot%%%%
-figure();
-hold on;
+ figure();
+ hold on;
 %%%%
 firstNum = nan;
 secondNum = nan;
 counter2 = 0;
 istrue = false;
+
 plotOnedB = zeros(1,320);
 plotdB = zeros(1, 55);
 plotIndex = zeros(1,55);
-codeName = zeros(1,55);
+
 uncodedRate = zeros(1,55);
 uncodedSecrecy = ones(1,55);
 uncodedSecrecy = uncodedSecrecy.*100;
+uncodeddB1 = zeros(1,55);
 
 for dB = 250 : 312
     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         counter = counter + 1;
         %%%All on different Plots%%%%
-%         figure(dB);
-%         hold on;
+        % figure(dB);
+        % hold on;
         %%%%
         
+        
         %%%%% UNCODED %%%%%%%
-        uncodedRate(counter) = harrisonOnlyCarriers(counter, 2);
+            uncodedRate(counter) = harrisonOnlyCarriers(counter, 2);
+            uncodeddB1(counter) = harrisonOnlyCarriers(counter,1);
+            %eval(sprintf('uncodeddB1(counter) = "%.1f dB";',dB/10));
+            uncodeddB = categorical(uncodeddB1);
         
-        
-        
-        for i = 1:55
+        for i = 1:codesPerdB
             eval(sprintf('name = vars%d{%d,1};',dB,i));
             
             searchName = name(14:end);
             [~, lengthName] = size(searchName);
             %%%All on different Plots%%%%
-%             counter2 = 0;
+            % counter2 = 0;
             %%%%
             firstIndex = nan;
             for index = 1 :lengthName
@@ -127,50 +134,54 @@ for dB = 250 : 312
                 counter2 = counter2 +1;
                 eval(sprintf('plotOneRate(counter2) = %s.carrierRate;', name));
                 eval(sprintf('plotOnePercentH(counter2) = %s.percentH;', name));
-                plotOnedB(counter2) = dB/10;
+                eval(sprintf('nameU = %s.u;', name)); 
+                eval(sprintf('nameM = %s.m;', name)); 
+                eval(sprintf('plotOnedB1(counter2) = "RM(%d,%d): %.1f dB";',nameU,nameM,dB/10));
+                plotOnedB = categorical(plotOnedB1);
             end
             
             
             eval(sprintf('plotRate(i) = %s.carrierRate;', name));
             eval(sprintf('plotPercentH(i) = %s.percentH;', name));
-            %eval(sprintf("codeName(i) = 'RM(' num2str(%s.u) ',' num2str(%s.m) ')'",name));
-
-            plotdB(i) = dB/10;
+            eval(sprintf('NameU = %s.u;', name)); 
+            eval(sprintf('NameM = %s.m;', name)); 
+            eval(sprintf('plotdB1(i) = "RM(%d,%d): %.1f dB";',NameU,NameM,dB/10));
+            plotdB = categorical(plotdB1);
             plotIndex(i) = i;
+            
             %%%All on different Plots%%%%
-%             scatter3(plotRate(i), plotPercentH(i), plotIndex(i));
+%             scatter3(plotRate(i), plotPercentH(i), plotdB(i));
 % 
 %             if istrue
 %                 scatter3(plotOneRate, plotOnePercentH,plotOnedB,50,'k', '*');
 %                 istrue = false;
 %             end
+%             scatter(uncodedRate, uncodedSecrecy, [], 'r', 'd', 'DisplayName', 'Uncoded');
             %%%%
+            
         end
         %%%All on same Plot%%%%
+        scatter3(plotRate, plotPercentH,plotdB,[],colors(33-counter,:),'DisplayName', sprintf('%.1f dB Limit', dB/10));
+        %%%%
         
-        scatter3(plotRate, plotPercentH,codeName,[],colors(33-counter,:),'DisplayName', sprintf('%.1f dB Limit', dB/10));
-       %%%%%
-        
-        
-%       plot3(plotRate, plotPercentH,plotdB);
         
         %%%All on different Plots%%%%
-% dBTitle = round(double(dB/10),1);
-% title(sprintf('Code Efficiency with %.1f dB Limit',dBTitle));
-% xlabel('Throughput Rate');
-% ylabel('Equivocation (%)');
-% ylim([0 100]);
-% xlim([0 50]);
-% grid on;
-% hold off;
+%         dBTitle = round(double(dB/10),1);
+%         title(sprintf('Code Efficiency with %.1f dB Limit',dBTitle));
+%         xlabel('Throughput Rate');
+%         ylabel('Equivocation (%)');
+%         ylim([0 100]);
+%         xlim([0 50]);
+%         grid on;
+%         hold off;
         %%%%
     end
 end
 
+
 %%%All on same Plot%%%%
-scatter(plotOneRate, plotOnePercentH,50,'k', '*', 'DisplayName', 'Rate One Codes');
-scatter(uncodedRate, uncodedSecrecy, [], 'r', 'd', 'DisplayName', 'Uncoded');
-%scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', 'filled');%,[],k,:,'DisplayName', sprintf('%.1f dB Limit', dB/10));
+scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
+scatter3(uncodedRate, uncodedSecrecy, uncodeddB, [], 'r', 's', 'DisplayName', 'Uncoded');        
 title('Code Efficiency');
 xlabel('Throughput Rate');
 ylabel('Equivocation (%)');
@@ -180,12 +191,3 @@ xlim([0 50]);
 legend;
 grid on;
 hold off;
-
-
-
-
-% code = RMWeightHier(1,10, false);
-% code(1,913-1);
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
