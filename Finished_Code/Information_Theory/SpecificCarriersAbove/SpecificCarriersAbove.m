@@ -17,7 +17,7 @@ load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
 %%% SET DBLIMIT 
-dblimit = 26;
+dblimit = 28;
 
             %Different scales are used to allow us to see each on the graph 
     [har_specific_carriers_above, hcount] = specCarriers(tx2harrison_pwelch, 9, dblimit);
