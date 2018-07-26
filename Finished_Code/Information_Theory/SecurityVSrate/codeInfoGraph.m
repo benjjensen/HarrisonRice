@@ -143,7 +143,7 @@ for dB = 250 : 312
         
       %%%% Used to find the codes (plots a line between each point so you
       %%%% can trace)
-      plot3(plotRate, plotPercentH,plotdB);
+%       plot3(plotRate, plotPercentH,plotdB);
       %%%%
       
         %%%All on different Plots%%%%
