@@ -1,12 +1,13 @@
 close all;
 load('mm_har.mat');
 load('mm_sma.mat');
+load('harrisonOnlyCarriers.mat')
 
 max_har = mm_har(251:321,1);
 max_sma = mm_smal(251:321,1);
 ratio = max_sma./max_har;
-for m = 2 : 10
-    for u = 1 : m-1
+for m = 1 : 10
+    for u = 1 : m
         
         weights = RMWeightHier(u,m,false);
         
@@ -79,6 +80,17 @@ counter = 0;
 figure();
 hold on;
 %%%%
+firstNum = nan;
+secondNum = nan;
+counter2 = 0;
+istrue = false;
+plotOnedB = zeros(1,320);
+plotdB = zeros(1, 55);
+plotIndex = zeros(1,55);
+codeName = zeros(1,55);
+uncodedRate = zeros(1,55);
+uncodedSecrecy = ones(1,55);
+uncodedSecrecy = uncodedSecrecy.*100;
 
 for dB = 250 : 312
     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
@@ -87,34 +99,78 @@ for dB = 250 : 312
 %         figure(dB);
 %         hold on;
         %%%%
-        for i = 1:45
+        
+        %%%%% UNCODED %%%%%%%
+        uncodedRate(counter) = harrisonOnlyCarriers(counter, 2);
+        
+        
+        
+        for i = 1:55
             eval(sprintf('name = vars%d{%d,1};',dB,i));
+            
+            searchName = name(14:end);
+            [~, lengthName] = size(searchName);
+            %%%All on different Plots%%%%
+%             counter2 = 0;
+            %%%%
+            firstIndex = nan;
+            for index = 1 :lengthName
+                if searchName(index) == '_'
+                    firstNum = searchName(1:index-1);
+                    firstIndex = index+1;
+                secondNum = searchName(index+1:end);
+                end
+            end
+            
+            if firstNum == secondNum
+                istrue = true;
+                counter2 = counter2 +1;
+                eval(sprintf('plotOneRate(counter2) = %s.carrierRate;', name));
+                eval(sprintf('plotOnePercentH(counter2) = %s.percentH;', name));
+                plotOnedB(counter2) = dB/10;
+            end
+            
+            
             eval(sprintf('plotRate(i) = %s.carrierRate;', name));
             eval(sprintf('plotPercentH(i) = %s.percentH;', name));
+            %eval(sprintf("codeName(i) = 'RM(' num2str(%s.u) ',' num2str(%s.m) ')'",name));
+
             plotdB(i) = dB/10;
             plotIndex(i) = i;
             %%%All on different Plots%%%%
 %             scatter3(plotRate(i), plotPercentH(i), plotIndex(i));
+% 
+%             if istrue
+%                 scatter3(plotOneRate, plotOnePercentH,plotOnedB,50,'k', '*');
+%                 istrue = false;
+%             end
             %%%%
         end
         %%%All on same Plot%%%%
-        scatter3(plotRate, plotPercentH,plotdB,[],colors(33-counter,:),'DisplayName', sprintf('%.1f dB Limit', dB/10));
-        plot3(plotRate, plotPercentH,plotdB);
-        %%%%
+        
+        scatter3(plotRate, plotPercentH,codeName,[],colors(33-counter,:),'DisplayName', sprintf('%.1f dB Limit', dB/10));
+       %%%%%
+        
+        
+%       plot3(plotRate, plotPercentH,plotdB);
         
         %%%All on different Plots%%%%
-%         dBTitle = round(double(dB/10),1);
-%         title(sprintf('Code Efficiency with %.1f dB Limit',dBTitle));
-%         xlabel('Throughput Rate');
-%         ylabel('Equivocation (%)');
-%         ylim([0 100]);
-%         xlim([0 50]);
-%         grid on;
-%         hold off;
+% dBTitle = round(double(dB/10),1);
+% title(sprintf('Code Efficiency with %.1f dB Limit',dBTitle));
+% xlabel('Throughput Rate');
+% ylabel('Equivocation (%)');
+% ylim([0 100]);
+% xlim([0 50]);
+% grid on;
+% hold off;
         %%%%
     end
 end
+
 %%%All on same Plot%%%%
+scatter(plotOneRate, plotOnePercentH,50,'k', '*', 'DisplayName', 'Rate One Codes');
+scatter(uncodedRate, uncodedSecrecy, [], 'r', 'd', 'DisplayName', 'Uncoded');
+%scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', 'filled');%,[],k,:,'DisplayName', sprintf('%.1f dB Limit', dB/10));
 title('Code Efficiency');
 xlabel('Throughput Rate');
 ylabel('Equivocation (%)');
@@ -131,52 +187,5 @@ hold off;
 % code = RMWeightHier(1,10, false);
 % code(1,913-1);
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function output_txt = myfunction(~,event_obj)
-% event_obj    Handle to event object
-% output_txt   Data cursor text string (string or cell array of strings).
-
-pos = get(event_obj,'Position');
-thr = pos(1);
-equ = pos(2);
-dB = pos(3);
-
-% Goes through for each @dB - calculates and compares - gets u & m
-temp = true;
-counter = 0;
-while (temp)
-    u = 0;
-    m = 0;
-    k = 0;
-    for i = 0 : u
-        k = k + nchoosek(m,i);
-    end
-    n = 2^m;
-
-    rate = k/n;
-    carrierRate = max_har(dB-249,1)*rate;       % make sure to put db here
-
-    mu = ceil(ratio(dB-249,1) * n);
-    H = weights(1,mu+1);
-    percentLeaked = 100*(k-H)/k;
-    percentH = 100 - percentLeaked;
-    if ((carrierRate == thr) && (percentH == equ))
-        temp = false;
-        %name = 
-    end
-    if (counter > 45)
-        temp = false;
-        name = 'error';
-    end
-    counter = counter + 1;
-end
-
-output_txt = {['X: ',num2str(pos(1),4)],...
-    ['Y: ',num2str(pos(2),4)], ...
-    ['Code: ' name]};
-
-end
-
-
-
-
