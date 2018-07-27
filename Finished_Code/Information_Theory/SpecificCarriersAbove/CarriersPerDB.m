@@ -1,4 +1,5 @@
-
+% Graphs the number of carriers each room gets at each decibel level
+    % Uses the best (max) location from each room 
 
 close all;
 load('chambers_pwelch.mat');
@@ -22,7 +23,6 @@ sma_carriersPerDB = carriersPerDB(tx2smalley_pwelch, stepSize, maxDB);
 cam_carriersPerDB = carriersPerDB(tx2camacho_pwelch, stepSize, maxDB);
 cha_carriersPerDB = carriersPerDB(tx2chambers_pwelch, stepSize, maxDB);
 con_carriersPerDB = carriersPerDB(tx2conference_pwelch, stepSize, maxDB);
-
 
 hold on
 title({['\fontsize{12}Carriers Per DB'] ; ...
@@ -77,9 +77,8 @@ function [temp, loops] = specCarriers(file, scale, dblimit)
 
         %%% INITIALIZES VALUES 
     [~,r,c] = size(file); 
-                        %(If changing this file, change lines 22 & 23 as well)
-
-    complete_signal = nan(64,r,c);     %%Uses the size of the data array, minus one
+                        
+    complete_signal = nan(64,r,c);     
     complete_noisefloor = nan(64,r,c);
     difference = nan(64,r,c);
     carriers_above = nan(r,c);
@@ -112,7 +111,6 @@ function [temp, loops] = specCarriers(file, scale, dblimit)
             end
         end
     end
-
     %%%%%%%%%%%%%%%
 
 

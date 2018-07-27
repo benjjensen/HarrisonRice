@@ -1,7 +1,7 @@
 % Determines which specific carriers are above a set dblimit for each room
     % Graphs them on a graph, scaled so you can see each room. Uses Tx2
     
-close all;
+close all;  
 load('camacho_pwelch.mat');
 load('chambers_pwelch.mat');
 load('complete_pwelch.mat');
@@ -17,7 +17,7 @@ load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
 %%% SET DBLIMIT 
-dblimit = 26.9;
+dblimit = 27;
 
             %Different scales are used to allow us to see each on the graph 
     [har_specific_carriers_above, hcount] = specCarriers(tx2harrison_pwelch, 9, dblimit);
@@ -45,23 +45,7 @@ dblimit = 26.9;
             cocount = cocount - 1;
         end
     end
-
-            %%%%% OPTIONAL - USE CARRIERS ONLY HARRISON HAS
-harrisonOnlyCarriers = har_specific_carriers_above;
-ocount = 0;
-for car = 1:64
-    if ((har_specific_carriers_above(car, 2) ~= 0) && (sma_specific_carriers_above(car,2) ~= 0))
-        harrisonOnlyCarriers(64,2) = 0;   
-    elseif ((har_specific_carriers_above(car, 2) ~= 0) && (cha_specific_carriers_above(car,2) ~= 0))
-         harrisonOnlyCarriers(64,2) = 0;
-    elseif ((har_specific_carriers_above(car, 2) ~= 0) && (cam_specific_carriers_above(car,2) ~= 0))
-         harrisonOnlyCarriers(64,2) = 0;    
-    elseif ((har_specific_carriers_above(car, 2) ~= 0) && (con_specific_carriers_above(car,2) ~= 0))
-        harrisonOnlyCarriers(64,2) = 0;
-    elseif (har_specific_carriers_above(car, 2) ~= 0)
-        ocount = ocount + 1;
-    end
-end     
+         
 
 %%%%% PART III - GRAPHS
 figure()
@@ -102,10 +86,9 @@ function [specific_carriers_above, count] = specCarriers(file, scale, dblimit)
  %%%%% PART 1 - DETERMINES THE BEST LOCATION %%%%%
 
         %%% INITIALIZES VALUES 
-    [~,r,c] = size(file); 
-                        %(If changing this file, change lines 22 & 23 as well)
+    [~,r,c] = size(file);                         
 
-    complete_signal = nan(64,r,c);     %%Uses the size of the data array, minus one
+    complete_signal = nan(64,r,c);     
     complete_noisefloor = nan(64,r,c);
     difference = nan(64,r,c);
     carriers_above = nan(r,c);
@@ -138,7 +121,6 @@ function [specific_carriers_above, count] = specCarriers(file, scale, dblimit)
             end
         end
     end
-
     %%%%%%%%%%%%%%%
 
 
