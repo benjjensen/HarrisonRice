@@ -1,0 +1,14 @@
+$ l P _ Location
+- C Provo Canyon
+- I Interstate
+- P Provo
+$ p f ` Receiving Vehicle Position
+- f Following closely
+- g Following distantly
+- p Preceeding closely
+- q Preceeding distantly
+$ m S ` Maneuver
+- L Turn left
+- R Turn right
+- S Drive straight
+~
