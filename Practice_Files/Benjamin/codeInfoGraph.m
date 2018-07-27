@@ -1,7 +1,7 @@
 
 close all;
 
-samePlot = false;
+samePlot = true;
 
 load('mm_har.mat');
 load('mm_sma.mat');
@@ -228,6 +228,6 @@ end
         xlim([0 50]);
         legend;
         grid on;
-        hold off;
+        hold off;     
         end
     %%%%%%%%%%%%%%%%%%%%%%%
