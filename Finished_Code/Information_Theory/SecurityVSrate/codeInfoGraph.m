@@ -2,7 +2,6 @@ tic;
 close all;
 
 samePlot = true;
-
 load('mm_har.mat');
 load('mm_sma.mat');
 load('harrisonOnlyCarriers.mat')
@@ -134,7 +133,7 @@ for dB = 250 : 312
         
         
         %%%%% UNCODED %%%%%%%
-            uncodedRate(counter) = harrisonOnlyCarriers(counter, 2);
+            uncodedRate(counter) = harrisonOnlyCarriers(dB-249, 2);
             eval(sprintf('uncodeddB1(counter) = "UC %.1f dB";',dB/10));            
             uncodeddB = categorical(uncodeddB1);
         
