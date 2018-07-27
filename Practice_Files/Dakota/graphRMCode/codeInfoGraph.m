@@ -127,6 +127,9 @@ for dB = 250 : 312
     if max_har(dB-249,1) - max_har(dB-248,1) ~= 0
         counter = counter + 1;
         scatter3(max_unique(dB-249,:),100,categorical(cellstr('No code ' + string(dB/10) + 'dB')),144,colors(33-counter,:),'s');
+        for index = 1 : max_sma(dB-249,1)
+            scatter3(max_unique(dB-249,1),(1 - index/max_unique(dB-249))*100, categorical(cellstr('No code ' + string(dB/10) + 'dB')),72,'g','d');
+        end
         sss(imax+dB-249,1) = cellstr('No code ' + string(dB/10));
     end
 end
