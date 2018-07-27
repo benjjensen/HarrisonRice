@@ -1,11 +1,11 @@
 
 close all;
 
-uncodedRateGenerator;
+samePlot = false;
+
 load('mm_har.mat');
 load('mm_sma.mat');
 load('harrisonOnlyCarriers.mat')
-
 
 max_har = mm_har(251:321,1);
 max_sma = mm_smal(251:321,1);
@@ -82,10 +82,13 @@ colors = jet(32);
 color = jet(41);
 counter = 0;
 
-%%%%All on same Plot%%%%
- figure();
- hold on;
-%%%%
+        %%%%All on same Plot%%%%
+        if (samePlot)
+            figure();
+            hold on;
+        end
+        %%%%%%%%%%%%%%%%%%%%%%%%
+        
 firstNum = nan;
 secondNum = nan;
 counter2 = 0;
@@ -103,10 +106,14 @@ for dB = 250 : 312
 
     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         counter = counter + 1;
-        %%%All on different Plots%%%%
-        % figure(dB);
-        % hold on;
-        %%%%
+        
+            %%%All on different Plots%%%%
+            if (~samePlot)
+                figure(dB);
+                hold on;
+            end
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
         
         %%%%UNCODED WITH MORE CARRIERS%%%%
         for p = 1: max_sma(dB-249)
@@ -128,8 +135,7 @@ for dB = 250 : 312
         
         %%%%% UNCODED %%%%%%%
             uncodedRate(counter) = harrisonOnlyCarriers(counter, 2);
-            eval(sprintf('uncodeddB1(counter) = "UC %d dB";',dB/10));
-            %eval(sprintf('uncodeddB1(counter) = "%.1f dB";',dB/10));
+            eval(sprintf('uncodeddB1(counter) = "UC %d dB";',dB/10));            
             uncodeddB = categorical(uncodeddB1);
         
         for i = 1:codesPerdB
@@ -137,9 +143,13 @@ for dB = 250 : 312
             
             searchName = name(14:end);
             [~, lengthName] = size(searchName);
+            
             %%%All on different Plots%%%%
-            % counter2 = 0;
-            %%%%
+            if (~samePlot)              
+                counter2 = 0;
+            end
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
             firstIndex = nan;
             for index = 1 :lengthName
                 if searchName(index) == '_'
@@ -170,45 +180,54 @@ for dB = 250 : 312
             plotIndex(i) = i;
             
             %%%All on different Plots%%%%
-%             scatter3(plotRate(i), plotPercentH(i), plotdB(i));
-% 
-%             if istrue
-%                 scatter3(plotOneRate, plotOnePercentH,plotOnedB,50,'k', '*');
-%                 istrue = false;
-%             end
-%             scatter(uncodedRate, uncodedSecrecy, [], 'r', 'd', 'DisplayName', 'Uncoded');
-            %%%%
+            if (~samePlot)
+                scatter3(plotRate(i), plotPercentH(i), plotdB(i));
+
+                if istrue
+                    scatter3(plotOneRate, plotOnePercentH,plotOnedB,50,'k', '*');
+                    istrue = false;
+                end
+                scatter(uncodedRate, uncodedSecrecy, [], 'r', 'd', 'DisplayName', 'Uncoded');
+            end
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
         end
-        %%%All on same Plot%%%%
-        scatter3(plotRate, plotPercentH,plotdB,[],colors(33-counter,:),'DisplayName', sprintf('%.1f dB Limit', dB/10));
-        %%%%
+            %%%All on same Plot%%%%
+            if (samePlot)
+                scatter3(plotRate, plotPercentH,plotdB,[],colors(33-counter,:),'DisplayName', sprintf('%.1f dB Limit', dB/10));
+            end
+            %%%%%%%%%%%%%%%%%%%%%%%
         
         
-        %%%All on different Plots%%%%
-%         dBTitle = round(double(dB/10),1);
-%         title(sprintf('Code Efficiency with %.1f dB Limit',dBTitle));
-%         xlabel('Throughput Rate');
-%         ylabel('Equivocation (%)');
-%         ylim([0 100]);
-%         xlim([0 50]);
-%         grid on;
-%         hold off;
-        %%%%
+            %%%All on different Plots%%%%
+            if (~samePlot)
+                dBTitle = round(double(dB/10),1);
+                title(sprintf('Code Efficiency with %.1f dB Limit',dBTitle));
+                xlabel('Throughput Rate');
+                ylabel('Equivocation (%)');
+                ylim([0 100]);
+                xlim([0 50]);
+                grid on;
+                hold off;
+            end
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
 end
 
 
-%%%All on same Plot%%%%
-scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
-scatter3(uncodedRate, uncodedSecrecy, uncodeddB, [], 'r', 's', 'DisplayName', 'UC Perfect');        
+    %%%All on same Plot%%%%
+        if (samePlot)
+        scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
+        scatter3(uncodedRate, uncodedSecrecy, uncodeddB, [], 'r', 's', 'DisplayName', 'UC Perfect');        
 
-title('Code Efficiency');
-xlabel('Throughput Rate');
-ylabel('Equivocation (%)');
-zlabel('dB Level');
-ylim([0 100]);
-xlim([0 50]);
-legend;
-grid on;
-hold off;
+        title('Code Efficiency');
+        xlabel('Throughput Rate');
+        ylabel('Equivocation (%)');
+        zlabel('dB Level');
+        ylim([0 100]);
+        xlim([0 50]);
+        legend;
+        grid on;
+        hold off;
+        end
+    %%%%%%%%%%%%%%%%%%%%%%%
