@@ -1,7 +1,11 @@
 
 close all;
+
+samePlot = false;
+
 load('mm_har.mat');
 load('mm_sma.mat');
+load('harrisonOnlyCarriers.mat')
 
 max_har = mm_har(251:321,1);
 max_sma = mm_smal(251:321,1);
@@ -75,32 +79,77 @@ for dB = 250 : 312
     end
 end
 colors = jet(32);
+color = jet(41);
 counter = 0;
 
-%%%%All on same Plot%%%%
-% figure();
-% hold on;
-%%%%
+        %%%%All on same Plot%%%%
+        if (samePlot)
+            figure();
+            hold on;
+        end
+        %%%%%%%%%%%%%%%%%%%%%%%%
+        
 firstNum = nan;
 secondNum = nan;
 counter2 = 0;
 istrue = false;
+
+plotOnedB = zeros(1,320);
+plotdB = zeros(1, 55);
+plotIndex = zeros(1,55);
+
+uncodedRate = zeros(1,32);
+uncodedSecrecy = ones(1,32);
+uncodedSecrecy = uncodedSecrecy.*100;
+
 for dB = 250 : 312
+
     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         counter = counter + 1;
-        %%%All on different Plots%%%%
-        figure(dB);
-        hold on;
-        %%%%
+        
+            %%%All on different Plots%%%%
+            if (~samePlot)
+                figure(dB);
+                hold on;
+            end
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
+        
+        %%%%UNCODED WITH MORE CARRIERS%%%%
+        for p = 1: max_sma(dB-249)
+            extraCarriersRate(p) = harrisonOnlyCarriers(counter, 2) + p;
+            extraCarriersH(p) = 100*harrisonOnlyCarriers(counter, 2)/(harrisonOnlyCarriers(counter, 2) + p);
+ 
+            eval(sprintf('extraExtra(p) = "Harr: %d, Smal: %d, %.1f dB";',harrisonOnlyCarriers(counter, 2)+p,p,dB/10));
+            plotextraExtra = categorical(extraExtra);
+        end
+        if max_sma(dB-249,1) ~= 0
+            
+            scatter3(extraCarriersRate, extraCarriersH, plotextraExtra,[],'g', 'd','DisplayName', sprintf('UC %.1f', dB/10));
+            clear extraExtra;
+            clear plotextraExtra;
+            clear extraCarriersH;
+            clear extraCarriersRate;
+        end
+        
+        
+        %%%%% UNCODED %%%%%%%
+            uncodedRate(counter) = harrisonOnlyCarriers(counter, 2);
+            eval(sprintf('uncodeddB1(counter) = "UC %d dB";',dB/10));            
+            uncodeddB = categorical(uncodeddB1);
         
         for i = 1:codesPerdB
             eval(sprintf('name = vars%d{%d,1};',dB,i));
             
             searchName = name(14:end);
             [~, lengthName] = size(searchName);
+            
             %%%All on different Plots%%%%
-            counter2 = 0;
-            %%%%
+            if (~samePlot)              
+                counter2 = 0;
+            end
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
             firstIndex = nan;
             for index = 1 :lengthName
                 if searchName(index) == '_'
@@ -129,59 +178,56 @@ for dB = 250 : 312
             eval(sprintf('plotdB1(i) = "RM(%d,%d): %.1f dB";',NameU,NameM,dB/10));
             plotdB = categorical(plotdB1);
             plotIndex(i) = i;
+            
             %%%All on different Plots%%%%
-            scatter3(plotRate(i), plotPercentH(i), plotdB(i));
+            if (~samePlot)
+                scatter3(plotRate(i), plotPercentH(i), plotdB(i));
 
-            if istrue
-                scatter3(plotOneRate, plotOnePercentH,plotOnedB,50,'k', '*');
-                istrue = false;
+                if istrue
+                    scatter3(plotOneRate, plotOnePercentH,plotOnedB,50,'k', '*');
+                    istrue = false;
+                end
+                scatter(uncodedRate, uncodedSecrecy, [], 'r', 'd', 'DisplayName', 'Uncoded');
             end
-            %%%%
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
         end
-        %%%All on same Plot%%%%
-%         scatter3(plotRate, plotPercentH,plotdB,[],colors(33-counter,:),'DisplayName', sprintf('%.1f dB Limit', dB/10));
-%         %%%%
+            %%%All on same Plot%%%%
+            if (samePlot)
+                scatter3(plotRate, plotPercentH,plotdB,[],colors(33-counter,:),'DisplayName', sprintf('%.1f dB Limit', dB/10));
+            end
+            %%%%%%%%%%%%%%%%%%%%%%%
         
         
-        %%%All on different Plots%%%%
-        
-        dBTitle = round(double(dB/10),1);
-        title(sprintf('Code Efficiency with %.1f dB Limit',dBTitle));
-        xlabel('Throughput Rate');
-        ylabel('Equivocation (%)');
-        ylim([0 100]);
-        xlim([0 50]);
-        grid on;
-        hold off;
-        %%%%
+            %%%All on different Plots%%%%
+            if (~samePlot)
+                dBTitle = round(double(dB/10),1);
+                title(sprintf('Code Efficiency with %.1f dB Limit',dBTitle));
+                xlabel('Throughput Rate');
+                ylabel('Equivocation (%)');
+                ylim([0 100]);
+                xlim([0 50]);
+                grid on;
+                hold off;
+            end
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
 end
 
 
-%%%All on same Plot%%%%
-% scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
-% title('Code Efficiency');
-% xlabel('Throughput Rate');
-% ylabel('Equivocation (%)');
-% zlabel('dB Level');
-% ylim([0 100]);
-% xlim([0 50]);
-% legend;
-% grid on;
-% hold off;
+    %%%All on same Plot%%%%
+        if (samePlot)
+        scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
+        scatter3(uncodedRate, uncodedSecrecy, uncodeddB, [], 'r', 's', 'DisplayName', 'UC Perfect');        
 
-
-
-
-% code = RMWeightHier(1,10, false);
-% code(1,913-1);
-%times for all on the same plot
-%u = 10       time = 13.174488 sec
-%u = 11       time = 14.240076 sec
-%u = 12       time = 16.579242 sec
-%u = 13       time = 21.042370 sec
-%u = 14       time = 25.359594 sec
-%u = 15       time = 28.869974 sec
-%u = 16       time = 36.175124 sec
-%u = 17       time = 47.315544 sec
-%u = 18       time = 67.304076 sec
+        title('Code Efficiency');
+        xlabel('Throughput Rate');
+        ylabel('Equivocation (%)');
+        zlabel('dB Level');
+        ylim([0 100]);
+        xlim([0 50]);
+        legend;
+        grid on;
+        hold off;
+        end
+    %%%%%%%%%%%%%%%%%%%%%%%

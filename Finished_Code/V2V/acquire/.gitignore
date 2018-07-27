@@ -1,0 +1,6 @@
+*.o
+acquire
+output/
+*.dat
+!ultra_config.dat
+*~
