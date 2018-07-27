@@ -1,9 +1,11 @@
 close all;
 load('mm_har.mat');
 load('mm_sma.mat');
+load('mum_har.mat');
 tic;
 max_har = mm_har(251:321,1);
 max_sma = mm_smal(251:321,1);
+max_unique = mum_har(251:321,1);
 ratio = max_sma./max_har;
 max_dif = max_har - max_sma;
 mmax = 10;
@@ -122,9 +124,9 @@ end
 counter = 0;
 for dB = 250 : 312
 % for dB = 270 : 270
-    if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
+    if max_har(dB-249,1) - max_har(dB-248,1) ~= 0
         counter = counter + 1;
-        scatter3(max_dif(dB-249,:),100,categorical(cellstr('No code')),144,colors(33-counter,:),'s');
+        scatter3(max_unique(dB-249,:),100,categorical(cellstr('No code ' + string(dB/10) + 'dB')),144,colors(33-counter,:),'s');
         sss(imax+dB-249,1) = cellstr('No code ' + string(dB/10));
     end
 end
