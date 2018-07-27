@@ -5,17 +5,20 @@ tic;
 max_har = mm_har(251:321,1);
 max_sma = mm_smal(251:321,1);
 ratio = max_sma./max_har;
-mmax = 20;
+max_dif = max_har - max_sma;
+mmax = 10;
 imax = 0;
-for j = 2 : mmax
+mmin = 1;
+for j = mmin : mmax
     imax = imax + j;
 end
-for m = 2 : mmax
+for m = mmin : mmax
     for u = 1 : m
         
         weights = RMWeightHier(u,m,false);
         
         for dB = 250 : 312
+%         for dB = 270 : 270
             if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
                 %creates object
                 eval(sprintf('codeInfo_%d_%d_%d = codeInfo;', dB , u, m));
@@ -67,6 +70,7 @@ for m = 2 : mmax
 end
 
 for dB = 250 : 312
+% for dB = 270 : 270
     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         workspace = who;
         eval(sprintf('outStr = regexpi(workspace, "codeInfo_%d_");', dB));
@@ -80,6 +84,7 @@ j = 0;
 figure();
 hold on;
 for dB = 250 : 312
+% for dB = 270 : 270
     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         counter = counter + 1;
         ss = cell(imax,1);
@@ -95,8 +100,8 @@ for dB = 250 : 312
             eval(sprintf('plotPercentLeaked = 100 - %s.percentLeaked;', name));
             eval(sprintf('m = %s.m;', name));
             eval(sprintf('u = %s.u;', name));
-            formatSpec = 'RM(%d,%d)';
-            s = sprintf(formatSpec,u,m);
+            formatSpec = 'RM(%d,%d) %f1 dB';
+            s = sprintf(formatSpec,u,m,dB/10);
             ss{i,1} = s;
             rate(1,i) = plotRate;
             percentLeaked(1,i) = plotPercentLeaked;
@@ -112,6 +117,15 @@ for dB = 250 : 312
 %         scatter3(rate,percentLeaked,sss.',36,colors(33-counter,:),'o');
         
 
+    end
+end
+counter = 0;
+for dB = 250 : 312
+% for dB = 270 : 270
+    if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
+        counter = counter + 1;
+        scatter3(max_dif(dB-249,:),100,categorical(cellstr('No code')),144,colors(33-counter,:),'s');
+        sss(imax+dB-249,1) = cellstr('No code ' + string(dB/10));
     end
 end
 % set(gca, 'XScale', 'log');
