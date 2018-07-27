@@ -115,11 +115,11 @@ for dB = 250 : 312
             
         
         %%%%UNCODED WITH MORE CARRIERS%%%%
-        for p = 1: max_sma(dB-249)
-            extraCarriersRate(p) = harrisonOnlyCarriers(counter, 2) + p;
-            extraCarriersH(p) = 100*harrisonOnlyCarriers(counter, 2)/(harrisonOnlyCarriers(counter, 2) + p);
+        for p = 0: max_sma(dB-249)
+            extraCarriersRate(p+1) = harrisonOnlyCarriers(dB-249, 2)+p;
+            extraCarriersH(p+1) = 100*harrisonOnlyCarriers(dB-249, 2)/(harrisonOnlyCarriers(dB-249, 2) + p);
  
-            eval(sprintf('extraExtra(p) = "Harr: %d, Smal: %d, %.1f dB";',harrisonOnlyCarriers(counter, 2)+p,p,dB/10));
+            eval(sprintf('extraExtra(p+1) = "Harr: %d, Smal: %d, %.1f dB";',harrisonOnlyCarriers(dB-249, 2)+p,p,dB/10));
             plotextraExtra = categorical(extraExtra);
         end
         if max_sma(dB-249,1) ~= 0
@@ -217,7 +217,7 @@ end
     %%%All on same Plot%%%%
         if (samePlot)
         scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
-        scatter3(uncodedRate, uncodedSecrecy, uncodeddB, [], 'r', 's', 'DisplayName', 'UC Perfect');        
+%         scatter3(uncodedRate, uncodedSecrecy, uncodeddB, [], 'r', 's', 'DisplayName', 'UC Perfect');        
 
         title('Code Efficiency');
         xlabel('Throughput Rate');
