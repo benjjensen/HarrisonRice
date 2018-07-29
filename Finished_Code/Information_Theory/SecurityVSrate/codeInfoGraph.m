@@ -97,9 +97,6 @@ plotOnedB = zeros(1,320);
 plotdB = zeros(1, 55);
 plotIndex = zeros(1,55);
 
-uncodedRate = zeros(1,32);
-uncodedSecrecy = ones(1,32);
-uncodedSecrecy = uncodedSecrecy.*100;
 
 for dB = 250 : 312
 
@@ -132,10 +129,7 @@ for dB = 250 : 312
         end
         
         
-        %%%%% UNCODED %%%%%%%
-            uncodedRate(counter) = harrisonOnlyCarriers(dB-249, 2);
-            eval(sprintf('uncodeddB1(counter) = "UC %.1f dB";',dB/10));            
-            uncodeddB = categorical(uncodeddB1);
+
         
         for i = 1:codesPerdB
             eval(sprintf('name = vars%d{%d,1};',dB,i));
@@ -217,7 +211,6 @@ end
     %%%All on same Plot%%%%
         if (samePlot)
         scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
-%         scatter3(uncodedRate, uncodedSecrecy, uncodeddB, [], 'r', 's', 'DisplayName', 'UC Perfect');        
 
         title('Code Efficiency');
         xlabel('Throughput Rate');
