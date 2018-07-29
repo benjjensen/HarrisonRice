@@ -70,7 +70,8 @@ for m = mmin : mmax
         end
     end
 end
-
+% toc
+% tic
 for dB = 250 : 312
 % for dB = 270 : 270
     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
@@ -80,19 +81,33 @@ for dB = 250 : 312
         eval(sprintf('vars%d = workspace(ind);', dB));
     end
 end
+% toc
 colors = jet(32);
 counter = 0;
 j = 0;
+% tic
+
+% ss = categorical(1,(imax-mmax)*32);
+% rate = zeros(1,(imax-mmax)*32);
+% percentLeaked = zeros(1,(imax-mmax)*32);
+% ss_matched = categorical(1,32*mmax);
+% rate_matched = zeros(1,32*mmax);
+% percentLeaked_matched = zeros(1,32*mmax);
 figure();
 hold on;
 for dB = 250 : 312
 % for dB = 270 : 270
     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         counter = counter + 1;
-        ss = cell(imax,1);
-        rate = [1,imax];
-        percentLeaked = [1,imax];
-        pp = [];
+        match_count = 0;
+        unmatch_count = 0;
+        ss = categorical(1,imax-mmax);
+        rate = zeros(1,imax-mmax);
+        percentLeaked = zeros(1,imax-mmax);
+        ss_matched = categorical(1,mmax);
+        rate_matched = zeros(1,mmax);
+        percentLeaked_matched = zeros(1,mmax);
+%         pp = [];
 %         figure(dB);
 %         hold on;
         for i = 1:imax
@@ -104,38 +119,60 @@ for dB = 250 : 312
             eval(sprintf('u = %s.u;', name));
             formatSpec = 'RM(%d,%d) %f1 dB';
             s = sprintf(formatSpec,u,m,dB/10);
-            ss{i,1} = s;
-            rate(1,i) = plotRate;
-            percentLeaked(1,i) = plotPercentLeaked;
+%             ss{i,1} = s;
+%             rate(1,i) = plotRate;
+%             percentLeaked(1,i) = plotPercentLeaked;
             if m == u
-                j = j + 1; 
-                scatter3(plotRate, plotPercentLeaked,categorical(cellstr(s)),144,colors(33-counter,:),'*');
+%                 j = j + 1;
+                match_count = match_count + 1;
+                ss_matched(1,match_count) = categorical(cellstr(s));
+                rate_matched(1,match_count) = plotRate;
+                percentLeaked_matched(1,match_count) = plotPercentLeaked;
+%                 scatter3(plotRate, plotPercentLeaked,categorical(cellstr(s)),144,colors(33-counter,:),'*');
             else
-                scatter3(plotRate, plotPercentLeaked,categorical(cellstr(s)),[],colors(33-counter,:),'o');
+                unmatch_count = unmatch_count + 1;
+                ss(1,unmatch_count) = categorical(cellstr(s));
+                rate(1,unmatch_count) = plotRate;
+                percentLeaked(1,unmatch_count) = plotPercentLeaked;
+%                 scatter3(plotRate, plotPercentLeaked,categorical(cellstr(s)),[],colors(33-counter,:),'o');
             end
 %             text(plotRate,plotPercentLeaked,num2str(i));
         end
+        scatter3(rate_matched,percentLeaked_matched,ss_matched,144,'b','*');
+        scatter3(rate,percentLeaked,ss,[],colors(33-counter,:),'o');
         sss = categorical(ss);
 %         scatter3(rate,percentLeaked,sss.',36,colors(33-counter,:),'o');
         
 
     end
 end
+% scatter3(rate_matched,percentLeaked_matched,ss_matched,144,'*');
+% scatter3(rate,percentLeaked,ss);
+% sss = [ss.';ss_matched.'];
 counter = 0;
+% toc
+% tic
+rates = zeros(1,322);
+ratios = zeros(1,322);
+type = categorical(322);
+i = 0;
 for dB = 250 : 312
 % for dB = 270 : 270
     if max_har(dB-249,1) - max_har(dB-248,1) ~= 0
         counter = counter + 1;
-        scatter3(max_unique(dB-249,:),100,categorical(cellstr('No code ' + string(dB/10) + 'dB')),144,colors(33-counter,:),'s');
-        for index = 1 : max_sma(dB-249,1)
-            scatter3(max_unique(dB-249,1),(1 - index/max_unique(dB-249))*100, categorical(cellstr('No code ' + string(dB/10) + 'dB')),72,'g','d');
+%         scatter3(max_unique(dB-249,:),100,categorical(cellstr('No code ' + string(dB/10) + 'dB')),144,colors(33-counter,:),'s');
+        for index = 0 : max_sma(dB-249,1)
+            i = i + 1;
+            rates(1,i) = max_unique(dB-249,1) + index;
+            ratios(1,i) = (1 - index/(max_unique(dB-249)+index))*100;
+            type(1,i) = categorical(cellstr('No code ' + string(dB/10) + 'dB'));
+%             scatter3(max_unique(dB-249,1) + index,(1 - index/(max_unique(dB-249)+index))*100, categorical(cellstr('No code ' + string(dB/10) + 'dB')),72,'g','d');
         end
-        sss(imax+dB-249,1) = cellstr('No code ' + string(dB/10));
+        sss(end + 1,1) = cellstr('No code ' + string(dB/10));
     end
 end
-% set(gca, 'XScale', 'log');
-% set(gca, 'YScale', 'log');
-set(gca,'zticklabel',ss)
+scatter3(rates,ratios,type,72,'g','d');
+% set(gca,'zticklabel',sss)
 title('Code Efficiency');
 xlabel('Throughput Rate');
 ylabel('Equivocation (%)');
@@ -147,6 +184,3 @@ hold off;
 
 
 toc;
-
-% code = RMWeightHier(1,10, false);
-% code(1,913-1);
