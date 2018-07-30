@@ -8,26 +8,28 @@ const unsigned int NEW_BUTTON_INDEX = 2;
 const unsigned int RESET_BUTTON_INDEX = 3;
 const unsigned int BUTTON_COUNT = 4;
 
-NamingConvention *naming_convention;
+NamingConvention *naming_convention = NULL;
 
-GtkWidget *main_window;
-GtkWidget *capture_table;
-GtkWidget *start_button;
-GtkWidget *stop_button;
-GtkWidget *new_button;
-GtkWidget *reset_button;
+GtkWidget *main_window = NULL;
+GtkWidget *capture_table = NULL;
+GtkWidget *start_button = NULL;
+GtkWidget *stop_button = NULL;
+GtkWidget *new_button = NULL;
+GtkWidget *reset_button = NULL;
 
-GtkWidget *new_capture_window;
-GtkWidget *fields_parent_box;
+GtkWidget *new_capture_window = NULL;
+GtkWidget *fields_parent_box = NULL;
 //std::list<GtkWidget*> *option_buttons;
 
-GtkWidget *add_option_window;
-GtkWidget *add_option_field_label;
-GtkWidget *add_option_entry_code;
-GtkWidget *add_option_entry_name;
-GtkWidget *add_option_label_error;
+GtkWidget *add_option_window = NULL;
+GtkWidget *add_option_field_label = NULL;
+GtkWidget *add_option_entry_code = NULL;
+GtkWidget *add_option_entry_name = NULL;
+GtkWidget *add_option_label_error = NULL;
 
-std::string field_being_extended;
+bool all_initialized = false;
+
+std::string field_being_extended = "";
 
 static gboolean cb_destroy(GtkWidget *widget, GdkEvent *event, gpointer data);
 static void cb_start_capture(GtkWidget *widget, gpointer data);
@@ -39,6 +41,7 @@ static void cb_cancel_new_capture(GtkWidget *widget, gpointer data);
 static void cb_add_new_option(GtkWidget* widget, gpointer data);
 static void cb_add_option_cancel(GtkWidget* widget, gpointer data);
 static void cb_add_option_add(GtkWidget* widget, gpointer data);
+static void cb_field_selection_changed(GtkWidget *widget, gpointer data);
 
 static bool validate_new_option_and_trim(std::string &new_option_code, std::string &new_option_name);
 
@@ -62,6 +65,8 @@ int main(int argc, char **argv)
 	init_main_window();
 	init_new_capture_window();
 	init_add_option_window();
+	
+	all_initialized = TRUE;
 	
 	gtk_widget_show(main_window);
 	gtk_main();
@@ -261,15 +266,17 @@ static void populate_fields_and_options()
 		std::cerr << "ERROR: populate_fields_and_options() called before fields_parent_box was set.\n";
 	}
 	
-	// TODO save current selections so that they can be preserved
 	{
 		// Remove all of the old fields
 		GList *children, *iter;
 
 		children = gtk_container_get_children(GTK_CONTAINER(fields_parent_box));
 		for(iter = children; iter != NULL; iter = g_list_next(iter))
-			gtk_widget_destroy(GTK_WIDGET(iter->data));
-		g_list_free(children);
+			gtk_container_remove(GTK_CONTAINER(fields_parent_box), (GtkWidget*)iter->data);
+			//gtk_widget_destroy(GTK_WIDGET(iter->data));
+		//g_list_free(children);
+		children = NULL;
+		iter = NULL;
 	}
 	
 	std::list<std::string> field_order = naming_convention->get_field_order();
@@ -305,16 +312,28 @@ static void populate_fields_and_options()
 			}
 			
 			if(option_code == selected_option)
-			{			
-				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(option_radio_button), TRUE);
+			{
+				//std::cout << "Before set_active: " << option_code << std::endl;
+				//gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(option_radio_button), TRUE);
+				//std::cout << "After set_active: " << option_code << std::endl;
 			}
 			
 			gtk_box_pack_start(GTK_BOX(field_box), option_radio_button, FALSE, FALSE, 0);
 			
 			gtk_widget_set_name(option_radio_button, option_code.c_str());
+			//g_signal_connect(option_radio_button, "toggled", G_CALLBACK(cb_field_selection_changed), NULL);
 			
 			gtk_widget_show(option_radio_button);
 		}
+		
+		for(int i = 0; i < 1000; ++i)
+		{
+			std::cout << i << std::endl;
+			std::string code("l"), name("P");
+			// For some reason, this always fails on the 130th execution of this loop:
+			naming_convention->set_field_value(code, name);
+		}
+		
 		
 		GtkWidget* add_option_button = gtk_button_new_with_label("Add...");
 		gtk_widget_set_name(add_option_button, field_code.c_str());
@@ -339,6 +358,10 @@ static gboolean cb_destroy(GtkWidget *widget, GdkEvent *event, gpointer data)
 
 static void cb_start_capture(GtkWidget *widget, gpointer data)
 {
+	if(!all_initialized)
+	{
+		return;
+	}
 	// TODO actually start capturing
 	gtk_widget_set_sensitive(start_button, FALSE);
 	gtk_widget_set_sensitive(stop_button, TRUE);
@@ -348,6 +371,10 @@ static void cb_start_capture(GtkWidget *widget, gpointer data)
 
 static void cb_stop_capture(GtkWidget *widget, gpointer data)
 {
+	if(!all_initialized)
+	{
+		return;
+	}
 	// TODO stop capturing
 	gtk_widget_set_sensitive(start_button, FALSE);
 	gtk_widget_set_sensitive(stop_button, FALSE);
@@ -357,12 +384,20 @@ static void cb_stop_capture(GtkWidget *widget, gpointer data)
 
 static void cb_new_capture(GtkWidget *widget, gpointer data)
 {
+	if(!all_initialized)
+	{
+		return;
+	}
 	gtk_window_set_modal(GTK_WINDOW(new_capture_window), TRUE);
 	gtk_widget_show(new_capture_window);
 }
 
 static void cb_reset_capture(GtkWidget *widget, gpointer data)
 {
+	if(!all_initialized)
+	{
+		return;
+	}
 	// TODO cancel capture (reset current capture variable?)
 	gtk_widget_set_sensitive(start_button, FALSE);
 	gtk_widget_set_sensitive(stop_button, FALSE);
@@ -372,6 +407,10 @@ static void cb_reset_capture(GtkWidget *widget, gpointer data)
 
 static void cb_create_new_capture(GtkWidget *widget, gpointer data)
 {
+	if(!all_initialized)
+	{
+		return;
+	}
 	// TODO actually create the new capture
 	gtk_widget_set_sensitive(start_button, TRUE);
 	gtk_widget_set_sensitive(stop_button, FALSE);
@@ -383,6 +422,10 @@ static void cb_create_new_capture(GtkWidget *widget, gpointer data)
 
 static void cb_cancel_new_capture(GtkWidget *widget, gpointer data)
 {
+	if(!all_initialized)
+	{
+		return;
+	}
 	gtk_widget_set_sensitive(start_button, FALSE);
 	gtk_widget_set_sensitive(stop_button, FALSE);
 	gtk_widget_set_sensitive(new_button, TRUE);
@@ -391,12 +434,15 @@ static void cb_cancel_new_capture(GtkWidget *widget, gpointer data)
 	gtk_window_set_modal(GTK_WINDOW(new_capture_window), FALSE);
 }
 
-static void cb_add_new_option(GtkWidget* widget, gpointer data)
+static void cb_add_new_option(GtkWidget *widget, gpointer data)
 {
+	if(!all_initialized)
+	{
+		return;
+	}
 	std::string field_code = gtk_widget_get_name(widget);
-	std::cout << "Adding new option for field " << field_code << std::endl;
 	field_being_extended = field_code;
-	gtk_label_set_text(GTK_LABEL(add_option_field_label), naming_convention->get_field_name(field_code).c_str());
+	gtk_label_set_text(GTK_LABEL(add_option_field_label), naming_convention->get_field_name(field_being_extended).c_str());
 	gtk_entry_set_text(GTK_ENTRY(add_option_entry_code), "");
 	gtk_entry_set_text(GTK_ENTRY(add_option_entry_name), "");
 	
@@ -404,8 +450,27 @@ static void cb_add_new_option(GtkWidget* widget, gpointer data)
 	gtk_window_set_modal(GTK_WINDOW(add_option_window), TRUE);
 }
 
+static void cb_field_selection_changed(GtkWidget *widget, gpointer data)
+{
+	if(!all_initialized)
+	{
+		return;
+	}
+	
+	std::cout << "cb_field_selection_changed\n";
+	
+	std::string field_code = gtk_widget_get_name(gtk_widget_get_parent(widget));
+	std::string option_code = gtk_widget_get_name(widget);
+	
+	naming_convention->set_field_value(field_code, option_code);
+}
+
 static void cb_add_option_cancel(GtkWidget* widget, gpointer data)
 {
+	if(!all_initialized)
+	{
+		return;
+	}
 	field_being_extended = "";
 	gtk_widget_hide(add_option_window);
 	gtk_window_set_modal(GTK_WINDOW(add_option_window), FALSE);
@@ -413,6 +478,10 @@ static void cb_add_option_cancel(GtkWidget* widget, gpointer data)
 
 static void cb_add_option_add(GtkWidget* widget, gpointer data)
 {
+	if(!all_initialized)
+	{
+		return;
+	}
 	std::string new_option_code = gtk_entry_get_text(GTK_ENTRY(add_option_entry_code));
 	std::string new_option_name = gtk_entry_get_text(GTK_ENTRY(add_option_entry_name));
 	
