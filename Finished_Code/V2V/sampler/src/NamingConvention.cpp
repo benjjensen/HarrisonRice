@@ -53,13 +53,13 @@ int NamingConvention::load_fields_from_file(std::string filename)
 	std::ifstream file;
 	file.open(filename.c_str());
 	if(!file.is_open()) {
-		std::cout << "ERROR: failure to open file " << filename << std::endl;
+		std::cerr << "ERROR: failure to open file " << filename << std::endl;
 		return 1;
 	}
 	// Wait to clear the naming convention until after we know we have a file to read from.
 	clear_naming_convention();
 	
-	char line_marker;
+	char line_marker = ' ';
 	std::string current_field;
 	std::string code;
 	std::string name;
@@ -113,7 +113,7 @@ int NamingConvention::load_fields_from_file(std::string filename)
 			p_add_option(current_field, code, name);
 			break;
 		default:
-			std::cout << "ERROR: Unkown line marker in file " << filename << ": " << line_marker << std::endl;
+			std::cerr << "ERROR: Unkown line marker in file " << filename << ": " << line_marker << std::endl;
 			clear_naming_convention();
 			return 1;
 		case EOF_MARKER:
@@ -219,7 +219,8 @@ std::string NamingConvention::get_field_value(std::string field_code)
 {
 	return mFieldValues[field_code];
 }
-std::string NamingConvention::set_field_value(std::string field_code, std::string option_code)
+// TODO figure out why passing these values by reference fixes the problem...
+std::string NamingConvention::set_field_value(std::string &field_code, std::string &option_code)
 {
 	mFieldValues[field_code] = option_code;
 }
