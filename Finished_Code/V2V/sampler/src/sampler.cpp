@@ -286,6 +286,8 @@ static void populate_fields_and_options()
 		gtk_box_pack_start(GTK_BOX(field_box), field_label, FALSE, FALSE, 0);
 		gtk_widget_show(field_label);
 		
+		std::string selected_option = naming_convention->get_field_value(field_code);
+		
 		GtkWidget* option_radio_button = NULL;
 		std::map<std::string, std::string> options = naming_convention->get_options(field_code);
 		for(std::map<std::string, std::string>::iterator option_it = options.begin();
@@ -295,12 +297,16 @@ static void populate_fields_and_options()
 			std::string option_name = option_it->second;
 			if(option_radio_button == NULL)
 			{
-				
 				option_radio_button = gtk_radio_button_new_with_label(NULL, option_name.c_str());
 			}
 			else
 			{
 				option_radio_button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(option_radio_button), option_name.c_str());
+			}
+			
+			if(option_code == selected_option)
+			{			
+				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(option_radio_button), TRUE);
 			}
 			
 			gtk_box_pack_start(GTK_BOX(field_box), option_radio_button, FALSE, FALSE, 0);
