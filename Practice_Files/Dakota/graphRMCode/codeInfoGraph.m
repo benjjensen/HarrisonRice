@@ -138,7 +138,7 @@ for dB = 250 : 312
             end
 %             text(plotRate,plotPercentLeaked,num2str(i));
         end
-        scatter3(rate_matched,percentLeaked_matched,ss_matched,144,'b','*');
+        scatter3(rate_matched,percentLeaked_matched,ss_matched,144,'black','*');
         scatter3(rate,percentLeaked,ss,[],colors(33-counter,:),'o');
         sss = categorical(ss);
 %         scatter3(rate,percentLeaked,sss.',36,colors(33-counter,:),'o');
@@ -171,7 +171,7 @@ for dB = 250 : 312
         sss(end + 1,1) = cellstr('No code ' + string(dB/10));
     end
 end
-scatter3(rates,ratios,type,72,'g','d');
+% scatter3(rates,ratios,type,72,'g','d');
 % set(gca,'zticklabel',sss)
 title('Code Efficiency');
 xlabel('Throughput Rate');

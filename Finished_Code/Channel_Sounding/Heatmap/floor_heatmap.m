@@ -18,8 +18,8 @@ array_mesh_all2();
 Nfft = 2*64;
 FF = -0.5:1/Nfft:0.5-1/Nfft;
 FF = 20*FF;
-threshold = 7;
-tx2threshold = 28;
+threshold = 19;
+tx2threshold = 27;
 
 [~,Floor] = find_num_carriers(xx,threshold);
 [~,tx2Floor] = find_num_carriers(tx2xx,tx2threshold);
