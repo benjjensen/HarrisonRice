@@ -203,6 +203,7 @@ std::map<std::string, std::string> NamingConvention::get_fields()
 }
 std::map<std::string, std::string> NamingConvention::get_options(std::string field_code)
 {
+	std::map<std::string, std::string> options = mFieldOptions[field_code];
 	return mFieldOptions[field_code];
 }
 
