@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <iomanip>
 
 #include "DataCapture.h"
 
@@ -29,7 +30,7 @@ std::string DataCapture::get_date_string()
 std::string DataCapture::get_time_string()
 {
 	std::stringstream ss;
-	ss << std::setfill('0') << std::setw(2) << hour << ':' << std::setw(2) << minute << ':' std::setw(2) << << second;
+	ss << std::setfill('0') << std::setw(2) << hour << ':' << std::setw(2) << minute << ':' << std::setw(2) << second;
 	return ss.str();
 }
 
@@ -160,7 +161,7 @@ int DataCapture::read_from_file(std::string filename)
 		}
 		else
 		{
-			std::cerr << "ERROR: unkown line in capture meta file: " << line_str << std::endl;
+			std::cerr << "ERROR: unkown line in capture meta file " << filename << ": " << line_str << std::endl;
 		}
 	}
 	

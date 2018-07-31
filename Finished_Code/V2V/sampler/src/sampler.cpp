@@ -2,6 +2,8 @@
 #include <sstream>
 #include <map>
 #include <list>
+#include <dirent.h>
+#include <stdio.h>
 
 #include <gtk/gtk.h>
 
@@ -16,6 +18,8 @@ const unsigned int COL_DURATION = 3;
 const unsigned int COL_SIZE = 4;
 const unsigned int COL_NOTES = 5;
 
+const std::string DATA_FOLDER = "../acquire/data";
+const std::string CAPTURE_META_ENDING = "-meta.txt";
 
 NamingConvention *naming_convention = NULL;
 
@@ -37,7 +41,6 @@ GtkWidget *reset_button = NULL;
 
 GtkWidget *new_capture_window = NULL;
 GtkWidget *fields_parent_box = NULL;
-//std::list<GtkWidget*> *option_buttons;
 
 GtkWidget *add_option_window = NULL;
 GtkWidget *add_option_field_label = NULL;
@@ -70,6 +73,7 @@ static void init_add_option_window();
 static void populate_fields_and_options();
 static void insert_capture_into_table_row(DataCapture capture, int row);
 static void insert_capture_into_table(DataCapture capture);
+static void load_all_captures_from_files();
 
 
 
@@ -81,6 +85,8 @@ int main(int argc, char **argv)
 	field_being_extended = "";
 	
 	gtk_init(&argc, &argv);
+	
+	load_all_captures_from_files();
 	
 	init_main_window();
 	init_new_capture_window();
@@ -134,7 +140,10 @@ static void init_main_window()
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_NOTES, COL_NOTES + 1, row, row + 1);
 	
-	// TODO captures...
+	for(std::list<DataCapture>::iterator it = finished_captures.begin(); it != finished_captures.end(); ++it)
+	{
+		insert_capture_into_table(*it);
+	}
 	
 	gtk_widget_show(capture_table);
 	
@@ -146,7 +155,7 @@ static void init_main_window()
 	gtk_widget_show(current_capture_name);
 	
 	current_capture_status = gtk_label_new("ready...");
-	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_status, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_status, FALSE, FALSE, 5);
 	gtk_widget_show(current_capture_status);
 	
 	// Intentionally don't show current_capture_box yet
@@ -161,14 +170,12 @@ static void init_main_window()
 
 	gtk_box_pack_start(GTK_BOX(sub_box), start_button, TRUE, TRUE, 0);
 	gtk_widget_set_sensitive(start_button, FALSE);
-	g_signal_connect (start_button, "clicked",
-                      G_CALLBACK (cb_start_capture), NULL);
+	g_signal_connect(start_button, "clicked", G_CALLBACK(cb_start_capture), NULL);
 	gtk_widget_show(start_button);
 	
 	gtk_box_pack_start(GTK_BOX(sub_box), stop_button, TRUE, TRUE, 0);
 	gtk_widget_set_sensitive(stop_button, FALSE);
-	g_signal_connect (stop_button, "clicked",
-                      G_CALLBACK (cb_stop_capture), NULL);
+	g_signal_connect (stop_button, "clicked", G_CALLBACK(cb_stop_capture), NULL);
 	gtk_widget_show(stop_button);
 	
 	gtk_widget_show(sub_box);
@@ -177,14 +184,12 @@ static void init_main_window()
 	gtk_box_pack_start(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
 	
 	gtk_box_pack_start(GTK_BOX(sub_box), new_button, TRUE, TRUE, 0);
-	g_signal_connect (new_button, "clicked",
-                      G_CALLBACK (cb_new_capture), NULL);
+	g_signal_connect (new_button, "clicked", G_CALLBACK(cb_new_capture), NULL);
 	gtk_widget_show(new_button);
 	
 	gtk_box_pack_start(GTK_BOX(sub_box), reset_button, FALSE, FALSE, 0);
 	gtk_widget_set_sensitive(reset_button, FALSE);
-	g_signal_connect (reset_button, "clicked",
-                      G_CALLBACK (cb_reset_capture), NULL);
+	g_signal_connect (reset_button, "clicked", G_CALLBACK(cb_reset_capture), NULL);
 	gtk_widget_show(reset_button);
 	
 	gtk_widget_show(sub_box);
@@ -215,11 +220,11 @@ static void init_new_capture_window()
 	GtkWidget* cancel_new_capture_button = gtk_button_new_with_label("Cancel");
 	
 	gtk_box_pack_start(GTK_BOX(sub_box), create_new_capture_button, TRUE, TRUE, 0);
-	g_signal_connect(create_new_capture_button, "clicked", G_CALLBACK (cb_create_new_capture), NULL);
+	g_signal_connect(create_new_capture_button, "clicked", G_CALLBACK(cb_create_new_capture), NULL);
 	gtk_widget_show(create_new_capture_button);
 	
 	gtk_box_pack_start(GTK_BOX(sub_box), cancel_new_capture_button, FALSE, FALSE, 0);
-	g_signal_connect(cancel_new_capture_button, "clicked", G_CALLBACK (cb_cancel_new_capture), NULL);
+	g_signal_connect(cancel_new_capture_button, "clicked", G_CALLBACK(cb_cancel_new_capture), NULL);
 	gtk_widget_show(cancel_new_capture_button);
 	
 	gtk_widget_show(sub_box);
@@ -634,4 +639,38 @@ static bool validate_new_option_and_trim(std::string &new_option_code, std::stri
 	}
 	gtk_label_set_text(GTK_LABEL(add_option_label_error), "");
 	return TRUE;
+}
+
+static void load_all_captures_from_files()
+{
+	std::list<std::string> capture_files;
+	
+	{
+		DIR *directory_pointer = NULL;
+		struct dirent *item = NULL;
+	
+		directory_pointer = opendir(DATA_FOLDER.c_str());
+		if (directory_pointer)
+		{
+			while ((item = readdir(directory_pointer)) != NULL)
+			{
+				std::string filename = item->d_name;
+				int found_index = filename.find(CAPTURE_META_ENDING);
+				int expected_index = filename.size() - CAPTURE_META_ENDING.size();
+				if(found_index != -1 && found_index == expected_index)
+				{
+					capture_files.push_back(DATA_FOLDER + "/" + filename);
+				}
+			}
+			closedir(directory_pointer);
+		}
+		directory_pointer = NULL;
+	}
+	
+	DataCapture capture;
+	for(std::list<std::string>::iterator it = capture_files.begin(); it != capture_files.end(); ++it)
+	{
+		capture.read_from_file(*it);
+		finished_captures.push_back(capture);
+	}
 }
