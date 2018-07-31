@@ -219,8 +219,8 @@ std::string NamingConvention::get_field_value(std::string field_code)
 {
 	return mFieldValues[field_code];
 }
-// TODO figure out why passing these values by reference fixes the problem...
-std::string NamingConvention::set_field_value(std::string &field_code, std::string &option_code)
+
+void NamingConvention::set_field_value(std::string field_code, std::string option_code)
 {
 	mFieldValues[field_code] = option_code;
 }

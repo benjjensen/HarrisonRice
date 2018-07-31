@@ -132,7 +132,7 @@ class NamingConvention
 	/**
 	Sets the currently selected option for a certain field.
 	*/
-	std::string set_field_value(std::string &field_code, std::string &option_code);
+	void set_field_value(std::string field_code, std::string option_code);
 	
 	/**
 	Clears out all of the current values.
