@@ -92,6 +92,19 @@ int DataCapture::read_from_file(std::string filename)
 		if(type == "name")
 		{
 			std::getline(line, name);
+			if(name != "")
+			{
+				int start_index = name.find_first_not_of(" \n\t\r");
+				if(start_index != -1)
+				{
+					int end_index = name.find_last_not_of(" \n\t\r");
+					name = name.substr(start_index, end_index - start_index + 1);
+				}
+				else
+				{
+					name = "";
+				}
+			}
 		}
 		else if(type == "date")
 		{
@@ -131,7 +144,19 @@ int DataCapture::read_from_file(std::string filename)
 			{
 				notes = remaining_in_line;
 			}
-			// TODO strip whitespace from notes
+			if(notes != "")
+			{
+				int start_index = notes.find_first_not_of(" \n\t\r");
+				if(start_index != -1)
+				{
+					int end_index = notes.find_last_not_of(" \n\t\r");
+					notes = notes.substr(start_index, end_index - start_index + 1);
+				}
+				else
+				{
+					notes = "";
+				}
+			}
 		}
 		else
 		{
