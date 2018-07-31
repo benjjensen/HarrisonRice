@@ -313,27 +313,16 @@ static void populate_fields_and_options()
 			
 			if(option_code == selected_option)
 			{
-				//std::cout << "Before set_active: " << option_code << std::endl;
-				//gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(option_radio_button), TRUE);
-				//std::cout << "After set_active: " << option_code << std::endl;
+				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(option_radio_button), TRUE);
 			}
 			
 			gtk_box_pack_start(GTK_BOX(field_box), option_radio_button, FALSE, FALSE, 0);
 			
 			gtk_widget_set_name(option_radio_button, option_code.c_str());
-			//g_signal_connect(option_radio_button, "toggled", G_CALLBACK(cb_field_selection_changed), NULL);
+			g_signal_connect(option_radio_button, "toggled", G_CALLBACK(cb_field_selection_changed), NULL);
 			
 			gtk_widget_show(option_radio_button);
 		}
-		
-		for(int i = 0; i < 1000; ++i)
-		{
-			std::cout << i << std::endl;
-			std::string code("l"), name("P");
-			// For some reason, this always fails on the 130th execution of this loop:
-			naming_convention->set_field_value(code, name);
-		}
-		
 		
 		GtkWidget* add_option_button = gtk_button_new_with_label("Add...");
 		gtk_widget_set_name(add_option_button, field_code.c_str());
@@ -456,8 +445,6 @@ static void cb_field_selection_changed(GtkWidget *widget, gpointer data)
 	{
 		return;
 	}
-	
-	std::cout << "cb_field_selection_changed\n";
 	
 	std::string field_code = gtk_widget_get_name(gtk_widget_get_parent(widget));
 	std::string option_code = gtk_widget_get_name(widget);
