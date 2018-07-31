@@ -148,6 +148,8 @@ int NamingConvention::save_fields_to_file(std::string filename)
 		return 1;
 	}
 	
+	// TODO add a comment block at the top that explains the format of this file
+	
 	// For each field, make an entry for it and each of its options.
 	for(std::list<std::string>::iterator fields_it = mFieldOrder.begin(); fields_it != mFieldOrder.end(); fields_it++)
 	{
