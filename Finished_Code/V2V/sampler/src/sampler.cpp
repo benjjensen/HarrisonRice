@@ -1,17 +1,35 @@
-#include "NamingConvention.h"
-#include <gtk/gtk.h>
 #include <iostream>
+#include <sstream>
+#include <map>
+#include <list>
 
-const unsigned int START_BUTTON_INDEX = 0;
-const unsigned int STOP_BUTTON_INDEX = 1;
-const unsigned int NEW_BUTTON_INDEX = 2;
-const unsigned int RESET_BUTTON_INDEX = 3;
-const unsigned int BUTTON_COUNT = 4;
+#include <gtk/gtk.h>
+
+#include "NamingConvention.h"
+#include "DataCapture.h"
+
+const unsigned int COLS_COUNT = 6;
+const unsigned int COL_NAME = 0;
+const unsigned int COL_DATE = 1;
+const unsigned int COL_TIME = 2;
+const unsigned int COL_DURATION = 3;
+const unsigned int COL_SIZE = 4;
+const unsigned int COL_NOTES = 5;
+
 
 NamingConvention *naming_convention = NULL;
 
 GtkWidget *main_window = NULL;
 GtkWidget *capture_table = NULL;
+size_t capture_table_current_rows = 0;
+
+GtkWidget *current_capture_box = NULL;
+GtkWidget *current_capture_name = NULL;
+GtkWidget *current_capture_status = NULL;
+
+DataCapture current_capture;
+std::list<DataCapture> finished_captures;
+
 GtkWidget *start_button = NULL;
 GtkWidget *stop_button = NULL;
 GtkWidget *new_button = NULL;
@@ -50,6 +68,8 @@ static void init_new_capture_window();
 static void init_add_option_window();
 
 static void populate_fields_and_options();
+static void insert_capture_into_table_row(DataCapture capture, int row);
+static void insert_capture_into_table(DataCapture capture);
 
 
 
@@ -89,27 +109,48 @@ static void init_main_window()
 	GtkWidget *layout_box = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(main_window), layout_box);
 	
-	capture_table = gtk_table_new(1, 4, FALSE);
+	capture_table_current_rows = 1;
+	capture_table = gtk_table_new(capture_table_current_rows, COLS_COUNT, FALSE);
 	gtk_box_pack_start (GTK_BOX(layout_box), capture_table, TRUE, TRUE, 0);
 	
-	// TODO fix magic numbers here
+	int row = 0;
+	
 	GtkWidget *label = gtk_label_new("Name");
 	gtk_widget_show(label);
-	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, 0, 1, 0, 1);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_NAME, COL_NAME + 1, row, row + 1);
+	label = gtk_label_new("Date");
+	gtk_widget_show(label);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_DATE, COL_DATE + 1, row, row + 1);
 	label = gtk_label_new("Time");
 	gtk_widget_show(label);
-	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, 1, 2, 0, 1);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_TIME, COL_TIME + 1, row, row + 1);
 	label = gtk_label_new("Duration");
 	gtk_widget_show(label);
-	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, 2, 3, 0, 1);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_DURATION, COL_DURATION + 1, row, row + 1);
 	label = gtk_label_new("Size");
 	gtk_widget_show(label);
-	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, 3, 4, 0, 1);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_SIZE, COL_SIZE + 1, row, row + 1);
+	label = gtk_label_new("Notes");
+	gtk_widget_show(label);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_NOTES, COL_NOTES + 1, row, row + 1);
 	
 	// TODO captures...
 	
 	gtk_widget_show(capture_table);
 	
+	current_capture_box = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(layout_box), current_capture_box, FALSE, FALSE, 0);
+	
+	current_capture_name = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_name, FALSE, FALSE, 0);
+	gtk_widget_show(current_capture_name);
+	
+	current_capture_status = gtk_label_new("ready...");
+	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_status, FALSE, FALSE, 0);
+	gtk_widget_show(current_capture_status);
+	
+	// Intentionally don't show current_capture_box yet
+		
 	GtkWidget *sub_box = gtk_hbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
 	
@@ -263,7 +304,7 @@ static void populate_fields_and_options()
 {
 	if(fields_parent_box == NULL)
 	{
-		std::cerr << "ERROR: populate_fields_and_options() called before fields_parent_box was set.\n";
+		std::cerr << "ERROR: populate_fields_and_options() called before fields_parent_box was set." << std::endl;
 	}
 	
 	{
@@ -272,9 +313,8 @@ static void populate_fields_and_options()
 
 		children = gtk_container_get_children(GTK_CONTAINER(fields_parent_box));
 		for(iter = children; iter != NULL; iter = g_list_next(iter))
-			gtk_container_remove(GTK_CONTAINER(fields_parent_box), (GtkWidget*)iter->data);
-			//gtk_widget_destroy(GTK_WIDGET(iter->data));
-		//g_list_free(children);
+			gtk_widget_destroy(GTK_WIDGET(iter->data));
+		g_list_free(children);
 		children = NULL;
 		iter = NULL;
 	}
@@ -337,6 +377,45 @@ static void populate_fields_and_options()
 	gtk_widget_show(fields_parent_box);
 }
 
+static void insert_capture_into_table(DataCapture capture)
+{
+	gtk_table_resize(GTK_TABLE(capture_table), ++capture_table_current_rows, COLS_COUNT);
+	insert_capture_into_table_row(capture, capture_table_current_rows - 1);
+}
+
+static void insert_capture_into_table_row(DataCapture capture, int row)
+{
+	GtkWidget *label = gtk_label_new(capture.name.c_str());
+	gtk_widget_show(label);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_NAME, COL_NAME + 1, row, row + 1);
+	
+	label = gtk_label_new(capture.get_date_string().c_str());
+	gtk_widget_show(label);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_DATE, COL_DATE + 1, row, row + 1);
+	
+	label = gtk_label_new(capture.get_time_string().c_str());
+	gtk_widget_show(label);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_TIME, COL_TIME + 1, row, row + 1);
+	
+	std::stringstream ss;
+	ss << capture.duration << " s";
+	
+	label = gtk_label_new(ss.str().c_str());
+	gtk_widget_show(label);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_DURATION, COL_DURATION + 1, row, row + 1);
+	
+	ss.str("");
+	ss << capture.size << " MB";
+	
+	label = gtk_label_new(ss.str().c_str());
+	gtk_widget_show(label);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_SIZE, COL_SIZE + 1, row, row + 1);
+	
+	label = gtk_label_new(capture.notes.c_str());
+	gtk_widget_show(label);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_NOTES, COL_NOTES + 1, row, row + 1);
+}
+
 
 
 static gboolean cb_destroy(GtkWidget *widget, GdkEvent *event, gpointer data)
@@ -351,6 +430,8 @@ static void cb_start_capture(GtkWidget *widget, gpointer data)
 	{
 		return;
 	}
+	
+	gtk_label_set_text(GTK_LABEL(current_capture_status), "capturing data... (click stop to finish)");
 	// TODO actually start capturing
 	gtk_widget_set_sensitive(start_button, FALSE);
 	gtk_widget_set_sensitive(stop_button, TRUE);
@@ -364,6 +445,8 @@ static void cb_stop_capture(GtkWidget *widget, gpointer data)
 	{
 		return;
 	}
+	
+	gtk_widget_hide(current_capture_box);
 	// TODO stop capturing
 	gtk_widget_set_sensitive(start_button, FALSE);
 	gtk_widget_set_sensitive(stop_button, FALSE);
@@ -387,7 +470,9 @@ static void cb_reset_capture(GtkWidget *widget, gpointer data)
 	{
 		return;
 	}
-	// TODO cancel capture (reset current capture variable?)
+	current_capture.name = "";
+	gtk_widget_hide(current_capture_box);
+	
 	gtk_widget_set_sensitive(start_button, FALSE);
 	gtk_widget_set_sensitive(stop_button, FALSE);
 	gtk_widget_set_sensitive(new_button, TRUE);
@@ -400,7 +485,12 @@ static void cb_create_new_capture(GtkWidget *widget, gpointer data)
 	{
 		return;
 	}
-	// TODO actually create the new capture
+	
+	current_capture.name = naming_convention->name();
+	gtk_label_set_text(GTK_LABEL(current_capture_name), current_capture.name.c_str());
+	gtk_label_set_text(GTK_LABEL(current_capture_status), "ready to capture");
+	gtk_widget_show(current_capture_box);
+	
 	gtk_widget_set_sensitive(start_button, TRUE);
 	gtk_widget_set_sensitive(stop_button, FALSE);
 	gtk_widget_set_sensitive(new_button, FALSE);
