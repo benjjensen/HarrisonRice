@@ -23,13 +23,13 @@ DataCapture::DataCapture()
 std::string DataCapture::get_date_string()
 {
 	std::stringstream ss;
-	ss << year << '-' << month << '-' << date;
+	ss << std::setfill('0') << year << '-' << std::setw(2) << month << '-' << std::setw(2) << date;
 	return ss.str();
 }
 std::string DataCapture::get_time_string()
 {
 	std::stringstream ss;
-	ss << hour << ':' << minute << ':' << second;
+	ss << std::setfill('0') << std::setw(2) << hour << ':' << std::setw(2) << minute << ':' std::setw(2) << << second;
 	return ss.str();
 }
 
@@ -91,7 +91,7 @@ int DataCapture::read_from_file(std::string filename)
 		
 		if(type == "name")
 		{
-			line >> name;
+			std::getline(line, name);
 		}
 		else if(type == "date")
 		{
@@ -120,10 +120,18 @@ int DataCapture::read_from_file(std::string filename)
 		else if(type == "notes")
 		{
 			std::string remaining_in_line;
-			std::string rest_of_notes;
-			std::getline(line, remaining_in_line);
-			std::getline(file, rest_of_notes, '`');
-			notes = remaining_in_line + '\n' + rest_of_notes;
+			std::getline(line, remaining_in_line, '`');
+			if(line_str.find('`') == -1)
+			{
+				std::string rest_of_notes;	
+				std::getline(file, rest_of_notes, '`');
+				notes = remaining_in_line + '\n' + rest_of_notes;
+			}
+			else
+			{
+				notes = remaining_in_line;
+			}
+			// TODO strip whitespace from notes
 		}
 		else
 		{
