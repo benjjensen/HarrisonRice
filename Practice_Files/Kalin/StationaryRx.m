@@ -4,7 +4,9 @@
 % Setup for the first run
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% rx = Setup();
+if exist('rx','var') == 0
+    rx = Setup();
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Data Collection
@@ -30,7 +32,6 @@ disp('This test will last for ~' + string(TotalRunTime) + ' minutes');
 disp('or ~' + string(NumSamples * DelayTime) + ' seconds');
 
 for runs = 1:NumSamples
-    tic;
     for corrections = 1:8
         temp = rx();
     end
@@ -38,7 +39,6 @@ for runs = 1:NumSamples
     eval(sprintf('save("StationaryData/%s_%d.mat","%s_%d");', ...
         room,runs,room,runs));
     pause(DelayTime);
-    toc;
 end
 
 save('workspace.mat');
