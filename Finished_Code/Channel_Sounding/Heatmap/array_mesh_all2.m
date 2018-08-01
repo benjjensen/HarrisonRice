@@ -114,13 +114,13 @@ for row = 1:num_rows
     end
 end
 % Adds the data from hallway to the whole array
-num_rows = 23;
-num_runs = 300;
-for row = 1:num_rows
-    for run = 1:num_runs
-        tx2xx(row+67,run+40,:) = tx2hallway(row,run,:);
-    end
-end
+% num_rows = 23;
+% num_runs = 300;
+% for row = 1:num_rows
+%     for run = 1:num_runs
+%         tx2xx(row+67,run+40,:) = tx2hallway(row,run,:);
+%     end
+% end
 % Adds the data from the from Dr. Harrison's office to the whole array
 num_rows = 30;
 num_runs = 34;

@@ -93,7 +93,7 @@ j = 0;
 % ss_matched = categorical(1,32*mmax);
 % rate_matched = zeros(1,32*mmax);
 % percentLeaked_matched = zeros(1,32*mmax);
-figure();
+% figure();
 hold on;
 for dB = 250 : 312
 % for dB = 270 : 270
@@ -138,8 +138,14 @@ for dB = 250 : 312
             end
 %             text(plotRate,plotPercentLeaked,num2str(i));
         end
-        scatter3(rate_matched,percentLeaked_matched,ss_matched,144,'b','*');
+        figure(1);
+        hold on;
+        scatter3(rate_matched,percentLeaked_matched,ss_matched,144,'black','*');
+        hold off;
+        figure(2);
+        hold on;
         scatter3(rate,percentLeaked,ss,[],colors(33-counter,:),'o');
+        hold off;
         sss = categorical(ss);
 %         scatter3(rate,percentLeaked,sss.',36,colors(33-counter,:),'o');
         
@@ -156,6 +162,8 @@ rates = zeros(1,322);
 ratios = zeros(1,322);
 type = categorical(322);
 i = 0;
+figure(1);
+hold on;
 for dB = 250 : 312
 % for dB = 270 : 270
     if max_har(dB-249,1) - max_har(dB-248,1) ~= 0
@@ -166,12 +174,12 @@ for dB = 250 : 312
             rates(1,i) = max_unique(dB-249,1) + index;
             ratios(1,i) = (1 - index/(max_unique(dB-249)+index))*100;
             type(1,i) = categorical(cellstr('No code ' + string(dB/10) + 'dB'));
-%             scatter3(max_unique(dB-249,1) + index,(1 - index/(max_unique(dB-249)+index))*100, categorical(cellstr('No code ' + string(dB/10) + 'dB')),72,'g','d');
+            scatter3(max_unique(dB-249,1) + index,(1 - index/(max_unique(dB-249)+index))*100, categorical(cellstr('No code ' + string(dB/10) + 'dB')),72,'g','d');
         end
         sss(end + 1,1) = cellstr('No code ' + string(dB/10));
     end
 end
-scatter3(rates,ratios,type,72,'g','d');
+% scatter3(rates,ratios,type,72,'g','d');
 % set(gca,'zticklabel',sss)
 title('Code Efficiency');
 xlabel('Throughput Rate');
@@ -181,6 +189,15 @@ ylim([0 100]);
 xlim([0 50]);
 grid on;
 hold off;
-
+figure(2);
+hold on;
+title('Code Efficiency');
+xlabel('Throughput Rate');
+ylabel('Equivocation (%)');
+zlabel('Reed-Muller Code (r,m)');
+ylim([0 100]);
+xlim([0 50]);
+grid on;
+hold off;
 
 toc;
