@@ -153,7 +153,8 @@ static bool start_acquire_in_child_process()
 		//ASSERT_IS(  0, 
 		close( childToParent[ READ_FD  ] );// );
 		
-		chdir("../acquire");
+		// Not necessary to change directories because acquire is in the same directory as this
+		// chdir("../acquire");
 		execlp("acquire", "acquire", "20", "-scm", "-scs", "0", NULL);
 
 		std::cerr << "ERROR: this line should never be reached!" << std::endl;
