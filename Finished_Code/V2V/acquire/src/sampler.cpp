@@ -8,6 +8,8 @@
 #include <signal.h>
 #include <unistd.h>
 
+#include <ext/stdio_filebuf.h>
+
 #include <gtk/gtk.h>
 
 #include "NamingConvention.h"
@@ -178,50 +180,26 @@ static bool start_acquire_in_child_process()
 	acquire_output_fd = childToParent[READ_FD];
 	
 	return true;
-
-	/*while ( true )
-	{
-		switch ( readResult = read( childToParent[ READ_FD ],
-                            buffer, BUFFER_SIZE ) )
-		{
-		case 0: // End-of-File, or non-blocking read. 
-			cout << "End of file reached..."         << endl
-					<< "Data received was ("
-					<< dataReadFromChild.size() << "):" << endl
-					<< dataReadFromChild << endl;
-
-			ASSERT_IS( pid, waitpid( pid, & status, 0 ) );
-
-			cout << endl
-					<< "Child exit staus is:  " << WEXITSTATUS(status) << endl
-					<< endl;
-
-			exit(0);
-
-
-		case -1:
-			if ( (errno == EINTR) || (errno == EAGAIN) )
-			{
-				errno = 0;
-				break;
-			}
-			else
-			{
-				FAIL( "read() failed" );
-				exit(-1);
-			}
-
-		default:
-			dataReadFromChild . append( buffer, readResult );
-			break;
-		}
-	}*/
 }
 
 static bool stop_acquiring()
 {
-	// TODO get acquire input
+	__gnu_cxx::stdio_filebuf<char> *sb = new __gnu_cxx::stdio_filebuf<char>(acquire_output_fd, std::ios::in);
+	std::istream input_from_acquire(sb);
+	
 	kill(acquire_process_id, SIGINT);
+	
+	current_capture.read_from_stream(input_from_acquire);
+	finished_captures.push_back(current_capture);
+	insert_capture_into_table(current_capture);
+	
+	if(close(acquire_output_fd) != 0)
+	{
+		std::cerr << "ERROR: failed to close acquire_output_fd" << std::endl;
+	}
+	delete sb;
+	acquire_output_fd = 0;
+	acquire_process_id = 0;
 }
 
 
