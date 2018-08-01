@@ -1,6 +1,7 @@
 $ l P _ Location
 - C Provo Canyon
 - I Interstate
+- LO Logan
 - P Provo
 $ p f ` Receiving Vehicle Position
 - f Following closely
@@ -8,6 +9,7 @@ $ p f ` Receiving Vehicle Position
 - p Preceeding closely
 - q Preceeding distantly
 $ m S ` Maneuver
+- J Jump
 - L Turn left
 - R Turn right
 - S Drive straight

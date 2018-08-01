@@ -20,7 +20,8 @@ public:
 	
 	std::string notes;
 	
-	std::string filename;
+	std::string meta_filename;
+	std::string data_filename;
 	
 	std::string get_date_string();
 	std::string get_time_string();
@@ -29,4 +30,6 @@ public:
 	
 	int write_to_file(std::string filename = "");
 	int read_from_file(std::string filename = "");
+	void write_to_stream(std::ostream &out);
+	void read_from_stream(std::istream &in);
 };

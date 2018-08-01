@@ -18,7 +18,8 @@ DataCapture::DataCapture()
 	duration = 0;
 	size = 0;
 	notes = "";
-	filename = "";
+	data_filename = "";
+	meta_filename = "";
 }
 
 std::string DataCapture::get_date_string()
@@ -38,11 +39,11 @@ int DataCapture::write_to_file(std::string filename)
 {
 	if(filename == "")
 	{
-		filename = this->filename;
+		filename = meta_filename;
 	}
 	else
 	{
-		this->filename = filename;
+		meta_filename = filename;
 	}
 	
 	std::ofstream file;
@@ -53,12 +54,7 @@ int DataCapture::write_to_file(std::string filename)
 		return 1;
 	}
 	
-	file << "name " << name << std::endl;
-	file << "date " << get_date_string() << std::endl;
-	file << "time " << get_time_string() << std::endl;
-	file << "duration " << duration << std::endl;
-	file << "size " << size << std::endl;
-	file << "notes " << notes << "`";
+	write_to_stream(file);
 	
 	file.close();
 	return 0;
@@ -68,11 +64,11 @@ int DataCapture::read_from_file(std::string filename)
 {
 	if(filename == "")
 	{
-		filename = this->filename;
+		filename = meta_filename;
 	}
 	else
 	{
-		this->filename = filename;
+		meta_filename = filename;
 	}
 	
 	std::ifstream file;
@@ -83,8 +79,27 @@ int DataCapture::read_from_file(std::string filename)
 		return 1;
 	}
 	
+	read_from_stream(file);
+	
+	file.close();
+	return 0;
+}
+
+void DataCapture::write_to_stream(std::ostream &out)
+{
+	out << "name " << name << std::endl;
+	out << "date " << get_date_string() << std::endl;
+	out << "time " << get_time_string() << std::endl;
+	out << "duration " << duration << std::endl;
+	out << "size " << size << std::endl;
+	out << "datafile " << data_filename << std::endl;
+	out << "notes " << notes << "`";
+}
+
+void DataCapture::read_from_stream(std::istream &in)
+{
 	std::string line_str;
-	while(std::getline(file, line_str))
+	while(std::getline(in, line_str))
 	{
 		std::stringstream line(line_str);
 		std::string type;
@@ -138,7 +153,7 @@ int DataCapture::read_from_file(std::string filename)
 			if(line_str.find('`') == -1)
 			{
 				std::string rest_of_notes;	
-				std::getline(file, rest_of_notes, '`');
+				std::getline(in, rest_of_notes, '`');
 				notes = remaining_in_line + '\n' + rest_of_notes;
 			}
 			else
@@ -159,12 +174,26 @@ int DataCapture::read_from_file(std::string filename)
 				}
 			}
 		}
+		else if(type == "datafile")
+		{
+			std::getline(line, data_filename);
+			if(data_filename != "")
+			{
+				int start_index = data_filename.find_first_not_of(" \n\t\r");
+				if(start_index != -1)
+				{
+					int end_index = data_filename.find_last_not_of(" \n\t\r");
+					data_filename = data_filename.substr(start_index, end_index - start_index + 1);
+				}
+				else
+				{
+					data_filename = "";
+				}
+			}
+		}
 		else
 		{
-			std::cerr << "ERROR: unkown line in capture meta file " << filename << ": " << line_str << std::endl;
+			std::cerr << "ERROR: unkown line in capture stream: " << line_str << std::endl;
 		}
 	}
-	
-	file.close();
-	return 0;
 }
