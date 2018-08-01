@@ -4,26 +4,36 @@
 % Setup for the first run
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Setup();
+% rx = Setup();
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Data Collection
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-starttime = '01-Aug-2018 10:36:40';
+starttime = datetime('now') + seconds(.5);
 curtime = datetime;
 while (string(curtime) ~= string(starttime))
     curtime = datetime;
     disp(string(curtime));
 end
-
-NumSamples = 5000;
-DelayTime = .5;
-TotalRunTime = (NumSamples * DelayTime) / 60;
+tic;
+room = "testing";
+NumSamples = 30;
+DelayTime = .5 ...
+    - .02268;
+TotalRunTime = (NumSamples * (DelayTime + .02268)) / 60;
 disp('This test will last for ' + string(TotalRunTime) + ' minutes');
 
 for runs = 1:NumSamples
-    
-    
+    time = datetime;
+    time = char(time);
+    time = strrep(time,' ','-');
+    time = string(time);
+    eval(sprintf('%s_%d = rx();',room,runs));
+    eval(sprintf('save("StationaryData/%s_%d.mat","%s_%d");',room,runs,room,runs));
+    pause(DelayTime);
+end
+
+toc;
 
 
 
@@ -33,15 +43,13 @@ for runs = 1:NumSamples
 
 
 
-
-
-function Setup()
+function [rx] = Setup()
 plutoradiosetup();
-rx_1 = sdrrx('Pluto');
-rx_1.RadioID = 'usb:0';
-rx_1.CenterFrequency = 1250e6;
-rx_1.BasebandSampleRate = 20e6;
-rx_1.SamplesPerFrame = 32*64;
-rx_1.OutputDataType = 'double';
-rx_1.ShowAdvancedProperties = true;
+rx = sdrrx('Pluto');
+rx.RadioID = 'usb:0';
+rx.CenterFrequency = 1250e6;
+rx.BasebandSampleRate = 20e6;
+rx.SamplesPerFrame = 32*64;
+rx.OutputDataType = 'double';
+rx.ShowAdvancedProperties = true;
 end
