@@ -27,7 +27,7 @@ Comment lines start with '#' and are ignored.
 	# This is a comment. I can write anything here.
 
 Field entries start with '$' and are in this format:
-	$ [field code] [default value] [separator] [field name]
+	$ [default value] [separator] [field name]
 Where each item is exactly one word, aside from the field name, which can be any number of words.
 The default value must be a code for one of the options listed below this field.
 The separator here cannot be empty, but if an empty separator in the name is desired use the string "`" here.
