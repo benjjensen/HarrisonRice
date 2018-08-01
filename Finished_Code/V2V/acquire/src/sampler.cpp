@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 #include <ext/stdio_filebuf.h>
 
@@ -24,10 +25,8 @@ const unsigned int COL_SIZE = 4;
 const unsigned int COL_NOTES = 5;
 
 const std::string DATA_FOLDER = "../acquire/data";
-const std::string CAPTURE_META_ENDING = "-meta.txt";
 
 NamingConvention *naming_convention = NULL;
-
 GtkWidget *main_window = NULL;
 GtkWidget *capture_table = NULL;
 size_t capture_table_current_rows = 0;
@@ -120,8 +119,6 @@ static bool start_acquire_in_child_process()
 	const int READ_FD = 0;
 	const int WRITE_FD = 1;
 	
-	//const in
-	
 	int       parentToChild[2];
 	int       childToParent[2];
 	pid_t     pid;
@@ -142,6 +139,7 @@ static bool start_acquire_in_child_process()
 		return FALSE;
 
 	case 0: // Child
+		// TODO error checking here
 		//ASSERT_NOT(-1, 
 		dup2( parentToChild[ READ_FD  ], STDIN_FILENO  );// );
 		//ASSERT_NOT(-1, 
@@ -155,7 +153,7 @@ static bool start_acquire_in_child_process()
 		
 		// Not necessary to change directories because acquire is in the same directory as this
 		// chdir("../acquire");
-		execlp("acquire", "acquire", "20", "-scm", "-scs", "0", NULL);
+		execlp("acquire", "acquire", "20", "-f", current_capture.name.c_str(), "-scm", "-scs", "0", NULL);
 
 		std::cerr << "ERROR: this line should never be reached!" << std::endl;
 		std::exit(-1);
@@ -174,8 +172,6 @@ static bool start_acquire_in_child_process()
 	{
 		std::cerr << "ERROR: failed to close childToParent write" << std::endl;
 	}
-	//ASSERT_IS(  0, close( parentToChild [ READ_FD  ] ) );
-	//ASSERT_IS(  0, close( childToParent [ WRITE_FD ] ) );
 	
 	acquire_process_id = pid;
 	acquire_output_fd = childToParent[READ_FD];
@@ -189,10 +185,27 @@ static bool stop_acquiring()
 	std::istream input_from_acquire(sb);
 	
 	kill(acquire_process_id, SIGINT);
+	int err_code = 0;
+	wait(&err_code);
+	std::cout << "Error code: " << err_code << std::endl;
 	
-	current_capture.read_from_stream(input_from_acquire);
-	finished_captures.push_back(current_capture);
-	insert_capture_into_table(current_capture);
+	std::string line_str = "";
+	while(std::getline(input_from_acquire, line_str))
+	{
+		std::stringstream line(line_str);
+		std::string first_word = "";
+		line >> first_word;
+		std::cout << "Processing first word: " << first_word << std::endl;
+		if(first_word == "DataCapture.meta_filename")
+		{
+			line >> current_capture.meta_filename;
+			std::string notes = current_capture.notes;
+			current_capture.read_from_file();
+			current_capture.notes = notes;
+			finished_captures.push_back(current_capture);
+			insert_capture_into_table(current_capture);
+		}
+	}
 	
 	if(close(acquire_output_fd) != 0)
 	{

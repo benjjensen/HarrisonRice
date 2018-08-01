@@ -39,6 +39,27 @@ int DataCapture::write_to_file(std::string filename)
 {
 	if(filename == "")
 	{
+		if(meta_filename == "")
+		{
+			if(data_filename != "")
+			{
+				size_t extension_index = data_filename.rfind('.');
+	
+				if(extension_index == std::string::npos)
+				{
+					meta_filename = data_filename + CAPTURE_META_ENDING;
+				}
+				else
+				{
+					meta_filename = data_filename.substr(0, extension_index) + CAPTURE_META_ENDING;
+				}
+			}
+			else
+			{
+				std::cerr << "ERROR: no file to write this DataCapture to" << std::endl;
+				return 1;
+			}
+		}
 		filename = meta_filename;
 	}
 	else
