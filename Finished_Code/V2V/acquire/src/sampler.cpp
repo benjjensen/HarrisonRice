@@ -2,7 +2,9 @@
 #include <sstream>
 #include <map>
 #include <list>
+#include <vector>
 #include <cstdlib>
+#include <iomanip>
 #include <dirent.h>
 #include <stdio.h>
 #include <signal.h>
@@ -16,13 +18,14 @@
 #include "NamingConvention.h"
 #include "DataCapture.h"
 
-const unsigned int COLS_COUNT = 6;
+const unsigned int COLS_COUNT = 7;
 const unsigned int COL_NAME = 0;
 const unsigned int COL_DATE = 1;
 const unsigned int COL_TIME = 2;
 const unsigned int COL_DURATION = 3;
 const unsigned int COL_SIZE = 4;
 const unsigned int COL_NOTES = 5;
+const unsigned int COL_EDIT_NOTES = 6;
 
 const std::string DATA_FOLDER = "../acquire/data";
 
@@ -52,12 +55,19 @@ GtkWidget *add_option_entry_code = NULL;
 GtkWidget *add_option_entry_name = NULL;
 GtkWidget *add_option_label_error = NULL;
 
+GtkWidget* edit_notes_window = NULL;
+GtkWidget* edit_notes_text_view = NULL;
+GtkWidget* edit_notes_label_error = NULL;
+std::vector<GtkWidget*> notes_labels;
+
 bool all_initialized = false;
 
 std::string field_being_extended = "";
 
 int acquire_process_id = -1;
 int acquire_output_fd = -1;
+
+int notes_being_edited = -1;
 
 static gboolean cb_destroy(GtkWidget *widget, GdkEvent *event, gpointer data);
 static void cb_start_capture(GtkWidget *widget, gpointer data);
@@ -66,16 +76,20 @@ static void cb_new_capture(GtkWidget *widget, gpointer data);
 static void cb_reset_capture(GtkWidget *widget, gpointer data);
 static void cb_create_new_capture(GtkWidget *widget, gpointer data);
 static void cb_cancel_new_capture(GtkWidget *widget, gpointer data);
-static void cb_add_new_option(GtkWidget* widget, gpointer data);
-static void cb_add_option_cancel(GtkWidget* widget, gpointer data);
-static void cb_add_option_add(GtkWidget* widget, gpointer data);
+static void cb_add_new_option(GtkWidget *widget, gpointer data);
+static void cb_add_option_cancel(GtkWidget *widget, gpointer data);
+static void cb_add_option_add(GtkWidget *widget, gpointer data);
 static void cb_field_selection_changed(GtkWidget *widget, gpointer data);
+static void cb_edit_notes(GtkWidget *widget, gpointer data);
+static void cb_edit_notes_save(GtkWidget *widget, gpointer data);
+static void cb_edit_notes_cancel(GtkWidget *widget, gpointer data);
 
 static bool validate_new_option_and_trim(std::string &new_option_code, std::string &new_option_name);
 
 static void init_main_window();
 static void init_new_capture_window();
 static void init_add_option_window();
+static void init_edit_notes_window();
 
 static void populate_fields_and_options();
 static void insert_capture_into_table_row(DataCapture capture, int row);
@@ -86,6 +100,8 @@ static bool start_acquire_in_child_process();
 static bool stop_acquiring();
 
 
+
+// TODO add ability to edit the notes for each entry
 
 int main(int argc, char **argv)
 {
@@ -101,6 +117,7 @@ int main(int argc, char **argv)
 	init_main_window();
 	init_new_capture_window();
 	init_add_option_window();
+	init_edit_notes_window();
 	
 	all_initialized = TRUE;
 	
@@ -119,62 +136,63 @@ static bool start_acquire_in_child_process()
 	const int READ_FD = 0;
 	const int WRITE_FD = 1;
 	
-	int       parentToChild[2];
-	int       childToParent[2];
-	pid_t     pid;
-	//string    dataReadFromChild;
-	//char      buffer[ BUFFER_SIZE + 1 ];
-	//ssize_t   readResult;
-	int       status;
+	int parent_to_child[2];
+	if(pipe(parent_to_child) != 0)
+	{
+		std::cerr << "ERROR: unable to open pipe for parent to child" << std::endl;
+	}
 	
-	//ASSERT_IS(0, 
-	pipe(parentToChild);//);
-	//ASSERT_IS(0, 
-	pipe(childToParent);//);
+	int child_to_parent[2];
+	if(pipe(child_to_parent) != 0)
+	{
+		std::cerr << "ERROR: unable to open pipe for child to parent" << std::endl;
+	}
 	
+	pid_t pid;
 	switch ( pid = fork() )
 	{
 	case -1:
 		std::cerr << "ERROR: failure to fork for acquire" << std::endl;
 		return FALSE;
-
 	case 0: // Child
-		// TODO error checking here
-		//ASSERT_NOT(-1, 
-		dup2( parentToChild[ READ_FD  ], STDIN_FILENO  );// );
-		//ASSERT_NOT(-1, 
-		dup2( childToParent[ WRITE_FD ], STDOUT_FILENO );// );
-		//ASSERT_NOT(-1, 
-		//dup2( childToParent[ WRITE_FD ], STDERR_FILENO );// );
-		//ASSERT_IS(  0, 
-		close( parentToChild[ WRITE_FD ] );// );
-		//ASSERT_IS(  0, 
-		close( childToParent[ READ_FD  ] );// );
+		if(dup2(parent_to_child[READ_FD], STDIN_FILENO) == -1)
+		{
+			std::cerr << "ERROR: unable to attach std::cin" << std::endl;
+		}
+		if(dup2(child_to_parent[WRITE_FD], STDOUT_FILENO) == -1)
+		{
+			std::cerr << "ERROR: unable to attach std::cout" << std::endl;
+		}
+		if(close(parent_to_child[WRITE_FD]) != 0)
+		{
+			std::cerr << "ERROR: unable to close other side of parent_to_child from child process" << std::endl;
+		}
+		if(close(child_to_parent[READ_FD]) != 0)
+		{
+			std::cerr << "ERROR: unable to close other side of child_to_parent from child process" << std::endl;
+		}
 		
 		// Not necessary to change directories because acquire is in the same directory as this
-		// chdir("../acquire");
 		execlp("acquire", "acquire", "20", "-f", current_capture.name.c_str(), "-scm", "-scs", "0", NULL);
 
 		std::cerr << "ERROR: this line should never be reached!" << std::endl;
 		std::exit(-1);
-
-
 	default: // Parent
 		break;
 	}
 	std::cout << "Child " << pid << " process running..." << std::endl;
 	
-	if(close(parentToChild[READ_FD]) != 0)
+	if(close(parent_to_child[READ_FD]) != 0)
 	{
-		std::cerr << "ERROR: failed to close parentToChild read" << std::endl;
+		std::cerr << "ERROR: failed to close parent_to_child read" << std::endl;
 	}
-	if(close(childToParent[WRITE_FD]) != 0)
+	if(close(child_to_parent[WRITE_FD]) != 0)
 	{
-		std::cerr << "ERROR: failed to close childToParent write" << std::endl;
+		std::cerr << "ERROR: failed to close child_to_parent write" << std::endl;
 	}
 	
 	acquire_process_id = pid;
-	acquire_output_fd = childToParent[READ_FD];
+	acquire_output_fd = child_to_parent[READ_FD];
 	
 	return true;
 }
@@ -219,39 +237,58 @@ static bool stop_acquiring()
 
 
 static void init_main_window()
-{	
-	// TODO put the table inside something that scrolls for when it gets too large
+{
 	std::cout << "init_main_window\n";
 	main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(main_window), "Sampler");
 	gtk_container_set_border_width(GTK_CONTAINER(main_window), 10);
+	gtk_window_set_position(GTK_WINDOW(main_window), GTK_WIN_POS_CENTER_ALWAYS);
+	gtk_window_set_default_size(GTK_WINDOW(main_window), 300, 400);
 	g_signal_connect(main_window, "destroy", G_CALLBACK(cb_destroy), NULL);
 	
 	GtkWidget *layout_box = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(main_window), layout_box);
 	
+	GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_box_pack_start (GTK_BOX(layout_box), scrolled_window, TRUE, TRUE, 0);
+	
+	GtkWidget *align = gtk_alignment_new(0, 0, 0, 0);
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window), align);
+	gtk_widget_show(align);
+	
+	gtk_viewport_set_shadow_type(GTK_VIEWPORT(gtk_bin_get_child(GTK_BIN(scrolled_window))), GTK_SHADOW_NONE);
+	
 	capture_table_current_rows = 1;
 	capture_table = gtk_table_new(capture_table_current_rows, COLS_COUNT, FALSE);
-	gtk_box_pack_start (GTK_BOX(layout_box), capture_table, TRUE, TRUE, 0);
+	gtk_container_add(GTK_CONTAINER(align), capture_table);
+	gtk_table_set_col_spacings(GTK_TABLE(capture_table), 20);
+	gtk_table_set_row_spacings(GTK_TABLE(capture_table), 10);
 	
 	int row = 0;
 	
 	GtkWidget *label = gtk_label_new("Name");
+	gtk_label_set_markup(GTK_LABEL(label), "<b>Name</b>");
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_NAME, COL_NAME + 1, row, row + 1);
 	label = gtk_label_new("Date");
+	gtk_label_set_markup(GTK_LABEL(label), "<b>Date</b>");
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_DATE, COL_DATE + 1, row, row + 1);
 	label = gtk_label_new("Time");
+	gtk_label_set_markup(GTK_LABEL(label), "<b>Time</b>");
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_TIME, COL_TIME + 1, row, row + 1);
 	label = gtk_label_new("Duration");
+	gtk_label_set_markup(GTK_LABEL(label), "<b>Duration</b>");
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_DURATION, COL_DURATION + 1, row, row + 1);
 	label = gtk_label_new("Size");
+	gtk_label_set_markup(GTK_LABEL(label), "<b>Size</b>");
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_SIZE, COL_SIZE + 1, row, row + 1);
 	label = gtk_label_new("Notes");
+	gtk_label_set_markup(GTK_LABEL(label), "<b>Notes</b>");
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_NOTES, COL_NOTES + 1, row, row + 1);
 	
@@ -261,6 +298,7 @@ static void init_main_window()
 	}
 	
 	gtk_widget_show(capture_table);
+	gtk_widget_show(scrolled_window);
 	
 	current_capture_box = gtk_hbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(layout_box), current_capture_box, FALSE, FALSE, 0);
@@ -276,36 +314,36 @@ static void init_main_window()
 	// Intentionally don't show current_capture_box yet
 		
 	GtkWidget *sub_box = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
+	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
+	
+	new_button = gtk_button_new_with_label("New Capture...");
+	gtk_box_pack_start(GTK_BOX(sub_box), new_button, TRUE, TRUE, 0);
+	g_signal_connect (new_button, "clicked", G_CALLBACK(cb_new_capture), NULL);
+	gtk_widget_show(new_button);
+	
+	reset_button = gtk_button_new_with_label("Reset");
+	gtk_widget_set_size_request(reset_button, 100, -1);
+	gtk_box_pack_start(GTK_BOX(sub_box), reset_button, FALSE, FALSE, 0);
+	gtk_widget_set_sensitive(reset_button, FALSE);
+	g_signal_connect (reset_button, "clicked", G_CALLBACK(cb_reset_capture), NULL);
+	gtk_widget_show(reset_button);
+	
+	gtk_widget_show(sub_box);	
+		
+	sub_box = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
 	
 	start_button = gtk_button_new_with_label("Start");
-	stop_button = gtk_button_new_with_label("Stop");
-	reset_button = gtk_button_new_with_label("Reset");
-	new_button = gtk_button_new_with_label("New Capture");
-
 	gtk_box_pack_start(GTK_BOX(sub_box), start_button, TRUE, TRUE, 0);
 	gtk_widget_set_sensitive(start_button, FALSE);
 	g_signal_connect(start_button, "clicked", G_CALLBACK(cb_start_capture), NULL);
 	gtk_widget_show(start_button);
 	
+	stop_button = gtk_button_new_with_label("Stop");
 	gtk_box_pack_start(GTK_BOX(sub_box), stop_button, TRUE, TRUE, 0);
 	gtk_widget_set_sensitive(stop_button, FALSE);
 	g_signal_connect (stop_button, "clicked", G_CALLBACK(cb_stop_capture), NULL);
 	gtk_widget_show(stop_button);
-	
-	gtk_widget_show(sub_box);
-	
-	sub_box = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
-	
-	gtk_box_pack_start(GTK_BOX(sub_box), new_button, TRUE, TRUE, 0);
-	g_signal_connect (new_button, "clicked", G_CALLBACK(cb_new_capture), NULL);
-	gtk_widget_show(new_button);
-	
-	gtk_box_pack_start(GTK_BOX(sub_box), reset_button, FALSE, FALSE, 0);
-	gtk_widget_set_sensitive(reset_button, FALSE);
-	g_signal_connect (reset_button, "clicked", G_CALLBACK(cb_reset_capture), NULL);
-	gtk_widget_show(reset_button);
 	
 	gtk_widget_show(sub_box);
 	
@@ -319,17 +357,18 @@ static void init_new_capture_window()
 	gtk_window_set_transient_for(GTK_WINDOW(new_capture_window), GTK_WINDOW(main_window));
 	gtk_window_set_title(GTK_WINDOW(new_capture_window), "New Capture");
 	gtk_container_set_border_width(GTK_CONTAINER(new_capture_window), 10);
+	gtk_window_set_position(GTK_WINDOW(new_capture_window), GTK_WIN_POS_CENTER_ALWAYS);
 	gtk_window_set_deletable(GTK_WINDOW(new_capture_window), FALSE);
 	
 	GtkWidget *layout_box = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(new_capture_window), layout_box);
 	
 	fields_parent_box = gtk_hbox_new(FALSE, 10);
-	gtk_box_pack_start(GTK_BOX(layout_box), fields_parent_box, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(layout_box), fields_parent_box, FALSE, FALSE, 0);
 	populate_fields_and_options();
 	
 	GtkWidget *sub_box = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
+	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
 	
 	GtkWidget* create_new_capture_button = gtk_button_new_with_label("Prepare");
 	GtkWidget* cancel_new_capture_button = gtk_button_new_with_label("Cancel");
@@ -338,6 +377,8 @@ static void init_new_capture_window()
 	g_signal_connect(create_new_capture_button, "clicked", G_CALLBACK(cb_create_new_capture), NULL);
 	gtk_widget_show(create_new_capture_button);
 	
+	
+	gtk_widget_set_size_request(cancel_new_capture_button, 100, -1);
 	gtk_box_pack_start(GTK_BOX(sub_box), cancel_new_capture_button, FALSE, FALSE, 0);
 	g_signal_connect(cancel_new_capture_button, "clicked", G_CALLBACK(cb_cancel_new_capture), NULL);
 	gtk_widget_show(cancel_new_capture_button);
@@ -354,6 +395,7 @@ static void init_add_option_window()
 	gtk_window_set_transient_for(GTK_WINDOW(add_option_window), GTK_WINDOW(new_capture_window));
 	gtk_window_set_title(GTK_WINDOW(add_option_window), "Add Option");
 	gtk_container_set_border_width(GTK_CONTAINER(add_option_window), 10);
+	gtk_window_set_position(GTK_WINDOW(add_option_window), GTK_WIN_POS_CENTER_ALWAYS);
 	gtk_window_set_deletable(GTK_WINDOW(add_option_window), FALSE);
 	
 	GtkWidget *layout_box = gtk_vbox_new(FALSE, 0);
@@ -411,8 +453,59 @@ static void init_add_option_window()
 	
 	GtkWidget* add_option_cancel_button = gtk_button_new_with_label("Cancel");
 	gtk_box_pack_start(GTK_BOX(sub_box), add_option_cancel_button, FALSE, FALSE, 0);
+	gtk_widget_set_size_request(add_option_cancel_button, 100, -1);
 	g_signal_connect(add_option_cancel_button, "clicked", G_CALLBACK(cb_add_option_cancel), NULL);
 	gtk_widget_show(add_option_cancel_button);
+	
+	gtk_widget_show(sub_box);
+	
+	gtk_widget_show(layout_box);
+}
+
+static void init_edit_notes_window()
+{
+	std::cout << "init_edit_notes_window\n";
+	edit_notes_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_transient_for(GTK_WINDOW(edit_notes_window), GTK_WINDOW(main_window));
+	gtk_window_set_title(GTK_WINDOW(edit_notes_window), "Edit notes");
+	gtk_container_set_border_width(GTK_CONTAINER(edit_notes_window), 10);
+	gtk_window_set_position(GTK_WINDOW(edit_notes_window), GTK_WIN_POS_CENTER_ALWAYS);
+	gtk_window_set_deletable(GTK_WINDOW(edit_notes_window), FALSE);
+	
+	GtkWidget *layout_box = gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(edit_notes_window), layout_box);
+	
+	GtkWidget *frame = gtk_frame_new("Notes:");
+	gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, 0);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
+	
+	edit_notes_text_view = gtk_text_view_new();
+	gtk_container_add(GTK_CONTAINER(frame), edit_notes_text_view);
+	gtk_widget_show(edit_notes_text_view);
+	
+	gtk_widget_show(frame);
+	
+	edit_notes_label_error = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(layout_box), edit_notes_label_error, FALSE, FALSE, 0);
+	
+	GdkColor color;
+  	gdk_color_parse ("red", &color);
+  	gtk_widget_modify_fg(edit_notes_label_error, GTK_STATE_NORMAL, &color);
+	gtk_widget_show(edit_notes_label_error);
+	
+	GtkWidget* sub_box = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
+	
+	GtkWidget* save_button = gtk_button_new_with_label("Save");
+	gtk_box_pack_start(GTK_BOX(sub_box), save_button, TRUE, TRUE, 0);
+	g_signal_connect(save_button, "clicked", G_CALLBACK(cb_edit_notes_save), NULL);
+	gtk_widget_show(save_button);
+	
+	GtkWidget* cancel_button = gtk_button_new_with_label("Cancel");
+	gtk_box_pack_start(GTK_BOX(sub_box), cancel_button, FALSE, FALSE, 0);
+	gtk_widget_set_size_request(cancel_button, 100, -1);
+	g_signal_connect(cancel_button, "clicked", G_CALLBACK(cb_edit_notes_cancel), NULL);
+	gtk_widget_show(cancel_button);
 	
 	gtk_widget_show(sub_box);
 	
@@ -486,10 +579,15 @@ static void populate_fields_and_options()
 		
 		GtkWidget* add_option_button = gtk_button_new_with_label("Add...");
 		gtk_widget_set_name(add_option_button, field_code.c_str());
+		gtk_widget_set_size_request(add_option_button, 100, -1);
 		g_signal_connect(add_option_button, "clicked", G_CALLBACK(cb_add_new_option), NULL);
-		gtk_box_pack_end(GTK_BOX(field_box), add_option_button, FALSE, FALSE, 0);
+		
+		GtkWidget *align = gtk_alignment_new(0, 0, 0, 0);
+		gtk_container_add(GTK_CONTAINER(align), add_option_button);
 		gtk_widget_show(add_option_button);
-		// TODO Stop add_option_button from expanding horizontally.
+		
+		gtk_box_pack_end(GTK_BOX(field_box), align, FALSE, FALSE, 0);
+		gtk_widget_show(align);
 		
 		gtk_widget_show(field_box);
 	}
@@ -506,21 +604,25 @@ static void insert_capture_into_table(DataCapture capture)
 static void insert_capture_into_table_row(DataCapture capture, int row)
 {
 	GtkWidget *label = gtk_label_new(capture.name.c_str());
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_NAME, COL_NAME + 1, row, row + 1);
 	
 	label = gtk_label_new(capture.get_date_string().c_str());
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_DATE, COL_DATE + 1, row, row + 1);
 	
 	label = gtk_label_new(capture.get_time_string().c_str());
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_TIME, COL_TIME + 1, row, row + 1);
 	
 	std::stringstream ss;
-	ss << capture.duration << " s";
+	ss << std::setprecision(3) << capture.duration << " s";
 	
 	label = gtk_label_new(ss.str().c_str());
+	gtk_misc_set_alignment(GTK_MISC(label), 1, 0);
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_DURATION, COL_DURATION + 1, row, row + 1);
 	
@@ -528,12 +630,24 @@ static void insert_capture_into_table_row(DataCapture capture, int row)
 	ss << capture.size << " MB";
 	
 	label = gtk_label_new(ss.str().c_str());
+	gtk_misc_set_alignment(GTK_MISC(label), 1, 0);
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_SIZE, COL_SIZE + 1, row, row + 1);
 	
 	label = gtk_label_new(capture.notes.c_str());
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_NOTES, COL_NOTES + 1, row, row + 1);
+	notes_labels.push_back(label);
+	
+	GtkWidget *edit_notes_button = gtk_button_new_with_label("Edit...");
+	gtk_widget_show(edit_notes_button);
+	g_signal_connect(edit_notes_button, "clicked", G_CALLBACK(cb_edit_notes), (gpointer)(row - 1));
+	
+	GtkWidget *align = gtk_alignment_new(0, 0, 0, 0);
+	gtk_container_add(GTK_CONTAINER(align), edit_notes_button);
+	gtk_widget_show(align);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), align, COL_EDIT_NOTES, COL_EDIT_NOTES + 1, row, row + 1);
 }
 
 
@@ -643,7 +757,7 @@ static void cb_add_new_option(GtkWidget *widget, gpointer data)
 	}
 	std::string field_code = gtk_widget_get_name(widget);
 	field_being_extended = field_code;
-	gtk_label_set_text(GTK_LABEL(add_option_field_label), naming_convention->get_field_name(field_being_extended).c_str());
+	gtk_label_set_text(GTK_LABEL(add_option_field_label), ("  " + naming_convention->get_field_name(field_being_extended)).c_str());
 	gtk_entry_set_text(GTK_ENTRY(add_option_entry_code), "");
 	gtk_entry_set_text(GTK_ENTRY(add_option_entry_name), "");
 	
@@ -698,6 +812,55 @@ static void cb_add_option_add(GtkWidget* widget, gpointer data)
 	field_being_extended = "";
 	gtk_widget_hide(add_option_window);
 	gtk_window_set_modal(GTK_WINDOW(add_option_window), FALSE);
+}
+
+static void cb_edit_notes(GtkWidget *widget, gpointer data)
+{
+	long capture_index = (long)data;
+	
+	std::list<DataCapture>::iterator it = finished_captures.begin();
+	std::advance(it, capture_index);
+	
+	DataCapture capture = *it;
+	notes_being_edited = capture_index;
+	
+	gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(edit_notes_text_view)), capture.notes.c_str(), -1);
+	gtk_label_set_text(GTK_LABEL(edit_notes_label_error), "");
+	gtk_widget_show(edit_notes_window);
+	gtk_window_set_modal(GTK_WINDOW(edit_notes_window), TRUE);
+}
+
+static void cb_edit_notes_save(GtkWidget *widget, gpointer data)
+{
+	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(edit_notes_text_view));
+	GtkTextIter start_iter, end_iter;
+	gtk_text_buffer_get_start_iter(buffer, &start_iter);
+	gtk_text_buffer_get_end_iter(buffer, &end_iter);
+	std::string new_notes = gtk_text_buffer_get_text(buffer, &start_iter, &end_iter, FALSE);
+	
+	if(new_notes.find('`') != std::string::npos)
+	{
+		gtk_label_set_text(GTK_LABEL(edit_notes_label_error), "Backquote (`) character not allowed");
+		return;
+	}
+	
+	std::list<DataCapture>::iterator it = finished_captures.begin();
+	std::advance(it, notes_being_edited);
+	
+	(*it).notes = new_notes;
+	(*it).write_to_file();
+	
+	gtk_label_set_text(GTK_LABEL(notes_labels[notes_being_edited]), new_notes.c_str());
+	
+	notes_being_edited = -1;
+	gtk_widget_hide(edit_notes_window);
+	gtk_window_set_modal(GTK_WINDOW(edit_notes_window), FALSE);
+}
+static void cb_edit_notes_cancel(GtkWidget *widget, gpointer data)
+{
+	notes_being_edited = -1;
+	gtk_widget_hide(edit_notes_window);
+	gtk_window_set_modal(GTK_WINDOW(edit_notes_window), FALSE);
 }
 
 static bool validate_new_option_and_trim(std::string &new_option_code, std::string &new_option_name)
@@ -758,6 +921,65 @@ static bool validate_new_option_and_trim(std::string &new_option_code, std::stri
 	return TRUE;
 }
 
+static bool compare_captures(const DataCapture &first, const DataCapture &second)
+{
+	if(first.year < second.year)
+	{
+		return TRUE;	
+	}
+	else if(first.year > second.year)
+	{
+		return FALSE;
+	}
+	
+	if(first.month < second.month)
+	{
+		return TRUE;	
+	}
+	else if(first.month > second.month)
+	{
+		return FALSE;
+	}
+	
+	if(first.date < second.date)
+	{
+		return TRUE;	
+	}
+	else if(first.date > second.date)
+	{
+		return FALSE;
+	}
+	
+	if(first.hour < second.hour)
+	{
+		return TRUE;	
+	}
+	else if(first.hour > second.hour)
+	{
+		return FALSE;
+	}
+	
+	if(first.minute < second.minute)
+	{
+		return TRUE;	
+	}
+	else if(first.minute > second.minute)
+	{
+		return FALSE;
+	}
+	
+	if(first.second < second.second)
+	{
+		return TRUE;	
+	}
+	else if(first.second > second.second)
+	{
+		return FALSE;
+	}
+	
+	return FALSE;
+}
+
 static void load_all_captures_from_files()
 {
 	std::list<std::string> capture_files;
@@ -790,4 +1012,6 @@ static void load_all_captures_from_files()
 		capture.read_from_file(*it);
 		finished_captures.push_back(capture);
 	}
+	finished_captures.sort(compare_captures);
+	
 }

@@ -64,7 +64,6 @@ int NamingConvention::load_fields_from_file(std::string filename)
 	std::string code;
 	std::string name;
 	std::string separator;
-	std::string default_option;
 	
 	// Loop until we run out of things to read. The presence of file.eof() here is more of a
 	// failsafe than anything else--every file should end with '~', and we watch for that and
@@ -89,7 +88,6 @@ int NamingConvention::load_fields_from_file(std::string filename)
 		if(line_marker == FIELD_MARKER)
 		{
 			// Extra things to read before the name if it's a field entry.
-			file >> default_option;
 			file >> separator;
 		}
 		
@@ -106,8 +104,9 @@ int NamingConvention::load_fields_from_file(std::string filename)
 				// represents it.
 				separator = "";
 			}
-			p_add_field(code, name, default_option, separator);
-			current_field = code;
+			// The default option was read in as the code:
+			p_add_field(name, name, code, separator);
+			current_field = name;
 			break;
 		case OPTION_MARKER:
 			p_add_option(current_field, code, name);
@@ -148,9 +147,31 @@ int NamingConvention::save_fields_to_file(std::string filename)
 		return 1;
 	}
 	
-	// TODO add a comment block at the top that explains the format of this file
-	// TODO get rid of the field code
-	
+	file << "# Naming conventions are stored in a text file. The format of this file is as follows:\n"
+	<< "# Each line is one of a comment, a blank line, a field entry, an option entry, or the end of file marker line.\n"
+	<< "# \n"
+	<< "# Comment lines start with '#' and are ignored.\n"
+	<< "#     # This is a comment. I can write anything here.\n"
+	<< "#\n"
+	<< "# Field entries start with '$' and are in this format:\n"
+	<< "#     $ [default value] [separator] [field name]\n"
+	<< "# Where each item is exactly one word, aside from the field name, which can be any number of words.\n"
+	<< "# The default value must be a code for one of the options listed below this field.\n"
+	<< "# The separator here cannot be empty, but if an empty separator in the name is desired use the string \"`\" here.\n"
+	<< "# Field entries should appear in the order in which their codes are used for the naming convention.\n"
+	<< "# \n"
+	<< "# Option entries start with '-' and are in this format:\n"
+	<< "#     - [option code] [option name]\n"
+	<< "# Where option code is exactly one word and option name is any number of words.\n"
+	<< "# Option entries are listed under the field which they are options for.\n"
+	<< "#\n"
+	<< "# The end of file marker line is mandatory and consists of exactly `~`:\n"
+	<< "#     ~\n"
+	<< "# Behavior is undefined if this line is not present or if there exist lines in the file after this line.\n"
+	<< "#\n"
+	<< "# If any line begins with a character other than these four options (leading whitespace and empty lines\n"
+	<< "# are ignored), the naming convention class will be unable to read the naming convention file.\n\n\n" << std::endl;
+		
 	// For each field, make an entry for it and each of its options.
 	for(std::list<std::string>::iterator fields_it = mFieldOrder.begin(); fields_it != mFieldOrder.end(); fields_it++)
 	{
@@ -160,7 +181,7 @@ int NamingConvention::save_fields_to_file(std::string filename)
 		{
 			separator = SEPARATOR_EMPTY;
 		}
-		file << FIELD_MARKER << ' ' << field_code << ' ' << mFieldDefaults[field_code] << ' ' <<
+		file << FIELD_MARKER << ' ' << mFieldDefaults[field_code] << ' ' <<
 				separator << ' ' << mFieldNames[field_code] << std::endl;
 		
 		for(std::map<std::string, std::string>::iterator options_it = mFieldOptions[field_code].begin();
