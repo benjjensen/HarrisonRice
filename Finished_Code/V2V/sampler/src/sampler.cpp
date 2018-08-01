@@ -2,8 +2,11 @@
 #include <sstream>
 #include <map>
 #include <list>
+#include <cstdlib>
 #include <dirent.h>
 #include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
 
 #include <gtk/gtk.h>
 
@@ -52,6 +55,9 @@ bool all_initialized = false;
 
 std::string field_being_extended = "";
 
+int acquire_process_id = -1;
+int acquire_output_fd = -1;
+
 static gboolean cb_destroy(GtkWidget *widget, GdkEvent *event, gpointer data);
 static void cb_start_capture(GtkWidget *widget, gpointer data);
 static void cb_stop_capture(GtkWidget *widget, gpointer data);
@@ -74,6 +80,9 @@ static void populate_fields_and_options();
 static void insert_capture_into_table_row(DataCapture capture, int row);
 static void insert_capture_into_table(DataCapture capture);
 static void load_all_captures_from_files();
+
+static bool start_acquire_in_child_process();
+static bool stop_acquiring();
 
 
 
@@ -104,8 +113,122 @@ int main(int argc, char **argv)
 
 
 
+static bool start_acquire_in_child_process()
+{
+	const int READ_FD = 0;
+	const int WRITE_FD = 1;
+	
+	//const in
+	
+	int       parentToChild[2];
+	int       childToParent[2];
+	pid_t     pid;
+	//string    dataReadFromChild;
+	//char      buffer[ BUFFER_SIZE + 1 ];
+	//ssize_t   readResult;
+	int       status;
+	
+	//ASSERT_IS(0, 
+	pipe(parentToChild);//);
+	//ASSERT_IS(0, 
+	pipe(childToParent);//);
+	
+	switch ( pid = fork() )
+	{
+	case -1:
+		std::cerr << "ERROR: failure to fork for acquire" << std::endl;
+		return FALSE;
+
+	case 0: // Child
+		//ASSERT_NOT(-1, 
+		dup2( parentToChild[ READ_FD  ], STDIN_FILENO  );// );
+		//ASSERT_NOT(-1, 
+		dup2( childToParent[ WRITE_FD ], STDOUT_FILENO );// );
+		//ASSERT_NOT(-1, 
+		//dup2( childToParent[ WRITE_FD ], STDERR_FILENO );// );
+		//ASSERT_IS(  0, 
+		close( parentToChild[ WRITE_FD ] );// );
+		//ASSERT_IS(  0, 
+		close( childToParent[ READ_FD  ] );// );
+		
+		chdir("../acquire");
+		execlp("acquire", "acquire", "20", "-scm", "-scs", "0", NULL);
+
+		std::cerr << "ERROR: this line should never be reached!" << std::endl;
+		std::exit(-1);
+
+
+	default: // Parent
+		break;
+	}
+	std::cout << "Child " << pid << " process running..." << std::endl;
+	
+	if(close(parentToChild[READ_FD]) != 0)
+	{
+		std::cerr << "ERROR: failed to close parentToChild read" << std::endl;
+	}
+	if(close(childToParent[WRITE_FD]) != 0)
+	{
+		std::cerr << "ERROR: failed to close childToParent write" << std::endl;
+	}
+	//ASSERT_IS(  0, close( parentToChild [ READ_FD  ] ) );
+	//ASSERT_IS(  0, close( childToParent [ WRITE_FD ] ) );
+	
+	acquire_process_id = pid;
+	acquire_output_fd = childToParent[READ_FD];
+	
+	return true;
+
+	/*while ( true )
+	{
+		switch ( readResult = read( childToParent[ READ_FD ],
+                            buffer, BUFFER_SIZE ) )
+		{
+		case 0: // End-of-File, or non-blocking read. 
+			cout << "End of file reached..."         << endl
+					<< "Data received was ("
+					<< dataReadFromChild.size() << "):" << endl
+					<< dataReadFromChild << endl;
+
+			ASSERT_IS( pid, waitpid( pid, & status, 0 ) );
+
+			cout << endl
+					<< "Child exit staus is:  " << WEXITSTATUS(status) << endl
+					<< endl;
+
+			exit(0);
+
+
+		case -1:
+			if ( (errno == EINTR) || (errno == EAGAIN) )
+			{
+				errno = 0;
+				break;
+			}
+			else
+			{
+				FAIL( "read() failed" );
+				exit(-1);
+			}
+
+		default:
+			dataReadFromChild . append( buffer, readResult );
+			break;
+		}
+	}*/
+}
+
+static bool stop_acquiring()
+{
+	// TODO get acquire input
+	kill(acquire_process_id, SIGINT);
+}
+
+
+
 static void init_main_window()
 {	
+	// TODO put the table inside something that scrolls for when it gets too large
 	std::cout << "init_main_window\n";
 	main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(main_window), "Sampler");
@@ -437,7 +560,8 @@ static void cb_start_capture(GtkWidget *widget, gpointer data)
 	}
 	
 	gtk_label_set_text(GTK_LABEL(current_capture_status), "capturing data... (click stop to finish)");
-	// TODO actually start capturing
+	start_acquire_in_child_process();
+	
 	gtk_widget_set_sensitive(start_button, FALSE);
 	gtk_widget_set_sensitive(stop_button, TRUE);
 	gtk_widget_set_sensitive(new_button, FALSE);
@@ -452,7 +576,8 @@ static void cb_stop_capture(GtkWidget *widget, gpointer data)
 	}
 	
 	gtk_widget_hide(current_capture_box);
-	// TODO stop capturing
+	stop_acquiring();
+	
 	gtk_widget_set_sensitive(start_button, FALSE);
 	gtk_widget_set_sensitive(stop_button, FALSE);
 	gtk_widget_set_sensitive(new_button, TRUE);
