@@ -18,6 +18,9 @@
 #include "NamingConvention.h"
 #include "DataCapture.h"
 
+/**
+ * Constants for the columns of the capture table.
+ */
 const unsigned int COLS_COUNT = 7;
 const unsigned int COL_NAME = 0;
 const unsigned int COL_DATE = 1;
@@ -27,86 +30,305 @@ const unsigned int COL_SIZE = 4;
 const unsigned int COL_NOTES = 5;
 const unsigned int COL_EDIT_NOTES = 6;
 
+/**
+ * The folder where the data files are stored.
+ * 
+ * TODO extract this to a header file (here and in acquire.cpp)
+ */
 const std::string DATA_FOLDER = "../acquire/data";
 
+/**
+ * The naming convention used to store the values the user has selected for
+ * each field.
+ * 
+ * TODO make this an object, not a pointer to an object
+ */
 NamingConvention *naming_convention = NULL;
+
+/**
+ * The main window.
+ */
 GtkWidget *main_window = NULL;
+/**
+ * The table where the captures are displayed.
+ */
 GtkWidget *capture_table = NULL;
+/**
+ * The current number of rows in the capture table.
+ */
 size_t capture_table_current_rows = 0;
 
+/**
+ * The box that contains the current capture info.
+ */
 GtkWidget *current_capture_box = NULL;
+/**
+ * The label that shows the name of the current capture.
+ */
 GtkWidget *current_capture_name = NULL;
+/**
+ * The label that shows the status of the current capture.
+ */
 GtkWidget *current_capture_status = NULL;
 
+/**
+ * The current data capture. This stores the name as determined in the
+ * new capture window and then retrieves the information that acquire.cpp
+ * saves to the metadata file.
+ */
 DataCapture current_capture;
+
+/**
+ * The list of previously completed data captures.
+ * 
+ * TODO change this to a vector?
+ */
 std::list<DataCapture> finished_captures;
 
+/**
+ * The button in the main window that starts the data capture.
+ */
 GtkWidget *start_button = NULL;
+/**
+ * The button in the main window that stops the current data capture.
+ */
 GtkWidget *stop_button = NULL;
+/**
+ * The button in the main window that opens the new capture window.
+ */
 GtkWidget *new_button = NULL;
+/**
+ * The button in the main window that clears the current capture.
+ */
 GtkWidget *reset_button = NULL;
 
+/**
+ * The window that allows the user to set up a new capture.
+ */
 GtkWidget *new_capture_window = NULL;
+/**
+ * The box in the new capture window that contains the fields and options
+ * for the naming convention.
+ */
 GtkWidget *fields_parent_box = NULL;
 
+/**
+ * The window that allows the user to add a new option to a naming convention
+ * field.
+ */
 GtkWidget *add_option_window = NULL;
+/**
+ * The label in the add option window that tells the user the name of the
+ * field they're adding to.
+ */
 GtkWidget *add_option_field_label = NULL;
+/**
+ * The entry in the add option window where the user enters the code for the entry.
+ */
 GtkWidget *add_option_entry_code = NULL;
+/**
+ * The entry in the add option window where the user enters the name for the entry.
+ */
 GtkWidget *add_option_entry_name = NULL;
+/**
+ * The label in the add option window where we display any problems with the
+ * user's input in the add_option_entry_code and add_option_entry_name fields.
+ */
 GtkWidget *add_option_label_error = NULL;
 
+/**
+ * The window where the user edits the notes for a certain capture.
+ */
 GtkWidget* edit_notes_window = NULL;
+/**
+ * The text view in the edit notes window where the user enters and modifies notes
+ * for a certain capture.
+ * 
+ * This needs to be a text view and not an entry because text view widgets can
+ * accept multiline entries, where as entry widgets accept only a single line.
+ */
 GtkWidget* edit_notes_text_view = NULL;
+/**
+ * The label in the edit notes window where we display problems with the input in
+ * edit_notes_text_view.
+ */
 GtkWidget* edit_notes_label_error = NULL;
+/**
+ * The list of labels for the notes of each entry in the capture table.
+ */
 std::vector<GtkWidget*> notes_labels;
 
+/**
+ * This indicates whether the GUI has finished initializing.
+ */
 bool all_initialized = false;
 
+/**
+ * The name of the field that is currently being extended.
+ */
 std::string field_being_extended = "";
 
+/**
+ * The process id for the child process where the acquire program is running.
+ */
 int acquire_process_id = -1;
+/**
+ * The file descriptor for the output end of the pipe that the acquire program
+ * is feeding with its output.
+ */
 int acquire_output_fd = -1;
 
+/**
+ * The index of the capture in finished_captures for which the user is currently
+ * editing the notes.
+ */
 int notes_being_edited = -1;
 
+/**
+ * A callback function for when the user closes the main window.
+ */
 static gboolean cb_destroy(GtkWidget *widget, GdkEvent *event, gpointer data);
+/**
+ * A callback function for when the user clicks the start button.
+ */
 static void cb_start_capture(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks the stop button.
+ */
 static void cb_stop_capture(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks the new capture button.
+ */
 static void cb_new_capture(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks the reset button.
+ */
 static void cb_reset_capture(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks the create button in the
+ * new capture window.
+ */
 static void cb_create_new_capture(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks the cancel button in the
+ * new capture window.
+ */
 static void cb_cancel_new_capture(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks a button to add a new
+ * option to a naming convention field.
+ */
 static void cb_add_new_option(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks the cancel button in
+ * the add option window.
+ */
 static void cb_add_option_cancel(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks the add button in the
+ * add option window.
+ */
 static void cb_add_option_add(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks on an option in the 
+ * new capture window.
+ */
 static void cb_field_selection_changed(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks the button to edit the
+ * notes for a capture in the capture table.
+ */
 static void cb_edit_notes(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks the save button in the
+ * edit notes window.
+ */
 static void cb_edit_notes_save(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks the cancel button in
+ * the edit notes window.
+ */
 static void cb_edit_notes_cancel(GtkWidget *widget, gpointer data);
 
+/**
+ * Validates the code and the name for a new option that the user has
+ * entered. Also trims whitespace off.
+ */
 static bool validate_new_option_and_trim(std::string &new_option_code, std::string &new_option_name);
 
+/**
+ * The function that initializes the main window.
+ */
 static void init_main_window();
+/**
+ * The function that initializes the new capture window.
+ */
 static void init_new_capture_window();
+/**
+ * The function that initializes the add option window.
+ */
 static void init_add_option_window();
+/**
+ * The function that initializes the edit notes window.
+ */
 static void init_edit_notes_window();
 
+/**
+ * Populates the fields and options for the naming convention in the new capture window.
+ * 
+ * This clears what is already in fields_parent_box and refills it with new radio button
+ * options.
+ */
 static void populate_fields_and_options();
+/**
+ * Inserts a capture into the table at a specific row.
+ */
 static void insert_capture_into_table_row(DataCapture capture, int row);
+/**
+ * Inserts a capture into the table at the end of the table.
+ * 
+ * This function resizes the capture table and then calls
+ * insert_capture_into_table_row to insert the capture into the
+ * last row.
+ */
 static void insert_capture_into_table(DataCapture capture);
+/**
+ * This finds all the "*-meta.txt" files in DATA_FOLDER and reads them in
+ * as DataCapture objects and puts those objects into finished_captures.
+ * 
+ * Note: this does not put the captures into the captures table.
+ */
 static void load_all_captures_from_files();
 
+/**
+ * Starts the acquire program in a child process, with the child's
+ * output piped into this program via the acquire_output_fd file
+ * descriptor.
+ * 
+ * The process id of the new child process is stored in
+ * acquire_process_id.
+ * 
+ * The arguments given to acquire specify that the name of the output
+ * file is current_capture.name.
+ */
 static bool start_acquire_in_child_process();
+/**
+ * Stops the acquire program, which is running in a child process
+ * with process id acquire_process_id.
+ */
 static bool stop_acquiring();
 
+// TODO add a label that shows the total space used by all of the captures
+// TODO add a button to remove a capture
+// TODO update the format of the notes text view
+// TODO show the name of the capture that's being edited in the edit notes window
+// TODO add a line in the name_fields.txt file that explains that comments will disappear each time
+// TODO get rid of the "processing first word" output
 
-
-// TODO add ability to edit the notes for each entry
+// TODO finish commenting the code
 
 int main(int argc, char **argv)
 {
-	std::cout << "main\n";
-	
 	naming_convention = new NamingConvention;
 	field_being_extended = "";
 	
