@@ -22,8 +22,8 @@ end
 %%%%%%%%%%%%%%%%%%
 % Change These
 %%%%%%%%%%%%%%%%%%
-room = "testing";
-NumSamples = 10;
+room = "harrison";
+NumSamples = 30;
 DelayTime = .5;
 %%%%%%%%%%%%%%%%%%
 
@@ -51,8 +51,8 @@ save('workspace.mat');
 start = 3;
 finish = 6;
 
-% GraphAll(room,NumSamples);
-GraphRange(room,start,finish);
+GraphAll(room,NumSamples);
+% GraphRange(room,start,finish);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Functions
