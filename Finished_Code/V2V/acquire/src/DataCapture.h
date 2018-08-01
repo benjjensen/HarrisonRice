@@ -3,6 +3,8 @@
 #include <string>
 #include <ctime>
 
+const std::string CAPTURE_META_ENDING = "-meta.txt";
+
 class DataCapture
 {
 public:
@@ -15,13 +17,15 @@ public:
 	time_t minute;
 	time_t second;
 	
-	size_t duration;
+	double duration;
 	size_t size;
 	
 	std::string notes;
 	
 	std::string meta_filename;
 	std::string data_filename;
+	
+	
 	
 	std::string get_date_string();
 	std::string get_time_string();
