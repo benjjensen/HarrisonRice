@@ -1,12 +1,16 @@
 %%% CreateDataArray
 
+% load all the data
 
-num = ;  %size
+num = 3000;  %size
 
-harrisonArray = createArray(num);
-smalleyArray = createArray(num);
-...
+harrisonArray = createArray(num, harrisons);        %% update with data name
+smalleyArray = createArray(num, smalleys);          %% update with data name
+camachoArray = createArray(num, camachos);          %% ...
+chambersArray = createArray(num, chambers);
+conferenceArray = createArray(num, conference);
     
+
 %%% PwelchData %%%
 
 Nfft = 2*64;
@@ -14,10 +18,13 @@ FF = -0.5:1/Nfft:0.5-1/Nfft;
 FF = 20*FF;
 
 harrisonPwelch = pwelchData(harrisonArray); %%% May need to pass in FF, Nfft
-smalleyArray = pwelchData(smalleyArray);
-...
+smalleyPwelch = pwelchData(smalleyArray);
+camachoPwelch = pwelchData(camachoArray);
+chambersPwelch = pwelchData(chambersArray);
+conferencePwelch = pwelchData(conferenceArray);
 
-%%%%% Piece together Array - Necessary?
+
+%%% Piece together Array - Necessary?
 
 %%% SeparateSignals %%%
 
@@ -27,17 +34,22 @@ dblimit = 20;
 harrisonCarriersAbove = separateSignals(harrisonPwelch);
 smalleyCarriersAbove = separateSignals(smalleyPwelch);
 
-function [data] = createArray(num)
+
+numbarrays = 26;
+numbloops = 32;
+tx2camacho_data = nan(2048,numbloops,numbarrays);
+
+function [data] = createArray(num, room)
     data = nan(2048,num);
 
-    for i = 1:(num-7)
-        eval(sprintf('hallway_data(:,num + 1 - %d) = (room)(:,%d)',i,i)); 
+    for i = 1:num
+        eval(sprintf('data(:,num + 1 - %d) = (room)(:,%d)',i,i));     %%Update with room
     end
 
-    for numCorrections = 1:num    
-       obj = 'hallway_' + string(numCorrections) + '(:,' + string(numbcorrections) + ')';
-       data(:,numLoops + 1 - numbcorrections,numCorrections) = eval(obj);
-    end
+%     for numCorrections = 1:num    
+%        obj = 'hallway_' + string(numCorrections) + '(:,' + string(numbcorrections) + ')';
+%        data(:,numLoops + 1 - numbcorrections,numCorrections) = eval(obj);
+%     end
 end
 
 function [pwelch_] = pwelchData(data)
@@ -45,7 +57,7 @@ function [pwelch_] = pwelchData(data)
     clear nanarray;
     nanarray = isnan(data);
     [~, num] = size(data);
-    pwelch_ = nan(128,num);      %%% Why do we drop to 128 here? 64*2?
+    pwelch_ = nan(128,num);      % Pwelch drops the size 
 
     for j = 1:num
         if nanarray(:,j) ~= 1
