@@ -5,7 +5,7 @@ function [true] = RMWeightHierM(r1,r2,m1,m2)
 for m = m1 : m2
     figure();
     for r = r1 : r2
-        if r < m
+        if r <= m
             
             n = 2^m;
             k = 0; %%initialize k = 0
