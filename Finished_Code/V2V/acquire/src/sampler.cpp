@@ -31,13 +31,6 @@ const unsigned int COL_NOTES = 5;
 const unsigned int COL_EDIT_NOTES = 6;
 
 /**
- * The folder where the data files are stored.
- * 
- * TODO extract this to a header file (here and in acquire.cpp)
- */
-const std::string DATA_FOLDER = "data";
-
-/**
  * The width of the border on all the windows.
  */
 const int WINDOW_BORDER_WIDTH = 10;

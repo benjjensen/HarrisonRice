@@ -81,7 +81,6 @@ unsigned int Fiducial = 0;
 unsigned int forceCal = 0;
 double Frequency = 0.0;
 
-const std::string output_folder = "data/";
 const std::string default_output_extension = ".dat";
 char * user_outputfile = NULL;
 int early_exit;
@@ -145,7 +144,7 @@ int main(int argc, char ** argv)
 	DataCapture capture_info;
 	capture_info.name = user_outputfile == NULL ? "Unnamed" : user_outputfile;
 	
-	std::string filename = output_folder + (user_outputfile == NULL ? output_file[BoardNum] : user_outputfile);
+	std::string filename = DATA_FOLDER + "/" + (user_outputfile == NULL ? output_file[BoardNum] : user_outputfile);
 	
 	timestamp_filename(filename, capture_info);
 	capture_info.data_filename = filename;
