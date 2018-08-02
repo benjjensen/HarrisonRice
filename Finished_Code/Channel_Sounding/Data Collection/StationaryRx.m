@@ -12,7 +12,7 @@ collectdata = true;
 graphall = true;
 graphrange = false;
 
-% if graphrange = true
+% if using graphrange
 % then set the range
 % with these numbers
 start = 1;
