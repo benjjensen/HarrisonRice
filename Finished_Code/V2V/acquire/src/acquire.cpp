@@ -253,7 +253,7 @@ int main(int argc, char ** argv)
 #endif
 
 	capture_info.write_to_file();
-	std::cout << "DataCapture.meta_filename " << capture_info.meta_filename << std::endl << std::endl;
+	std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " << capture_info.meta_filename << std::endl << std::endl;
 
 	fflush(stdout);
 
