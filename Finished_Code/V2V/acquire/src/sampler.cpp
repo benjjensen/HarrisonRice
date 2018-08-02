@@ -390,16 +390,14 @@ static bool start_acquire_in_child_process()
 	const int READ_FD = 0;
 	const int WRITE_FD = 1;
 	
-	// A pipe to send info from sampler to acquire (via acquire's standard input):
-	int parent_to_child[2];
-	if(pipe(parent_to_child) != 0)
-	{
-		std::cerr << "ERROR: unable to open pipe for parent to child" << std::endl;
-	}
+	const int SUCCESS = 0;
+	const int FAILURE = -1;
+	
+	const int CHILD_PID = 0;
 	
 	// A pipe to get info from acquire and read it in sampler (via acquire's standard output):
 	int child_to_parent[2];
-	if(pipe(child_to_parent) != 0)
+	if(pipe(child_to_parent) != SUCCESS)
 	{
 		std::cerr << "ERROR: unable to open pipe for child to parent" << std::endl;
 	}
@@ -408,27 +406,19 @@ static bool start_acquire_in_child_process()
 	switch ( pid = fork() )
 	{
 	// -1 means that the fork failed.
-	case -1:
+	case FAILURE:
 		std::cerr << "ERROR: failure to fork for acquire" << std::endl;
 		return FALSE;
 	// If we get 0, we're the child process.
-	case 0:
-		// Set up the process interaction by replacing standard in and out with the
-		// respective pipes from and to the parent process:
-		if(dup2(parent_to_child[READ_FD], STDIN_FILENO) == -1)
-		{
-			std::cerr << "ERROR: unable to attach std::cin" << std::endl;
-		}
-		if(dup2(child_to_parent[WRITE_FD], STDOUT_FILENO) == -1)
+	case CHILD_PID:
+		// Set up the process interaction by replacing standard out with the
+		// pipe to the parent process:
+		if(dup2(child_to_parent[WRITE_FD], STDOUT_FILENO) == FAILURE)
 		{
 			std::cerr << "ERROR: unable to attach std::cout" << std::endl;
 		}
-		// Close the side of the pipes we won't use:
-		if(close(parent_to_child[WRITE_FD]) != 0)
-		{
-			std::cerr << "ERROR: unable to close other side of parent_to_child from child process" << std::endl;
-		}
-		if(close(child_to_parent[READ_FD]) != 0)
+		// Close the side of the pipe we (the child process) won't use:
+		if(close(child_to_parent[READ_FD]) != SUCCESS)
 		{
 			std::cerr << "ERROR: unable to close other side of child_to_parent from child process" << std::endl;
 		}
@@ -444,12 +434,8 @@ static bool start_acquire_in_child_process()
 	}
 	std::cout << "Child " << pid << " process running..." << std::endl;
 	
-	// Close the side of the pipes that we won't use in the parent process:
-	if(close(parent_to_child[READ_FD]) != 0)
-	{
-		std::cerr << "ERROR: failed to close parent_to_child read" << std::endl;
-	}
-	if(close(child_to_parent[WRITE_FD]) != 0)
+	// Close the side of the pipe that we won't use in the parent process:
+	if(close(child_to_parent[WRITE_FD]) != SUCCESS)
 	{
 		std::cerr << "ERROR: failed to close child_to_parent write" << std::endl;
 	}
@@ -457,7 +443,6 @@ static bool start_acquire_in_child_process()
 	// Save this info for future use:
 	acquire_process_id = pid;
 	acquire_output_fd = child_to_parent[READ_FD];
-	// TODO save acquire input file descriptor
 	
 	return true;
 }
