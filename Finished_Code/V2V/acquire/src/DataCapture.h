@@ -15,6 +15,11 @@ const std::string CAPTURE_META_ENDING = "-meta.txt";
 const std::string CAPTURE_META_FILENAME_HANDOFF_TAG = "DataCapture.meta_filename";
 
 /**
+ * The path to the folder where the data is stored.
+ */
+const std::string DATA_FOLDER = "data";
+
+/**
  * A class to represent the metadata for a single data capture.
  */
 class DataCapture
