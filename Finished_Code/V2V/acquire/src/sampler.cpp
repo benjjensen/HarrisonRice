@@ -490,7 +490,7 @@ static void init_main_window()
 	gtk_container_set_border_width(GTK_CONTAINER(main_window), 10);
 	gtk_window_set_position(GTK_WINDOW(main_window), GTK_WIN_POS_CENTER_ALWAYS);
 	// TODO magic numbers
-	gtk_window_set_default_size(GTK_WINDOW(main_window), 300, 400);
+	gtk_window_set_default_size(GTK_WINDOW(main_window), 1000, 400);
 	// Set the callback for when the user closes this window:
 	g_signal_connect(main_window, "destroy", G_CALLBACK(cb_destroy), NULL);
 	
@@ -1197,8 +1197,10 @@ static void cb_edit_notes(GtkWidget *widget, gpointer data)
 	gtk_label_set_text(GTK_LABEL(edit_notes_label_error), "");
 	
 	gtk_widget_show(edit_notes_window);
-	// TODO figure out why this doesn't work when the text view is set to containing an empty string
-	gtk_window_set_position(GTK_WINDOW(edit_notes_window), GTK_WIN_POS_CENTER_ALWAYS);
+	// Move the edit notes window to the center:
+	gtk_window_set_gravity(GTK_WINDOW(edit_notes_window), GDK_GRAVITY_CENTER);
+	gtk_window_move(GTK_WINDOW(edit_notes_window), 0, 0);
+	
 	// Prevent other windows from receiving input:
 	gtk_window_set_modal(GTK_WINDOW(edit_notes_window), TRUE);
 }
