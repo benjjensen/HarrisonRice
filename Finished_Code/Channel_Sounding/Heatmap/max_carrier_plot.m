@@ -18,6 +18,7 @@ mm_cham = zeros(351,1);
 mm_conf = zeros(351,1);
 mm_har = zeros(351,1);
 mm_smal = zeros(351,1);
+mum_har = zeros(351,1);
 i = 0;
 for threshold = 0:.1:35
     i = i + 1;
@@ -39,7 +40,7 @@ for threshold = 0:.1:35
     smalley_best_carrier2 = find_best_carriers(smalley2,tx2smalley,4,threshold);
 
     [mm_cam(i,1),mm_cham(i,1),mm_conf(i,1),...
-        mm_har(i,1),mm_smal(i,1)] = find_max_matched(...
+        mm_har(i,1),mm_smal(i,1),mum_har(i,1)] = find_max_matched(...
         camacho_best_carrier2,chambers_best_carrier2,...
         conference_best_carrier2,harrison_best_carrier2,...
         smalley_best_carrier2);
@@ -54,6 +55,7 @@ plot(x,mm_cham,'DisplayName','Chambers');
 plot(x,mm_conf,'DisplayName','Conference Room');
 plot(x,mm_har,'DisplayName','Harrison');
 plot(x,mm_smal,'DisplayName','Smalley');
+plot(x,mum_har, 'DisplayName', 'Unique Harrison Carriers');
 xlabel('DB Threshold');
 ylabel('Number of Carriers');
 % xlim(x);
