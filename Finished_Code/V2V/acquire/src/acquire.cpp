@@ -14,6 +14,8 @@
 #include <sstream>
 #include <iomanip>
 
+#include "DataCapture.h"
+
 
 /*
 Reads the command sent in by the user and parses what board settings the user wishes to set.
@@ -41,7 +43,7 @@ Adds a timestamp to the given filename, before any file type.
 The timestamp will be of the format
 _YYYY-mm-dd__HH-MM-SS
 */
-void timestamp_filename(std::string &selected_name);
+void timestamp_filename(std::string &selected_name, DataCapture &capture);
 
 /*
 Default values for SetupBoard. These may change due to acquire_parser.
@@ -79,7 +81,6 @@ unsigned int Fiducial = 0;
 unsigned int forceCal = 0;
 double Frequency = 0.0;
 
-const std::string output_folder = "./data/";
 const std::string default_output_extension = ".dat";
 char * user_outputfile = NULL;
 int early_exit;
@@ -140,8 +141,13 @@ int main(int argc, char ** argv)
 		return  -1;
 	}
 
-	std::string filename = output_folder + (user_outputfile == NULL ? output_file[BoardNum] : user_outputfile);
-	timestamp_filename(filename);
+	DataCapture capture_info;
+	capture_info.name = user_outputfile == NULL ? "Unnamed" : user_outputfile;
+	
+	std::string filename = DATA_FOLDER + "/" + (user_outputfile == NULL ? output_file[BoardNum] : user_outputfile);
+	
+	timestamp_filename(filename, capture_info);
+	capture_info.data_filename = filename;
 	
 	// open the data disk file
 	// if the user specified a name, use that name, else use the default name
@@ -158,7 +164,7 @@ int main(int argc, char ** argv)
 	clock_gettime(CLOCK_REALTIME, &start_time);
 	unsigned int data_written_megabytes = 0;
 
-#define CUSTOM_DEBUG
+// #define CUSTOM_DEBUG
 #ifdef CUSTOM_DEBUG
 	timespec test_start_time, test_end_time, loop_end_time, loop_start_time;
 	long test_elapsed_time, subtotal_read_time = 0, subtotal_write_time = 0, grand_total_read_time = 0, grand_total_write_time = 0, loop_elapsed_time = 0;
@@ -231,6 +237,9 @@ int main(int argc, char ** argv)
 	std::cout << std::endl << "Data capture and writing to disk complete" << std::endl;
 
 	double elapsed_time_seconds = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / (double)1000000000;
+	capture_info.duration = elapsed_time_seconds;
+	capture_info.size = data_written_megabytes;
+	
 	printf("Data captured: %d MB\n", data_written_megabytes);
 	printf("Elapsed time: %.4f s\n", elapsed_time_seconds);
 	printf("Average data capture rate: %.4f MB/s\n\n\n", ((float)data_written_megabytes) / elapsed_time_seconds);
@@ -241,6 +250,9 @@ int main(int argc, char ** argv)
 	// divide by 1 billion to convert from ns to s, multiply by 100 to convert to percent:
 	printf("%.2f%% spent writing\n\n\n", (double)grand_total_write_time / 1000000000 / elapsed_time_seconds * 100);
 #endif
+
+	capture_info.write_to_file();
+	std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " << capture_info.meta_filename << std::endl << std::endl;
 
 	fflush(stdout);
 
@@ -264,23 +276,30 @@ int main(int argc, char ** argv)
 	return 0;
 }
 
-std::string get_current_timestamp()
+std::string get_current_timestamp(DataCapture &capture)
 {
 	std::time_t t = std::time(0);
 	std::tm* time = std::localtime(&t);
 	
 	std::stringstream timestamp;
 	
+	capture.year = time->tm_year + 1900;
+	capture.month = time->tm_mon + 1;
+	capture.date = time->tm_mday;
+	capture.hour = time->tm_hour;
+	capture.minute = time->tm_min;
+	capture.second = time->tm_sec;
+	
 	timestamp << std::setfill('0');
-	timestamp << "_" << time->tm_year + 1900 << "-" << std::setw(2) << time->tm_mon + 1 << "-" << std::setw(2) << time->tm_mday;
-	timestamp << "__" << std::setw(2) << time->tm_hour << "-" << std::setw(2) << time->tm_min << "-" << std::setw(2) << time->tm_sec;
+	timestamp << "_" << capture.year << "-" << std::setw(2) << capture.month << "-" << std::setw(2) << capture.date;
+	timestamp << "__" << std::setw(2) << capture.hour << "-" << std::setw(2) << capture.minute << "-" << std::setw(2) << capture.second;
 	
 	return timestamp.str();
 }
 
-void timestamp_filename(std::string &selected_name)
+void timestamp_filename(std::string &selected_name, DataCapture &capture)
 {
-	std::string timestamp = get_current_timestamp();
+	std::string timestamp = get_current_timestamp(capture);
 	
 	size_t extension_index = selected_name.rfind('.');
 	
