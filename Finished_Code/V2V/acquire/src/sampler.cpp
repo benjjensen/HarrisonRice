@@ -38,6 +38,38 @@ const unsigned int COL_EDIT_NOTES = 6;
 const std::string DATA_FOLDER = "data";
 
 /**
+ * The width of the border on all the windows.
+ */
+const int WINDOW_BORDER_WIDTH = 10;
+
+/**
+ * The default height and width of the main window.
+ */
+const int MAIN_WINDOW_DEFAULT_HEIGHT = 400;
+const int MAIN_WINDOW_DEFAULT_WIDTH = 1000;
+
+/**
+ * The padding between fields.
+ */
+const int FIELDS_PADDING = 10;
+
+/**
+ * The minimum width of a minor button.
+ */
+const int MINOR_BUTTON_MIN_WIDTH = 100;
+
+/**
+ * Default height of a widget.
+ */
+const int DEFAULT_HEIGHT = -1;
+
+/**
+ * Spacing for the columns and rows in the capture table.
+ */
+const int COL_SPACING = 20;
+const int ROW_SPACING = 10;
+
+/**
  * The naming convention used to store the values the user has selected for
  * each field.
  */
@@ -485,11 +517,9 @@ static void init_main_window()
 	main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	
 	gtk_window_set_title(GTK_WINDOW(main_window), "Sampler");
-	// TODO magic number
-	gtk_container_set_border_width(GTK_CONTAINER(main_window), 10);
+	gtk_container_set_border_width(GTK_CONTAINER(main_window), WINDOW_BORDER_WIDTH);
 	gtk_window_set_position(GTK_WINDOW(main_window), GTK_WIN_POS_CENTER_ALWAYS);
-	// TODO magic numbers
-	gtk_window_set_default_size(GTK_WINDOW(main_window), 1000, 400);
+	gtk_window_set_default_size(GTK_WINDOW(main_window), MAIN_WINDOW_DEFAULT_WIDTH, MAIN_WINDOW_DEFAULT_HEIGHT);
 	// Set the callback for when the user closes this window:
 	g_signal_connect(main_window, "destroy", G_CALLBACK(cb_destroy), NULL);
 	
@@ -514,8 +544,8 @@ static void init_main_window()
 	capture_table_current_rows = 1;
 	capture_table = gtk_table_new(capture_table_current_rows, COLS_COUNT, FALSE);
 	gtk_container_add(GTK_CONTAINER(align), capture_table);
-	gtk_table_set_col_spacings(GTK_TABLE(capture_table), 20);
-	gtk_table_set_row_spacings(GTK_TABLE(capture_table), 10);
+	gtk_table_set_col_spacings(GTK_TABLE(capture_table), COL_SPACING);
+	gtk_table_set_row_spacings(GTK_TABLE(capture_table), ROW_SPACING);
 	
 	// The row into which we're inserting the labels below:
 	int row = 0;
@@ -619,8 +649,7 @@ static void init_new_capture_window()
 	// This makes the new capture window always appear above the main window:
 	gtk_window_set_transient_for(GTK_WINDOW(new_capture_window), GTK_WINDOW(main_window));
 	gtk_window_set_title(GTK_WINDOW(new_capture_window), "New Capture");
-	// TODO magic number
-	gtk_container_set_border_width(GTK_CONTAINER(new_capture_window), 10);
+	gtk_container_set_border_width(GTK_CONTAINER(new_capture_window), WINDOW_BORDER_WIDTH);
 	gtk_window_set_position(GTK_WINDOW(new_capture_window), GTK_WIN_POS_CENTER_ALWAYS);
 	// The user can't close this window by pressing the x button at the top right:
 	gtk_window_set_deletable(GTK_WINDOW(new_capture_window), FALSE);
@@ -629,8 +658,7 @@ static void init_new_capture_window()
 	gtk_container_add(GTK_CONTAINER(new_capture_window), layout_box);
 	
 	// This box contains the fields--each field has a box with a radio list of options.
-	// TODO magic number
-	fields_parent_box = gtk_hbox_new(FALSE, 10);
+	fields_parent_box = gtk_hbox_new(FALSE, FIELDS_PADDING);
 	gtk_box_pack_start(GTK_BOX(layout_box), fields_parent_box, FALSE, FALSE, 0);
 	
 	// Call the separate function that populates the fields into fields_parent_box:
@@ -649,8 +677,7 @@ static void init_new_capture_window()
 	// The cancel new capture button cancels making a new capture and returns to the main
 	// window.
 	GtkWidget* cancel_new_capture_button = gtk_button_new_with_label("Cancel");
-	// TODO magic numbers
-	gtk_widget_set_size_request(cancel_new_capture_button, 100, -1);
+	gtk_widget_set_size_request(cancel_new_capture_button, MINOR_BUTTON_MIN_WIDTH, DEFAULT_HEIGHT);
 	gtk_box_pack_start(GTK_BOX(sub_box), cancel_new_capture_button, FALSE, FALSE, 0);
 	g_signal_connect(cancel_new_capture_button, "clicked", G_CALLBACK(cb_cancel_new_capture), NULL);
 	gtk_widget_show(cancel_new_capture_button);
@@ -667,8 +694,7 @@ static void init_add_option_window()
 	// This window will always appear above the new capture window:
 	gtk_window_set_transient_for(GTK_WINDOW(add_option_window), GTK_WINDOW(new_capture_window));
 	gtk_window_set_title(GTK_WINDOW(add_option_window), "Add Option");
-	// TODO magic number
-	gtk_container_set_border_width(GTK_CONTAINER(add_option_window), 10);
+	gtk_container_set_border_width(GTK_CONTAINER(add_option_window), WINDOW_BORDER_WIDTH);
 	gtk_window_set_position(GTK_WINDOW(add_option_window), GTK_WIN_POS_CENTER_ALWAYS);
 	// The user can't close this window except through our GUI:
 	gtk_window_set_deletable(GTK_WINDOW(add_option_window), FALSE);
@@ -736,8 +762,7 @@ static void init_add_option_window()
 	// The button that cancels the new option:
 	GtkWidget* add_option_cancel_button = gtk_button_new_with_label("Cancel");
 	gtk_box_pack_start(GTK_BOX(sub_box), add_option_cancel_button, FALSE, FALSE, 0);
-	// TODO magic numbers
-	gtk_widget_set_size_request(add_option_cancel_button, 100, -1);
+	gtk_widget_set_size_request(add_option_cancel_button, MINOR_BUTTON_MIN_WIDTH, DEFAULT_HEIGHT);
 	g_signal_connect(add_option_cancel_button, "clicked", G_CALLBACK(cb_add_option_cancel), NULL);
 	gtk_widget_show(add_option_cancel_button);
 	
@@ -753,8 +778,7 @@ static void init_edit_notes_window()
 	// The edit notes window always appears on top of the main window:
 	gtk_window_set_transient_for(GTK_WINDOW(edit_notes_window), GTK_WINDOW(main_window));
 	gtk_window_set_title(GTK_WINDOW(edit_notes_window), "Edit notes");
-	// TODO magic numbers
-	gtk_container_set_border_width(GTK_CONTAINER(edit_notes_window), 10);
+	gtk_container_set_border_width(GTK_CONTAINER(edit_notes_window), WINDOW_BORDER_WIDTH);
 	gtk_window_set_position(GTK_WINDOW(edit_notes_window), GTK_WIN_POS_CENTER_ALWAYS);
 	// The user can't close this window except through our GUI:
 	gtk_window_set_deletable(GTK_WINDOW(edit_notes_window), FALSE);
@@ -795,8 +819,7 @@ static void init_edit_notes_window()
 	// This button cancels editing the notes:
 	GtkWidget* cancel_button = gtk_button_new_with_label("Cancel");
 	gtk_box_pack_start(GTK_BOX(sub_box), cancel_button, FALSE, FALSE, 0);
-	// TODO magic numbers
-	gtk_widget_set_size_request(cancel_button, 100, -1);
+	gtk_widget_set_size_request(cancel_button, MINOR_BUTTON_MIN_WIDTH, DEFAULT_HEIGHT);
 	g_signal_connect(cancel_button, "clicked", G_CALLBACK(cb_edit_notes_cancel), NULL);
 	gtk_widget_show(cancel_button);
 	
@@ -884,8 +907,7 @@ static void populate_fields_and_options()
 		// This button opens the add option window:
 		GtkWidget* add_option_button = gtk_button_new_with_label("Add...");
 		gtk_widget_set_name(add_option_button, field_code.c_str());
-		// TODO magic numbers
-		gtk_widget_set_size_request(add_option_button, 100, -1);
+		gtk_widget_set_size_request(add_option_button, MINOR_BUTTON_MIN_WIDTH, DEFAULT_HEIGHT);
 		g_signal_connect(add_option_button, "clicked", G_CALLBACK(cb_add_new_option), NULL);
 		
 		// Use this alignment widget to prevent the button from expanding (so that all of
