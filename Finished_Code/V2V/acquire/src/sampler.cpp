@@ -189,6 +189,11 @@ GtkWidget* edit_notes_text_view = NULL;
  */
 GtkWidget* edit_notes_label_error = NULL;
 /**
+ * Label that holds the name of the capture for which the notes are being edited.
+ */
+GtkWidget* edit_notes_label_name = NULL;
+
+/**
  * The list of labels for the notes of each entry in the capture table.
  */
 std::vector<GtkWidget*> notes_labels;
@@ -353,9 +358,7 @@ static bool start_acquire_in_child_process();
  */
 static bool stop_acquiring();
 
-// TODO add a label that shows the total space used by all of the captures
 // TODO add a button to remove a capture
-// TODO show the name of the capture that's being edited in the edit notes window
 // TODO allow user to take notes before the capture?
 
 int main(int argc, char **argv)
@@ -780,7 +783,20 @@ static void init_edit_notes_window()
 	GtkWidget *layout_box = gtk_vbox_new(FALSE, NO_PADDING);
 	gtk_container_add(GTK_CONTAINER(edit_notes_window), layout_box);
 	
-	GtkWidget *frame = gtk_frame_new("Notes:");
+	GtkWidget *frame = gtk_frame_new("Name:");
+	gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, NO_PADDING);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
+	
+	// The label where the name of the capture is displayed:
+	edit_notes_label_name = gtk_label_new("");
+	gtk_container_add(GTK_CONTAINER(frame), edit_notes_label_name);
+	// Set the alignment to top-left:
+	gtk_misc_set_alignment(GTK_MISC(edit_notes_label_name), 0, 0);
+	gtk_widget_show(edit_notes_label_name);
+	
+	gtk_widget_show(frame);
+	
+	frame = gtk_frame_new("Notes:");
 	gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, NO_PADDING);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
 	
@@ -1211,6 +1227,9 @@ static void cb_edit_notes(GtkWidget *widget, gpointer data)
 	
 	DataCapture capture = *it;
 	notes_being_edited = capture_index;
+	
+	// Put the name of the capture being edited up:
+	gtk_label_set_text(GTK_LABEL(edit_notes_label_name), ("  " + capture.name).c_str());
 	
 	// Fill the text view with the current notes on the capture:
 	gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(edit_notes_text_view)), capture.notes.c_str(), -1);
