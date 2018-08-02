@@ -1,5 +1,6 @@
-% Determines which specific carriers are above a set dblimit for each room
-% Graphs them on a graph, scaled so you can see each room. Uses Tx2
+% Runs through a range of decibels and determines how many carriers only
+    % Harrison has at each decibel level, and then stores and saves an
+    % array
 
 close all;
 
@@ -17,14 +18,13 @@ counter = 1;
 
 harrisonOnlyCarriers = zeros((max-min)/stepSize, 2);
 for dblimit = min:stepSize:max
-    %Different scales are used to allow us to see each on the graph
-    [har_specific_carriers_above, ~] = specCarriers(tx2harrison_pwelch, 9, dblimit);
-    [sma_specific_carriers_above, ~] = specCarriers(tx2smalley_pwelch, 7, dblimit);
-    [cha_specific_carriers_above, ~] = specCarriers(tx2chambers_pwelch, 5, dblimit);
-    [cam_specific_carriers_above, ~] = specCarriers(tx2camacho_pwelch, 3, dblimit);
+    
+    [har_specific_carriers_above, ~] = specCarriers(tx2harrison_pwelch, 1, dblimit);
+    [sma_specific_carriers_above, ~] = specCarriers(tx2smalley_pwelch, 1, dblimit);
+    [cha_specific_carriers_above, ~] = specCarriers(tx2chambers_pwelch, 1, dblimit);
+    [cam_specific_carriers_above, ~] = specCarriers(tx2camacho_pwelch, 1, dblimit);
     [con_specific_carriers_above, ~] = specCarriers(tx2conference_pwelch, 1, dblimit);
     
-    %%%%% OPTIONAL - USE CARRIERS ONLY HARRISON HAS
     onlyHarrisons = har_specific_carriers_above;
     ocount = 0;
     for car = 1:64
@@ -46,23 +46,25 @@ for dblimit = min:stepSize:max
 end
 
 save('harrisonOnlyCarriers.mat','harrisonOnlyCarriers');
+
 function [specific_carriers_above, count] = specCarriers(file, scale, dblimit)
 %%%%% PART 1 - DETERMINES THE BEST LOCATION %%%%%
 
 %%% INITIALIZES VALUES
 [~,r,c] = size(file);
-%(If changing this file, change lines 22 & 23 as well)
 
-complete_signal = nan(64,r,c);     %%Uses the size of the data array, minus one
+complete_signal = nan(64,r,c);    
 complete_noisefloor = nan(64,r,c);
 difference = nan(64,r,c);
 carriers_above = nan(r,c);
 best = [0,0,0];
 mc = 0;
 
-for temp = 1:(r)
+for temp = 1:r
     for loops = 1:c
-        complete_signal(:,temp,loops) = file(1:2:end,temp,loops);
+            % Every other data point is noise, so the following start and
+                % different numbers and get every other data point
+        complete_signal(:,temp,loops) = file(1:2:end,temp,loops);    
         complete_noisefloor(:,temp,loops) = file(2:2:end,temp,loops);
         if isnan(complete_signal(:,temp,loops))
             difference(:,temp,loops) = nan;
@@ -86,13 +88,10 @@ for temp = 1:(r)
         end
     end
 end
-
 %%%%%%%%%%%%%%%
 
 
-
 %%%%% PART II - DETERMINES WHICH CARRIERS ARE ABOVE LIMIT @BEST POINT
-
 specific_carriers_above = zeros(64,2);
 
 temp = best(1,1);          %%% Assigns the indices of the best location

@@ -18,13 +18,12 @@ if r <= m
     finalValues = n;
     for numCombos = 1:r
         combos = nchoosek(alphaValues(1,:), numCombos);
-        [rows columns] = size(combos);
+        [rows , ~] = size(combos);
         for index = 1 : rows
             comboSum = sum(combos(index,:));
             finalValues = [finalValues 2^m-comboSum];
         end
     end
-    weights = zeros(1, k);
     weights = sort(finalValues);
     
     weightsIndex = 1;
@@ -38,12 +37,13 @@ if r <= m
         end
     end
     
-    graphIndexes = zeros(1,n+1);
-    for j = 0 : n
-        graphIndexes(1, j+1) = j;
-    end
+
     
     if graph == true
+        graphIndexes = zeros(1,n+1);
+        for j = 0 : n
+            graphIndexes(1, j+1) = j;
+        end
         figure();
         plot(graphIndexes,graphWeights,'DisplayName',['RM(' num2str(r) ',' num2str(m) '), rate = ' num2str(round(rate,2))]);
         grid on;
