@@ -70,6 +70,12 @@ const int COL_SPACING = 20;
 const int ROW_SPACING = 10;
 
 /**
+ * Padding values.
+ */
+const int READY_BUTTON_PADDING = 5;
+const int NO_PADDING = 0;
+
+/**
  * The naming convention used to store the values the user has selected for
  * each field.
  */
@@ -523,13 +529,13 @@ static void init_main_window()
 	// Set the callback for when the user closes this window:
 	g_signal_connect(main_window, "destroy", G_CALLBACK(cb_destroy), NULL);
 	
-	GtkWidget *layout_box = gtk_vbox_new(FALSE, 0);
+	GtkWidget *layout_box = gtk_vbox_new(FALSE, NO_PADDING);
 	gtk_container_add(GTK_CONTAINER(main_window), layout_box);
 	
 	GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
 	// This allows the scroll window to scroll vertically and horizontally:
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_box_pack_start (GTK_BOX(layout_box), scrolled_window, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX(layout_box), scrolled_window, TRUE, TRUE, NO_PADDING);
 	
 	// 0, 0, 0, 0 means that what's inside of this alignment widget will not expand to fill its parent,
 	// which is what we want with the capture table--it should have its own height and width independent
@@ -587,32 +593,32 @@ static void init_main_window()
 	gtk_widget_show(scrolled_window);
 	
 	// This box contains the labels that display information about the current captures:
-	current_capture_box = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(layout_box), current_capture_box, FALSE, FALSE, 0);
+	current_capture_box = gtk_hbox_new(FALSE, NO_PADDING);
+	gtk_box_pack_start(GTK_BOX(layout_box), current_capture_box, FALSE, FALSE, NO_PADDING);
 	
 	current_capture_name = gtk_label_new("");
-	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_name, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_name, FALSE, FALSE, NO_PADDING);
 	gtk_widget_show(current_capture_name);
 	
 	current_capture_status = gtk_label_new("ready...");
-	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_status, FALSE, FALSE, 5);
+	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_status, FALSE, FALSE, READY_BUTTON_PADDING);
 	gtk_widget_show(current_capture_status);
 	
 	// Intentionally don't show current_capture_box yet
 		
-	GtkWidget *sub_box = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
+	GtkWidget *sub_box = gtk_hbox_new(FALSE, NO_PADDING);
+	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, NO_PADDING);
 	
 	// The new capture button. The callback opens the new capture screen.
 	new_button = gtk_button_new_with_label("New Capture...");
-	gtk_box_pack_start(GTK_BOX(sub_box), new_button, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(sub_box), new_button, TRUE, TRUE, NO_PADDING);
 	g_signal_connect (new_button, "clicked", G_CALLBACK(cb_new_capture), NULL);
 	gtk_widget_show(new_button);
 	
 	// The reset button. The callback clears the current capture.
 	reset_button = gtk_button_new_with_label("Reset");
-	gtk_widget_set_size_request(reset_button, 100, -1);
-	gtk_box_pack_start(GTK_BOX(sub_box), reset_button, FALSE, FALSE, 0);
+	gtk_widget_set_size_request(reset_button, MINOR_BUTTON_MIN_WIDTH, DEFAULT_HEIGHT);
+	gtk_box_pack_start(GTK_BOX(sub_box), reset_button, FALSE, FALSE, NO_PADDING);
 	// Not active until there's a current capture:
 	gtk_widget_set_sensitive(reset_button, FALSE);
 	g_signal_connect (reset_button, "clicked", G_CALLBACK(cb_reset_capture), NULL);
@@ -620,19 +626,19 @@ static void init_main_window()
 	
 	gtk_widget_show(sub_box);	
 		
-	sub_box = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
+	sub_box = gtk_hbox_new(FALSE, NO_PADDING);
+	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, NO_PADDING);
 	
 	// The start button starts the current capture when it's clicked:
 	start_button = gtk_button_new_with_label("Start");
-	gtk_box_pack_start(GTK_BOX(sub_box), start_button, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(sub_box), start_button, TRUE, TRUE, NO_PADDING);
 	gtk_widget_set_sensitive(start_button, FALSE);
 	g_signal_connect(start_button, "clicked", G_CALLBACK(cb_start_capture), NULL);
 	gtk_widget_show(start_button);
 	
 	// The stop button stops the current capture when it's clicked:
 	stop_button = gtk_button_new_with_label("Stop");
-	gtk_box_pack_start(GTK_BOX(sub_box), stop_button, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(sub_box), stop_button, TRUE, TRUE, NO_PADDING);
 	gtk_widget_set_sensitive(stop_button, FALSE);
 	g_signal_connect (stop_button, "clicked", G_CALLBACK(cb_stop_capture), NULL);
 	gtk_widget_show(stop_button);
@@ -654,23 +660,23 @@ static void init_new_capture_window()
 	// The user can't close this window by pressing the x button at the top right:
 	gtk_window_set_deletable(GTK_WINDOW(new_capture_window), FALSE);
 	
-	GtkWidget *layout_box = gtk_vbox_new(FALSE, 0);
+	GtkWidget *layout_box = gtk_vbox_new(FALSE, NO_PADDING);
 	gtk_container_add(GTK_CONTAINER(new_capture_window), layout_box);
 	
 	// This box contains the fields--each field has a box with a radio list of options.
 	fields_parent_box = gtk_hbox_new(FALSE, FIELDS_PADDING);
-	gtk_box_pack_start(GTK_BOX(layout_box), fields_parent_box, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(layout_box), fields_parent_box, FALSE, FALSE, NO_PADDING);
 	
 	// Call the separate function that populates the fields into fields_parent_box:
 	populate_fields_and_options();
 	
-	GtkWidget *sub_box = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
+	GtkWidget *sub_box = gtk_hbox_new(FALSE, NO_PADDING);
+	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, NO_PADDING);
 	
 	// The new capture button sends the capture info to the main window so that it can
 	// begin capturing.
 	GtkWidget* create_new_capture_button = gtk_button_new_with_label("Prepare");
-	gtk_box_pack_start(GTK_BOX(sub_box), create_new_capture_button, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(sub_box), create_new_capture_button, TRUE, TRUE, NO_PADDING);
 	g_signal_connect(create_new_capture_button, "clicked", G_CALLBACK(cb_create_new_capture), NULL);
 	gtk_widget_show(create_new_capture_button);
 	
@@ -678,7 +684,7 @@ static void init_new_capture_window()
 	// window.
 	GtkWidget* cancel_new_capture_button = gtk_button_new_with_label("Cancel");
 	gtk_widget_set_size_request(cancel_new_capture_button, MINOR_BUTTON_MIN_WIDTH, DEFAULT_HEIGHT);
-	gtk_box_pack_start(GTK_BOX(sub_box), cancel_new_capture_button, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(sub_box), cancel_new_capture_button, FALSE, FALSE, NO_PADDING);
 	g_signal_connect(cancel_new_capture_button, "clicked", G_CALLBACK(cb_cancel_new_capture), NULL);
 	gtk_widget_show(cancel_new_capture_button);
 	
@@ -699,11 +705,11 @@ static void init_add_option_window()
 	// The user can't close this window except through our GUI:
 	gtk_window_set_deletable(GTK_WINDOW(add_option_window), FALSE);
 	
-	GtkWidget *layout_box = gtk_vbox_new(FALSE, 0);
+	GtkWidget *layout_box = gtk_vbox_new(FALSE, NO_PADDING);
 	gtk_container_add(GTK_CONTAINER(add_option_window), layout_box);
 	
 	GtkWidget *frame = gtk_frame_new("Field:");
-	gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, NO_PADDING);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
 	
 	// The label that displays the name of the field that is being extended:
@@ -716,7 +722,7 @@ static void init_add_option_window()
 	gtk_widget_show(frame);
 	
 	frame = gtk_frame_new("Code:");
-	gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, NO_PADDING);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
 	
 	// The entry where the user enters the code for the new option:
@@ -727,7 +733,7 @@ static void init_add_option_window()
 	gtk_widget_show(frame);
 	
 	frame = gtk_frame_new("Name:");
-	gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, NO_PADDING);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
 	
 	// The entry where the user enters the name of the new option:
@@ -739,7 +745,7 @@ static void init_add_option_window()
 	
 	// The label where error text is displayed:
 	add_option_label_error = gtk_label_new("");
-	gtk_box_pack_start(GTK_BOX(layout_box), add_option_label_error, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(layout_box), add_option_label_error, FALSE, FALSE, NO_PADDING);
 	
 	GdkColor color;
   	gdk_color_parse ("red", &color);
@@ -747,21 +753,21 @@ static void init_add_option_window()
   	gtk_widget_modify_fg (add_option_label_error, GTK_STATE_NORMAL, &color);
   	gtk_widget_show(add_option_label_error);
 	
-	GtkWidget* sub_box = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
+	GtkWidget* sub_box = gtk_hbox_new(FALSE, NO_PADDING);
+	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, NO_PADDING);
 	
 	// The button the user clicks to confirm their new option.
 	// When it's clicked, the user's input is validated before it's
 	// accepted; if it's not acceptable, an error message is displayed
 	// in add_option_label_error.
 	GtkWidget* add_option_add_button = gtk_button_new_with_label("Add");
-	gtk_box_pack_start(GTK_BOX(sub_box), add_option_add_button, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(sub_box), add_option_add_button, TRUE, TRUE, NO_PADDING);
 	g_signal_connect(add_option_add_button, "clicked", G_CALLBACK(cb_add_option_add), NULL);
 	gtk_widget_show(add_option_add_button);
 	
 	// The button that cancels the new option:
 	GtkWidget* add_option_cancel_button = gtk_button_new_with_label("Cancel");
-	gtk_box_pack_start(GTK_BOX(sub_box), add_option_cancel_button, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(sub_box), add_option_cancel_button, FALSE, FALSE, NO_PADDING);
 	gtk_widget_set_size_request(add_option_cancel_button, MINOR_BUTTON_MIN_WIDTH, DEFAULT_HEIGHT);
 	g_signal_connect(add_option_cancel_button, "clicked", G_CALLBACK(cb_add_option_cancel), NULL);
 	gtk_widget_show(add_option_cancel_button);
@@ -783,11 +789,11 @@ static void init_edit_notes_window()
 	// The user can't close this window except through our GUI:
 	gtk_window_set_deletable(GTK_WINDOW(edit_notes_window), FALSE);
 	
-	GtkWidget *layout_box = gtk_vbox_new(FALSE, 0);
+	GtkWidget *layout_box = gtk_vbox_new(FALSE, NO_PADDING);
 	gtk_container_add(GTK_CONTAINER(edit_notes_window), layout_box);
 	
 	GtkWidget *frame = gtk_frame_new("Notes:");
-	gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, NO_PADDING);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
 	
 	// The text view where the user inputs their notes:
@@ -799,7 +805,7 @@ static void init_edit_notes_window()
 	
 	// The label where errors are displayed:
 	edit_notes_label_error = gtk_label_new("");
-	gtk_box_pack_start(GTK_BOX(layout_box), edit_notes_label_error, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(layout_box), edit_notes_label_error, FALSE, FALSE, NO_PADDING);
 	
 	GdkColor color;
   	gdk_color_parse ("red", &color);
@@ -807,18 +813,18 @@ static void init_edit_notes_window()
   	gtk_widget_modify_fg(edit_notes_label_error, GTK_STATE_NORMAL, &color);
 	gtk_widget_show(edit_notes_label_error);
 	
-	GtkWidget* sub_box = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, 0);
+	GtkWidget* sub_box = gtk_hbox_new(FALSE, NO_PADDING);
+	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, NO_PADDING);
 	
 	// This button saves the notes:
 	GtkWidget* save_button = gtk_button_new_with_label("Save");
-	gtk_box_pack_start(GTK_BOX(sub_box), save_button, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(sub_box), save_button, TRUE, TRUE, NO_PADDING);
 	g_signal_connect(save_button, "clicked", G_CALLBACK(cb_edit_notes_save), NULL);
 	gtk_widget_show(save_button);
 	
 	// This button cancels editing the notes:
 	GtkWidget* cancel_button = gtk_button_new_with_label("Cancel");
-	gtk_box_pack_start(GTK_BOX(sub_box), cancel_button, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(sub_box), cancel_button, FALSE, FALSE, NO_PADDING);
 	gtk_widget_set_size_request(cancel_button, MINOR_BUTTON_MIN_WIDTH, DEFAULT_HEIGHT);
 	g_signal_connect(cancel_button, "clicked", G_CALLBACK(cb_edit_notes_cancel), NULL);
 	gtk_widget_show(cancel_button);
@@ -853,8 +859,8 @@ static void populate_fields_and_options()
 	for(std::list<std::string>::iterator field_it = field_order.begin();
 			field_it != field_order.end(); ++field_it)
 	{
-		GtkWidget* field_box = gtk_vbox_new(FALSE, 0);
-		gtk_box_pack_start(GTK_BOX(fields_parent_box), field_box, TRUE, TRUE, 0);
+		GtkWidget* field_box = gtk_vbox_new(FALSE, NO_PADDING);
+		gtk_box_pack_start(GTK_BOX(fields_parent_box), field_box, TRUE, TRUE, NO_PADDING);
 		
 		std::string field_code = *field_it;
 		// Store the code for the field in the field_box object so that it can be
@@ -863,7 +869,7 @@ static void populate_fields_and_options()
 		
 		// This label shows the name of the field:
 		GtkWidget* field_label = gtk_label_new(naming_convention->get_field_name(field_code).c_str());
-		gtk_box_pack_start(GTK_BOX(field_box), field_label, FALSE, FALSE, 0);
+		gtk_box_pack_start(GTK_BOX(field_box), field_label, FALSE, FALSE, NO_PADDING);
 		gtk_widget_show(field_label);
 		
 		std::string selected_option = naming_convention->get_field_value(field_code);
@@ -894,7 +900,7 @@ static void populate_fields_and_options()
 				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(option_radio_button), TRUE);
 			}
 			
-			gtk_box_pack_start(GTK_BOX(field_box), option_radio_button, FALSE, FALSE, 0);
+			gtk_box_pack_start(GTK_BOX(field_box), option_radio_button, FALSE, FALSE, NO_PADDING);
 			
 			// Store the code for this option in the radio button widget so that it can be retreived by
 			// cb_field_selection_changed
@@ -918,7 +924,7 @@ static void populate_fields_and_options()
 		gtk_container_add(GTK_CONTAINER(align), add_option_button);
 		gtk_widget_show(add_option_button);
 		
-		gtk_box_pack_end(GTK_BOX(field_box), align, FALSE, FALSE, 0);
+		gtk_box_pack_end(GTK_BOX(field_box), align, FALSE, FALSE, NO_PADDING);
 		gtk_widget_show(align);
 		
 		gtk_widget_show(field_box);
