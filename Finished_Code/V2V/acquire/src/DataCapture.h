@@ -9,6 +9,12 @@
 const std::string CAPTURE_META_ENDING = "-meta.txt";
 
 /**
+ * The tag to use for acquire.cpp to pass the name of the capture metafile to sampler.cpp via acquire's
+ * standard output.
+ */
+const std::string CAPTURE_META_FILENAME_HANDOFF_TAG = "DataCapture.meta_filename";
+
+/**
  * A class to represent the metadata for a single data capture.
  */
 class DataCapture

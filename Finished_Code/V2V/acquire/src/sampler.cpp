@@ -449,9 +449,8 @@ static bool stop_acquiring()
 		std::string first_word = "";
 		line >> first_word;
 		
-		// TODO put this string in a header file.
 		// Check to see if it's the line that tells us the metadata filename:
-		if(first_word == "DataCapture.meta_filename")
+		if(first_word == CAPTURE_META_FILENAME_HANDOFF_TAG)
 		{
 			// If it is, read the rest in as the filename:
 			line >> current_capture.meta_filename;
