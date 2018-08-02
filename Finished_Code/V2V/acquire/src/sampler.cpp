@@ -99,6 +99,14 @@ GtkWidget *current_capture_name = NULL;
  * The label that shows the status of the current capture.
  */
 GtkWidget *current_capture_status = NULL;
+/**
+ * The label that shows the total amount of data captured.
+ */
+GtkWidget *label_total_data_captured = NULL;
+/**
+ * The total amount of data captured.
+ */
+int total_data_captured = 0;
 
 /**
  * The current data capture. This stores the name as determined in the
@@ -109,8 +117,6 @@ DataCapture current_capture;
 
 /**
  * The list of previously completed data captures.
- * 
- * TODO change this to a vector?
  */
 std::list<DataCapture> finished_captures;
 
@@ -350,6 +356,7 @@ static bool stop_acquiring();
 // TODO add a label that shows the total space used by all of the captures
 // TODO add a button to remove a capture
 // TODO show the name of the capture that's being edited in the edit notes window
+// TODO allow user to take notes before the capture?
 
 int main(int argc, char **argv)
 {
@@ -467,7 +474,6 @@ static bool stop_acquiring()
 		{
 			// If it is, read the rest in as the filename:
 			line >> current_capture.meta_filename;
-			// TODO allow user to take notes before the capture?
 			// Save the notes we already have, because otherwise they'll be overwritten as empty
 			// when we read the capture info in from the file.
 			std::string notes = current_capture.notes;
@@ -557,19 +563,17 @@ static void init_main_window()
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_NOTES, COL_NOTES + 1, row, row + 1);
 	
-	// Populate the list with the captures that were loaded from the files in the data folder.
-	// finished_captures should already have been initialized by now:
-	for(std::list<DataCapture>::iterator it = finished_captures.begin(); it != finished_captures.end(); ++it)
-	{
-		insert_capture_into_table(*it);
-	}
-	
 	gtk_widget_show(capture_table);
 	gtk_widget_show(scrolled_window);
 	
+	GtkWidget* footer_box = gtk_hbox_new(FALSE, NO_PADDING);
+	gtk_box_pack_start(GTK_BOX(layout_box), footer_box, FALSE, FALSE, NO_PADDING);
+	gtk_widget_show(footer_box);
+	
 	// This box contains the labels that display information about the current captures:
 	current_capture_box = gtk_hbox_new(FALSE, NO_PADDING);
-	gtk_box_pack_start(GTK_BOX(layout_box), current_capture_box, FALSE, FALSE, NO_PADDING);
+	gtk_box_pack_start(GTK_BOX(footer_box), current_capture_box, FALSE, FALSE, NO_PADDING);
+	// Intentionally don't show current_capture_box yet
 	
 	current_capture_name = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_name, FALSE, FALSE, NO_PADDING);
@@ -579,7 +583,9 @@ static void init_main_window()
 	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_status, FALSE, FALSE, READY_BUTTON_PADDING);
 	gtk_widget_show(current_capture_status);
 	
-	// Intentionally don't show current_capture_box yet
+	label_total_data_captured = gtk_label_new("0 MB captured");
+	gtk_box_pack_end(GTK_BOX(footer_box), label_total_data_captured, FALSE, FALSE, NO_PADDING);
+	gtk_widget_show(label_total_data_captured);
 		
 	GtkWidget *sub_box = gtk_hbox_new(FALSE, NO_PADDING);
 	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, NO_PADDING);
@@ -621,6 +627,13 @@ static void init_main_window()
 	gtk_widget_show(sub_box);
 	
 	gtk_widget_show(layout_box);
+	
+	// Populate the list with the captures that were loaded from the files in the data folder.
+	// finished_captures should already have been initialized by now:
+	for(std::list<DataCapture>::iterator it = finished_captures.begin(); it != finished_captures.end(); ++it)
+	{
+		insert_capture_into_table(*it);
+	}
 }
 
 static void init_new_capture_window()
@@ -979,6 +992,12 @@ static void insert_capture_into_table_row(DataCapture capture, int row)
 	gtk_container_add(GTK_CONTAINER(align), edit_notes_button);
 	gtk_widget_show(align);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), align, COL_EDIT_NOTES, COL_EDIT_NOTES + 1, row, row + 1);
+	
+	// Update the total data label:
+	total_data_captured += capture.size;
+	ss.str("");
+	ss << total_data_captured / 1024 << " GB captured";
+	gtk_label_set_text(GTK_LABEL(label_total_data_captured), ss.str().c_str());
 }
 
 
