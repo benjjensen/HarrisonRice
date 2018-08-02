@@ -1,5 +1,24 @@
 %%%% StationaryRx %%%%
 
+%%%%%%%%%%%%%%%%%%
+% File Setup
+%%%%%%%%%%%%%%%%%%
+starttime = datetime('now') + seconds(.5);
+room = "harrison";
+NumSamples = 30;
+DelayTime = .5;
+
+collectdata = true;
+graphall = true;
+graphrange = false;
+
+% if graphrange = true
+% then set the range
+% with these numbers
+start = 1;
+finish = 1;
+%%%%%%%%%%%%%%%%%%
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Setup for the first run
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -11,48 +30,47 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Data Collection
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-starttime = datetime('now') + seconds(.5);
-curtime = datetime;
-while (string(curtime) ~= string(starttime))
+if collectdata == true
+    
     curtime = datetime;
-%     disp(string(curtime));
-end
-
-%%%%%%%%%%%%%%%%%%
-% Change These
-%%%%%%%%%%%%%%%%%%
-room = "harrison";
-NumSamples = 30;
-DelayTime = .5;
-%%%%%%%%%%%%%%%%%%
-
-TotalRunTime = (NumSamples * DelayTime) / 60;
-disp('This test will last for ~' + string(TotalRunTime) + ' minutes');
-disp('or ~' + string(NumSamples * DelayTime) + ' seconds');
-
-for runs = 1:NumSamples
-    for corrections = 1:8
-        temp = rx();
+    while (string(curtime) ~= string(starttime))
+        curtime = datetime;
+        %     disp(string(curtime));
     end
-    eval(sprintf('%s_%d = temp;',room,runs));
-    eval(sprintf('save("StationaryData/%s_%d.mat","%s_%d");', ...
-        room,runs,room,runs));
-    pause(DelayTime);
+    
+    TotalRunTime = (NumSamples * (DelayTime + .07)) / 60;
+    disp('This test will last for ~ ' + string(TotalRunTime) + ' minutes');
+    disp('or for ~ ' + string(NumSamples * DelayTime) + ' seconds');
+    
+    for runs = 1:NumSamples
+        for corrections = 1:8
+            temp = rx();
+        end
+        eval(sprintf('%s_%d = temp;',room,runs));
+        eval(sprintf('save("StationaryData/%s_%d.mat","%s_%d");', ...
+            room,runs,room,runs));
+        pause(DelayTime);
+    end
+    
+    save('workspace.mat');
+    
 end
 
-save('workspace.mat');
+%%%%%%%%%%%%%
+% Graph All
+%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%
-% Choose Graph all
-% or Graph range
-%%%%%%%%%%%%%%%%%%%
+if graphall == true
+    GraphAll(room,NumSamples);
+end
 
-start = 3;
-finish = 6;
+%%%%%%%%%%%%%
+% Graph Range
+%%%%%%%%%%%%%
 
-GraphAll(room,NumSamples);
-% GraphRange(room,start,finish);
+if graphrange == true
+    GraphRange(room,start,finish);
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Functions
