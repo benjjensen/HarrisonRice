@@ -318,10 +318,7 @@ static bool stop_acquiring();
 
 // TODO add a label that shows the total space used by all of the captures
 // TODO add a button to remove a capture
-// TODO update the format of the notes text view
 // TODO show the name of the capture that's being edited in the edit notes window
-// TODO add a line in the name_fields.txt file that explains that comments will disappear each time
-// TODO get rid of the "processing first word" output
 
 int main(int argc, char **argv)
 {	
@@ -436,6 +433,7 @@ static bool stop_acquiring()
 	int err_code = 0;
 	// Wait for acquire to be done. (This is necessary--otherwise it ends up as a zombie process.)
 	wait(&err_code);
+	// TODO handle this
 	std::cout << "Error code: " << err_code << std::endl;
 	
 	// For every line in acquire's output:
@@ -472,6 +470,8 @@ static bool stop_acquiring()
 	delete sb;
 	acquire_output_fd = -1;
 	acquire_process_id = -1;
+	
+	return TRUE;
 }
 
 
