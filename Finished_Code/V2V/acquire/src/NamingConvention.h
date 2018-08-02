@@ -25,6 +25,7 @@ Each line is one of a comment, a blank line, a field entry, an option entry, or 
 
 Comment lines start with '#' and are ignored.
 	# This is a comment. I can write anything here.
+Note: comment lines are not preserved when a member of this class overwrites the naming convention file.
 
 Field entries start with '$' and are in this format:
 	$ [default value] [separator] [field name]

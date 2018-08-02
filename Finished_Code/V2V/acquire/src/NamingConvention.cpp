@@ -152,6 +152,7 @@ int NamingConvention::save_fields_to_file(std::string filename)
 	<< "# \n"
 	<< "# Comment lines start with '#' and are ignored.\n"
 	<< "#     # This is a comment. I can write anything here.\n"
+	<< "# Note: comment lines are not preserved when a member of this class overwrites the naming convention file.\n"
 	<< "#\n"
 	<< "# Field entries start with '$' and are in this format:\n"
 	<< "#     $ [default value] [separator] [field name]\n"

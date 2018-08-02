@@ -8,6 +8,7 @@
 
 DataCapture::DataCapture()
 {
+	// Set some reasonable defaults for the member fields:
 	name = "";
 	year = 2018;
 	month = 8;
@@ -37,6 +38,10 @@ std::string DataCapture::get_time_string()
 
 int DataCapture::write_to_file(std::string filename)
 {
+	// If the filename provided is empty, use the meta_filename.
+	// If the meta_filename is also empty, use the data_filename with
+	// the file extension removed and CAPTURE_META_ENDING appended.
+	// If the data_filename is also empty, print an error message and return.
 	if(filename == "")
 	{
 		if(meta_filename == "")
@@ -62,6 +67,7 @@ int DataCapture::write_to_file(std::string filename)
 		}
 		filename = meta_filename;
 	}
+	// If the user provided a filename, save that as the meta_filename:
 	else
 	{
 		meta_filename = filename;
@@ -87,6 +93,7 @@ int DataCapture::read_from_file(std::string filename)
 	{
 		filename = meta_filename;
 	}
+	// If the user provided a filename, save that as the meta_filename:
 	else
 	{
 		meta_filename = filename;
@@ -119,6 +126,8 @@ void DataCapture::write_to_stream(std::ostream &out)
 
 void DataCapture::read_from_stream(std::istream &in)
 {
+	// For each line in the stream, read the first word to figure out the type.
+	// Based on the type, read in the rest of the info for that type.
 	std::string line_str;
 	while(std::getline(in, line_str))
 	{
@@ -129,6 +138,7 @@ void DataCapture::read_from_stream(std::istream &in)
 		if(type == "name")
 		{
 			std::getline(line, name);
+			// Strip whitespace away from the name:
 			if(name != "")
 			{
 				int start_index = name.find_first_not_of(" \n\t\r");
@@ -146,16 +156,20 @@ void DataCapture::read_from_stream(std::istream &in)
 		else if(type == "date")
 		{
 			line >> year;
+			// Ignore the '-' character:
 			line.ignore();
 			line >> month;
+			// Ignore the '-' character:
 			line.ignore();
 			line >> date;
 		}
 		else if(type == "time")
 		{
 			line >> hour;
+			// Ignore the ':' character:
 			line.ignore();
 			line >> minute;
+			// Ignore the ':' character:
 			line.ignore();
 			line >> second;
 		}
@@ -169,18 +183,23 @@ void DataCapture::read_from_stream(std::istream &in)
 		}
 		else if(type == "notes")
 		{
+			// Read in the rest of the stream until the backquote character:
 			std::string remaining_in_line;
 			std::getline(line, remaining_in_line, '`');
-			if(line_str.find('`') == -1)
+			// If this line didn't have the backquote in it, read until we
+			// find it:
+			if(line_str.find('`') == std::string::npos)
 			{
 				std::string rest_of_notes;	
 				std::getline(in, rest_of_notes, '`');
 				notes = remaining_in_line + '\n' + rest_of_notes;
 			}
+			// If this line had the backquote in it, that's it:
 			else
 			{
 				notes = remaining_in_line;
 			}
+			// Strip whitespace away from the notes:
 			if(notes != "")
 			{
 				int start_index = notes.find_first_not_of(" \n\t\r");
@@ -198,6 +217,7 @@ void DataCapture::read_from_stream(std::istream &in)
 		else if(type == "datafile")
 		{
 			std::getline(line, data_filename);
+			// Strip whitespace away from the data filename:
 			if(data_filename != "")
 			{
 				int start_index = data_filename.find_first_not_of(" \n\t\r");
