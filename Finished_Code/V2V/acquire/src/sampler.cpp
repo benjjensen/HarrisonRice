@@ -35,13 +35,13 @@ const unsigned int COL_EDIT_NOTES = 6;
  * 
  * TODO extract this to a header file (here and in acquire.cpp)
  */
-const std::string DATA_FOLDER = "../acquire/data";
+const std::string DATA_FOLDER = "data";
 
 /**
  * The naming convention used to store the values the user has selected for
  * each field.
  */
-NamingConvention naming_convention;
+NamingConvention *naming_convention;
 
 /**
  * The main window.
@@ -321,7 +321,9 @@ static bool stop_acquiring();
 // TODO show the name of the capture that's being edited in the edit notes window
 
 int main(int argc, char **argv)
-{	
+{
+	naming_convention = new NamingConvention;	
+	
 	gtk_init(&argc, &argv);
 	
 	load_all_captures_from_files();
@@ -336,6 +338,9 @@ int main(int argc, char **argv)
 	
 	gtk_widget_show(main_window);
 	gtk_main();
+	
+	delete naming_convention;
+	naming_convention = NULL;
 	
 	return 0;
 }
@@ -822,7 +827,7 @@ static void populate_fields_and_options()
 	}
 	
 	// For each field in the naming convention:
-	std::list<std::string> field_order = naming_convention.get_field_order();
+	std::list<std::string> field_order = naming_convention->get_field_order();
 	for(std::list<std::string>::iterator field_it = field_order.begin();
 			field_it != field_order.end(); ++field_it)
 	{
@@ -835,14 +840,14 @@ static void populate_fields_and_options()
 		gtk_widget_set_name(field_box, field_code.c_str());
 		
 		// This label shows the name of the field:
-		GtkWidget* field_label = gtk_label_new(naming_convention.get_field_name(field_code).c_str());
+		GtkWidget* field_label = gtk_label_new(naming_convention->get_field_name(field_code).c_str());
 		gtk_box_pack_start(GTK_BOX(field_box), field_label, FALSE, FALSE, 0);
 		gtk_widget_show(field_label);
 		
-		std::string selected_option = naming_convention.get_field_value(field_code);
+		std::string selected_option = naming_convention->get_field_value(field_code);
 		
 		GtkWidget* option_radio_button = NULL;
-		std::map<std::string, std::string> options = naming_convention.get_options(field_code);
+		std::map<std::string, std::string> options = naming_convention->get_options(field_code);
 		for(std::map<std::string, std::string>::iterator option_it = options.begin();
 				option_it != options.end(); ++option_it)
 		{
@@ -1060,7 +1065,7 @@ static void cb_create_new_capture(GtkWidget *widget, gpointer data)
 	// is already in the naming_convention object because it's stored there by
 	// cb_field_selection_changed whenever the user clicks on a radio button.
 	// So, here, all we have to do is have the naming convention build the name:
-	current_capture.name = naming_convention.name();
+	current_capture.name = naming_convention->name();
 	
 	// Display to the user the name of the current capture and that it's ready to begin:
 	gtk_label_set_text(GTK_LABEL(current_capture_name), current_capture.name.c_str());
@@ -1108,7 +1113,7 @@ static void cb_add_new_option(GtkWidget *widget, gpointer data)
 	field_being_extended = gtk_widget_get_name(widget);
 	
 	// Show the user the name of the current field being extended and clear the entry fields:
-	gtk_label_set_text(GTK_LABEL(add_option_field_label), ("  " + naming_convention.get_field_name(field_being_extended)).c_str());
+	gtk_label_set_text(GTK_LABEL(add_option_field_label), ("  " + naming_convention->get_field_name(field_being_extended)).c_str());
 	gtk_entry_set_text(GTK_ENTRY(add_option_entry_code), "");
 	gtk_entry_set_text(GTK_ENTRY(add_option_entry_name), "");
 	
@@ -1132,7 +1137,7 @@ static void cb_field_selection_changed(GtkWidget *widget, gpointer data)
 	
 	// Store the user's selection in naming_convention so that when we need to get the chosen
 	// name, we don't have to crawl over the radio buttons to find the selected one.
-	naming_convention.set_field_value(field_code, option_code);
+	naming_convention->set_field_value(field_code, option_code);
 }
 
 static void cb_add_option_cancel(GtkWidget* widget, gpointer data)
@@ -1166,7 +1171,7 @@ static void cb_add_option_add(GtkWidget* widget, gpointer data)
 		return;	
 	}
 	
-	naming_convention.add_option(field_being_extended, new_option_code, new_option_name);
+	naming_convention->add_option(field_being_extended, new_option_code, new_option_name);
 	// Re-populate the fields and option radio buttons now that there's a new option:
 	populate_fields_and_options();
 	
@@ -1192,6 +1197,8 @@ static void cb_edit_notes(GtkWidget *widget, gpointer data)
 	gtk_label_set_text(GTK_LABEL(edit_notes_label_error), "");
 	
 	gtk_widget_show(edit_notes_window);
+	// TODO figure out why this doesn't work when the text view is set to containing an empty string
+	gtk_window_set_position(GTK_WINDOW(edit_notes_window), GTK_WIN_POS_CENTER_ALWAYS);
 	// Prevent other windows from receiving input:
 	gtk_window_set_modal(GTK_WINDOW(edit_notes_window), TRUE);
 }
@@ -1272,7 +1279,7 @@ static bool validate_new_option_and_trim(std::string &new_option_code, std::stri
 	
 	// Check each currently existing option in the field being extended to see if the new option shares a name
 	// or a code with it. If it does, the new option is not valid.
-	std::map<std::string, std::string> current_options = naming_convention.get_options(field_being_extended);
+	std::map<std::string, std::string> current_options = naming_convention->get_options(field_being_extended);
 	for(std::map<std::string, std::string>::iterator option_it = current_options.begin();
 			option_it != current_options.end(); ++option_it)
 	{
