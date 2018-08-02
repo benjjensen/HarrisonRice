@@ -458,11 +458,8 @@ static bool stop_acquiring()
 	// where acquire is running.
 	kill(acquire_process_id, SIGINT);
 	
-	int err_code = 0;
 	// Wait for acquire to be done. (This is necessary--otherwise it ends up as a zombie process.)
-	wait(&err_code);
-	// TODO handle this
-	std::cout << "Error code: " << err_code << std::endl;
+	wait(NULL);
 	
 	// For every line in acquire's output:
 	std::string line_str = "";
