@@ -1,6 +1,7 @@
 *.o
 acquire
-output/
+sampler
+data/
 *.dat
 !ultra_config.dat
 *~
