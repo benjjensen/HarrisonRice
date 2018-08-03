@@ -374,8 +374,7 @@ static bool start_acquire_in_child_process();
  */
 static bool stop_acquiring();
 
-// TODO add a button to remove an option
-// TODO allow user to take notes before the capture?
+
 
 int main(int argc, char **argv)
 {
