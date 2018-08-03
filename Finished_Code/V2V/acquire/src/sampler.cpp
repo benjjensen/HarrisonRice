@@ -1,8 +1,8 @@
 #include <iostream>
 #include <sstream>
 #include <map>
-#include <list>
 #include <vector>
+#include <algorithm>
 #include <cstdlib>
 #include <iomanip>
 #include <dirent.h>
@@ -21,7 +21,7 @@
 /**
  * Constants for the columns of the capture table.
  */
-const unsigned int COLS_COUNT = 7;
+const unsigned int COLS_COUNT = 8;
 const unsigned int COL_NAME = 0;
 const unsigned int COL_DATE = 1;
 const unsigned int COL_TIME = 2;
@@ -29,6 +29,7 @@ const unsigned int COL_DURATION = 3;
 const unsigned int COL_SIZE = 4;
 const unsigned int COL_NOTES = 5;
 const unsigned int COL_EDIT_NOTES = 6;
+const unsigned int COL_DELETE_CAPTURE = 7;
 
 /**
  * The width of the border on all the windows.
@@ -123,7 +124,7 @@ DataCapture current_capture;
 /**
  * The list of previously completed data captures.
  */
-std::list<DataCapture> finished_captures;
+std::vector<DataCapture> finished_captures;
 
 /**
  * The button in the main window that starts the data capture.
@@ -294,6 +295,11 @@ static void cb_edit_notes_save(GtkWidget *widget, gpointer data);
  * the edit notes window.
  */
 static void cb_edit_notes_cancel(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks the delete button for a
+ * row in the capture table.
+ */
+static void cb_delete_capture(GtkWidget *widget, gpointer data);
 
 /**
  * Validates the code and the name for a new option that the user has
@@ -338,6 +344,11 @@ static void insert_capture_into_table_row(DataCapture capture, int row);
  */
 static void insert_capture_into_table(DataCapture capture);
 /**
+ * Hides the given row from the capture table.
+ */
+static void hide_capture_from_table(long capture_index);
+
+/**
  * This finds all the "*-meta.txt" files in DATA_FOLDER and reads them in
  * as DataCapture objects and puts those objects into finished_captures.
  * 
@@ -363,7 +374,7 @@ static bool start_acquire_in_child_process();
  */
 static bool stop_acquiring();
 
-// TODO add a button to remove a capture
+// TODO add a button to remove an option
 // TODO allow user to take notes before the capture?
 
 int main(int argc, char **argv)
@@ -638,7 +649,7 @@ static void init_main_window()
 	
 	// Populate the list with the captures that were loaded from the files in the data folder.
 	// finished_captures should already have been initialized by now:
-	for(std::list<DataCapture>::iterator it = finished_captures.begin(); it != finished_captures.end(); ++it)
+	for(std::vector<DataCapture>::iterator it = finished_captures.begin(); it != finished_captures.end(); ++it)
 	{
 		insert_capture_into_table(*it);
 	}
@@ -1014,6 +1025,18 @@ static void insert_capture_into_table_row(DataCapture capture, int row)
 	gtk_widget_show(align);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), align, COL_EDIT_NOTES, COL_EDIT_NOTES + 1, row, row + 1);
 	
+	// This button deletes the capture:
+	GtkWidget *delete_capture_button = gtk_button_new_with_label("Delete");
+	gtk_widget_show(delete_capture_button);
+	g_signal_connect(delete_capture_button, "clicked", G_CALLBACK(cb_delete_capture), (gpointer)(row - 1));
+	
+	// This alignment widget prevents the delete capture button from expanding.
+	// 0, 0, 0, 0 means top-left alignment and no expansion.
+	align = gtk_alignment_new(0, 0, 0, 0);
+	gtk_container_add(GTK_CONTAINER(align), delete_capture_button);
+	gtk_widget_show(align);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), align, COL_DELETE_CAPTURE, COL_DELETE_CAPTURE + 1, row, row + 1);
+	
 	// Update the total data label:
 	total_data_captured += capture.size;
 	ss.str("");
@@ -1024,6 +1047,31 @@ static void insert_capture_into_table_row(DataCapture capture, int row)
 	GtkAdjustment *adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(capture_table_scroll_window));
 	gtk_adjustment_set_value(adjustment, gtk_adjustment_get_upper(adjustment));
 	gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(capture_table_scroll_window), adjustment);
+}
+
+static void hide_capture_from_table(long capture_index)
+{
+	// The first row is always the column headings:
+	const long row = capture_index + 1;
+	
+	
+	GList *children, *iter;
+
+	children = gtk_container_get_children(GTK_CONTAINER(capture_table));
+	for(iter = children; iter != NULL; iter = g_list_next(iter))
+	{
+		GtkWidget* child = (GtkWidget*)iter->data;
+		unsigned int child_row = 0;
+		gtk_container_child_get(GTK_CONTAINER(capture_table), child, "top-attach", &child_row, NULL);
+		if(child_row == row)
+		{
+			gtk_widget_hide(child);
+		}
+	}
+	children = NULL;
+	iter = NULL;
+	
+	gtk_table_set_row_spacing(GTK_TABLE(capture_table), row, 0);
 }
 
 
@@ -1232,10 +1280,7 @@ static void cb_edit_notes(GtkWidget *widget, gpointer data)
 {
 	long capture_index = (long)data;
 	
-	std::list<DataCapture>::iterator it = finished_captures.begin();
-	std::advance(it, capture_index);
-	
-	DataCapture capture = *it;
+	DataCapture capture = finished_captures[capture_index];
 	notes_being_edited = capture_index;
 	
 	// Put the name of the capture being edited up:
@@ -1271,12 +1316,9 @@ static void cb_edit_notes_save(GtkWidget *widget, gpointer data)
 		return;
 	}
 	
-	std::list<DataCapture>::iterator it = finished_captures.begin();
-	std::advance(it, notes_being_edited);
-	
-	(*it).notes = new_notes;
+	finished_captures[notes_being_edited].notes = new_notes;
 	// Save the notes to file so that they'll be persistent:
-	(*it).write_to_file();
+	finished_captures[notes_being_edited].write_to_file();
 	
 	// Display the new notes in the capture table:
 	gtk_label_set_text(GTK_LABEL(notes_labels[notes_being_edited]), new_notes.c_str());
@@ -1292,6 +1334,22 @@ static void cb_edit_notes_cancel(GtkWidget *widget, gpointer data)
 	gtk_widget_hide(edit_notes_window);
 	// Allow other windows to receive focus:
 	gtk_window_set_modal(GTK_WINDOW(edit_notes_window), FALSE);
+}
+static void cb_delete_capture(GtkWidget *widget, gpointer data)
+{
+	long capture_index = (long)data;
+	hide_capture_from_table(capture_index);
+	
+	// Delete the capture data and metadata files:
+	DataCapture capture = finished_captures[capture_index];
+	int err = 0;
+	err |= remove(capture.data_filename.c_str());
+	err |= remove(capture.meta_filename.c_str());
+	if(err)
+	{
+		std::cerr << "ERROR: unable to delete " << capture.data_filename << " and/or "
+				<< capture.meta_filename << std::endl;
+	}
 }
 
 static bool validate_new_option_and_trim(std::string &new_option_code, std::string &new_option_name)
@@ -1418,7 +1476,7 @@ static bool compare_captures(const DataCapture &first, const DataCapture &second
 
 static void load_all_captures_from_files()
 {
-	std::list<std::string> capture_files;
+	std::vector<std::string> capture_files;
 	
 	{
 		// Crawl the data folder to find all of the files that end with CAPTURE_META_ENDING
@@ -1447,11 +1505,11 @@ static void load_all_captures_from_files()
 	
 	// For each file found, read the capture into memory and add it to finished_captures.
 	DataCapture capture;
-	for(std::list<std::string>::iterator it = capture_files.begin(); it != capture_files.end(); ++it)
+	for(std::vector<std::string>::iterator it = capture_files.begin(); it != capture_files.end(); ++it)
 	{
 		capture.read_from_file(*it);
 		finished_captures.push_back(capture);
 	}
 	// Sort finished_captures by the time they happened, with older captures at the beginning:
-	finished_captures.sort(compare_captures);
+	std::sort(finished_captures.begin(), finished_captures.end(), compare_captures);
 }
