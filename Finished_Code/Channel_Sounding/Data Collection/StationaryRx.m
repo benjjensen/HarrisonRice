@@ -11,6 +11,8 @@ DelayTime = .5;
 collectdata = true;
 graphall = true;
 graphrange = false;
+pwelchit = false;
+getcarriers = false;
 
 % if using graphrange
 % then set the range
@@ -72,6 +74,23 @@ if graphrange == true
     GraphRange(room,start,finish);
 end
 
+%%%%%%%%%%%%%
+% Pwelch Data
+%%%%%%%%%%%%%
+
+if pwelchit == true
+    PwelchEverything(room,NumSamples);
+end
+
+%%%%%%%%%%%%%
+% Separate
+%%%%%%%%%%%%%
+
+if getcarriers == true
+    SeparateCarriers(room,NumSamples);
+end
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,7 +106,7 @@ rx.ShowAdvancedProperties = true;
 end
 
 function GraphAll(room,NumSamples)
-load('workspace.mat');
+load('workspace.mat'); % This may need to match the load format in PwelchEverything
 close all;
 Nfft = 2*64;
 FF = -0.5:1/Nfft:0.5-1/Nfft;
@@ -111,7 +130,7 @@ end
 end
 
 function GraphRange(room,beginnum,endnum)
-load('workspace.mat');
+load('workspace.mat');  % This may need to match the load format in PwelchEverything
 close all;
 Nfft = 2*64;
 FF = -0.5:1/Nfft:0.5-1/Nfft;
@@ -134,3 +153,19 @@ for runs = beginnum:endnum
 end
 clear runs;
 end
+
+function PwelchEverything(room,NumSamples) % needs testing
+for runs = 1:NumSamples
+eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
+obj = eval(sprintf('%s_%d',room,runs));
+YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
+eval(sprintf('%s_pwelch_%d = YY;',room,runs));
+eval(sprintf('save("StationaryData/%s_pwelch_%d.mat","%s_pwelch_%d");',room,runs,room,runs));
+end
+end
+
+function SeparateCarriers(room,NumSamples) % incomplete
+
+end
+
+
