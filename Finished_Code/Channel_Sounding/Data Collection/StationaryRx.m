@@ -29,12 +29,10 @@ if collectdata == true
     if exist('rx','var') == 0
         rx = Setup();
     end
-    
-        %%%Shouldn't there be an 'end' here? or do you not need it?
-    
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Data Collection
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Data Collection
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     curtime = datetime;
     while (string(curtime) ~= string(starttime))
@@ -111,7 +109,7 @@ function GraphAll(room,NumSamples)
 close all;
 Nfft = 2*64;
 FF = -0.5:1/Nfft:0.5-1/Nfft;
-FF = 20*FF;                             %%% What is the significance of 20 anyways?
+FF = 20*FF;
 for runs = 1:NumSamples
     eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
     obj = eval(sprintf('%s_%d',room,runs));
@@ -156,7 +154,7 @@ end
 clear runs;
 end
 
-function PwelchEverything(room,NumSamples)      % Nice
+function PwelchEverything(room,NumSamples)
 Nfft = 128;
 for runs = 1:NumSamples
     eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
@@ -185,11 +183,4 @@ for runs = 1:NumSamples
         ,room,runs,room,runs));
 end
 end
-
-                %%% Basically all im getting from this is you wanted to
-                %%% make my new program redundent so you could try and get
-                %%% more lines and catch up to me. #NotGonnaHappen
-                
-                
-                %%% But it does look really nice
 
