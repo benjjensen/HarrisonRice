@@ -78,6 +78,11 @@ NamingConvention *naming_convention;
  * The main window.
  */
 GtkWidget *main_window = NULL;
+
+/**
+ * The scrolled window that the table is inside.
+ */
+GtkWidget *capture_table_scroll_window = NULL;
 /**
  * The table where the captures are displayed.
  */
@@ -516,20 +521,20 @@ static void init_main_window()
 	GtkWidget *layout_box = gtk_vbox_new(FALSE, NO_PADDING);
 	gtk_container_add(GTK_CONTAINER(main_window), layout_box);
 	
-	GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+	capture_table_scroll_window = gtk_scrolled_window_new(NULL, NULL);
 	// This allows the scroll window to scroll vertically and horizontally:
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_box_pack_start (GTK_BOX(layout_box), scrolled_window, TRUE, TRUE, NO_PADDING);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(capture_table_scroll_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_box_pack_start (GTK_BOX(layout_box), capture_table_scroll_window, TRUE, TRUE, NO_PADDING);
 	
 	// 0, 0, 0, 0 means that what's inside of this alignment widget will not expand to fill its parent,
 	// which is what we want with the capture table--it should have its own height and width independent
 	// from the height and width of the scrolled window.
 	GtkWidget *align = gtk_alignment_new(0, 0, 0, 0);
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window), align);
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(capture_table_scroll_window), align);
 	gtk_widget_show(align);
 	
 	// Removes the "shade" lines from around the scrolled window:
-	gtk_viewport_set_shadow_type(GTK_VIEWPORT(gtk_bin_get_child(GTK_BIN(scrolled_window))), GTK_SHADOW_NONE);
+	gtk_viewport_set_shadow_type(GTK_VIEWPORT(gtk_bin_get_child(GTK_BIN(capture_table_scroll_window))), GTK_SHADOW_NONE);
 	
 	capture_table_current_rows = 1;
 	capture_table = gtk_table_new(capture_table_current_rows, COLS_COUNT, FALSE);
@@ -567,7 +572,7 @@ static void init_main_window()
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_NOTES, COL_NOTES + 1, row, row + 1);
 	
 	gtk_widget_show(capture_table);
-	gtk_widget_show(scrolled_window);
+	gtk_widget_show(capture_table_scroll_window);
 	
 	GtkWidget* footer_box = gtk_hbox_new(FALSE, NO_PADDING);
 	gtk_box_pack_start(GTK_BOX(layout_box), footer_box, FALSE, FALSE, NO_PADDING);
@@ -1012,8 +1017,13 @@ static void insert_capture_into_table_row(DataCapture capture, int row)
 	// Update the total data label:
 	total_data_captured += capture.size;
 	ss.str("");
-	ss << total_data_captured / 1024 << " GB captured";
+	ss << total_data_captured / 1024 << " GB captured in total";
 	gtk_label_set_text(GTK_LABEL(label_total_data_captured), ss.str().c_str());
+	
+	// Scroll to the bottom:
+	GtkAdjustment *adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(capture_table_scroll_window));
+	gtk_adjustment_set_value(adjustment, gtk_adjustment_get_upper(adjustment));
+	gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(capture_table_scroll_window), adjustment);
 }
 
 
