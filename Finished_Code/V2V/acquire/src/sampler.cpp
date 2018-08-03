@@ -591,7 +591,7 @@ static void init_main_window()
 	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_status, FALSE, FALSE, READY_BUTTON_PADDING);
 	gtk_widget_show(current_capture_status);
 	
-	label_total_data_captured = gtk_label_new("0 MB captured");
+	label_total_data_captured = gtk_label_new("0 GB captured in total");
 	gtk_box_pack_end(GTK_BOX(footer_box), label_total_data_captured, FALSE, FALSE, NO_PADDING);
 	gtk_widget_show(label_total_data_captured);
 		
