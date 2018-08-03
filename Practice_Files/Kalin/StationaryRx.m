@@ -4,17 +4,19 @@
 % File Setup
 %%%%%%%%%%%%%%%%%%
 starttime = datetime('now') + seconds(.5);
-room = "harrison";
-NumSamples = 30;
+room = "hallway";
+NumSamples = 23;
 DelayTime = .5;
+dbthreshold = 5;
 
-collectdata = true;
-graphall = true;
+collectdata = false;
+graphall = false;
 graphrange = false;
+pwelchit = false;
+getcarriers = false;
 
-% if using graphrange
-% then set the range
-% with these numbers
+% for use with
+% graph range
 start = 1;
 finish = 1;
 %%%%%%%%%%%%%%%%%%
@@ -22,15 +24,15 @@ finish = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Setup for the first run
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-if exist('rx','var') == 0
-    rx = Setup();
-end
-
+if collectdata == true
+    
+    if exist('rx','var') == 0
+        rx = Setup();
+    end
+    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Data Collection
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if collectdata == true
     
     curtime = datetime;
     while (string(curtime) ~= string(starttime))
@@ -72,6 +74,23 @@ if graphrange == true
     GraphRange(room,start,finish);
 end
 
+%%%%%%%%%%%%%
+% Pwelch Data
+%%%%%%%%%%%%%
+
+if pwelchit == true
+    PwelchEverything(room,NumSamples);
+end
+
+%%%%%%%%%%%%%
+% Separate
+%%%%%%%%%%%%%
+
+if getcarriers == true
+    SeparateCarriers(room,NumSamples,dbthreshold);
+end
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,12 +106,12 @@ rx.ShowAdvancedProperties = true;
 end
 
 function GraphAll(room,NumSamples)
-load('workspace.mat');
 close all;
 Nfft = 2*64;
 FF = -0.5:1/Nfft:0.5-1/Nfft;
 FF = 20*FF;
 for runs = 1:NumSamples
+    eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
     obj = eval(sprintf('%s_%d',room,runs));
     YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
     YYplot = 10*log10(abs(fftshift(YY)));
@@ -111,12 +130,12 @@ end
 end
 
 function GraphRange(room,beginnum,endnum)
-load('workspace.mat');
 close all;
 Nfft = 2*64;
 FF = -0.5:1/Nfft:0.5-1/Nfft;
 FF = 20*FF;
 for runs = beginnum:endnum
+    eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
     obj = eval(sprintf('%s_%d',room,runs));
     YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
     YYplot = 10*log10(abs(fftshift(YY)));
@@ -134,3 +153,35 @@ for runs = beginnum:endnum
 end
 clear runs;
 end
+
+function PwelchEverything(room,NumSamples)
+Nfft = 128;
+for runs = 1:NumSamples
+    eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
+    obj = eval(sprintf('%s_%d',room,runs));
+    YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
+    eval(sprintf('%s_pwelch_%d = 10*log10(abs(fftshift(YY)));',room,runs));
+    eval(sprintf('save("StationaryData/%s_pwelch_%d.mat","%s_pwelch_%d");',room,runs,room,runs));
+end
+end
+
+function SeparateCarriers(room,NumSamples,db)
+for runs = 1:NumSamples
+    eval(sprintf('load("StationaryData/%s_pwelch_%d.mat");',room,runs));
+    eval(sprintf('signal = %s_pwelch_%d(1:2:end,1);',room,runs));
+    eval(sprintf('noise = %s_pwelch_%d(2:2:end,1);',room,runs));
+    difference = abs(signal(:,1) - noise(:,1))
+    count = 0;
+    for carriers = 1:64
+        if difference(carriers,1) >= db
+            count = count + 1;
+        end
+    end
+    eval(sprintf('%s_carriers_%d = count;',room,runs));
+    eval(sprintf( ...
+        'save("StationaryData/%s_carriers_%d.mat","%s_carriers_%d");' ...
+        ,room,runs,room,runs));
+end
+end
+
+
