@@ -1,8 +1,8 @@
 #include <iostream>
 #include <sstream>
 #include <map>
-#include <list>
 #include <vector>
+#include <algorithm>
 #include <cstdlib>
 #include <iomanip>
 #include <dirent.h>
@@ -21,7 +21,7 @@
 /**
  * Constants for the columns of the capture table.
  */
-const unsigned int COLS_COUNT = 7;
+const unsigned int COLS_COUNT = 8;
 const unsigned int COL_NAME = 0;
 const unsigned int COL_DATE = 1;
 const unsigned int COL_TIME = 2;
@@ -29,6 +29,7 @@ const unsigned int COL_DURATION = 3;
 const unsigned int COL_SIZE = 4;
 const unsigned int COL_NOTES = 5;
 const unsigned int COL_EDIT_NOTES = 6;
+const unsigned int COL_DELETE_CAPTURE = 7;
 
 /**
  * The width of the border on all the windows.
@@ -78,6 +79,11 @@ NamingConvention *naming_convention;
  * The main window.
  */
 GtkWidget *main_window = NULL;
+
+/**
+ * The scrolled window that the table is inside.
+ */
+GtkWidget *capture_table_scroll_window = NULL;
 /**
  * The table where the captures are displayed.
  */
@@ -99,6 +105,14 @@ GtkWidget *current_capture_name = NULL;
  * The label that shows the status of the current capture.
  */
 GtkWidget *current_capture_status = NULL;
+/**
+ * The label that shows the total amount of data captured.
+ */
+GtkWidget *label_total_data_captured = NULL;
+/**
+ * The total amount of data captured.
+ */
+int total_data_captured = 0;
 
 /**
  * The current data capture. This stores the name as determined in the
@@ -109,10 +123,8 @@ DataCapture current_capture;
 
 /**
  * The list of previously completed data captures.
- * 
- * TODO change this to a vector?
  */
-std::list<DataCapture> finished_captures;
+std::vector<DataCapture> finished_captures;
 
 /**
  * The button in the main window that starts the data capture.
@@ -182,6 +194,11 @@ GtkWidget* edit_notes_text_view = NULL;
  * edit_notes_text_view.
  */
 GtkWidget* edit_notes_label_error = NULL;
+/**
+ * Label that holds the name of the capture for which the notes are being edited.
+ */
+GtkWidget* edit_notes_label_name = NULL;
+
 /**
  * The list of labels for the notes of each entry in the capture table.
  */
@@ -278,6 +295,11 @@ static void cb_edit_notes_save(GtkWidget *widget, gpointer data);
  * the edit notes window.
  */
 static void cb_edit_notes_cancel(GtkWidget *widget, gpointer data);
+/**
+ * A callback function for when the user clicks the delete button for a
+ * row in the capture table.
+ */
+static void cb_delete_capture(GtkWidget *widget, gpointer data);
 
 /**
  * Validates the code and the name for a new option that the user has
@@ -322,6 +344,11 @@ static void insert_capture_into_table_row(DataCapture capture, int row);
  */
 static void insert_capture_into_table(DataCapture capture);
 /**
+ * Hides the given row from the capture table.
+ */
+static void hide_capture_from_table(long capture_index);
+
+/**
  * This finds all the "*-meta.txt" files in DATA_FOLDER and reads them in
  * as DataCapture objects and puts those objects into finished_captures.
  * 
@@ -347,9 +374,7 @@ static bool start_acquire_in_child_process();
  */
 static bool stop_acquiring();
 
-// TODO add a label that shows the total space used by all of the captures
-// TODO add a button to remove a capture
-// TODO show the name of the capture that's being edited in the edit notes window
+
 
 int main(int argc, char **argv)
 {
@@ -467,7 +492,6 @@ static bool stop_acquiring()
 		{
 			// If it is, read the rest in as the filename:
 			line >> current_capture.meta_filename;
-			// TODO allow user to take notes before the capture?
 			// Save the notes we already have, because otherwise they'll be overwritten as empty
 			// when we read the capture info in from the file.
 			std::string notes = current_capture.notes;
@@ -507,20 +531,20 @@ static void init_main_window()
 	GtkWidget *layout_box = gtk_vbox_new(FALSE, NO_PADDING);
 	gtk_container_add(GTK_CONTAINER(main_window), layout_box);
 	
-	GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+	capture_table_scroll_window = gtk_scrolled_window_new(NULL, NULL);
 	// This allows the scroll window to scroll vertically and horizontally:
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_box_pack_start (GTK_BOX(layout_box), scrolled_window, TRUE, TRUE, NO_PADDING);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(capture_table_scroll_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_box_pack_start (GTK_BOX(layout_box), capture_table_scroll_window, TRUE, TRUE, NO_PADDING);
 	
 	// 0, 0, 0, 0 means that what's inside of this alignment widget will not expand to fill its parent,
 	// which is what we want with the capture table--it should have its own height and width independent
 	// from the height and width of the scrolled window.
 	GtkWidget *align = gtk_alignment_new(0, 0, 0, 0);
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window), align);
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(capture_table_scroll_window), align);
 	gtk_widget_show(align);
 	
 	// Removes the "shade" lines from around the scrolled window:
-	gtk_viewport_set_shadow_type(GTK_VIEWPORT(gtk_bin_get_child(GTK_BIN(scrolled_window))), GTK_SHADOW_NONE);
+	gtk_viewport_set_shadow_type(GTK_VIEWPORT(gtk_bin_get_child(GTK_BIN(capture_table_scroll_window))), GTK_SHADOW_NONE);
 	
 	capture_table_current_rows = 1;
 	capture_table = gtk_table_new(capture_table_current_rows, COLS_COUNT, FALSE);
@@ -557,19 +581,17 @@ static void init_main_window()
 	gtk_widget_show(label);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), label, COL_NOTES, COL_NOTES + 1, row, row + 1);
 	
-	// Populate the list with the captures that were loaded from the files in the data folder.
-	// finished_captures should already have been initialized by now:
-	for(std::list<DataCapture>::iterator it = finished_captures.begin(); it != finished_captures.end(); ++it)
-	{
-		insert_capture_into_table(*it);
-	}
-	
 	gtk_widget_show(capture_table);
-	gtk_widget_show(scrolled_window);
+	gtk_widget_show(capture_table_scroll_window);
+	
+	GtkWidget* footer_box = gtk_hbox_new(FALSE, NO_PADDING);
+	gtk_box_pack_start(GTK_BOX(layout_box), footer_box, FALSE, FALSE, NO_PADDING);
+	gtk_widget_show(footer_box);
 	
 	// This box contains the labels that display information about the current captures:
 	current_capture_box = gtk_hbox_new(FALSE, NO_PADDING);
-	gtk_box_pack_start(GTK_BOX(layout_box), current_capture_box, FALSE, FALSE, NO_PADDING);
+	gtk_box_pack_start(GTK_BOX(footer_box), current_capture_box, FALSE, FALSE, NO_PADDING);
+	// Intentionally don't show current_capture_box yet
 	
 	current_capture_name = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_name, FALSE, FALSE, NO_PADDING);
@@ -579,7 +601,9 @@ static void init_main_window()
 	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_status, FALSE, FALSE, READY_BUTTON_PADDING);
 	gtk_widget_show(current_capture_status);
 	
-	// Intentionally don't show current_capture_box yet
+	label_total_data_captured = gtk_label_new("0 GB captured in total");
+	gtk_box_pack_end(GTK_BOX(footer_box), label_total_data_captured, FALSE, FALSE, NO_PADDING);
+	gtk_widget_show(label_total_data_captured);
 		
 	GtkWidget *sub_box = gtk_hbox_new(FALSE, NO_PADDING);
 	gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, NO_PADDING);
@@ -621,6 +645,13 @@ static void init_main_window()
 	gtk_widget_show(sub_box);
 	
 	gtk_widget_show(layout_box);
+	
+	// Populate the list with the captures that were loaded from the files in the data folder.
+	// finished_captures should already have been initialized by now:
+	for(std::vector<DataCapture>::iterator it = finished_captures.begin(); it != finished_captures.end(); ++it)
+	{
+		insert_capture_into_table(*it);
+	}
 }
 
 static void init_new_capture_window()
@@ -767,7 +798,20 @@ static void init_edit_notes_window()
 	GtkWidget *layout_box = gtk_vbox_new(FALSE, NO_PADDING);
 	gtk_container_add(GTK_CONTAINER(edit_notes_window), layout_box);
 	
-	GtkWidget *frame = gtk_frame_new("Notes:");
+	GtkWidget *frame = gtk_frame_new("Name:");
+	gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, NO_PADDING);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
+	
+	// The label where the name of the capture is displayed:
+	edit_notes_label_name = gtk_label_new("");
+	gtk_container_add(GTK_CONTAINER(frame), edit_notes_label_name);
+	// Set the alignment to top-left:
+	gtk_misc_set_alignment(GTK_MISC(edit_notes_label_name), 0, 0);
+	gtk_widget_show(edit_notes_label_name);
+	
+	gtk_widget_show(frame);
+	
+	frame = gtk_frame_new("Notes:");
 	gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, NO_PADDING);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
 	
@@ -979,6 +1023,54 @@ static void insert_capture_into_table_row(DataCapture capture, int row)
 	gtk_container_add(GTK_CONTAINER(align), edit_notes_button);
 	gtk_widget_show(align);
 	gtk_table_attach_defaults(GTK_TABLE(capture_table), align, COL_EDIT_NOTES, COL_EDIT_NOTES + 1, row, row + 1);
+	
+	// This button deletes the capture:
+	GtkWidget *delete_capture_button = gtk_button_new_with_label("Delete");
+	gtk_widget_show(delete_capture_button);
+	g_signal_connect(delete_capture_button, "clicked", G_CALLBACK(cb_delete_capture), (gpointer)(row - 1));
+	
+	// This alignment widget prevents the delete capture button from expanding.
+	// 0, 0, 0, 0 means top-left alignment and no expansion.
+	align = gtk_alignment_new(0, 0, 0, 0);
+	gtk_container_add(GTK_CONTAINER(align), delete_capture_button);
+	gtk_widget_show(align);
+	gtk_table_attach_defaults(GTK_TABLE(capture_table), align, COL_DELETE_CAPTURE, COL_DELETE_CAPTURE + 1, row, row + 1);
+	
+	// Update the total data label:
+	total_data_captured += capture.size;
+	ss.str("");
+	ss << total_data_captured / 1024 << " GB captured in total";
+	gtk_label_set_text(GTK_LABEL(label_total_data_captured), ss.str().c_str());
+	
+	// Scroll to the bottom:
+	GtkAdjustment *adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(capture_table_scroll_window));
+	gtk_adjustment_set_value(adjustment, gtk_adjustment_get_upper(adjustment));
+	gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(capture_table_scroll_window), adjustment);
+}
+
+static void hide_capture_from_table(long capture_index)
+{
+	// The first row is always the column headings:
+	const long row = capture_index + 1;
+	
+	
+	GList *children, *iter;
+
+	children = gtk_container_get_children(GTK_CONTAINER(capture_table));
+	for(iter = children; iter != NULL; iter = g_list_next(iter))
+	{
+		GtkWidget* child = (GtkWidget*)iter->data;
+		unsigned int child_row = 0;
+		gtk_container_child_get(GTK_CONTAINER(capture_table), child, "top-attach", &child_row, NULL);
+		if(child_row == row)
+		{
+			gtk_widget_hide(child);
+		}
+	}
+	children = NULL;
+	iter = NULL;
+	
+	gtk_table_set_row_spacing(GTK_TABLE(capture_table), row, 0);
 }
 
 
@@ -1187,11 +1279,11 @@ static void cb_edit_notes(GtkWidget *widget, gpointer data)
 {
 	long capture_index = (long)data;
 	
-	std::list<DataCapture>::iterator it = finished_captures.begin();
-	std::advance(it, capture_index);
-	
-	DataCapture capture = *it;
+	DataCapture capture = finished_captures[capture_index];
 	notes_being_edited = capture_index;
+	
+	// Put the name of the capture being edited up:
+	gtk_label_set_text(GTK_LABEL(edit_notes_label_name), ("  " + capture.name).c_str());
 	
 	// Fill the text view with the current notes on the capture:
 	gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(edit_notes_text_view)), capture.notes.c_str(), -1);
@@ -1223,12 +1315,9 @@ static void cb_edit_notes_save(GtkWidget *widget, gpointer data)
 		return;
 	}
 	
-	std::list<DataCapture>::iterator it = finished_captures.begin();
-	std::advance(it, notes_being_edited);
-	
-	(*it).notes = new_notes;
+	finished_captures[notes_being_edited].notes = new_notes;
 	// Save the notes to file so that they'll be persistent:
-	(*it).write_to_file();
+	finished_captures[notes_being_edited].write_to_file();
 	
 	// Display the new notes in the capture table:
 	gtk_label_set_text(GTK_LABEL(notes_labels[notes_being_edited]), new_notes.c_str());
@@ -1244,6 +1333,22 @@ static void cb_edit_notes_cancel(GtkWidget *widget, gpointer data)
 	gtk_widget_hide(edit_notes_window);
 	// Allow other windows to receive focus:
 	gtk_window_set_modal(GTK_WINDOW(edit_notes_window), FALSE);
+}
+static void cb_delete_capture(GtkWidget *widget, gpointer data)
+{
+	long capture_index = (long)data;
+	hide_capture_from_table(capture_index);
+	
+	// Delete the capture data and metadata files:
+	DataCapture capture = finished_captures[capture_index];
+	int err = 0;
+	err |= remove(capture.data_filename.c_str());
+	err |= remove(capture.meta_filename.c_str());
+	if(err)
+	{
+		std::cerr << "ERROR: unable to delete " << capture.data_filename << " and/or "
+				<< capture.meta_filename << std::endl;
+	}
 }
 
 static bool validate_new_option_and_trim(std::string &new_option_code, std::string &new_option_name)
@@ -1370,7 +1475,7 @@ static bool compare_captures(const DataCapture &first, const DataCapture &second
 
 static void load_all_captures_from_files()
 {
-	std::list<std::string> capture_files;
+	std::vector<std::string> capture_files;
 	
 	{
 		// Crawl the data folder to find all of the files that end with CAPTURE_META_ENDING
@@ -1399,11 +1504,11 @@ static void load_all_captures_from_files()
 	
 	// For each file found, read the capture into memory and add it to finished_captures.
 	DataCapture capture;
-	for(std::list<std::string>::iterator it = capture_files.begin(); it != capture_files.end(); ++it)
+	for(std::vector<std::string>::iterator it = capture_files.begin(); it != capture_files.end(); ++it)
 	{
 		capture.read_from_file(*it);
 		finished_captures.push_back(capture);
 	}
 	// Sort finished_captures by the time they happened, with older captures at the beginning:
-	finished_captures.sort(compare_captures);
+	std::sort(finished_captures.begin(), finished_captures.end(), compare_captures);
 }
