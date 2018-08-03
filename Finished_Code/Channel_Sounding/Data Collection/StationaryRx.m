@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%
 % File Setup
 %%%%%%%%%%%%%%%%%%
-starttime = datetime('now') + seconds(.5);
+starttime = datetime('now') + seconds(.5);      %Probably will end up changing this :)
 room = "hallway";
 NumSamples = 23;
 DelayTime = .5;
@@ -29,6 +29,8 @@ if collectdata == true
     if exist('rx','var') == 0
         rx = Setup();
     end
+    
+        %%%Shouldn't there be an 'end' here? or do you not need it?
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Data Collection
@@ -109,7 +111,7 @@ function GraphAll(room,NumSamples)
 close all;
 Nfft = 2*64;
 FF = -0.5:1/Nfft:0.5-1/Nfft;
-FF = 20*FF;
+FF = 20*FF;                             %%% What is the significance of 20 anyways?
 for runs = 1:NumSamples
     eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
     obj = eval(sprintf('%s_%d',room,runs));
@@ -154,7 +156,7 @@ end
 clear runs;
 end
 
-function PwelchEverything(room,NumSamples)
+function PwelchEverything(room,NumSamples)      % Nice
 Nfft = 128;
 for runs = 1:NumSamples
     eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
@@ -163,7 +165,7 @@ for runs = 1:NumSamples
     eval(sprintf('%s_pwelch_%d = 10*log10(abs(fftshift(YY)));',room,runs));
     eval(sprintf('save("StationaryData/%s_pwelch_%d.mat","%s_pwelch_%d");',room,runs,room,runs));
 end
-end
+end 
 
 function SeparateCarriers(room,NumSamples,db)
 for runs = 1:NumSamples
@@ -184,4 +186,10 @@ for runs = 1:NumSamples
 end
 end
 
+                %%% Basically all im getting from this is you wanted to
+                %%% make my new program redundent so you could try and get
+                %%% more lines and catch up to me. #NotGonnaHappen
+                
+                
+                %%% But it does look really nice
 
