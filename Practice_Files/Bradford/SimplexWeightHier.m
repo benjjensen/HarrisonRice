@@ -1,14 +1,14 @@
-function [graphWeights] = HammingWeightHier(m, graph)
+function [graphWeights] = SimplexWeightHier(m, graph)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 
 if 2 <= m
     
     n = (2^m) - 1;
-    simplex_k = n-m;
-    k = n-simplex_k;
+    Simplex_k = n-m;
+%     k = n-k_IT;
     
-    rate = k/n;
+    rate = Simplex_k/n;
     
     nValues= zeros(1,n);
     for i = 1 : n
@@ -30,33 +30,18 @@ if 2 <= m
             firstIndex = i+1;
         end
     end
-    found = false;
-    counter = 0;
-    weightsComp = nValuesSort(firstIndex :end);
-    for i = 1 : n
-        for j = 1 : simplex_k
-            if weightsComp(j) == i
-                found = true;
-            end
-        end
-        if ~found
-            counter = counter+1;
-            newWeights(counter) = i;
-            
-        end
-        found = false;
-    end
-    finalWeights = n+1-newWeights;
-    weights = sort(finalWeights);
+    
+    weights = nValuesSort(firstIndex :end);
+%     weights = sort(n + 1 - weightsComp);
     
     weightsIndex = 1;
     graphWeights = zeros(1,n+1);
     for index = 1 : n + 1
         if index <= weights(1,weightsIndex)
-            graphWeights(1,index) = k - weightsIndex + 1;
+            graphWeights(1,index) = Simplex_k - weightsIndex + 1;
         elseif index > weights(1, weightsIndex)
             weightsIndex = weightsIndex + 1;
-            graphWeights(1,index) = k - weightsIndex + 1;
+            graphWeights(1,index) = Simplex_k - weightsIndex + 1;
         end
     end
     
@@ -67,10 +52,10 @@ if 2 <= m
     
     if graph == true
         figure();
-        plot(graphIndexes,graphWeights,'DisplayName',['Hamming(' num2str(m) '), rate = ' num2str(round(rate,2))]);
+        plot(graphIndexes,graphWeights,'DisplayName',['Simplex(' num2str(m) '), rate = ' num2str(round(rate,2))]);
         grid on;
-        title({['\fontsize{12}Security Curve for Hamming(' num2str(m) ')'] ; ...
-            ['\fontsize{11}n = ' num2str(n) ', k = ' num2str(k)]});
+        title({['\fontsize{12}Security Curve for Simplex(' num2str(m) ')'] ; ...
+            ['\fontsize{11}n = ' num2str(n) ', k = ' num2str(Simplex_k)]});
         ylabel('Equivocation (bits)');
         xlabel ('Revealed Bits (\mu)');
         legend;
