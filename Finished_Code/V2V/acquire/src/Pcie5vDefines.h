@@ -32,25 +32,25 @@ complicates the software.
 
 #ifndef _WINDOWS
 
-    #define MAX_UVDMA                    8        // number of uvdma boards this driver supports
-    #define UVDMA_CSR_INDEX              0x80     // offset in config space to OUR control register 
-    #define PCI_VENDOR_ID_ULTRAVIEW      0xfebd   // Ultraview vendor ID
-    #define PCI_DEVICE_ID_ULTRA_ADDA     0x0065   // AD8-3000 Device ID
+#define MAX_UVDMA                    8        // number of uvdma boards this driver supports
+#define UVDMA_CSR_INDEX              0x80     // offset in config space to OUR control register 
+#define PCI_VENDOR_ID_ULTRAVIEW      0xfebd   // Ultraview vendor ID
+#define PCI_DEVICE_ID_ULTRA_ADDA     0x0065   // AD8-3000 Device ID
 
 struct uvdma_reg_values
 {
-    // 123010, changed to unsigned int from u_int32_t
-    unsigned int changed_bits;        // requested bits to be changed
-    unsigned int new_bit_value;       // requested new bit values
-    unsigned int data;                // used to transfer various data into/out of the driver
-    unsigned int pio_offset;          // offset for user PIO access using address multiplexers to reduce true PIO size
-    unsigned int spiAddress;
-    unsigned int mask_info;
+	// 123010, changed to unsigned int from u_int32_t
+	unsigned int changed_bits;        // requested bits to be changed
+	unsigned int new_bit_value;       // requested new bit values
+	unsigned int data;                // used to transfer various data into/out of the driver
+	unsigned int pio_offset;          // offset for user PIO access using address multiplexers to reduce true PIO size
+	unsigned int spiAddress;
+	unsigned int mask_info;
 };
 
 
-    // Linux device driver IO control definitions
-    #define UVDMA_IOC_MAGIC 'L'
+// Linux device driver IO control definitions
+#define UVDMA_IOC_MAGIC 'L'
 
 #define IOCTL_GET_NUM_DEVICES                _IOWR(UVDMA_IOC_MAGIC, 0x01, struct uvdma_reg_values)
 #define IOCTL_WRITE_CONFIG_SPACE             _IOWR(UVDMA_IOC_MAGIC, 0x02, struct uvdma_reg_values)
@@ -65,45 +65,45 @@ struct uvdma_reg_values
 #define IOCTL_SET_SHADOW_REG				 _IOWR(UVDMA_IOC_MAGIC, 0x0B, struct uvdma_reg_values)		// For Driver version > 1.0.0; Added to keep shadow registers of all SET_USER_PIO_REG; AL 071213
 #define IOCTL_GET_SHADOW_REG				 _IOWR(UVDMA_IOC_MAGIC, 0x0C, struct uvdma_reg_values)		// For Driver version > 1.0.0; Added to keep shadow registers of all SET_USER_PIO_REG; AL 071213
 
-    // Linux Interrupt Masks
-    #define AD_DMA_INTERRUPT    0x40000000
-    #define AD_INTERRUPT        0x20000000
-    #define ALL_AD_INTERRUPT    0x10000000
-    #define DA_DMA_INTERRUPT	0x08000000
-    #define DA_INTERRUPT        0x04000000
-    #define ALL_DA_INTERRUPT    0x02000000
-    #define ERROR_INTERRUPT     0x00800000
+// Linux Interrupt Masks
+#define AD_DMA_INTERRUPT    0x40000000
+#define AD_INTERRUPT        0x20000000
+#define ALL_AD_INTERRUPT    0x10000000
+#define DA_DMA_INTERRUPT	0x08000000
+#define DA_INTERRUPT        0x04000000
+#define ALL_DA_INTERRUPT    0x02000000
+#define ERROR_INTERRUPT     0x00800000
 
-    // If another interrput is added make sure it is added to IS_OUR_INTERRUPT
-    #define IS_OUR_INTERRUPT (AD_DMA_INTERRUPT | AD_INTERRUPT | ALL_AD_INTERRUPT | DA_DMA_INTERRUPT | DA_INTERRUPT | ALL_DA_INTERRUPT | ERROR_INTERRUPT)
+// If another interrput is added make sure it is added to IS_OUR_INTERRUPT
+#define IS_OUR_INTERRUPT (AD_DMA_INTERRUPT | AD_INTERRUPT | ALL_AD_INTERRUPT | DA_DMA_INTERRUPT | DA_INTERRUPT | ALL_DA_INTERRUPT | ERROR_INTERRUPT)
 
 #else
 
-    // Windows device driver IO control definitions
-    #define IOCTL_WRITE_CONFIG_SPACE            CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS)
-	#define IOCTL_GET_VERSION		            CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_BUFFERED, FILE_ANY_ACCESS)		// Driver version > 1.0.0 support shadow registers; AL 071212
-    #define IOCTL_SET_ARMED                     CTL_CODE(FILE_DEVICE_UNKNOWN, 0x810, METHOD_BUFFERED, FILE_ANY_ACCESS)
-    #define IOCTL_SET_USER_PIO_REG              CTL_CODE(FILE_DEVICE_UNKNOWN, 0x820, METHOD_BUFFERED, FILE_ANY_ACCESS)
-    #define IOCTL_GET_USER_PIO_REG              CTL_CODE(FILE_DEVICE_UNKNOWN, 0x830, METHOD_BUFFERED, FILE_ANY_ACCESS)
-    #define IOCTL_SET_PREVENT_UNDEROVERRUNS     CTL_CODE(FILE_DEVICE_UNKNOWN, 0x840, METHOD_BUFFERED, FILE_ANY_ACCESS)
-    #define IOCTL_GET_BLOCKS_SYNTHESIZED        CTL_CODE(FILE_DEVICE_UNKNOWN, 0x850, METHOD_BUFFERED, FILE_ANY_ACCESS)
-    #define IOCTL_SET_NUM_BLOCKS_PER_BOARD      CTL_CODE(FILE_DEVICE_UNKNOWN, 0x860, METHOD_BUFFERED, FILE_ANY_ACCESS)
-    #define IOCTL_GET_OVERRUNS                  CTL_CODE(FILE_DEVICE_UNKNOWN, 0x870, METHOD_BUFFERED, FILE_ANY_ACCESS)
-    #define IOCTL_GET_STATUS                    CTL_CODE(FILE_DEVICE_UNKNOWN, 0x880, METHOD_BUFFERED, FILE_ANY_ACCESS)
-	#define IOCTL_SET_SHADOW_REG				CTL_CODE(FILE_DEVICE_UNKNOWN, 0x890, METHOD_BUFFERED, FILE_ANY_ACCESS)		// For Driver version > 1.0.0; Added to keep shadow registers of all SET_USER_PIO_REG; AL 071213
-	#define IOCTL_GET_SHADOW_REG				CTL_CODE(FILE_DEVICE_UNKNOWN, 0x8A0, METHOD_BUFFERED, FILE_ANY_ACCESS)		// For Driver version > 1.0.0; Added to keep shadow registers of all SET_USER_PIO_REG; AL 071213
+// Windows device driver IO control definitions
+#define IOCTL_WRITE_CONFIG_SPACE            CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_GET_VERSION		            CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_BUFFERED, FILE_ANY_ACCESS)		// Driver version > 1.0.0 support shadow registers; AL 071212
+#define IOCTL_SET_ARMED                     CTL_CODE(FILE_DEVICE_UNKNOWN, 0x810, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_SET_USER_PIO_REG              CTL_CODE(FILE_DEVICE_UNKNOWN, 0x820, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_GET_USER_PIO_REG              CTL_CODE(FILE_DEVICE_UNKNOWN, 0x830, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_SET_PREVENT_UNDEROVERRUNS     CTL_CODE(FILE_DEVICE_UNKNOWN, 0x840, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_GET_BLOCKS_SYNTHESIZED        CTL_CODE(FILE_DEVICE_UNKNOWN, 0x850, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_SET_NUM_BLOCKS_PER_BOARD      CTL_CODE(FILE_DEVICE_UNKNOWN, 0x860, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_GET_OVERRUNS                  CTL_CODE(FILE_DEVICE_UNKNOWN, 0x870, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_GET_STATUS                    CTL_CODE(FILE_DEVICE_UNKNOWN, 0x880, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_SET_SHADOW_REG				CTL_CODE(FILE_DEVICE_UNKNOWN, 0x890, METHOD_BUFFERED, FILE_ANY_ACCESS)		// For Driver version > 1.0.0; Added to keep shadow registers of all SET_USER_PIO_REG; AL 071213
+#define IOCTL_GET_SHADOW_REG				CTL_CODE(FILE_DEVICE_UNKNOWN, 0x8A0, METHOD_BUFFERED, FILE_ANY_ACCESS)		// For Driver version > 1.0.0; Added to keep shadow registers of all SET_USER_PIO_REG; AL 071213
 
-    // Windows Interrupt Masks
-    #define  ALL_A2D_COMPLETE        0x10000000
-    #define  A2D_D2A_COMPLETE        0x20000000
-    #define  DMA_COMPLETE            0x40000000
+// Windows Interrupt Masks
+#define  ALL_A2D_COMPLETE        0x10000000
+#define  A2D_D2A_COMPLETE        0x20000000
+#define  DMA_COMPLETE            0x40000000
 
-	// Driver struct	// Driver version >= 1.0.0 support shadow registers; AL 071212
-	typedef struct _DRV_VERSION {
-		unsigned major;
-		unsigned minor;
-		unsigned internal;
-	} DRV_VERSION, *PDRV_VERSION;
+// Driver struct	// Driver version >= 1.0.0 support shadow registers; AL 071212
+typedef struct _DRV_VERSION {
+	unsigned major;
+	unsigned minor;
+	unsigned internal;
+} DRV_VERSION, *PDRV_VERSION;
 
 #endif
 
@@ -169,23 +169,23 @@ struct uvdma_reg_values
 
 // Mask info 
 #define SPI_DEVICE_BIT_POS		20
-    #define AD16				0	// used only for shadow registers
+#define AD16				0	// used only for shadow registers
 
-    #define SYNTHA			0	// used only for shadow registers
-	#define SYNTHB			1	// used only for shadow registers
-	#define IO_EXP			2	// used only for shadow registers
-	#define AD12			3	// used only for shadow registers
+#define SYNTHA			0	// used only for shadow registers
+#define SYNTHB			1	// used only for shadow registers
+#define IO_EXP			2	// used only for shadow registers
+#define AD12			3	// used only for shadow registers
 #define DATA_WORD_BIT_POS		16
-	#define WORD_0	0
-	#define WORD_1	1
+#define WORD_0	0
+#define WORD_1	1
 #define DATA_LENGTH_BIT_POS		0
-	#define SYNTH_DATA_LENGTH	0xffff
-	#define IO_EXP_DATA_LENGTH	0xff
-	#define AD12_DATA_LENGTH	0xffff
-    #define AD16_DATA_LENGTH	0xff
+#define SYNTH_DATA_LENGTH	0xffff
+#define IO_EXP_DATA_LENGTH	0xff
+#define AD12_DATA_LENGTH	0xffff
+#define AD16_DATA_LENGTH	0xff
 
 #define AD_IO_SYNTH_bit	24		// Bits 24 and 25 determine AD12, IO_EXP, or SYNTH SPI communication
-								// "00" = AD12, "01" = IO_EXP, "10" = SYNTH
+// "00" = AD12, "01" = IO_EXP, "10" = SYNTH
 
 
 //PIO_OFFSET_AVERAGER_CYCLES bit positions
@@ -370,7 +370,7 @@ struct uvdma_reg_values
 
 
 
-	
+
 
 
 // Strobe delay values for capturing 12/14-bit data
@@ -436,165 +436,165 @@ struct uvdma_reg_values
 // Board dependent configuration data read from config file
 typedef struct
 {
-    unsigned int serial_number;
-    unsigned int config_file_found;
-    unsigned short board_type;
-    unsigned short board_rev;           // 120110 Allow software to read board revision (8-bit capture timing)
-    unsigned int fpga_type;
+	unsigned int serial_number;
+	unsigned int config_file_found;
+	unsigned short board_type;
+	unsigned short board_rev;           // 120110 Allow software to read board revision (8-bit capture timing)
+	unsigned int fpga_type;
 
 
-    // Board characteristics (Always Required)
-    unsigned int adc_res;               // Read from config file (ADC bit resolution)
-    unsigned int dac_res;               // Read from config file (DAC bit resolution)
-    unsigned int adc_chan;              // Read from config file (number of ADC channels)
-    unsigned int dac_chan;              // Read from config file (number of DAC channels)
+	// Board characteristics (Always Required)
+	unsigned int adc_res;               // Read from config file (ADC bit resolution)
+	unsigned int dac_res;               // Read from config file (DAC bit resolution)
+	unsigned int adc_chan;              // Read from config file (number of ADC channels)
+	unsigned int dac_chan;              // Read from config file (number of DAC channels)
 
-    unsigned int dram_dqs;              // Read from config file (number of ADC channels)
-    unsigned int dram_dq;              // Read from config file (number of DAC channels)
+	unsigned int dram_dqs;              // Read from config file (number of ADC channels)
+	unsigned int dram_dq;              // Read from config file (number of DAC channels)
 
-    // Settings required for boards with National ADC08 series converters
-    unsigned int is_adc08d1520;
+	// Settings required for boards with National ADC08 series converters
+	unsigned int is_adc08d1520;
 
-    // Settings required for boards with National ADC08 series converters
-    unsigned int is_adc12d2000;
+	// Settings required for boards with National ADC08 series converters
+	unsigned int is_adc12d2000;
 
-    unsigned int ADC12D2000_desi_q_offset;
-    unsigned int ADC12D2000_desi_q_offset_neg;
-    unsigned int ADC12D2000_desq_i_offset;
-    unsigned int ADC12D2000_desq_i_offset_neg;
+	unsigned int ADC12D2000_desi_q_offset;
+	unsigned int ADC12D2000_desi_q_offset_neg;
+	unsigned int ADC12D2000_desq_i_offset;
+	unsigned int ADC12D2000_desq_i_offset_neg;
 
-    unsigned int ADC12D2000_desiq_q_offset;
-    unsigned int ADC12D2000_desiq_q_offset_neg;
-    unsigned int ADC12D2000_desiq_i_offset;
-    unsigned int ADC12D2000_desiq_i_offset_neg;
+	unsigned int ADC12D2000_desiq_q_offset;
+	unsigned int ADC12D2000_desiq_q_offset_neg;
+	unsigned int ADC12D2000_desiq_i_offset;
+	unsigned int ADC12D2000_desiq_i_offset_neg;
 
-    unsigned int ADC12D2000_desclkiq_q_offset;
-    unsigned int ADC12D2000_desclkiq_q_offset_neg;
-    unsigned int ADC12D2000_desclkiq_i_offset;
-    unsigned int ADC12D2000_desclkiq_i_offset_neg;
+	unsigned int ADC12D2000_desclkiq_q_offset;
+	unsigned int ADC12D2000_desclkiq_q_offset_neg;
+	unsigned int ADC12D2000_desclkiq_i_offset;
+	unsigned int ADC12D2000_desclkiq_i_offset_neg;
 
-    unsigned int ADC12D2000_desclkiq_q_fsr;
-    unsigned int ADC12D2000_desclkiq_i_fsr;
+	unsigned int ADC12D2000_desclkiq_q_fsr;
+	unsigned int ADC12D2000_desclkiq_i_fsr;
 
-    unsigned int ADC12D2000_CALIBRATION_VALUES;
-    unsigned int ADC12D2000_BIAS_ADJUST;
-    unsigned int ADC12D2000_DES_TIMING_ADJUST;
-    unsigned int ADC12D2000_APERTURE_DELAY_COARSE;
-    unsigned int ADC12D2000_APERTURE_DELAY_FINE;
+	unsigned int ADC12D2000_CALIBRATION_VALUES;
+	unsigned int ADC12D2000_BIAS_ADJUST;
+	unsigned int ADC12D2000_DES_TIMING_ADJUST;
+	unsigned int ADC12D2000_APERTURE_DELAY_COARSE;
+	unsigned int ADC12D2000_APERTURE_DELAY_FINE;
 
-    // Settings required to differentiate between AD14-400s with old firmware and upgraded triggering firmware
-    unsigned int is_AD5474;
+	// Settings required to differentiate between AD14-400s with old firmware and upgraded triggering firmware
+	unsigned int is_AD5474;
 
-    //Settings required for boards with ISLA214P converters
-    unsigned int is_ISLA214P;
+	//Settings required for boards with ISLA214P converters
+	unsigned int is_ISLA214P;
 
-    //Settings required for boards with ISLA216P converters
-    unsigned int is_ISLA216P;
+	//Settings required for boards with ISLA216P converters
+	unsigned int is_ISLA216P;
 
-    // Board dependent converter calibration settings (for 8-bit boards)
-    unsigned int adc2_off;              // Read from config file
-    unsigned int adc2_off_Q;            // Read from config file
+	// Board dependent converter calibration settings (for 8-bit boards)
+	unsigned int adc2_off;              // Read from config file
+	unsigned int adc2_off_Q;            // Read from config file
 
-    unsigned int adc3_off;              // Read from config file
-    unsigned int adc3_off_Q;            // Read from config file
+	unsigned int adc3_off;              // Read from config file
+	unsigned int adc3_off_Q;            // Read from config file
 
-    unsigned int adc2_fsr;              // Read from config file
-    unsigned int adc2_fsr_Q;            // Read from config file
-    unsigned int adc3_fsr;              // Read from config file
-    unsigned int adc3_fsr_Q;            // Read from config file
+	unsigned int adc2_fsr;              // Read from config file
+	unsigned int adc2_fsr_Q;            // Read from config file
+	unsigned int adc3_fsr;              // Read from config file
+	unsigned int adc3_fsr_Q;            // Read from config file
 
-    unsigned int adc2_off_neg;          // Read from config file
-    unsigned int adc2_off_neg_Q;        // Read from config file
+	unsigned int adc2_off_neg;          // Read from config file
+	unsigned int adc2_off_neg_Q;        // Read from config file
 
-    unsigned int adc3_off_neg;          // Read from config file
-    unsigned int adc3_off_neg_Q;        // Read from config file
+	unsigned int adc3_off_neg;          // Read from config file
+	unsigned int adc3_off_neg_Q;        // Read from config file
 
-    unsigned int clk500_phs;            // Read from config file
-    unsigned int clk1000_phs;           // Read from config file
-    unsigned int shift_adc2;            // Read from config file
+	unsigned int clk500_phs;            // Read from config file
+	unsigned int clk1000_phs;           // Read from config file
+	unsigned int shift_adc2;            // Read from config file
 
-    // Board dependent converter calibration settings (for non 8-bit boards)
-    unsigned int adc_gain0;             // Read from config file
-    unsigned int adc_gain1;             // Read from config file
+	// Board dependent converter calibration settings (for non 8-bit boards)
+	unsigned int adc_gain0;             // Read from config file
+	unsigned int adc_gain1;             // Read from config file
 
-    unsigned int adc_offs0;             // Read from config file
-    unsigned int adc_offs1;             // Read from config file
-    unsigned int adc_offs2;             // Read from config file
-    unsigned int adc_offs3;             // Read from config file
+	unsigned int adc_offs0;             // Read from config file
+	unsigned int adc_offs1;             // Read from config file
+	unsigned int adc_offs2;             // Read from config file
+	unsigned int adc_offs3;             // Read from config file
 
-    unsigned int adc_bias0;             // Read from config file
-    unsigned int adc_bias1;             // Read from config file
-    unsigned int adc_bias2;             // Read from config file
-    unsigned int adc_bias3;             // Read from config file
+	unsigned int adc_bias0;             // Read from config file
+	unsigned int adc_bias1;             // Read from config file
+	unsigned int adc_bias2;             // Read from config file
+	unsigned int adc_bias3;             // Read from config file
 
-    //ISLA216P 16-bit/ISLA214P 14-bit converter gain calibration settings
-    unsigned int ISLA_ADC0_GAIN_COARSE0;
-    unsigned int ISLA_ADC0_GAIN_MEDIUM0;
-    unsigned int ISLA_ADC0_GAIN_FINE0;
-    unsigned int ISLA_ADC0_OFFSET_FINE0;
-    unsigned int ISLA_ADC0_OFFSET_COARSE0;
+	//ISLA216P 16-bit/ISLA214P 14-bit converter gain calibration settings
+	unsigned int ISLA_ADC0_GAIN_COARSE0;
+	unsigned int ISLA_ADC0_GAIN_MEDIUM0;
+	unsigned int ISLA_ADC0_GAIN_FINE0;
+	unsigned int ISLA_ADC0_OFFSET_FINE0;
+	unsigned int ISLA_ADC0_OFFSET_COARSE0;
 
-    unsigned int ISLA_ADC1_GAIN_COARSE0;
-    unsigned int ISLA_ADC1_GAIN_MEDIUM0;
-    unsigned int ISLA_ADC1_GAIN_FINE0;
-    unsigned int ISLA_ADC1_OFFSET_FINE0;
-    unsigned int ISLA_ADC1_OFFSET_COARSE0;
+	unsigned int ISLA_ADC1_GAIN_COARSE0;
+	unsigned int ISLA_ADC1_GAIN_MEDIUM0;
+	unsigned int ISLA_ADC1_GAIN_FINE0;
+	unsigned int ISLA_ADC1_OFFSET_FINE0;
+	unsigned int ISLA_ADC1_OFFSET_COARSE0;
 
-    unsigned int ISLA_ADC2_GAIN_COARSE0;
-    unsigned int ISLA_ADC2_GAIN_MEDIUM0;
-    unsigned int ISLA_ADC2_GAIN_FINE0;
-    unsigned int ISLA_ADC2_OFFSET_FINE0;
-    unsigned int ISLA_ADC2_OFFSET_COARSE0;
+	unsigned int ISLA_ADC2_GAIN_COARSE0;
+	unsigned int ISLA_ADC2_GAIN_MEDIUM0;
+	unsigned int ISLA_ADC2_GAIN_FINE0;
+	unsigned int ISLA_ADC2_OFFSET_FINE0;
+	unsigned int ISLA_ADC2_OFFSET_COARSE0;
 
-    unsigned int ISLA_ADC3_GAIN_COARSE0;
-    unsigned int ISLA_ADC3_GAIN_MEDIUM0;
-    unsigned int ISLA_ADC3_GAIN_FINE0;
-    unsigned int ISLA_ADC3_OFFSET_FINE0;
-    unsigned int ISLA_ADC3_OFFSET_COARSE0;
+	unsigned int ISLA_ADC3_GAIN_COARSE0;
+	unsigned int ISLA_ADC3_GAIN_MEDIUM0;
+	unsigned int ISLA_ADC3_GAIN_FINE0;
+	unsigned int ISLA_ADC3_OFFSET_FINE0;
+	unsigned int ISLA_ADC3_OFFSET_COARSE0;
 
-    unsigned int ISLA_ADC0_GAIN_COARSE1;
-    unsigned int ISLA_ADC0_GAIN_MEDIUM1;
-    unsigned int ISLA_ADC0_GAIN_FINE1;
-    unsigned int ISLA_ADC0_OFFSET_FINE1;
-    unsigned int ISLA_ADC0_OFFSET_COARSE1;
+	unsigned int ISLA_ADC0_GAIN_COARSE1;
+	unsigned int ISLA_ADC0_GAIN_MEDIUM1;
+	unsigned int ISLA_ADC0_GAIN_FINE1;
+	unsigned int ISLA_ADC0_OFFSET_FINE1;
+	unsigned int ISLA_ADC0_OFFSET_COARSE1;
 
-    unsigned int ISLA_ADC1_GAIN_COARSE1;
-    unsigned int ISLA_ADC1_GAIN_MEDIUM1;
-    unsigned int ISLA_ADC1_GAIN_FINE1;
-    unsigned int ISLA_ADC1_OFFSET_FINE1;
-    unsigned int ISLA_ADC1_OFFSET_COARSE1;
+	unsigned int ISLA_ADC1_GAIN_COARSE1;
+	unsigned int ISLA_ADC1_GAIN_MEDIUM1;
+	unsigned int ISLA_ADC1_GAIN_FINE1;
+	unsigned int ISLA_ADC1_OFFSET_FINE1;
+	unsigned int ISLA_ADC1_OFFSET_COARSE1;
 
-    unsigned int ISLA_ADC2_GAIN_COARSE1;
-    unsigned int ISLA_ADC2_GAIN_MEDIUM1;
-    unsigned int ISLA_ADC2_GAIN_FINE1;
-    unsigned int ISLA_ADC2_OFFSET_FINE1;
-    unsigned int ISLA_ADC2_OFFSET_COARSE1;
+	unsigned int ISLA_ADC2_GAIN_COARSE1;
+	unsigned int ISLA_ADC2_GAIN_MEDIUM1;
+	unsigned int ISLA_ADC2_GAIN_FINE1;
+	unsigned int ISLA_ADC2_OFFSET_FINE1;
+	unsigned int ISLA_ADC2_OFFSET_COARSE1;
 
-    unsigned int ISLA_ADC3_GAIN_COARSE1;
-    unsigned int ISLA_ADC3_GAIN_MEDIUM1;
-    unsigned int ISLA_ADC3_GAIN_FINE1;
-    unsigned int ISLA_ADC3_OFFSET_FINE1;
-    unsigned int ISLA_ADC3_OFFSET_COARSE1;
+	unsigned int ISLA_ADC3_GAIN_COARSE1;
+	unsigned int ISLA_ADC3_GAIN_MEDIUM1;
+	unsigned int ISLA_ADC3_GAIN_FINE1;
+	unsigned int ISLA_ADC3_OFFSET_FINE1;
+	unsigned int ISLA_ADC3_OFFSET_COARSE1;
 
-    unsigned int ISLA_ADC0_IDELAY_OFFSET;
-    unsigned int ISLA_ADC1_IDELAY_OFFSET;
-    unsigned int ISLA_ADC2_IDELAY_OFFSET;
-    unsigned int ISLA_ADC3_IDELAY_OFFSET;
+	unsigned int ISLA_ADC0_IDELAY_OFFSET;
+	unsigned int ISLA_ADC1_IDELAY_OFFSET;
+	unsigned int ISLA_ADC2_IDELAY_OFFSET;
+	unsigned int ISLA_ADC3_IDELAY_OFFSET;
 
-    unsigned int ISLA_2X_CLK;
+	unsigned int ISLA_2X_CLK;
 
-    unsigned int ecl_trigger_delay;
+	unsigned int ecl_trigger_delay;
 
-    // Board dependent variables that are not directly read from config file
-    unsigned int adc_chan_used;         // Passed in from setup structure
-    unsigned long samples_per_block;    // Determined from adc_res, adc_chan
-    unsigned long max_adc_value;        // Determined from adc_res
-    unsigned long max_dac_value;        // Determined from dac_res
+	// Board dependent variables that are not directly read from config file
+	unsigned int adc_chan_used;         // Passed in from setup structure
+	unsigned long samples_per_block;    // Determined from adc_res, adc_chan
+	unsigned long max_adc_value;        // Determined from adc_res
+	unsigned long max_dac_value;        // Determined from dac_res
 
-    unsigned short strobe_count_mult;   // Determined from adc_res
-    int adc_error_value;                // Determined from adc_res, make sure this is a signed number
-    bool continuous_arf;      // Determined from adc_res, adc_chan
-    unsigned int pre_trigger_len;
+	unsigned short strobe_count_mult;   // Determined from adc_res
+	int adc_error_value;                // Determined from adc_res, make sure this is a signed number
+	bool continuous_arf;      // Determined from adc_res, adc_chan
+	unsigned int pre_trigger_len;
 
 	unsigned int MICROSYNTH;
 	unsigned int MICROSYNTH_OSC_FREQ;
@@ -609,16 +609,16 @@ typedef struct
 // Board dependent calibration data used to calibrate boards for mid-scale offsets and check for glitches.
 typedef struct
 {
-    int glitches[MAX_CHAN];
-    int num_7F[MAX_CHAN];
-    int num_80[MAX_CHAN];
-    int num_less7F[MAX_CHAN];
-    int num_more80[MAX_CHAN];
-    int glitches_ps[MAX_CHAN][ADC_DCM_PS_ITER+1];
+	int glitches[MAX_CHAN];
+	int num_7F[MAX_CHAN];
+	int num_80[MAX_CHAN];
+	int num_less7F[MAX_CHAN];
+	int num_more80[MAX_CHAN];
+	int glitches_ps[MAX_CHAN][ADC_DCM_PS_ITER+1];
 
-    unsigned short adc_offset_neg[MAX_CHAN];
-    unsigned char adc_offset[MAX_CHAN];
-    int inc_adc_offset[MAX_CHAN];
+	unsigned short adc_offset_neg[MAX_CHAN];
+	unsigned char adc_offset[MAX_CHAN];
+	int inc_adc_offset[MAX_CHAN];
 } cal_struct;
 
 

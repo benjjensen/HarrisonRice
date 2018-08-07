@@ -23,12 +23,12 @@ Modified:	B. Illingworth	Date 05/18/09
 
 
 #ifdef STANDALONE
-	#define TDO_CHECK		0	// Extremely slow if true, (make 0 for STANDALONE)
-	#define PRINT_TDO		0	// must have TDO_CHECK	   NOT STANDALONE
+#define TDO_CHECK		0	// Extremely slow if true, (make 0 for STANDALONE)
+#define PRINT_TDO		0	// must have TDO_CHECK	   NOT STANDALONE
 #else
-	// Must have TDO_CHECK=PRINT_TDO=1 for get_usercode.svf (e.g. to readback from prom)
-	#define TDO_CHECK		1	// Extremely slow if true, (make 0 for STANDALONE)
-	#define PRINT_TDO		1	// must have TDO_CHECK	   NOT STANDALONE
+// Must have TDO_CHECK=PRINT_TDO=1 for get_usercode.svf (e.g. to readback from prom)
+#define TDO_CHECK		1	// Extremely slow if true, (make 0 for STANDALONE)
+#define PRINT_TDO		1	// must have TDO_CHECK	   NOT STANDALONE
 #endif
 
 
@@ -45,32 +45,32 @@ Modified:	B. Illingworth	Date 05/18/09
 
 
 #ifdef _WINDOWS
-	// Start Windows Includes
-	#include <Windows.h>
-	#include <Winbase.h>
-	#include <math.h>
-	#include <time.h>
-	#include <stdio.h>
-	#include <string.h>
-	#include <stdlib.h>
-	#include <winioctl.h>	// only needed for direct call of IOCTL
+// Start Windows Includes
+#include <Windows.h>
+#include <Winbase.h>
+#include <math.h>
+#include <time.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <winioctl.h>	// only needed for direct call of IOCTL
 
-	#ifndef CTL_CODE
-		#pragma message("CTL_CODE undefined. Include winioctl.h or wdm.h")
-	#endif
+#ifndef CTL_CODE
+#pragma message("CTL_CODE undefined. Include winioctl.h or wdm.h")
+#endif
 
-    #include "Pcie5vDefines.h"
-	#include "DllDriverApi.h"			// API to AD83000x device driver and device global settings
+#include "Pcie5vDefines.h"
+#include "DllDriverApi.h"			// API to AD83000x device driver and device global settings
 #else
-	// Start Linux Includes
-	#include <stdio.h>
-	#include <string.h>
-	#include <stdlib.h>
-	#include <unistd.h>
-	#include <sys/types.h>
-	#include <sys/time.h>
-	#include <fcntl.h> 
-	#include <math.h>
+// Start Linux Includes
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <fcntl.h> 
+#include <math.h>
 #endif
 
 
@@ -84,7 +84,7 @@ typedef unsigned int u_int;
 #define WRITE_TMS if(ENABLE_OUTPUT) { SET_PIO_REG(BoardNum, PIO_OFFSET_PROMPROG, tms); }        
 #define WRITE_TMS_RUNTEST if(ENABLE_OUTPUT) { SET_PIO_REG(BoardNum, PIO_OFFSET_PROMPROG, tms); }
 
-    
+
 //#define	DEFAULT_DATAFILE "checkidcode.svf"
 //#define	DEFAULT_DATAFILE "blankcheck.svf"
 //#define	DEFAULT_DATAFILE "erase.svf"
@@ -93,16 +93,16 @@ typedef unsigned int u_int;
 
 char svf_filename[25];
 unsigned long serial_number = 0xFFFFFFFF;		// 051809 the device serial number
- 
+
 char *datarray;
 static char outputChars[100000000];  
 
 long didx;			// Index in datarray 
 
 #ifndef _WINDOWS
-    FILE * promFile;	// data file in Linux
+FILE * promFile;	// data file in Linux
 #else
-    HANDLE promFile;	
+HANDLE promFile;	
 #endif
 
 
@@ -131,12 +131,12 @@ int smaskignore()
 {
 	long j = 0;
 	char c;
-	
+
 	while((datarray[didx]) != ')')
 	{  
 		c = datarray[didx];
 
-		 // we are expecting a hex character, but could get formatting chars like newline
+		// we are expecting a hex character, but could get formatting chars like newline
 		if( c!='0' &&   c!='1' && c!='2' && c!='3' && c!='4' && c!='5' && c!='6' && c!='7' && c!='8'  && c!='9' && c!='a' && c!='b' && c!='c' && c!='d' && c!='e' && c!='f')
 		{  
 			// An invalid character
@@ -161,7 +161,7 @@ char make_hex(char m)
 	char data_char;
 	int index;
 
-	 // If character is "0" through "9" convert to 0 through 9 
+	// If character is "0" through "9" convert to 0 through 9 
 	if (m >= 48 && m <= 57)
 	{ 
 		data_char = m - 48;
@@ -201,7 +201,7 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 	char m, data_char, tdoChar, readTDI;
 	char tdoExpected[32768], tdoCaptured[32768], tdoMask[32768];
 	int mod;
-	
+
 
 	startcount = count; 	
 	numBits = count;
@@ -218,7 +218,7 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 
 	// serially output 1 or 2 bit TMS-hi start portion of preamble
 	// moves TAP state machine to SELECT-DR_SCAN or SELECT-IR_SCAN states
- 	for(i = 0; i < (u_int)cmd; i++)
+	for(i = 0; i < (u_int)cmd; i++)
 	{ 
 		WRITE_TMS	// Writes TMS to board using either Windows or Linux driver call
 	}
@@ -273,7 +273,7 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 	tdiOK = 1;
 
 	//// we are still in SHIFT-(IR/DR) State
-	
+
 	if( PRINT_TDO || TDO_CHECK )
 	{
 		oldVal = GET_PIO_REG(BoardNum, PIO_OFFSET_PROMPROG);
@@ -284,19 +284,19 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 
 	while(numBits > 0)
 	{
-	 	m = outputChars[--num_chars];  
+		m = outputChars[--num_chars];  
 		data_char = make_hex(m);
-		
+
 		//printf("\n D=(%x) %d  %d :  ", data_char, num_chars, numBits );
-		
+
 		// If HEX character is not illegal character, then output it serially 			 				
 		for(i = 0; ( (i<4) && (numBits>0) ); i++)
 		{
-			
+
 			if(numBits == 1)						// if this is the last data char, shift in the data and move to EXIT1
-				 { tms = 0x04; }					// move to EXIT1
+			{ tms = 0x04; }					// move to EXIT1
 			else { tms = 0x00; }					// stay in SHIFT
-			
+
 			portvect = tms | (data_char & 0x01);	// Output LS bit 
 
 			if(ENABLE_OUTPUT)
@@ -304,20 +304,20 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 
 				if( TDO_CHECK || TDI_CHECK ) { oldVal = GET_PIO_REG(BoardNum, PIO_OFFSET_PROMPROG); }	// Only read back from the board if we are checking TDI or TDO values
 
-//#ifdef _WINDOWS
-                SET_PIO_REG(BoardNum, PIO_OFFSET_PROMPROG, portvect);
+				//#ifdef _WINDOWS
+				SET_PIO_REG(BoardNum, PIO_OFFSET_PROMPROG, portvect);
 				//Sleep(1);	// DWORD (integer) input is time in milli-seconds
-//#else
-//				uvdma_set_prom_reg(pAPI, portvect);
+				//#else
+				//				uvdma_set_prom_reg(pAPI, portvect);
 				//usleep(1);
-//#endif
-			
+				//#endif
+
 				if( TDO_CHECK || TDI_CHECK )	// Only read back from the board if we are checking TDI or TDO values
 				{
 					readVal = GET_PIO_REG(BoardNum, PIO_OFFSET_PROMPROG);
 					tdoval = 0x00000001 & readVal;
 					readTDI = (readVal&0x10) >> 4;
-				
+
 					mod = (numBits-2)%4;
 					tdoChar |= tdoval << 3-mod;
 
@@ -332,7 +332,7 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 					if( PRINT_TDO && reprogram )printf("(%x)  ", tdoval);
 				}
 
-				
+
 				// Check TDI for both SIR and SDR commands
 				// Note: after PROM pulses PROG_B on Xilinx we will not be able to read/write to Xilinx !! (after reset is pulsed this could be a false error)
 				if( TDI_CHECK )
@@ -343,7 +343,7 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 
 						printf("\nTDI MIS-READ: TDI=%x, readTDI=%x, readVal=%x  oldVal=%x  numBits=%d  didx=%d\n\n", (data_char & 0x01), readTDI, readVal, oldVal, numBits, didx); 
 						fflush(stdout);
-				
+
 						// print out the preceding characters to see where error occured
 						for(l=500; l>=0; l--)
 						{
@@ -362,9 +362,9 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 			// SDR(cmd==1) SIR(cmd=2)
 			if(numBits == 1) 
 			{    
-			
+
 				// we must leave the TAP state machine in PAUSE, give one TMS low and return
-			/*	if( ((cmd==1) && (enddr_state == DRPAUSE) ) || ((cmd==2) && (endir_state == IRPAUSE) ) )
+				/*	if( ((cmd==1) && (enddr_state == DRPAUSE) ) || ((cmd==2) && (endir_state == IRPAUSE) ) )
 				{
 					tms = 0;		
 					if(ENABLE_OUTPUT) { pAPI.SetPromReg(tms);	}	// move to PAUSE
@@ -375,13 +375,13 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 				{
 			*/
 
-					//Sleep(1);
-					tms = 0x04;		
-					WRITE_TMS	// Writes TMS to board using either Windows or Linux driver call
+				//Sleep(1);
+				tms = 0x04;		
+				WRITE_TMS	// Writes TMS to board using either Windows or Linux driver call
 					tms = 0;		// move to IDLE
-					WRITE_TMS	// Writes TMS to board using either Windows or Linux driver call
+				WRITE_TMS	// Writes TMS to board using either Windows or Linux driver call
 
-/*					if( is_ISC_ERASE )
+					/*					if( is_ISC_ERASE )
 					{
 						tms = 0x04;		
 						if(ENABLE_OUTPUT) {	pAPI.SetPromReg(tms);	}	// move to SELECT_DR_SCAN
@@ -417,7 +417,7 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 
 			if(PRINT_COMMANDS){printf("DO (");}
 			didx += 5; // move past "TDO (" to the expected TDO value
-			
+
 			for(l=0; l<maxChars; l++)
 			{
 				if(PRINT_COMMANDS){printf("%c", datarray[didx]);}
@@ -429,13 +429,13 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 			if(PRINT_COMMANDS){printf("%c ", datarray[didx]);}
 			didx++;
 		}
-		
+
 		if( (datarray[didx] == 'S') && (datarray[didx+1] == 'M') && (datarray[didx+2] == 'A') && (datarray[didx+3] == 'S') && (datarray[didx+4] == 'K') )
 		{
 
 			if(PRINT_COMMANDS){printf("MASK (");}
 			didx += 7; // move past "SMASK (" to the expected SMASK value
-			
+
 			// ignore the SMASK
 			for(l=0; l<maxChars; l++)
 			{
@@ -470,7 +470,7 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 	}
 
 
-	
+
 
 	// print the captured/expected TDO values
 	if( PRINT_TDO_HEX && reprogram )
@@ -500,7 +500,7 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 			{
 				serial_number |= (tdoCaptured[l] << (28-(4*l)));
 			}
-			
+
 			//printf("Device serial number is = %x", serial_number);
 			is_XSC_DATA_UC = 0;	// clear for next time
 		}
@@ -577,15 +577,15 @@ int serout(unsigned short BoardNum, char cmd, unsigned long count)	// executes S
 	// we just issued the configuration command
 	if(is_config == 1)
 	{
-//#ifdef _WINDOWS
+		//#ifdef _WINDOWS
 		printf("\nReinstating Configuration Space\n");
 		Sleep(2000);
 		if(ENABLE_OUTPUT) { pAPI->WriteConfigSpace(0); }	// reinstate the configuration space 
-//#else
-//		printf("\nReinstating Configuration Space\n");
-//		usleep(2000000);	// 2 seconds to reconfigure
-//		if(ENABLE_OUTPUT) { uvdma_write_config_space(pAPI); }
-//#endif		
+		//#else
+		//		printf("\nReinstating Configuration Space\n");
+		//		usleep(2000000);	// 2 seconds to reconfigure
+		//		if(ENABLE_OUTPUT) { uvdma_write_config_space(pAPI); }
+		//#endif		
 		is_config = 0;
 	} 
 
@@ -603,20 +603,20 @@ int runtest(unsigned short BoardNum, unsigned long runcount)
 {
 	u_int tms = 0;
 
-//	ULONG sleeptime;
-//	sleeptime = ceil( (double) runcount/(1000) );	// 1K clock cycles at 1MHz = 1ms
-//	if(sleeptime < 1) { sleeptime = 1;}
-//	Sleep(sleeptime);
+	//	ULONG sleeptime;
+	//	sleeptime = ceil( (double) runcount/(1000) );	// 1K clock cycles at 1MHz = 1ms
+	//	if(sleeptime < 1) { sleeptime = 1;}
+	//	Sleep(sleeptime);
 
-#ifdef _WINDOWS
+	#ifdef _WINDOWS
 	while(runcount > 0)
 	{
 		WRITE_TMS_RUNTEST	// Writes TMS to board using either Windows or Linux driver call
-		runcount--;
+			runcount--;
 	}
-#else
+	#else
 	usleep(runcount);
-#endif
+	#endif
 
 	return(0);
 }
@@ -635,7 +635,7 @@ int rreset(unsigned short BoardNum)   // Executes RESET
 	while(resetcount > 0)
 	{
 		WRITE_TMS	// Writes TMS to board using either Windows or Linux driver call
-		resetcount--;
+			resetcount--;
 	}
 
 	return(0);
@@ -653,7 +653,7 @@ int ridle(unsigned short BoardNum)   // Executes IDLE
 	while(idlecount > 0)
 	{
 		WRITE_TMS	// Writes TMS to board using either Windows or Linux driver call
-		idlecount--;
+			idlecount--;
 	}
 
 	return(0);
@@ -701,7 +701,7 @@ void configure(unsigned short BoardNum)
 	long sizeread;		// amount of data actually read from file 
 	int num_devs;		// number of devices
 
-#ifndef _WINDOWS
+	#ifndef _WINDOWS
 	promFile = fopen(svf_filename, "rb");
 	if(promFile == NULL) { printf("ERROR: could not read SVF file!\n"); return; }
 	// get the file size
@@ -710,30 +710,30 @@ void configure(unsigned short BoardNum)
 	rewind( (FILE *) promFile);
 	bytesRead = fread(datarray, 1, dwSize, (FILE *) promFile);
 
-#else
+	#else
 
 
 	promFile = CreateFile(svf_filename, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
 
 	if(promFile == INVALID_HANDLE_VALUE) 
-    { 
-        printf("ERROR: could not read SVF file!\n"); return;
+	{ 
+		printf("ERROR: could not read SVF file!\n"); return;
 
-#ifdef _WINDOWS
-    char CurrentDir[200];
-    GetCurrentDirectory(200, CurrentDir);
-    printf("LoadSvf() configure() CurrentDir= %s! \n", CurrentDir);
-    printf("LoadSvf() configure() ERROR: could not read SVF file %s! \n", svf_filename);
-#endif
+		#ifdef _WINDOWS
+		char CurrentDir[200];
+		GetCurrentDirectory(200, CurrentDir);
+		printf("LoadSvf() configure() CurrentDir= %s! \n", CurrentDir);
+		printf("LoadSvf() configure() ERROR: could not read SVF file %s! \n", svf_filename);
+		#endif
 
-    }
+	}
 
-    DWORD dwSize = 0;
-    dwSize = GetFileSize(promFile, NULL);
+	DWORD dwSize = 0;
+	dwSize = GetFileSize(promFile, NULL);
 
 	ReadFile(promFile, datarray, dwSize, &bytesRead, NULL);
 	CloseHandle(promFile);
-#endif
+	#endif
 
 
 
@@ -743,14 +743,14 @@ void configure(unsigned short BoardNum)
 		printf("Programming Can Take Over 30 Minutes.\nDO NOT SHUT SYSTEM UNTIL PROGRAMMING COMPLETES (Sucess Message Will be Printed)", bytesRead);
 	}
 
-	
 
-// print the first part of the file for debugging...
-//	for(didx = 0; didx < 500; didx++)	// dwSize
-//	{
-//		printf("%c", datarray[didx]);
-//	}
-//	printf("\n");
+
+	// print the first part of the file for debugging...
+	//	for(didx = 0; didx < 500; didx++)	// dwSize
+	//	{
+	//		printf("%c", datarray[didx]);
+	//	}
+	//	printf("\n");
 
 
 	cmdtype = 0;
@@ -770,7 +770,7 @@ void configure(unsigned short BoardNum)
 			printf("%c", datarray[didx]);	// print the comments
 		}
 
-		
+
 		if( (datarray[didx] == '/') && (datarray[didx+1] == '/') )
 		{
 			didx++;	// we already printed first '/' so skip it
@@ -791,8 +791,8 @@ void configure(unsigned short BoardNum)
 					is_config = 1;	// The next instruction is an ISC_ERASE operation
 				}
 				if( (datarray[didx] == 'X') && (datarray[didx+1] == 'S') && (datarray[didx+2] == 'C') && (datarray[didx+3] == '_') && 
-					(datarray[didx+4] == 'D') && (datarray[didx+5] == 'A')  && (datarray[didx+6] == 'T')  && (datarray[didx+7] == 'A')  && 
-					(datarray[didx+8] == '_')  && (datarray[didx+9] == 'U')  && (datarray[didx+10] == 'C')  )
+				   (datarray[didx+4] == 'D') && (datarray[didx+5] == 'A')  && (datarray[didx+6] == 'T')  && (datarray[didx+7] == 'A')  && 
+				   (datarray[didx+8] == '_')  && (datarray[didx+9] == 'U')  && (datarray[didx+10] == 'C')  )
 				{
 					is_XSC_DATA_UC = 1;
 				}
@@ -820,7 +820,7 @@ void configure(unsigned short BoardNum)
 			else if(datarray[didx] == 'M')		// See if SMASK command 
 			{		
 				printf("%c", datarray[didx++]);
-			/*
+				/*
 				if(datarray[didx++] != 'A'){printf("\nFRAME ERR"); continue;}
 				if(datarray[didx++] != 'S'){printf("\nFRAME ERR"); continue;}
 				if(datarray[didx++] != 'K'){printf("\nFRAME ERR"); continue;}
@@ -874,9 +874,9 @@ void configure(unsigned short BoardNum)
 
 						// Note: When RESET is specified as the tap_state, Xilinx tools interpret the state transition as requiring the 
 						// guaranteed TAP transition to the Test-Logic-Reset state, i.e. hold TMS High for a minimum of five TCK cycles.
-					
+
 						//printf("\n STATE RESET IGNORED\n");
-/*
+						/*
 						if(PRINT_COMMANDS){printf("%c%c%c%c%c%c", datarray[didx], datarray[didx+1], datarray[didx+2], datarray[didx+3], datarray[didx+4], datarray[didx+5]  ); }
 						didx+=6;
 
@@ -931,7 +931,7 @@ void configure(unsigned short BoardNum)
 					if(datarray[didx++] != 'I'){printf("\nFRAME ERR"); return;}
 					if(datarray[didx++] != ' '){printf("\nFRAME ERR"); return;}
 					if(datarray[didx++] != '('){printf("\nFRAME ERR"); return;}
-					
+
 					//printf("TDI (");
 					if(PRINT_COMMANDS){printf(" TDI ("); }
 
@@ -956,7 +956,7 @@ void configure(unsigned short BoardNum)
 				cmdtype = 4;
 
 				if(PRINT_COMMANDS){printf("%c", datarray[didx]); }
-			
+
 				if(datarray[didx++] != 'N'){printf("\nFRAME ERR");  return;}
 				if(datarray[didx++] != 'T'){printf("\nFRAME ERR");  return;}
 				if(datarray[didx++] != 'E'){printf("\nFRAME ERR");  return;}
@@ -977,7 +977,7 @@ void configure(unsigned short BoardNum)
 					if(datarray[didx++] != 'C'){printf("\nFRAME ERR");  return;}
 					if(datarray[didx++] != 'K'){printf("\nFRAME ERR");  return;}
 					if(datarray[didx++] != ';'){printf("\nFRAME ERR");  return;}
-					
+
 					if(PRINT_COMMANDS){printf("TCK;");}
 
 					runtest(BoardNum, sizeread);
@@ -988,9 +988,9 @@ void configure(unsigned short BoardNum)
 			{   
 				didx++;
 				cmdtype = 5;
-				
+
 				if(PRINT_COMMANDS){printf("%c", datarray[didx]);}
-				
+
 				if(datarray[didx++] != 'S'){printf("\nFRAME ERROR");  return;}
 				if(datarray[didx++] != 'E'){printf("\nFRAME ERROR");  return;}
 				if(datarray[didx++] != 'T'){printf("\nFRAME ERROR");  return;}
@@ -1008,7 +1008,7 @@ void configure(unsigned short BoardNum)
 			if(datarray[didx++] != 'D'){printf("\nFRAME ERROR");  return;}
 			if(datarray[didx++] != 'L'){printf("\nFRAME ERROR");  return;}
 			if(datarray[didx++] != 'E'){printf("\nFRAME ERROR");  return;}
-			
+
 			if(PRINT_COMMANDS){printf("DLE");}
 			cmdtype = 6;			
 			ridle(BoardNum);
@@ -1027,7 +1027,7 @@ void configure(unsigned short BoardNum)
 				if(datarray[didx++] != 'R'){printf("\nFRAME ERR");  return;}
 				else if(PRINT_COMMANDS){printf("(IGNORE)");}
 				cmdtype = 8;
-				
+
 				didx++;
 				if(datarray[didx] != '0'){printf("\nMUST USE GLOBAL PADDING!!\n");  return;}
 			}
@@ -1113,7 +1113,7 @@ void configure(unsigned short BoardNum)
 					endir_state = IRPAUSE;
 					if(PRINT_COMMANDS){printf("%c%c%c%c%c%c%c%c", datarray[didx], datarray[didx+1], datarray[didx+2], datarray[didx+3], datarray[didx+4], datarray[didx+5], datarray[didx+6], datarray[didx+7] ); }					
 					if(PRINT_COMMANDS){printf(" endIR_state = IRPAUSE");	fflush(stdout); }
-					
+
 					didx+=8;
 					cmdtype = 12;
 				}
@@ -1140,7 +1140,7 @@ void configure(unsigned short BoardNum)
 					enddr_state = DRPAUSE;
 					if(PRINT_COMMANDS){printf("%c%c%c%c%c%c%c%c", datarray[didx], datarray[didx+1], datarray[didx+2], datarray[didx+3], datarray[didx+4], datarray[didx+5], datarray[didx+6], datarray[didx+7] ); }
 					if(PRINT_COMMANDS){printf(" endDR_state = DRPAUSE");	fflush(stdout); }
-					
+
 					didx+=8;
 					cmdtype = 12;
 				}
@@ -1187,77 +1187,77 @@ void configure(unsigned short BoardNum)
 
 extern "C" unsigned long LoadSvf(unsigned short BoardNum, char *filename, int reprogram_in)	
 {
-    int dev_num = 1;			 // to look for multiple devices
-    char char_buf[10];
-    unsigned long readVal = 0;
-	
-    datarray = (char *) malloc(10*1024*1024);  // the SVF instructions/data could be many MB if programming a PROM
+	int dev_num = 1;			 // to look for multiple devices
+	char char_buf[10];
+	unsigned long readVal = 0;
 
-    if(datarray == NULL)
-    {
-        printf("LoadSvf() Error allocating data array\n"); 
-    }
+	datarray = (char *) malloc(10*1024*1024);  // the SVF instructions/data could be many MB if programming a PROM
 
-
-    strcpy(svf_filename, filename);
-    reprogram = reprogram_in;	// limited print statments
-    
-    if(reprogram){printf("\n");}
-
-#ifdef _WINDOWS		
-    time_t ltime;
-    time(&ltime);
-#else
-    struct timeval tv_start;
-    struct timeval tv_end;
-    gettimeofday(&tv_start, NULL);
-#endif
-    
-    if(ENABLE_OUTPUT) 
+	if(datarray == NULL)
 	{
-        // reinstate the configuration space iff reprogramming
-        if(reprogram)
-        {
-            pAPI->WriteConfigSpace(readVal);	 
-        }
-        
-        if(reprogram){printf("\nReinstating Configuration Space\n");}
+		printf("LoadSvf() Error allocating data array\n"); 
+	}
 
-        readVal = GET_PIO_REG(BoardNum, PIO_OFFSET_PROMPROG);		// Check if Xilinx Programming Cable is Installed
-        
-        if( !(0x00000080 & readVal) )
-        {
-            printf("! Programming Cable Installed, Remove Before Loading SVF! PromReg = 0x%x \n", readVal);
-            return -1;
+
+	strcpy(svf_filename, filename);
+	reprogram = reprogram_in;	// limited print statments
+
+	if(reprogram){printf("\n");}
+
+	#ifdef _WINDOWS		
+	time_t ltime;
+	time(&ltime);
+	#else
+	struct timeval tv_start;
+	struct timeval tv_end;
+	gettimeofday(&tv_start, NULL);
+	#endif
+
+	if(ENABLE_OUTPUT) 
+	{
+		// reinstate the configuration space iff reprogramming
+		if(reprogram)
+		{
+			pAPI->WriteConfigSpace(readVal);	 
+		}
+
+		if(reprogram){printf("\nReinstating Configuration Space\n");}
+
+		readVal = GET_PIO_REG(BoardNum, PIO_OFFSET_PROMPROG);		// Check if Xilinx Programming Cable is Installed
+
+		if( !(0x00000080 & readVal) )
+		{
+			printf("! Programming Cable Installed, Remove Before Loading SVF! PromReg = 0x%x \n", readVal);
+			return -1;
 		}        
-    }
+	}
 
 
-    configure(BoardNum);	// configure this device
-		
+	configure(BoardNum);	// configure this device
 
-#ifdef _WINDOWS
-    time_t elapsed = ltime;
-    time(&ltime);
-    elapsed = ltime - elapsed;
-    unsigned long min = floor((double)elapsed/60);
-    unsigned long sec = elapsed%60;
-#else
-    double start_time, end_time, elapsed;
-    gettimeofday(&tv_end, NULL);
-    start_time = tv_start.tv_sec * 1000000 + tv_start.tv_usec;
-    end_time = tv_end.tv_sec * 1000000 + tv_end.tv_usec;
-    elapsed = tv_end.tv_sec - tv_start.tv_sec;
 
-    unsigned long min = (unsigned long) floor( elapsed/60 );
-    unsigned long sec = (unsigned long) elapsed%60;
-#endif
+	#ifdef _WINDOWS
+	time_t elapsed = ltime;
+	time(&ltime);
+	elapsed = ltime - elapsed;
+	unsigned long min = floor((double)elapsed/60);
+	unsigned long sec = elapsed%60;
+	#else
+	double start_time, end_time, elapsed;
+	gettimeofday(&tv_end, NULL);
+	start_time = tv_start.tv_sec * 1000000 + tv_start.tv_usec;
+	end_time = tv_end.tv_sec * 1000000 + tv_end.tv_usec;
+	elapsed = tv_end.tv_sec - tv_start.tv_sec;
 
-    if(reprogram){printf("\n Success! Programming Took %ldmin %ldsec\n", min, sec);}
+	unsigned long min = (unsigned long) floor( elapsed/60 );
+	unsigned long sec = (unsigned long) elapsed%60;
+	#endif
 
-    free(datarray);
+	if(reprogram){printf("\n Success! Programming Took %ldmin %ldsec\n", min, sec);}
 
-    return serial_number;
+	free(datarray);
+
+	return serial_number;
 }
 
 
