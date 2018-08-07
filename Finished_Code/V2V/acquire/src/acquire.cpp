@@ -167,7 +167,14 @@ int main(int argc, char ** argv)
 #define CUSTOM_DEBUG
 #ifdef CUSTOM_DEBUG
 	timespec test_start_time, test_end_time, loop_end_time, loop_start_time;
-	long test_elapsed_time, subtotal_read_time = 0, subtotal_write_time = 0, grand_total_read_time = 0, grand_total_write_time = 0, loop_elapsed_time = 0;
+	long test_elapsed_time, 
+			subtotal_read_time = 0, 
+			subtotal_write_time = 0, 
+			grand_total_read_time = 0, 
+			grand_total_write_time = 0, 
+			grand_total_setup_time = 0,
+			loop_elapsed_time = 0,
+			subtotal_setup_time = 0;
 #endif
 
 	continueReadingData = true;
@@ -178,8 +185,15 @@ int main(int argc, char ** argv)
 		clock_gettime(CLOCK_REALTIME, &loop_start_time);
 		subtotal_read_time = 0;
 		subtotal_write_time = 0;
+		subtotal_setup_time = 0;
+		clock_gettime(CLOCK_REALTIME, &test_start_time);
 #endif
 	   	uv->SetupAcquire(BoardNum,numBlocksToAcquire);
+	   	
+#ifdef CUSTOM_DEBUG
+	   	clock_gettime(CLOCK_REALTIME, &test_end_time);
+	   	subtotal_setup_time = (test_end_time.tv_sec - test_start_time.tv_sec) * 1000000000 + (test_end_time.tv_nsec - test_start_time.tv_nsec);
+#endif
 
 		// For each block of data requested
 		for (unsigned int i = 0; i < numBlocksToAcquire; i++ )
@@ -219,14 +233,18 @@ int main(int argc, char ** argv)
 		clock_gettime(CLOCK_REALTIME, &loop_end_time);
 		loop_elapsed_time = (loop_end_time.tv_sec - loop_start_time.tv_sec) * 1000000000 + (loop_end_time.tv_nsec - loop_start_time.tv_nsec);
 		printf("Loop time:      %10ld ns\n", loop_elapsed_time);
+		printf("Loop setup time:%10ld ns\n", subtotal_setup_time);
 		printf("Loop read time: %10ld ns\n", subtotal_read_time);
 		printf("Loop write time:%10ld ns\n", subtotal_write_time);
-		printf("%.2f%% spent writing\n", (double)subtotal_write_time / loop_elapsed_time * 100);
+		printf("%.2f%% spent setting up\n", (double)subtotal_setup_time / loop_elapsed_time * 100);
 		printf("%.2f%% spent reading\n", (double)subtotal_read_time / loop_elapsed_time * 100);
-		printf("%.2f%% spent otherwise\n\n\n", (double)(loop_elapsed_time - subtotal_write_time - subtotal_read_time) / loop_elapsed_time * 100);
+		printf("%.2f%% spent writing\n", (double)subtotal_write_time / loop_elapsed_time * 100);
+		printf("%.2f%% spent otherwise\n\n\n", (double)(loop_elapsed_time - subtotal_write_time -
+				subtotal_read_time - subtotal_setup_time) / loop_elapsed_time * 100);
 		
 		grand_total_read_time += subtotal_read_time;
 		grand_total_write_time += subtotal_write_time;
+		grand_total_setup_time += subtotal_setup_time;
 #endif
 		fflush(stdout);
 	}
@@ -245,9 +263,13 @@ int main(int argc, char ** argv)
 	printf("Average data capture rate: %.4f MB/s\n\n\n", ((float)data_written_megabytes) / elapsed_time_seconds);
 
 #ifdef CUSTOM_DEBUG
+	printf("Grand total setup time:%15ld ns\n", grand_total_setup_time);
 	printf("Grand total read time: %15ld ns\n", grand_total_read_time);
 	printf("Grand total write time:%15ld ns\n", grand_total_write_time);
+	printf("Grand total time:      %15ld ns\n", (long)(elapsed_time_seconds * 1000000000));
 	// divide by 1 billion to convert from ns to s, multiply by 100 to convert to percent:
+	printf("%.2f%% spent setting up\n", (double)grand_total_setup_time / 1000000000 / elapsed_time_seconds * 100);
+	printf("%.2f%% spent reading\n", (double)grand_total_read_time / 1000000000 / elapsed_time_seconds * 100);
 	printf("%.2f%% spent writing\n\n\n", (double)grand_total_write_time / 1000000000 / elapsed_time_seconds * 100);
 #endif
 
