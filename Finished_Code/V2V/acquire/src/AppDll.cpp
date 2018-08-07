@@ -47,105 +47,95 @@ int busy;
 #ifndef _MATLAB
 EXPORTED_FUNCTION int x_MemAlloc(void ** buf_addr, size_t buf_size) 
 #else
-int x_MemAlloc(void ** buf_addr, size_t buf_size) 
+	int x_MemAlloc(void ** buf_addr, size_t buf_size) 
 #endif
 {
-    
 #ifndef _WINDOWS
-    int error; 
-    error = posix_memalign(buf_addr, 4096, buf_size);	
-    return error;
+	int error; 
+	error = posix_memalign(buf_addr, 4096, buf_size);	
+	return error;
 
-//Windows Section
+	//Windows Section
 #else
-    *buf_addr = VirtualAlloc(NULL, buf_size, MEM_COMMIT, PAGE_READWRITE);
-    if(buf_addr == NULL){
-        return 1;
-    }
-    else{
-        return 0;
-    }
-
+	*buf_addr = VirtualAlloc(NULL, buf_size, MEM_COMMIT, PAGE_READWRITE);
+	if(buf_addr == NULL){
+		return 1;
+	}
+	else{
+		return 0;
+	}
 #endif
 
 
-    return 1;
+	return 1;
 }
 
 // Wrapper for freeing the memory allocation 
 #ifndef _MATLAB
 EXPORTED_FUNCTION void x_FreeMem(void * buf)
 #else
-void x_FreeMem(void * buf)
+	void x_FreeMem(void * buf)
 #endif
 
 {
-
 #ifndef _WINDOWS
-    free(buf);
+	free(buf);
 
-//Windows Section
+	//Windows Section
 #else
-    VirtualFree(buf, 0, MEM_RELEASE);
+	VirtualFree(buf, 0, MEM_RELEASE);
 #endif
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
 //File Primitives
-
 #ifndef _MATLAB
 EXPORTED_FUNCTION HANDLE x_CreateFile(char * filename)
 #else
-HANDLE x_CreateFile(char * filename)
+	HANDLE x_CreateFile(char * filename)
 #endif
 {
-    HANDLE fd;
+	HANDLE fd;
 #ifndef _WINDOWS
-    fd = open(filename,O_CREAT|O_WRONLY|O_TRUNC,0666);
-
+	fd = open(filename,O_CREAT|O_WRONLY|O_TRUNC,0666);
 #else
-    fd = CreateFile(filename, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+	fd = CreateFile(filename, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
 #endif 
-    if (fd < 0 ) {printf("open %s failed\n", filename);}
-    return fd;
+	if (fd < 0 ) {printf("open %s failed\n", filename);}
+	return fd;
 }
-
- 
 #ifndef _MATLAB
 EXPORTED_FUNCTION HANDLE x_OpenFile(char * filename)
 #else
-HANDLE x_OpenFile(char * filename)
+	HANDLE x_OpenFile(char * filename)
 #endif
 {
-	    HANDLE fd;
-
-
+	HANDLE fd;
 #ifndef _WINDOWS
-    fd =  open(filename,O_RDWR);
-
+	fd =  open(filename,O_RDWR);
 #else
-    fd =  CreateFile(filename, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+	fd =  CreateFile(filename, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 #endif 
-    if ((long)fd < 0 ) 
+	if ((long)fd < 0 ) 
 	{
 		printf("open %s failed\n", filename);
-//		DWORD error = GetLastError();
-//		printf("open error code = %ld\n", error);
-//    LPVOID lpMsgBuf;
-//    LPVOID lpDisplayBuf;
-//    DWORD dw = GetLastError();
+		//		DWORD error = GetLastError();
+		//		printf("open error code = %ld\n", error);
+		//    LPVOID lpMsgBuf;
+		//    LPVOID lpDisplayBuf;
+		//    DWORD dw = GetLastError();
 
-//    FormatMessage(
-//        FORMAT_MESSAGE_ALLOCATE_BUFFER |
-//        FORMAT_MESSAGE_FROM_SYSTEM |
-//        FORMAT_MESSAGE_IGNORE_INSERTS,
-//        NULL,
-//        dw,
-//        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-//        (LPTSTR) &lpMsgBuf,
-//        0, NULL );
-//		printf("%s\n",lpMsgBuf);
+		//    FormatMessage(
+		//        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		//        FORMAT_MESSAGE_FROM_SYSTEM |
+		//        FORMAT_MESSAGE_IGNORE_INSERTS,
+		//        NULL,
+		//        dw,
+		//        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		//        (LPTSTR) &lpMsgBuf,
+		//        0, NULL );
+		//		printf("%s\n",lpMsgBuf);
 
 	}
 	else
@@ -154,20 +144,20 @@ HANDLE x_OpenFile(char * filename)
 	}
 
 	fflush(stdout);
-    return fd;
+	return fd;
 }
 
 // Wrapper for seeking within a File. Offset must be from the beginning of the file.
 void x_FileSeek(HANDLE fd, off_t offset)
 {
 #ifndef _WINDOWS
-    lseek(fd, offset ,SEEK_SET);
+	lseek(fd, offset ,SEEK_SET);
 #else
-    LARGE_INTEGER largeint;
-    largeint.QuadPart = 0;
-    largeint.HighPart = 0;
-    largeint.LowPart = 0;
-    SetFilePointerEx(fd, largeint, NULL, FILE_BEGIN);
+	LARGE_INTEGER largeint;
+	largeint.QuadPart = 0;
+	largeint.HighPart = 0;
+	largeint.LowPart = 0;
+	SetFilePointerEx(fd, largeint, NULL, FILE_BEGIN);
 #endif
 }
 
@@ -175,26 +165,26 @@ void x_FileSeek(HANDLE fd, off_t offset)
 // Return the file size in DIG_BLOCKSIZE units
 unsigned long x_GetFileSizeInBlocks(HANDLE fd)
 {
-    unsigned long NumBlocks;
+	unsigned long NumBlocks;
 #ifndef _WINDOWS
-    struct stat stat_struct;
-    fstat(fd, &stat_struct);
-    NumBlocks = (int)(stat_struct.st_size/DIG_BLOCKSIZE);
+	struct stat stat_struct;
+	fstat(fd, &stat_struct);
+	NumBlocks = (int)(stat_struct.st_size/DIG_BLOCKSIZE);
 #else
 
-    double bignum, logbase2;
-    LARGE_INTEGER largeint;
+	double bignum, logbase2;
+	LARGE_INTEGER largeint;
 
-    GetFileSizeEx(fd, &largeint);
-    //printf("highpart=%d, lowpart=%d \n", largeint.HighPart, largeint.LowPart); 
+	GetFileSizeEx(fd, &largeint);
+	//printf("highpart=%d, lowpart=%d \n", largeint.HighPart, largeint.LowPart); 
 
-    logbase2 = log((double)DIG_BLOCKSIZE)/log((double)2);       // log base2 of the blocksize
+	logbase2 = log((double)DIG_BLOCKSIZE)/log((double)2);       // log base2 of the blocksize
 
-    bignum = ((largeint.HighPart << (32-(int)logbase2)));       // HighPart of the large integer in number of blocks
-    NumBlocks = (unsigned int) bignum + (largeint.LowPart/DIG_BLOCKSIZE);
+	bignum = ((largeint.HighPart << (32-(int)logbase2)));       // HighPart of the large integer in number of blocks
+	NumBlocks = (unsigned int) bignum + (largeint.LowPart/DIG_BLOCKSIZE);
 
 #endif
-    return NumBlocks;
+	return NumBlocks;
 }
 
 
@@ -202,13 +192,13 @@ unsigned long x_GetFileSizeInBlocks(HANDLE fd)
 #ifndef _MATLAB
 EXPORTED_FUNCTION void x_Close(HANDLE fd)
 #else
-void x_Close(HANDLE fd)
+	void x_Close(HANDLE fd)
 #endif
 {
 #ifndef _WINDOWS
-    close(fd);
+	close(fd);
 #else
-    CloseHandle(fd);
+	CloseHandle(fd);
 #endif
 }
 
@@ -220,11 +210,10 @@ void x_Close(HANDLE fd)
 #ifndef _MATLAB
 EXPORTED_FUNCTION int x_Read (unsigned short BoardNum, void * sysMem, size_t rd_size)
 #else
-int x_Read (unsigned short BoardNum, void * sysMem, size_t rd_size)
+	int x_Read (unsigned short BoardNum, void * sysMem, size_t rd_size)
 #endif
 {
- 	 int ret;
-
+	int ret;
 #ifdef DEBUG_TO_FILE
 	FILE *debugFile;
 	debugFile = fopen("c:\\uvdma\\debug.txt","a");
@@ -233,20 +222,18 @@ int x_Read (unsigned short BoardNum, void * sysMem, size_t rd_size)
 	fflush(debugFile);
 	fclose(debugFile);
 #endif
-
-
 #ifndef _WINDOWS
-//	makeAtomic[BoardNum].lock();
-    return read(pAPI->m_AllDeviceHandles[BoardNum], sysMem, rd_size);
-//	makeAtomic[BoardNum].unlock();
+	//	makeAtomic[BoardNum].lock();
+	return read(pAPI->m_AllDeviceHandles[BoardNum], sysMem, rd_size);
+	//	makeAtomic[BoardNum].unlock();
 #else
 
-//	makeAtomic[BoardNum].lock();
+	//	makeAtomic[BoardNum].lock();
 	ULONG bytesRead;
 
 	if(BoardNum < pAPI->NumDevices)
-    {
-        ret = ReadFile( pAPI->m_AllDeviceHandles[BoardNum], sysMem, (DWORD)rd_size, &bytesRead, NULL); // 063010 use rd_size, not DIG_BLOCKSIZE !!!
+	{
+		ret = ReadFile( pAPI->m_AllDeviceHandles[BoardNum], sysMem, (DWORD)rd_size, &bytesRead, NULL); // 063010 use rd_size, not DIG_BLOCKSIZE !!!
 		if(!ret)		// If single block local memory buffer
 		{
 			printf("ReadFile failed.  bytesRead= %d\n", bytesRead);
@@ -262,13 +249,13 @@ int x_Read (unsigned short BoardNum, void * sysMem, size_t rd_size)
 				(LPTSTR) &lpMsgBuf,
 				0,
 				NULL 
-				);
+			);
 			printf("%s\n", lpMsgBuf);
 			printf("end of !ret");
 		}
 	}
-//	makeAtomic[BoardNum].unlock();
-    return ret;
+	//	makeAtomic[BoardNum].unlock();
+	return ret;
 #endif
 }
 
@@ -277,35 +264,35 @@ int x_Read (unsigned short BoardNum, void * sysMem, size_t rd_size)
 #ifndef _MATLAB
 EXPORTED_FUNCTION int x_Write(HANDLE fd, void * sysMem, DWORD rd_size)
 #else
-int x_Write(HANDLE fd, void * sysMem, DWORD rd_size)
+	int x_Write(HANDLE fd, void * sysMem, DWORD rd_size)
 #endif
 {
-    int ret;
+	int ret;
 #ifndef _WINDOWS
-    return write(fd, sysMem, rd_size);
+	return write(fd, sysMem, rd_size);
 #else
-    ULONG bytesRead;
-    ret = WriteFile(fd, sysMem, rd_size, &bytesRead, NULL); // 063010 use rd_size here not DIG_BLOCKSIZE !!!
-    if(!ret)
-    {
-        printf("WriteFile Failed\n\n");
-	
-        LPVOID lpMsgBuf;
-	
-        FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-            FORMAT_MESSAGE_FROM_SYSTEM,
-            NULL,
-            GetLastError(),
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPTSTR) &lpMsgBuf,
-            0, NULL );
+	ULONG bytesRead;
+	ret = WriteFile(fd, sysMem, rd_size, &bytesRead, NULL); // 063010 use rd_size here not DIG_BLOCKSIZE !!!
+	if(!ret)
+	{
+		printf("WriteFile Failed\n\n");
 
-            printf("WriteFile Error::  %s\n", lpMsgBuf);
-    }
-    return ret;
+		LPVOID lpMsgBuf;
+
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+			FORMAT_MESSAGE_FROM_SYSTEM,
+			NULL,
+			GetLastError(),
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR) &lpMsgBuf,
+			0, NULL );
+
+		printf("WriteFile Error::  %s\n", lpMsgBuf);
+	}
+	return ret;
 #endif
-    return 0;
+	return 0;
 
 }
 
