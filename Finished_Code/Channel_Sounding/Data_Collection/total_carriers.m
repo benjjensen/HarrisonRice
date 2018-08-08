@@ -92,6 +92,7 @@ for spot = 1:total
     plot(x,cam);
     plot(x,conf);
     plot(x,cham);
+    xlabel('Number of carriers');
     legend('Harrison','Smalley','Camacho','Conference','Chambers');
 
 end
