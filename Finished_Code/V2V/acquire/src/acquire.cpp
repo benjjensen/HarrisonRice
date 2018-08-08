@@ -159,12 +159,8 @@ int main(int argc, char ** argv)
 		}
 		exit(1);
 	}
-	
-	timespec start_time;
-	clock_gettime(CLOCK_REALTIME, &start_time);
-	unsigned int data_written_megabytes = 0;
 
-#define CUSTOM_DEBUG
+//#define CUSTOM_DEBUG
 #ifdef CUSTOM_DEBUG
 	timespec test_start_time, test_end_time, loop_end_time, loop_start_time;
 	long test_elapsed_time, 
@@ -175,9 +171,16 @@ int main(int argc, char ** argv)
 			grand_total_setup_time = 0,
 			loop_elapsed_time = 0,
 			subtotal_setup_time = 0;
+	// This is the data transfer rate that ideally would happen if we're sampling 100,000,000 times per second.
+	
 #endif
-
+	const double EXPECTED_RATE = adcClock * 1000000.0 * 2 / 1024 / 1024;
 	continueReadingData = true;
+	unsigned int data_written_megabytes = 0;
+	
+	timespec start_time;
+	timespec end_time;
+	clock_gettime(CLOCK_REALTIME, &start_time);
 	// continueReadingData will be true until the user presses ctrl-c (exit_signal_handler() function changes continueReadingData)
 	while (continueReadingData) 
 	{
@@ -188,7 +191,8 @@ int main(int argc, char ** argv)
 		subtotal_setup_time = 0;
 		clock_gettime(CLOCK_REALTIME, &test_start_time);
 #endif
-	   	uv->SetupAcquire(BoardNum,numBlocksToAcquire);
+
+		uv->SetupAcquire(BoardNum,numBlocksToAcquire);
 	   	
 #ifdef CUSTOM_DEBUG
 	   	clock_gettime(CLOCK_REALTIME, &test_end_time);
@@ -196,13 +200,15 @@ int main(int argc, char ** argv)
 #endif
 
 		// For each block of data requested
-		for (unsigned int i = 0; i < numBlocksToAcquire; i++ )
+		unsigned int blocks_acquired = 0;
+		for (; blocks_acquired < numBlocksToAcquire && continueReadingData; blocks_acquired++)
 		{
 #ifdef CUSTOM_DEBUG
 			clock_gettime(CLOCK_REALTIME, &test_start_time);
 #endif
 			// read a block from the board
-			uv->X_Read(BoardNum,sysMem,DIG_BLOCK_SIZE);
+			uv->X_Read(BoardNum, sysMem, DIG_BLOCK_SIZE);
+			
 #ifdef CUSTOM_DEBUG
 			clock_gettime(CLOCK_REALTIME, &test_end_time);
 			test_elapsed_time = (test_end_time.tv_sec - test_start_time.tv_sec) * 1000000000 + (test_end_time.tv_nsec - test_start_time.tv_nsec);
@@ -227,8 +233,10 @@ int main(int argc, char ** argv)
 			std::cout << "WARNING: " <<  overruns << " OVERRUNS OCCURRED" << std::endl;
 		}
 
-		data_written_megabytes += numBlocksToAcquire;
+		data_written_megabytes += blocks_acquired;
+		
 		std::cout << "Written " << data_written_megabytes << " MB" << std::endl;
+		
 #ifdef CUSTOM_DEBUG
 		clock_gettime(CLOCK_REALTIME, &loop_end_time);
 		loop_elapsed_time = (loop_end_time.tv_sec - loop_start_time.tv_sec) * 1000000000 + (loop_end_time.tv_nsec - loop_start_time.tv_nsec);
@@ -246,10 +254,8 @@ int main(int argc, char ** argv)
 		grand_total_write_time += subtotal_write_time;
 		grand_total_setup_time += subtotal_setup_time;
 #endif
-		fflush(stdout);
+		// fflush(stdout);
 	}
-
-	timespec end_time;
 	clock_gettime(CLOCK_REALTIME, &end_time);
 	
 	std::cout << std::endl << "Data capture and writing to disk complete" << std::endl;
@@ -262,6 +268,9 @@ int main(int argc, char ** argv)
 	printf("Elapsed time: %.4f s\n", elapsed_time_seconds);
 	printf("Average data capture rate: %.4f MB/s\n\n\n", ((float)data_written_megabytes) / elapsed_time_seconds);
 
+	printf("--------------------------------------\nProportion of data points gathered:\n%.5f%%\n--------------------------------------\n\n\n",
+			(data_written_megabytes / elapsed_time_seconds) / EXPECTED_RATE * 100);
+
 #ifdef CUSTOM_DEBUG
 	printf("Grand total setup time:%15ld ns\n", grand_total_setup_time);
 	printf("Grand total read time: %15ld ns\n", grand_total_read_time);
@@ -270,7 +279,7 @@ int main(int argc, char ** argv)
 	// divide by 1 billion to convert from ns to s, multiply by 100 to convert to percent:
 	printf("%.2f%% spent setting up\n", (double)grand_total_setup_time / 1000000000 / elapsed_time_seconds * 100);
 	printf("%.2f%% spent reading\n", (double)grand_total_read_time / 1000000000 / elapsed_time_seconds * 100);
-	printf("%.2f%% spent writing\n\n\n", (double)grand_total_write_time / 1000000000 / elapsed_time_seconds * 100);
+	printf("%.2f%% spent writing\n\n", (double)grand_total_write_time / 1000000000 / elapsed_time_seconds * 100);
 #endif
 
 	capture_info.write_to_file();
