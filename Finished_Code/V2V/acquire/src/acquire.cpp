@@ -164,7 +164,7 @@ int main(int argc, char ** argv)
 	clock_gettime(CLOCK_REALTIME, &start_time);
 	unsigned int data_written_megabytes = 0;
 
-// #define CUSTOM_DEBUG
+#define CUSTOM_DEBUG
 #ifdef CUSTOM_DEBUG
 	timespec test_start_time, test_end_time, loop_end_time, loop_start_time;
 	long test_elapsed_time, subtotal_read_time = 0, subtotal_write_time = 0, grand_total_read_time = 0, grand_total_write_time = 0, loop_elapsed_time = 0;

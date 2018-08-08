@@ -35,8 +35,12 @@ $ f ` Receiving Vehicle Position
 - g Following distantly
 - p Preceeding closely
 - q Preceeding distantly
-$ S ` Maneuver
+$ S - Maneuver
 - L Turn left
 - R Turn right
 - S Drive straight
+$ A ` Time
+- M Morning
+- A Afternoon
+- N Night
 ~

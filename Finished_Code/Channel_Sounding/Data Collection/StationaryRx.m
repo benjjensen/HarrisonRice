@@ -4,21 +4,21 @@
 % File Setup
 %%%%%%%%%%%%%%%%%%
 starttime = datetime('now') + seconds(.5);      %Probably will end up changing this :)
-room = "hallway";
+room = "harrison";
 NumSamples = 23;
 DelayTime = .5;
 dbthreshold = 5;
 
 collectdata = false;
 graphall = false;
-graphrange = false;
+graphrange = true;
 pwelchit = false;
 getcarriers = false;
 
 % for use with
 % graph range
-start = 1;
-finish = 1;
+start = 3100;
+finish = 3120;
 %%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -170,7 +170,7 @@ for runs = 1:NumSamples
     eval(sprintf('load("StationaryData/%s_pwelch_%d.mat");',room,runs));
     eval(sprintf('signal = %s_pwelch_%d(1:2:end,1);',room,runs));
     eval(sprintf('noise = %s_pwelch_%d(2:2:end,1);',room,runs));
-    difference = abs(signal(:,1) - noise(:,1))
+    difference = abs(signal(:,1) - noise(:,1));
     count = 0;
     for carriers = 1:64
         if difference(carriers,1) >= db
