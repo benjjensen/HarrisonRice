@@ -1,10 +1,16 @@
 close all;
 
-load("StationaryData/pwelch_harrison_array.mat");
-load("StationaryData/pwelch_smalley_array.mat");
-load("StationaryData/pwelch_camacho_array.mat");
-load("StationaryData/pwelch_conference_array.mat");
-load("StationaryData/pwelch_chambers_array.mat");
+pwelched_measurements = [];
+load("StationaryData/pwelch_harrison_array.mat", "pwelched_measurements");
+pwelch_harrison_array = pwelched_measurements;
+load("StationaryData/pwelch_smalley_array.mat", "pwelched_measurements");
+pwelch_smalley_array = pwelched_measurements;
+load("StationaryData/pwelch_camacho_array.mat", "pwelched_measurements");
+pwelch_camacho_array = pwelched_measurements;
+load("StationaryData/pwelch_conference_array.mat", "pwelched_measurements");
+pwelch_conference_array = pwelched_measurements;
+load("StationaryData/pwelch_chambers_array.mat", "pwelched_measurements");
+pwelch_chambers_array = pwelched_measurements;
 
 threshold = 25;
 
