@@ -65,6 +65,8 @@ scatter(x,average_smalley);
 scatter(x,average_camacho);
 scatter(x,average_conference);
 scatter(x,average_chambers);
-legend;
+xlabel('Thresholds (dB)');
+ylabel('Average number of carriers');
+legend('Harrison','Smalley','Camacho','Conference','Chambers');
 hold off
 toc
