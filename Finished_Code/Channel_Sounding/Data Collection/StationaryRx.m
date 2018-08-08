@@ -4,16 +4,18 @@
 % File Setup
 %%%%%%%%%%%%%%%%%%
 starttime = datetime('now') + seconds(.5);      %Probably will end up changing this :)
-room = "harrison";
-NumSamples = 23;
+room = "camacho";
+NumSamples = 4000;
 DelayTime = .5;
 dbthreshold = 5;
 
 collectdata = false;
+makeonearray = true;
 graphall = false;
-graphrange = true;
+graphrange = false;
 pwelchit = false;
 getcarriers = false;
+useonearray = true;
 
 % for use with
 % graph range
@@ -53,9 +55,15 @@ if collectdata == true
             room,runs,room,runs));
         pause(DelayTime);
     end
-    
-    save('workspace.mat');
-    
+        
+end
+
+%%%%%%%%%%%%%
+% Join Arrays
+%%%%%%%%%%%%%
+
+if makeonearray == true
+    JoinArrays(room,NumSamples);
 end
 
 %%%%%%%%%%%%%
@@ -63,7 +71,7 @@ end
 %%%%%%%%%%%%%
 
 if graphall == true
-    GraphAll(room,NumSamples);
+    GraphAll(room,NumSamples,useonearray);
 end
 
 %%%%%%%%%%%%%
@@ -71,7 +79,7 @@ end
 %%%%%%%%%%%%%
 
 if graphrange == true
-    GraphRange(room,start,finish);
+    GraphRange(room,start,finish,useonearray);
 end
 
 %%%%%%%%%%%%%
@@ -79,7 +87,7 @@ end
 %%%%%%%%%%%%%
 
 if pwelchit == true
-    PwelchEverything(room,NumSamples);
+    PwelchEverything(room,NumSamples,useonearray);
 end
 
 %%%%%%%%%%%%%
@@ -87,7 +95,7 @@ end
 %%%%%%%%%%%%%
 
 if getcarriers == true
-    SeparateCarriers(room,NumSamples,dbthreshold);
+    SeparateCarriers(room,NumSamples,dbthreshold,useonearray);
 end
 
 
@@ -105,38 +113,43 @@ rx.OutputDataType = 'double';
 rx.ShowAdvancedProperties = true;
 end
 
-function GraphAll(room,NumSamples)
-close all;
-Nfft = 2*64;
-FF = -0.5:1/Nfft:0.5-1/Nfft;
-FF = 20*FF;
+function JoinArrays(room,NumSamples)
 for runs = 1:NumSamples
     eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
-    obj = eval(sprintf('%s_%d',room,runs));
-    YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
-    YYplot = 10*log10(abs(fftshift(YY)));
-    figure();
-    stem(FF,YYplot);
-    grid on;
-    title(sprintf('%s_%d',room,runs), 'Interpreter','none');
-    xlabel('frequency (MHz)');
-    ylabel('Magnitude (dB)');
-    ax = gca;
-    ax.Children.BaseValue = -80;
-    hold on;
-    plot(FF(1:2:end),YYplot(1:2:end),'o','MarkerFaceColor','k');
-    hold off;
+    eval(sprintf('%s_array(:,runs) = %s_%d(:);',room,room,runs));
 end
+eval(sprintf('save("StationaryData/%s_array.mat","%s_array");',room,room));
 end
 
-function GraphRange(room,beginnum,endnum)
+function GraphAll(room,NumSamples,useonearray)
 close all;
 Nfft = 2*64;
 FF = -0.5:1/Nfft:0.5-1/Nfft;
 FF = 20*FF;
-for runs = beginnum:endnum
-    eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
-    obj = eval(sprintf('%s_%d',room,runs));
+if useonearray == false
+    for runs = 1:NumSamples
+        eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
+        obj = eval(sprintf('%s_%d',room,runs));
+        YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
+        YYplot = 10*log10(abs(fftshift(YY)));
+        figure();
+        stem(FF,YYplot);
+        grid on;
+        title(sprintf('%s_%d',room,runs), 'Interpreter','none');
+        xlabel('frequency (MHz)');
+        ylabel('Magnitude (dB)');
+        ax = gca;
+        ax.Children.BaseValue = -80;
+        hold on;
+        plot(FF(1:2:end),YYplot(1:2:end),'o','MarkerFaceColor','k');
+        hold off;
+    end
+end
+if useonearray == true
+    eval(sprintf('load("StationaryData/%s_array.mat");',room));
+
+    for runs = 1:NumSamples
+    obj = eval(sprintf('%s_array(:,%d)',room,runs));
     YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
     YYplot = 10*log10(abs(fftshift(YY)));
     figure();
@@ -150,37 +163,116 @@ for runs = beginnum:endnum
     hold on;
     plot(FF(1:2:end),YYplot(1:2:end),'o','MarkerFaceColor','k');
     hold off;
+    end
 end
-clear runs;
 end
 
-function PwelchEverything(room,NumSamples)
+function GraphRange(room,beginnum,endnum,useonearray)
+close all;
+Nfft = 2*64;
+FF = -0.5:1/Nfft:0.5-1/Nfft;
+FF = 20*FF;
+if useonearray == false
+    for runs = beginnum:endnum
+        eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
+        obj = eval(sprintf('%s_%d',room,runs));
+        YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
+        YYplot = 10*log10(abs(fftshift(YY)));
+        figure();
+        stem(FF,YYplot);
+        grid on;
+        title(sprintf('%s_%d',room,runs), 'Interpreter','none');
+        xlabel('frequency (MHz)');
+        ylabel('Magnitude (dB)');
+        ax = gca;
+        ax.Children.BaseValue = -80;
+        hold on;
+        plot(FF(1:2:end),YYplot(1:2:end),'o','MarkerFaceColor','k');
+        hold off;
+    end
+end
+if useonearray == true
+    eval(sprintf('load("StationaryData/%s_array.mat");',room));
+    for runs = beginnum:endnum
+        obj = eval(sprintf('%s_array(:,%d)',room,runs));
+        YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
+        YYplot = 10*log10(abs(fftshift(YY)));
+        figure();
+        stem(FF,YYplot);
+        grid on;
+        title(sprintf('%s_%d',room,runs), 'Interpreter','none');
+        xlabel('frequency (MHz)');
+        ylabel('Magnitude (dB)');
+        ax = gca;
+        ax.Children.BaseValue = -80;
+        hold on;
+        plot(FF(1:2:end),YYplot(1:2:end),'o','MarkerFaceColor','k');
+        hold off;
+    end
+end
+end
+
+function PwelchEverything(room,NumSamples,useonearray)
 Nfft = 128;
-for runs = 1:NumSamples
-    eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
-    obj = eval(sprintf('%s_%d',room,runs));
-    YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
-    eval(sprintf('%s_pwelch_%d = 10*log10(abs(fftshift(YY)));',room,runs));
-    eval(sprintf('save("StationaryData/%s_pwelch_%d.mat","%s_pwelch_%d");',room,runs,room,runs));
+if useonearray == false
+    for runs = 1:NumSamples
+        eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
+        obj = eval(sprintf('%s_%d',room,runs));
+        YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
+        eval(sprintf('%s_pwelch_%d = 10*log10(abs(fftshift(YY)));',room,runs));
+        eval(sprintf('save("StationaryData/%s_pwelch_%d.mat","%s_pwelch_%d");',room,runs,room,runs));
+    end
+end
+if useonearray == true
+    eval(sprintf('load("StationaryData/%s_array.mat");',room));
+    for runs = 1:NumSamples
+        obj = eval(sprintf('%s_array(:,%d)',room,runs));
+        YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
+        eval(sprintf('%s_array_pwelch(:,%d) = 10*log10(abs(fftshift(YY)));',room,runs));
+    end
+    eval(sprintf('save("StationaryData/%s_array_pwelch.mat","%s_array_pwelch");',room,room));
 end
 end 
 
-function SeparateCarriers(room,NumSamples,db)
-for runs = 1:NumSamples
-    eval(sprintf('load("StationaryData/%s_pwelch_%d.mat");',room,runs));
-    eval(sprintf('signal = %s_pwelch_%d(1:2:end,1);',room,runs));
-    eval(sprintf('noise = %s_pwelch_%d(2:2:end,1);',room,runs));
-    difference = abs(signal(:,1) - noise(:,1));
-    count = 0;
-    for carriers = 1:64
-        if difference(carriers,1) >= db
-            count = count + 1;
+function SeparateCarriers(room,NumSamples,db,useonearray)
+if useonearray == false
+    for runs = 1:NumSamples
+        eval(sprintf('load("StationaryData/%s_pwelch_%d.mat");',room,runs));
+        eval(sprintf('signal = %s_pwelch_%d(1:2:end,1);',room,runs));
+        eval(sprintf('noise = %s_pwelch_%d(2:2:end,1);',room,runs));
+        difference = abs(signal(:,1) - noise(:,1));
+        count = 0;
+        for carriers = 1:64
+            if difference(carriers,1) >= db
+                count = count + 1;
+            end
         end
+        eval(sprintf('%s_carriers_%d = count;',room,runs));
+        eval(sprintf( ...
+            'save("StationaryData/%s_carriers_%d.mat","%s_carriers_%d");' ...
+            ,room,runs,room,runs));
     end
-    eval(sprintf('%s_carriers_%d = count;',room,runs));
+end
+if useonearray == true
+    eval(sprintf('load("StationaryData/%s_array_pwelch.mat");',room));
+    for runs = 1:NumSamples
+        eval(sprintf('signal = %s_array_pwelch(1:2:end,%d);',room,runs));
+        eval(sprintf('noise = %s_array_pwelch(2:2:end,%d);',room,runs));
+        difference = abs(signal(:,1) - noise(:,1));
+        count = 0;
+        for carriers = 1:64
+            if difference(carriers,1) >= db
+                count = count + 1;
+            end
+        end
+        eval(sprintf('%s_array_carriers(:,%d) = count;',room,runs));
+        clear signal;
+        clear noise;
+        clear difference;
+    end
     eval(sprintf( ...
-        'save("StationaryData/%s_carriers_%d.mat","%s_carriers_%d");' ...
-        ,room,runs,room,runs));
+        'save("StationaryData/%s_array_carriers.mat","%s_array_carriers");' ...
+        ,room,room));
 end
 end
 
