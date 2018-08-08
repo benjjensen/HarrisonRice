@@ -22,8 +22,7 @@ TotalRunTime = (NumSamples * DelayTime) / 60;
 disp('This test will last for ' + string(TotalRunTime) + ' minutes');
 
 % for runs = 1:NumSamples
-    
-    
+
 
 
 
