@@ -18,8 +18,6 @@ getcarriers = false;    %generates carriers array at set db level
 compare = true;         %creates a single histogram using carriers array
 useonearray = true;     %set to true if the array from makeonearray is what you want to use
 
-datafolder= "StationaryData/";
-
 % for use with
 % graph range
 start = 3100;           %for use with graphrange
@@ -51,12 +49,11 @@ if collectdata == true
     
     for runs = 1:NumSamples
         for corrections = 1:8
-            measurement = rx();
+            temp = rx();
         end
-        
-        filename = datafolder + room + "_" + runs + ".mat";
-        save(filename, "measurement");
-        
+        eval(sprintf('%s_%d = temp;',room,runs));
+        eval(sprintf('save("StationaryData/%s_%d.mat","%s_%d");', ...
+            room,runs,room,runs));
         pause(DelayTime);
     end
         
@@ -125,16 +122,11 @@ rx.ShowAdvancedProperties = true;
 end
 
 function JoinArrays(room,NumSamples)
-% preallocating:
-measurements = zeroes(128, NumSamples);
 for runs = 1:NumSamples
-    infilename = datafolder + room + "_" + runs + ".mat";
-    measurement = [];
-    load(infilename, "measurement");
-    measurements(:, runs) = measurement(:);
+    eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
+    eval(sprintf('%s_array(:,runs) = %s_%d(:);',room,room,runs));
 end
-outfilename = datafolder + room + "_array.mat";
-save(outfilename, "measurements");
+eval(sprintf('save("StationaryData/%s_array.mat","%s_array");',room,room));
 end
 
 function GraphAll(room,NumSamples,useonearray)
@@ -144,11 +136,9 @@ FF = -0.5:1/Nfft:0.5-1/Nfft;
 FF = 20*FF;
 if useonearray == false
     for runs = 1:NumSamples
-        infilename = datafolder + room + "_" + runs + ".mat";
-        measurement = [];
-        load(infilename, "measurement");
-        
-        YY = pwelch(measurement(:),boxcar(Nfft),0,Nfft,'twosided');
+        eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
+        obj = eval(sprintf('%s_%d',room,runs));
+        YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
         YYplot = 10*log10(abs(fftshift(YY)));
         figure();
         stem(FF,YYplot);
@@ -164,25 +154,23 @@ if useonearray == false
     end
 end
 if useonearray == true
-    infilename = datafolder + room + "_array.mat";
-    measurements = [];
-    load(infilename, "measurements");
+    eval(sprintf('load("StationaryData/%s_array.mat");',room));
 
     for runs = 1:NumSamples
-        measurement = measurements(:,runs);
-        YY = pwelch(measurement(:),boxcar(Nfft),0,Nfft,'twosided');
-        YYplot = 10*log10(abs(fftshift(YY)));
-        figure();
-        stem(FF,YYplot);
-        grid on;
-        title(sprintf('%s_%d',room,runs), 'Interpreter','none');
-        xlabel('frequency (MHz)');
-        ylabel('Magnitude (dB)');
-        ax = gca;
-        ax.Children.BaseValue = -80;
-        hold on;
-        plot(FF(1:2:end),YYplot(1:2:end),'o','MarkerFaceColor','k');
-        hold off;
+    obj = eval(sprintf('%s_array(:,%d)',room,runs));
+    YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
+    YYplot = 10*log10(abs(fftshift(YY)));
+    figure();
+    stem(FF,YYplot);
+    grid on;
+    title(sprintf('%s_%d',room,runs), 'Interpreter','none');
+    xlabel('frequency (MHz)');
+    ylabel('Magnitude (dB)');
+    ax = gca;
+    ax.Children.BaseValue = -80;
+    hold on;
+    plot(FF(1:2:end),YYplot(1:2:end),'o','MarkerFaceColor','k');
+    hold off;
     end
 end
 end
@@ -194,11 +182,9 @@ FF = -0.5:1/Nfft:0.5-1/Nfft;
 FF = 20*FF;
 if useonearray == false
     for runs = beginnum:endnum
-        infilename = datafolder + room + "_" + runs + ".mat";
-        measurement = [];
-        load(infilename, "measurement");
-        
-        YY = pwelch(measurement(:),boxcar(Nfft),0,Nfft,'twosided');
+        eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
+        obj = eval(sprintf('%s_%d',room,runs));
+        YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
         YYplot = 10*log10(abs(fftshift(YY)));
         figure();
         stem(FF,YYplot);
@@ -214,13 +200,10 @@ if useonearray == false
     end
 end
 if useonearray == true
-    infilename = datafolder + room + "_array.mat";
-    measurements = [];
-    load(infilename, "measurements");
-    
+    eval(sprintf('load("StationaryData/%s_array.mat");',room));
     for runs = beginnum:endnum
-        measurement = measurements(:,runs);
-        YY = pwelch(measurement(:),boxcar(Nfft),0,Nfft,'twosided');
+        obj = eval(sprintf('%s_array(:,%d)',room,runs));
+        YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
         YYplot = 10*log10(abs(fftshift(YY)));
         figure();
         stem(FF,YYplot);
@@ -241,101 +224,77 @@ function PwelchEverything(room,NumSamples,useonearray)
 Nfft = 128;
 if useonearray == false
     for runs = 1:NumSamples
-        infilename = datafolder + room + "_" + runs + ".mat";
-        measurement = [];
-        load(infilename, "measurement");
-        
-        YY = pwelch(measurement(:),boxcar(Nfft),0,Nfft,'twosided');
-        pwelched_measurement = 10*log10(abs(fftshift(YY)));
-        
-        outfilename = datafolder + "pwelch_" + room + "_" + runs + ".mat";
-        save(outfilename, "pwelched_measurement");
+        eval(sprintf('load("StationaryData/%s_%d.mat");',room,runs));
+        obj = eval(sprintf('%s_%d',room,runs));
+        YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
+        eval(sprintf('%s_pwelch_%d = 10*log10(abs(fftshift(YY)));',room,runs));
+        eval(sprintf('save("StationaryData/pwelch_%s_%d.mat","pwelch_%s_%d");',room,runs,room,runs));
     end
 end
 if useonearray == true
-    infilename = datafolder + room + "_array.mat";
-    measurements = [];
-    load(infilename, "measurements");
-    
-    pwelched_measurements = zeroes(128, NumSamples);
+    eval(sprintf('load("StationaryData/%s_array.mat");',room));
     for runs = 1:NumSamples
-        measurement = measurements(:,runs);
-        YY = pwelch(measurement(:),boxcar(Nfft),0,Nfft,'twosided');
-        pwelched_measurements(:,runs) = 10*log10(abs(fftshift(YY)));
+        obj = eval(sprintf('%s_array(:,%d)',room,runs));
+        YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
+        eval(sprintf('pwelch_%s_array(:,%d) = 10*log10(abs(fftshift(YY)));',room,runs));
     end
-    outfilename = datafolder + "pwelch_" + room + "_array.mat";
-    save(outfilename, "pwelched_measurements");
+    eval(sprintf('save("StationaryData/pwelch_%s_array.mat","pwelch_%s_array");',room,room));
 end
 end 
 
 function SeparateCarriers(room,NumSamples,db,useonearray)
 if useonearray == false
     for runs = 1:NumSamples
-        infilename = datafolder + "pwelch_" + room + "_" + runs + ".mat";
-        pwelched_measurement = [];
-        load(infilename, "pwelched_measurement");
-        
-        signal = pwelched_measurement(1:2:end,1);
-        noise = pwelched_measurement(2:2:end,1);
-        
+        eval(sprintf('load("StationaryData/pwelch_%s_%d.mat");',room,runs));
+        eval(sprintf('signal = pwelch_%s_%d(1:2:end,1);',room,runs));
+        eval(sprintf('noise = pwelch_%s_%d(2:2:end,1);',room,runs));
         difference = abs(signal(:,1) - noise(:,1));
         count = 0;
-        for carriers_array = 1:64
-            if difference(carriers_array,1) >= db
+        for carriers = 1:64
+            if difference(carriers,1) >= db
                 count = count + 1;
             end
         end
-        carriers = count;
-        
-        outfilename = datafolder + "carriers_" + room + "_" + runs + ".mat";
-        save(outfilename, "carriers");
+        eval(sprintf('%s_carriers_%d = count;',room,runs));
+        eval(sprintf( ...
+            'save("StationaryData/carriers_%s_%d.mat","carriers_%s_%d");' ...
+            ,room,runs,room,runs));
     end
 end
 if useonearray == true
-    infilename = datafolder + "pwelch_" + room + "_array.mat";
-    pwelched_measurements = [];
-    load(infilename, "pwelched_measurements");
-    
-    carriers_array = zeroes(1, NumSamples);
+    eval(sprintf('load("StationaryData/pwelch_%s_array.mat");',room));
     for runs = 1:NumSamples
-        signal = pwelched_measurements(1:2:end, runs);
-        noise = pwelched_measurements(2:2:end, runs);
-        
+        eval(sprintf('signal = pwelch_%s_array(1:2:end,%d);',room,runs));
+        eval(sprintf('noise = pwelch_%s_array(2:2:end,%d);',room,runs));
         difference = abs(signal(:,1) - noise(:,1));
         count = 0;
-        for carriers_array = 1:64
-            if difference(carriers_array,1) >= db
+        for carriers = 1:64
+            if difference(carriers,1) >= db
                 count = count + 1;
             end
         end
-        carriers_array(:, runs) = count;
+        eval(sprintf('carriers_%s(:,%d) = count;',room,runs));
         clear signal;
         clear noise;
         clear difference;
     end
-    outfilename = datafolder + "carriers_" + room + ".mat";
-    save(outfilename, "carriers_array");
+    eval(sprintf( ...
+        'save("StationaryData/carriers_%s.mat","carriers_%s");' ...
+        ,room,room));
 end
 end
 
 function CompareCarriers(room,NumSamples,useonearray) % needs testing
 if useonearray == false
-    room_history = zeroes(NumSamples);
     for runs = 1:NumSamples
-        infilename = datafolder + "carriers_" + room + "_" + runs + ".mat";
-        carriers = [];
-        load(infilename, "carriers");
-        
-        room_history(runs) = carriers;
+        eval(sprintf('load("StationaryData/carriers_%s_%d.mat");',room,runs));
+        room_history(runs) = eval(sprintf('carriers_%s_%d;',room,runs));
     end
     histogram(room_history);
 end
 if useonearray == true
-    infilename = datafolder + "carriers_" + room + ".mat";
-    carriers_array = [];
-    load(infilename, "carriers_array");
-    
-    histogram(carriers_array);
+    eval(sprintf('load("StationaryData/carriers_%s.mat");',room));
+    eval(sprintf('histogram(carriers_%s);',room));
 end
 end
 
