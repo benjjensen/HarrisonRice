@@ -60,11 +60,11 @@ end
 x = 25:.1:32;
 figure(2)
 hold on;
-scatter(x,average_harrison);
-scatter(x,average_smalley);
-scatter(x,average_camacho);
-scatter(x,average_conference);
-scatter(x,average_chambers);
+plot(x,average_harrison);
+plot(x,average_smalley);
+plot(x,average_camacho);
+plot(x,average_conference);
+plot(x,average_chambers);
 xlabel('Thresholds (dB)');
 ylabel('Average number of carriers');
 legend('Harrison','Smalley','Camacho','Conference','Chambers');
