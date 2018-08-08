@@ -256,8 +256,8 @@ end
 if useonearray == true
     eval(sprintf('load("StationaryData/pwelch_%s_array.mat");',room));
     for runs = 1:NumSamples
-        eval(sprintf('signal = pwelch_%s_array(1:2:end,%d);',room,runs));
-        eval(sprintf('noise = pwelch_%s_array(2:2:end,%d);',room,runs));
+        eval(sprintf('signal = _pwelch_%s_array(1:2:end,%d);',room,runs));
+        eval(sprintf('noise = %s_array_pwelch(2:2:end,%d);',room,runs));
         difference = abs(signal(:,1) - noise(:,1));
         count = 0;
         for carriers = 1:64
