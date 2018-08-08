@@ -93,6 +93,7 @@ for spot = 1:total
     plot(x,conf);
     plot(x,cham);
     xlabel('Number of carriers');
+    ylabel('Probability');
     legend('Harrison','Smalley','Camacho','Conference','Chambers');
 
 end
