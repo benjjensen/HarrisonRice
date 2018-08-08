@@ -19,23 +19,23 @@ Nfft = 2*64;
 FF = -0.5:1/Nfft:0.5-1/Nfft;
 FF = 20*FF;
 threshold = 19;
-tx2threshold = 27;
+tx2threshold = 24;
 
 [~,Floor] = find_num_carriers(xx,threshold);
 [~,tx2Floor] = find_num_carriers(tx2xx,tx2threshold);
 
-figure(1);
-I = imread('floor_plan.png');
-imshow(I);
-hold on;
-floormap = imagesc(Floor);
-floormap.XData = [13; 315];
-floormap.YData = [61; 137];
-colormap('jet')
-floormap.AlphaData = .6;
-set(floormap,'AlphaData',~isnan(Floor));
-colorbar;
-hold off;
+% figure(1);
+% I = imread('floor_plan.png');
+% imshow(I);
+% hold on;
+% floormap = imagesc(Floor);
+% floormap.XData = [13; 315];
+% floormap.YData = [61; 137];
+% colormap('jet')
+% floormap.AlphaData = .6;
+% set(floormap,'AlphaData',~isnan(Floor));
+% colorbar;
+% hold off;
 
 figure(2)
 imshow(I);
