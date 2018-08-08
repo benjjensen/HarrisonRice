@@ -7,20 +7,21 @@ starttime = datetime('now') + seconds(.5);      %Probably will end up changing t
 room = "camacho";
 NumSamples = 4000;
 DelayTime = .5;
-dbthreshold = 5;
+dbthreshold = 24;       %threshold for getcarriers
 
-collectdata = false;
-makeonearray = false;
-graphall = false;
-graphrange = false;
-pwelchit = true;
-getcarriers = false;
-useonearray = true;
+collectdata = false;    %used for data collection! (pretty self explanatory)
+makeonearray = false;   %condenses the data files into one array
+graphall = false;       %graphs all of the data
+graphrange = false;     %graphs a set range from the data
+pwelchit = false;       %pwelches the data array
+getcarriers = false;    %generates carriers array at set db level
+compare = true;         %creates a single histogram using carriers array
+useonearray = true;     %set to true if the array from makeonearray is what you want to use
 
 % for use with
 % graph range
-start = 3100;
-finish = 3120;
+start = 3100;           %for use with graphrange
+finish = 3120;          %for use with graphrange
 %%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -98,6 +99,13 @@ if getcarriers == true
     SeparateCarriers(room,NumSamples,dbthreshold,useonearray);
 end
 
+%%%%%%%%%%%%%
+% Compare
+%%%%%%%%%%%%%
+
+if compare == true
+    CompareCarriers(room,NumSamples,useonearray);
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Functions
@@ -220,7 +228,7 @@ if useonearray == false
         obj = eval(sprintf('%s_%d',room,runs));
         YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
         eval(sprintf('%s_pwelch_%d = 10*log10(abs(fftshift(YY)));',room,runs));
-        eval(sprintf('save("StationaryData/%s_pwelch_%d.mat","%s_pwelch_%d");',room,runs,room,runs));
+        eval(sprintf('save("StationaryData/pwelch_%s_%d.mat","pwelch_%s_%d");',room,runs,room,runs));
     end
 end
 if useonearray == true
@@ -237,9 +245,9 @@ end
 function SeparateCarriers(room,NumSamples,db,useonearray)
 if useonearray == false
     for runs = 1:NumSamples
-        eval(sprintf('load("StationaryData/%s_pwelch_%d.mat");',room,runs));
-        eval(sprintf('signal = %s_pwelch_%d(1:2:end,1);',room,runs));
-        eval(sprintf('noise = %s_pwelch_%d(2:2:end,1);',room,runs));
+        eval(sprintf('load("StationaryData/pwelch_%s_%d.mat");',room,runs));
+        eval(sprintf('signal = pwelch_%s_%d(1:2:end,1);',room,runs));
+        eval(sprintf('noise = pwelch_%s_%d(2:2:end,1);',room,runs));
         difference = abs(signal(:,1) - noise(:,1));
         count = 0;
         for carriers = 1:64
@@ -249,7 +257,7 @@ if useonearray == false
         end
         eval(sprintf('%s_carriers_%d = count;',room,runs));
         eval(sprintf( ...
-            'save("StationaryData/%s_carriers_%d.mat","%s_carriers_%d");' ...
+            'save("StationaryData/carriers_%s_%d.mat","carriers_%s_%d");' ...
             ,room,runs,room,runs));
     end
 end
@@ -265,14 +273,28 @@ if useonearray == true
                 count = count + 1;
             end
         end
-        eval(sprintf('%s_array_carriers(:,%d) = count;',room,runs));
+        eval(sprintf('carriers_%s(:,%d) = count;',room,runs));
         clear signal;
         clear noise;
         clear difference;
     end
     eval(sprintf( ...
-        'save("StationaryData/%s_array_carriers.mat","%s_array_carriers");' ...
+        'save("StationaryData/carriers_%s.mat","carriers_%s");' ...
         ,room,room));
+end
+end
+
+function CompareCarriers(room,NumSamples,useonearray) % needs testing
+if useonearray == false
+    for runs = 1:NumSamples
+        eval(sprintf('load("StationaryData/carriers_%s_%d.mat");',room,runs));
+        room_history(runs) = eval(sprintf('carriers_%s_%d;',room,runs));
+    end
+    histogram(room_history);
+end
+if useonearray == true
+    eval(sprintf('load("StationaryData/carriers_%s.mat");',room));
+    eval(sprintf('histogram(carriers_%s);',room));
 end
 end
 
