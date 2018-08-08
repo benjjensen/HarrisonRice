@@ -47,7 +47,7 @@ for threshold = 25:.1:32
 
     % end
 
-    ylim([0,4000]);
+    %ylim([0,4000]);
 
     legend;
     hold off;
