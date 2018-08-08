@@ -19,7 +19,7 @@ Nfft = 2*64;
 FF = -0.5:1/Nfft:0.5-1/Nfft;
 FF = 20*FF;
 threshold = 19;
-tx2threshold = 24;
+tx2threshold = 28;
 
 [~,Floor] = find_num_carriers(xx,threshold);
 [~,tx2Floor] = find_num_carriers(tx2xx,tx2threshold);

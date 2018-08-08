@@ -4,21 +4,21 @@
 % File Setup
 %%%%%%%%%%%%%%%%%%
 starttime = datetime('now') + seconds(.5);      %Probably will end up changing this :)
-room = "hallway";
+room = "harrison";
 NumSamples = 23;
 DelayTime = .5;
 dbthreshold = 5;
 
 collectdata = false;
 graphall = false;
-graphrange = false;
+graphrange = true;
 pwelchit = false;
 getcarriers = false;
 
 % for use with
 % graph range
-start = 1;
-finish = 1;
+start = 3100;
+finish = 3120;
 %%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
