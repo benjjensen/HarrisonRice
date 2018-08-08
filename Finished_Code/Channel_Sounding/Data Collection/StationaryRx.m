@@ -228,9 +228,9 @@ if useonearray == true
     for runs = 1:NumSamples
         obj = eval(sprintf('%s_array(:,%d)',room,runs));
         YY = pwelch(obj(:),boxcar(Nfft),0,Nfft,'twosided');
-        eval(sprintf('%s_array_pwelch(:,%d) = 10*log10(abs(fftshift(YY)));',room,runs));
+        eval(sprintf('pwelch_%s_array(:,%d) = 10*log10(abs(fftshift(YY)));',room,runs));
     end
-    eval(sprintf('save("StationaryData/%s_array_pwelch.mat","%s_array_pwelch");',room,room));
+    eval(sprintf('save("StationaryData/pwelch_%s_array.mat","pwelch_%s_array");',room,room));
 end
 end 
 
@@ -254,10 +254,10 @@ if useonearray == false
     end
 end
 if useonearray == true
-    eval(sprintf('load("StationaryData/%s_array_pwelch.mat");',room));
+    eval(sprintf('load("StationaryData/pwelch_%s_array.mat");',room));
     for runs = 1:NumSamples
-        eval(sprintf('signal = %s_array_pwelch(1:2:end,%d);',room,runs));
-        eval(sprintf('noise = %s_array_pwelch(2:2:end,%d);',room,runs));
+        eval(sprintf('signal = pwelch_%s_array(1:2:end,%d);',room,runs));
+        eval(sprintf('noise = pwelch_%s_array(2:2:end,%d);',room,runs));
         difference = abs(signal(:,1) - noise(:,1));
         count = 0;
         for carriers = 1:64
