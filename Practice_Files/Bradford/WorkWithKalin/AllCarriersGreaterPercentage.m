@@ -10,9 +10,9 @@ load('probabilities_smalley_carriers.mat');
 samePlot = true;
 thresholdProbability = 0.4;
 
-for dB = 250 : 320
-    figure('Name', sprintf('%.1f dB Limit with %.1f probability threshold',dB/10,thresholdProbability));
-end
+% for dB = 250 : 320
+%     figure(dB,'Name', sprintf('%.1f dB Limit with %.2f probability threshold',dB/10,thresholdProbability),'NumberTitle','off');
+% end
 
 
 for dB = 25:0.1:32
@@ -33,12 +33,12 @@ for dB = 25:0.1:32
         end
     end
     
-    numCarriersAbove = 0;
+    numCarriersAbove(dBIndex) = 0;
     nonzeroCarriers = [];
     for i = 1:64
         if carriers(i) == 0
-            numCarriersAbove = numCarriersAbove + 1;
-            nonzeroCarriers = [nonzeroCarriers, i];
+            numCarriersAbove(dBIndex) = numCarriersAbove(dBIndex) + 1;
+            nonzeroCarriers = [nonzeroCarriers i];
         end
     end
     
@@ -67,8 +67,12 @@ for nameIndex = 1:5
     
     % max_har = mm_har(251:321,1);
     % max_sma = mm_smal(251:321,1);
-    eval(sprintf('ratio = carriersAboveThreshold_%s/numCarriersAbove;',names(nameIndex)));
-    for m = 6 : 10
+    ratio = zeros(71,1);
+    for j = 1:71
+        eval(sprintf('ratio(j,1) = carriersAboveThreshold_%s(j,1)./numCarriersAbove(1,j);',names(nameIndex)));
+    end
+    
+    for m = 1 : 10
         for u = 1 : m
             
             weights = RMWeightHier(u,m,false);
@@ -115,7 +119,7 @@ for nameIndex = 1:5
                 eval(sprintf('codeInfo_%d_%d_%d.percentLeaked = %d;', dB , u, m, percentLeaked));
                 
                 %assigns carrierRate
-                carrierRate = numCarriersAbove*rate;
+                carrierRate = numCarriersAbove(dB-249)*rate;
                 eval(sprintf('codeInfo_%d_%d_%d.carrierRate = %d;', dB , u, m, carrierRate));
                 
                 percentH = 100 - percentLeaked;
@@ -125,20 +129,20 @@ for nameIndex = 1:5
             end
         end
     end
-    codesPerdB = 40;
+    codesPerdB = (m +1)*(m/2);
     
     for dB = 250 : 320
-            workspace = who;
-            eval(sprintf('outStr = regexpi(workspace, "codeInfo_%d_");', dB));
-            ind = ~cellfun('isempty',outStr);
-            eval(sprintf('vars%d = workspace(ind);', dB));
+        workspace = who;
+        eval(sprintf('outStr = regexpi(workspace, "codeInfo_%d_");', dB));
+        ind = ~cellfun('isempty',outStr);
+        eval(sprintf('vars%d = workspace(ind);', dB));
     end
     colors = jet(5);
     counter = 0;
     
     %%%%All on same Plot%%%%
     if (samePlot)
-%         figure();
+        %         figure();
         hold on;
     end
     %%%%%%%%%%%%%%%%%%%%%%%%
@@ -165,29 +169,29 @@ for nameIndex = 1:5
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         
-%         %%%%UNCODED WITH MORE CARRIERS%%%%
-%         for p = 0: max_sma(dB-249)
-%             extraCarriersRate(p+1) = harrisonOnlyCarriers(dB-249, 2)+p;
-%             extraCarriersH(p+1) = 100*harrisonOnlyCarriers(dB-249, 2)/(harrisonOnlyCarriers(dB-249, 2) + p);
-%             
-%             eval(sprintf('extraExtra(p+1) = "Harr: %d, Smal: %d, %.1f dB";',harrisonOnlyCarriers(dB-249, 2)+p,p,dB/10));
-%             plotextraExtra = categorical(extraExtra);
-%         end
-%         if max_sma(dB-249,1) ~= 0
-%             
-%             scatter3(extraCarriersRate, extraCarriersH, plotextraExtra,[],'g', 'd','DisplayName', sprintf('UC %.1f', dB/10));
-%             clear extraExtra;
-%             clear plotextraExtra;
-%             clear extraCarriersH;
-%             clear extraCarriersRate;
-%         end
+        %         %%%%UNCODED WITH MORE CARRIERS%%%%
+        %         for p = 0: max_sma(dB-249)
+        %             extraCarriersRate(p+1) = harrisonOnlyCarriers(dB-249, 2)+p;
+        %             extraCarriersH(p+1) = 100*harrisonOnlyCarriers(dB-249, 2)/(harrisonOnlyCarriers(dB-249, 2) + p);
+        %
+        %             eval(sprintf('extraExtra(p+1) = "Harr: %d, Smal: %d, %.1f dB";',harrisonOnlyCarriers(dB-249, 2)+p,p,dB/10));
+        %             plotextraExtra = categorical(extraExtra);
+        %         end
+        %         if max_sma(dB-249,1) ~= 0
+        %
+        %             scatter3(extraCarriersRate, extraCarriersH, plotextraExtra,[],'g', 'd','DisplayName', sprintf('UC %.1f', dB/10));
+        %             clear extraExtra;
+        %             clear plotextraExtra;
+        %             clear extraCarriersH;
+        %             clear extraCarriersRate;
+        %         end
         
         
         
         
         for i = 1:codesPerdB
             eval(sprintf('name = vars%d{%d,1};',dB,i));
-%             
+            %
             searchName = name(14:end);
             [~, lengthName] = size(searchName);
             
@@ -230,20 +234,21 @@ for nameIndex = 1:5
             if (~samePlot)
                 scatter3(plotRate(i), plotPercentH(i), plotdB(i));
                 
-%                 if istrue
-%                     scatter3(plotOneRate, plotOnePercentH,plotOnedB,50,'k', '*');
-%                     istrue = false;
-%                 end
-%                 scatter(uncodedRate, uncodedSecrecy, [], 'r', 'd', 'DisplayName', 'Uncoded');
+                %                 if istrue
+                %                     scatter3(plotOneRate, plotOnePercentH,plotOnedB,50,'k', '*');
+                %                     istrue = false;
+                %                 end
+                %                 scatter(uncodedRate, uncodedSecrecy, [], 'r', 'd', 'DisplayName', 'Uncoded');
             end
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
         end
         %%%All on same Plot%%%%
         if (samePlot)
-            figure('Name', sprintf('%.1f dB Limit with %d probability threshold',dB/10,thresholdProbability));
-       
+            figure(dB);
+            hold on;
             scatter3(plotRate, plotPercentH,plotdB,'DisplayName', sprintf('%s %.1f dB Limit', names(nameIndex),dB/10));
+            hold off;
         end
         %%%%%%%%%%%%%%%%%%%%%%%
         
@@ -265,9 +270,27 @@ for nameIndex = 1:5
     
     
     %%%All on same Plot%%%%
+    %     if (samePlot)
+    % %         scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
+    %         figure(dB);
+    %         title('Code Efficiency');
+    %         xlabel('Throughput Rate');
+    %         ylabel('Equivocation (%)');
+    %         zlabel('dB Level');
+    %         ylim([0 100]);
+    %         xlim([0 50]);
+    %         legend;
+    %         grid on;
+    %         hold off;
+    %     end
+    %%%%%%%%%%%%%%%%%%%%%%%
+end
+
+for i = 250:320
     if (samePlot)
-%         scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
-        
+        %         scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
+        figure(i);
+        hold on;
         title('Code Efficiency');
         xlabel('Throughput Rate');
         ylabel('Equivocation (%)');
@@ -278,7 +301,7 @@ for nameIndex = 1:5
         grid on;
         hold off;
     end
-    %%%%%%%%%%%%%%%%%%%%%%%
 end
+
 
 toc;
