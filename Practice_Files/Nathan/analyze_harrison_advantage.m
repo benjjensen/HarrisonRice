@@ -55,8 +55,8 @@ for threshold = 1:71
             code_info.n = 2^m;
             code_info.rate = code_info.k / code_info.n;
             code_info.dBLevel = threshold / 10 + 24.9;
-            code_info.mu = received_bits;
-            code_info.H = weights(1, received_bits + 1);
+            code_info.mu = received_bits * code_info.n / numcarriers;
+            code_info.H = weights(1, code_info.mu + 1);
             code_info.percentLeaked = 100 * (code_info.k - code_info.H) / code_info.k;
             code_info.carrierRate = code_info.rate * harrison_expected_carriers;
             
@@ -84,6 +84,7 @@ for threshold = 1:71
     
     counter = 1;
     for m = m_min:m_max
+        % TODO also graph the trivial ones
         for u = 1:m-1
             code_info = code_info_array(u, m - m_min + 1, threshold);
             rates(counter, 1) = code_info.carrierRate;
