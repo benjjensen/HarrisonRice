@@ -66,6 +66,17 @@ pr_smalley = carrier_smalley./4000;
 pr_camacho = carrier_camacho./4000;
 pr_conference = carrier_conference./4000;
 pr_chambers = carrier_chambers./4000;
+% 
+% 
+%     figure(75);
+%     hold on;
+%     bar(pr_harrison);
+%     bar(pr_smalley);
+%     bar(pr_camacho);
+%     bar(pr_conference);
+%     bar(pr_chambers);
+%     legend('Harrison','Smalley','Camacho','Conference','Chambers');
+%     hold off
 
 % % Uncomment this block to plot the 3d plots of the probabilities of each
 % % carrier being good with respect to db thresholds
