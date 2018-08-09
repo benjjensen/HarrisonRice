@@ -6,11 +6,11 @@ function [best_carriers] = find_best_carriers(data_map,threshold)
 %   the threshold above the noise on that carrier
 %   Returns an array where the non-zero indices represent the good carriers
 [~,num_runs] = size(data_map);
-carriers = zeros(64,num_runs);
+carriers = zeros(64,1);
 for run = 1:num_runs 
     for loc = 1:2:127
         if data_map(loc,run) - data_map(loc+1,run) > threshold
-            carriers((loc+1)/2,run) = (loc+1)/2;
+            carriers((loc+1)/2,1) = carriers((loc+1)/2,1) + 1;%(loc+1)/2;
         end
     end
 end

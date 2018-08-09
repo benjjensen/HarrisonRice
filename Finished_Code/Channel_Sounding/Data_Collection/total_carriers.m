@@ -78,23 +78,24 @@ xlabel('Thresholds (dB)');
 ylabel('Average number of carriers');
 legend('Harrison','Smalley','Camacho','Conference','Chambers');
 hold off
-x = 1:64;
-for spot = 1:total
-    figure(spot+1)
-    hold on;
-    har = normpdf(x,average_harrison(spot,1),std_harrison(spot,1));
-    smal = normpdf(x,average_smalley(spot,1),std_smalley(spot,1));
-    cam = normpdf(x,average_camacho(spot,1),std_camacho(spot,1));
-    conf = normpdf(x,average_conference(spot,1),std_conference(spot,1));
-    cham = normpdf(x,average_chambers(spot,1),std_chambers(spot,1));
-    plot(x,har);
-    plot(x,smal);
-    plot(x,cam);
-    plot(x,conf);
-    plot(x,cham);
-    xlabel('Number of carriers');
-    ylabel('Probability');
-    legend('Harrison','Smalley','Camacho','Conference','Chambers');
-
-end
+% x = 0:64;
+% for spot = 1:total
+%     figure(spot+1)
+%     hold on;
+%     har = normpdf(x,average_harrison(spot,1),std_harrison(spot,1));
+%     smal = normpdf(x,average_smalley(spot,1),std_smalley(spot,1));
+%     cam = normpdf(x,average_camacho(spot,1),std_camacho(spot,1));
+%     conf = normpdf(x,average_conference(spot,1),std_conference(spot,1));
+%     cham = normpdf(x,average_chambers(spot,1),std_chambers(spot,1));
+%     plot(x,har);
+%     plot(x,smal);
+%     plot(x,cam);
+%     plot(x,conf);
+%     plot(x,cham);
+%     xlabel('Average number of carriers');
+%     ylabel('Probability');
+%     ylim([0,.25]);
+%     legend('Harrison','Smalley','Camacho','Conference','Chambers');
+% 
+% end
 toc
