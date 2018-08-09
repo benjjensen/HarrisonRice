@@ -12,6 +12,9 @@ plot_probabilities(probabilities_conference_carriers, "Conference Room Carrier P
 plot_probabilities(probabilities_harrison_carriers, "Harrison Carrier Probabilities");
 plot_probabilities(probabilities_smalley_carriers, "Smalley Carrier Probabilities");
 
+probabilities_harrison_advantage = probabilities_harrison_carriers - probabilities_smalley_carriers;
+plot_probabilities(probabilities_harrison_carriers - probabilities_smalley_carriers, "Harrison Advantage");
+
 function plot_probabilities(probability_array, plottitle)
     figure();
     surf(probability_array);
