@@ -1,7 +1,7 @@
 close all;
-load('mm_har.mat');
-load('mm_sma.mat');
-load('mum_har.mat');
+% load('mm_har.mat');
+% load('mm_sma.mat');
+% load('mum_har.mat');
 tic;
 max_har = mm_har(251:321,1);
 max_sma = mm_smal(251:321,1);
