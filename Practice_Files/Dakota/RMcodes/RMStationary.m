@@ -1,11 +1,13 @@
 % % RM plots for big sample
 tic;
+close all;
 load('average_harrison.mat');
 load('average_smalley.mat');
 load('pr_harrison.mat');
 load('pr_smalley.mat');
 
-max_dif = average_harrison - avereage_smalley;
+max_dif = average_harrison - average_smalley;
+ratio = average_smalley./average_harrison;
 
 mmax = 10;
 imax = 0;
@@ -18,7 +20,7 @@ for m = mmin : mmax
         
         weights = RMWeightHier(u,m,false);
         
-        for dB = 250 : 312
+        for dB = 250 : 320
 %         for dB = 270 : 270
 %             if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
                 %creates object
@@ -62,7 +64,7 @@ for m = mmin : mmax
                 eval(sprintf('codeInfo_%d_%d_%d.percentLeaked = %d;', dB , u, m, percentLeaked));
                 
                 %assigns carrierRate
-                carrierRate = max_har(dB-249,1)*rate;
+                carrierRate = average_harrison(dB-249,1)*rate;
                 eval(sprintf('codeInfo_%d_%d_%d.carrierRate = %d;', dB , u, m, carrierRate));
                 
 %             end
@@ -71,7 +73,7 @@ for m = mmin : mmax
 end
 % toc
 % tic
-for dB = 250 : 312
+for dB = 250 : 320
 % for dB = 270 : 270
 %     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         workspace = who;
@@ -81,7 +83,7 @@ for dB = 250 : 312
 %     end
 end
 % toc
-colors = jet(32);
+colors = jet(71);
 counter = 0;
 j = 0;
 % tic
@@ -94,7 +96,7 @@ j = 0;
 % percentLeaked_matched = zeros(1,32*mmax);
 % figure();
 hold on;
-for dB = 250 : 312
+for dB = 250 : 320
 % for dB = 270 : 270
 %     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         counter = counter + 1;
@@ -140,10 +142,10 @@ for dB = 250 : 312
         figure(1);
         hold on;
         scatter3(rate_matched,percentLeaked_matched,ss_matched,144,'black','*');
-        hold off;
-        figure(2);
-        hold on;
-        scatter3(rate,percentLeaked,ss,[],colors(33-counter,:),'o');
+%         hold off;
+%         figure(2);
+%         hold on;
+        scatter3(rate,percentLeaked,ss,[],colors(72-counter,:),'o');
         hold off;
         sss = categorical(ss);
 %         scatter3(rate,percentLeaked,sss.',36,colors(33-counter,:),'o');
@@ -163,40 +165,42 @@ type = categorical(322);
 i = 0;
 figure(1);
 hold on;
-for dB = 250 : 312
-% for dB = 270 : 270
-%     if max_har(dB-249,1) - max_har(dB-248,1) ~= 0
-        counter = counter + 1;
-%         scatter3(max_unique(dB-249,:),100,categorical(cellstr('No code ' + string(dB/10) + 'dB')),144,colors(33-counter,:),'s');
-        for index = 0 : max_sma(dB-249,1)
-            i = i + 1;
-            rates(1,i) = max_unique(dB-249,1) + index;
-            ratios(1,i) = (1 - index/(max_unique(dB-249)+index))*100;
-            type(1,i) = categorical(cellstr('No code ' + string(dB/10) + 'dB'));
-            scatter3(max_unique(dB-249,1) + index,(1 - index/(max_unique(dB-249)+index))*100, categorical(cellstr('No code ' + string(dB/10) + 'dB')),72,'g','d');
-        end
-        sss(end + 1,1) = cellstr('No code ' + string(dB/10));
-%     end
-end
+% for dB = 250 : 320
+% % for dB = 270 : 270
+% %     if max_har(dB-249,1) - max_har(dB-248,1) ~= 0
+%         counter = counter + 1;
+% %         scatter3(max_unique(dB-249,:),100,categorical(cellstr('No code ' + string(dB/10) + 'dB')),144,colors(33-counter,:),'s');
+%         for index = 0 : average_sma(dB-249,1)
+%             i = i + 1;
+%             rates(1,i) = max_unique(dB-249,1) + index;
+%             ratios(1,i) = (1 - index/(max_unique(dB-249)+index))*100;
+%             type(1,i) = categorical(cellstr('No code ' + string(dB/10) + 'dB'));
+%             scatter3(max_unique(dB-249,1) + index,(1 - index/(max_unique(dB-249)+index))*100, categorical(cellstr('No code ' + string(dB/10) + 'dB')),72,'g','d');
+%         end
+%         sss(end + 1,1) = cellstr('No code ' + string(dB/10));
+% %     end
+% end
 % scatter3(rates,ratios,type,72,'g','d');
 % set(gca,'zticklabel',sss)
-title('Code Efficiency');
-xlabel('Throughput Rate');
-ylabel('Equivocation (%)');
-zlabel('Reed-Muller Code (r,m)');
-ylim([0 100]);
-xlim([0 50]);
-grid on;
-hold off;
-figure(2);
-hold on;
-title('Code Efficiency');
-xlabel('Throughput Rate');
-ylabel('Equivocation (%)');
-zlabel('Reed-Muller Code (r,m)');
-ylim([0 100]);
-xlim([0 50]);
-grid on;
-hold off;
 
+title('Code Efficiency');
+xlabel('Throughput Rate');
+ylabel('Equivocation (%)');
+zlabel('Reed-Muller Code (r,m)');
+ylim([0 100]);
+xlim([0 50]);
+hold off
+% grid on;
+% hold off;
+% figure(2);
+% hold on;
+% title('Code Efficiency');
+% xlabel('Throughput Rate');
+% ylabel('Equivocation (%)');
+% zlabel('Reed-Muller Code (r,m)');
+% ylim([0 100]);
+% xlim([0 50]);
+grid on;
+hold off;
+toc;
 toc;
