@@ -78,7 +78,7 @@ xlabel('Thresholds (dB)');
 ylabel('Average number of carriers');
 legend('Harrison','Smalley','Camacho','Conference','Chambers');
 hold off
-x = 1:64;
+x = 0:64;
 for spot = 1:total
     figure(spot+1)
     hold on;
@@ -92,8 +92,9 @@ for spot = 1:total
     plot(x,cam);
     plot(x,conf);
     plot(x,cham);
-    xlabel('Number of carriers');
+    xlabel('Average number of carriers');
     ylabel('Probability');
+    ylim([0,.25]);
     legend('Harrison','Smalley','Camacho','Conference','Chambers');
 
 end
