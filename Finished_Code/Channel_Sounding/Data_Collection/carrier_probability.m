@@ -1,5 +1,3 @@
-close all
-
 load("StationaryData/pwelch_camacho_array.mat");
 load("StationaryData/pwelch_chambers_array.mat");
 load("StationaryData/pwelch_conference_array.mat");
@@ -36,8 +34,6 @@ function [carrier_probabilities] = calc_carrier_probabilities(pwelch_data)
         end
 
         carrier_good_probability = carrier_good_count / num_runs;
-        %figure();
-        %bar(carrier_good_probability);
         carrier_probabilities(:,threshold_count) = carrier_good_probability;
         threshold_count = threshold_count + 1;
     end
