@@ -6,6 +6,9 @@ load("StationaryData/pwelch_camacho_array.mat");
 load("StationaryData/pwelch_conference_array.mat");
 load("StationaryData/pwelch_chambers_array.mat");
 spot = 0;
+
+% % Uncomment this block to calculate the distribution of the number of
+% % carriers that each room gets
 % for threshold = 25:.1:32
 %     spot = spot + 1;
 %     dist_harrison = find_num_carriers(pwelch_harrison_array,threshold);
@@ -23,11 +26,11 @@ spot = 0;
 %     legend('Harrison','Smalley','Camacho','Conference','Chambers');
 %     hold off;
 % end
-carrier_harrison = zeros(71,64,4000);
-carrier_smalley = zeros(71,64,4000);
-carrier_camacho = zeros(71,64,4000);
-carrier_conference = zeros(71,64,4000);
-carrier_chambers = zeros(71,64,4000);
+carrier_harrison = zeros(71,64,1);
+carrier_smalley = zeros(71,64,1);
+carrier_camacho = zeros(71,64,1);
+carrier_conference = zeros(71,64,1);
+carrier_chambers = zeros(71,64,1);
 index = 0;
 for threshold = 25:.1:32
     index = index + 1;
@@ -39,26 +42,23 @@ for threshold = 25:.1:32
     carrier_conference(index,:,:) = find_best_carriers(pwelch_conference_array, threshold);
     carrier_chambers(index,:,:) = find_best_carriers(pwelch_chambers_array, threshold);
 
-
-    figure(spot)
-    hold on;
-    % for carrier = 1:64
-    % 
-    foo = carrier_harrison(index,:,:);
-    foo = squeeze(foo);
-    bar(foo);
-%         bar(carrier_harrison(index,:,:))%,'DisplayStyle','stairs','BinMethod','integers');
-%         histogram(carrier_smalley(index,:,:),'DisplayStyle','stairs','BinMethod','integers');
-%         histogram(carrier_camacho(index,:,:),'DisplayStyle','stairs','BinMethod','integers');
-%         histogram(carrier_conference(index,:,:),'DisplayStyle','stairs','BinMethod','integers');
-%         histogram(carrier_chambers(index,:,:),'DisplayStyle','stairs','BinMethod','integers');
-
-    % end
-
-    ylim([0,4000]);
-
-    legend('Harrison','Smalley','Camacho','Conference','Chambers');
-    hold off;
+% % Uncomment this block to plot bar graphs of how many times of the 4000 
+% % samples each carrier is good for all of the different dB thresholds
+% % 
+%     figure(spot)
+%     hold on;
+%     bar(carrier_harrison(index,:,1))%,'DisplayStyle','stairs','BinMethod','integers');
+%     bar(carrier_smalley(index,:,1))%,'DisplayStyle','stairs','BinMethod','integers');
+%     bar(carrier_camacho(index,:,1))%,'DisplayStyle','stairs','BinMethod','integers');
+%     bar(carrier_conference(index,:,1))%,'DisplayStyle','stairs','BinMethod','integers');
+%     bar(carrier_chambers(index,:,1))%,'DisplayStyle','stairs','BinMethod','integers');
+% 
+% 
+% 
+%     ylim([0,4000]);
+% 
+%     legend('Harrison','Smalley','Camacho','Conference','Chambers');
+%     hold off;
 end
 
 pr_harrison = carrier_harrison./4000;
@@ -66,3 +66,31 @@ pr_smalley = carrier_smalley./4000;
 pr_camacho = carrier_camacho./4000;
 pr_conference = carrier_conference./4000;
 pr_chambers = carrier_chambers./4000;
+
+% % Uncomment this block to plot the 3d plots of the probabilities of each
+% % carrier being good with respect to db thresholds
+% figure(1)
+% hold on
+% surf(pr_harrison);
+% zlim([0,1])
+% hold off
+% figure(2)
+% hold on
+% surf(pr_smalley)
+% zlim([0,1])
+% hold off
+% figure(3)
+% hold on
+% surf(pr_camacho);
+% zlim([0,1])
+% hold off
+% figure(4)
+% hold on
+% surf(pr_conference);
+% zlim([0,1])
+% hold off
+% figure(5)
+% hold on
+% surf(pr_chambers);
+% zlim([0,1])
+% hold off
