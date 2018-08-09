@@ -10,7 +10,7 @@ carriers = zeros(64,num_runs);
 for run = 1:num_runs 
     for loc = 1:2:127
         if data_map(loc,run) - data_map(loc+1,run) > threshold
-            carriers((loc+1)/2,run) = (loc+1)/2;
+            carriers((loc+1)/2,run) = true;%(loc+1)/2;
         end
     end
 end
