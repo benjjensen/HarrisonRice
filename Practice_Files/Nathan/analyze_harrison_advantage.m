@@ -58,7 +58,7 @@ for threshold = 1:71
             code_info.mu = received_bits;
             code_info.H = weights(1, received_bits + 1);
             code_info.percentLeaked = 100 * (code_info.k - code_info.H) / code_info.k;
-            code_info.carrierRate = code_info.rate * (harrison_expected_carriers / numcarriers);
+            code_info.carrierRate = code_info.rate * harrison_expected_carriers;
             
             code_info_array(r, m - m_min + 1, threshold) = code_info;
         end
