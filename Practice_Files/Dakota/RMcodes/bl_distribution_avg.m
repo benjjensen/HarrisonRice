@@ -4,8 +4,8 @@ function [averages] = bl_distribution_avg(gc,pr_mat,bl)
 %   probabilities of the eavesdropper
 tic;
 [num_rows,num_cols] = size(gc);
-aa = [];
-
+aa = zeros(num_rows,bl+1);
+gg = [];
 for row = 1:num_rows
     pr = [];
     for col = 1:num_cols
@@ -14,6 +14,7 @@ for row = 1:num_rows
         end
     end
     gg = get_groups(pr,bl);
+    row
     aa(row,:) = bl_get_dist(gg);
 end
 averages = aa;
