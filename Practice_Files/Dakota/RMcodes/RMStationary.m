@@ -5,11 +5,26 @@ load('average_harrison.mat');
 load('average_smalley.mat');
 load('pr_harrison.mat');
 load('pr_smalley.mat');
-
+load('mu_16.mat');
+load('mu_8.mat');
+load('mu_4.mat');
+load('mu_2.mat');
+har = good_carriers(pr_harrison);
+mus = [];
+mus(:,1) = get_exp(mu_2);
+mus(:,2) = get_exp(mu_4);
+mus(:,3) = get_exp(mu_8);
+mus(:,4) = get_exp(mu_16);
 max_dif = average_harrison - average_smalley;
-ratio = average_smalley./average_harrison;
+% ratio = average_smalley./average_harrison;
+ratio = mus;
+ratio(:,1) = ratio(:,1)/2;
+ratio(:,2) = ratio(:,2)/4;
+ratio(:,3) = ratio(:,3)/8;
+ratio(:,4) = ratio(:,4)/16;
 
-mmax = 10;
+
+mmax = 4;
 imax = 0;
 mmin = 1;
 for j = mmin : mmax
@@ -20,7 +35,7 @@ for m = mmin : mmax
         
         weights = RMWeightHier(u,m,false);
         
-        for dB = 250 : 320
+        for dB = 250 : 292
 %         for dB = 270 : 270
 %             if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
                 %creates object
@@ -73,7 +88,7 @@ for m = mmin : mmax
 end
 % toc
 % tic
-for dB = 250 : 320
+for dB = 250 : 292
 % for dB = 270 : 270
 %     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         workspace = who;
@@ -96,7 +111,7 @@ j = 0;
 % percentLeaked_matched = zeros(1,32*mmax);
 % figure();
 hold on;
-for dB = 250 : 320
+for dB = 250 : 292
 % for dB = 270 : 270
 %     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         counter = counter + 1;
@@ -165,7 +180,7 @@ type = categorical(322);
 i = 0;
 figure(1);
 hold on;
-% for dB = 250 : 320
+% for dB = 250 : 292
 % % for dB = 270 : 270
 % %     if max_har(dB-249,1) - max_har(dB-248,1) ~= 0
 %         counter = counter + 1;
