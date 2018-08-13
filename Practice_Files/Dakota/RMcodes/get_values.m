@@ -10,9 +10,9 @@ else
     total = 0;
     combos = nchoosek(pr_mat,k);
     for i = 1:nchoosek(n,k)
-        if isempty(intersect(temp,union))
-            temp = union(combos(i,:),pr_mat,'stable');
-        else
+        temp = union(combos(i,:),pr_mat,'stable');
+        [~,s] = size(temp);
+        if s ~= k
             
         end
         temp = 1-temp;
