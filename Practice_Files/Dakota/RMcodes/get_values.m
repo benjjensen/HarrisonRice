@@ -3,14 +3,19 @@ function [v] = get_values(pr_mat,n,k)
 %   Goes through all of the n choose k combinations and sums up the
 %   probability of it occuring
 if(k == 0)
-    v = prod(pr_mat);
+    v = prod(1 - pr_mat);
 elseif(k == n)
-    v = 0;
+    v = prod(pr_mat);
 else
     total = 0;
     combos = nchoosek(pr_mat,k);
     for i = 1:nchoosek(n,k)
-        temp = union(combos(i,:),pr_mat,'stable');
+        if isempty(intersect(temp,union))
+            temp = union(combos(i,:),pr_mat,'stable');
+        else
+            
+        end
+        temp = 1-temp;
         for j = 1:k
             temp(j) = 1-temp(j);
         end
