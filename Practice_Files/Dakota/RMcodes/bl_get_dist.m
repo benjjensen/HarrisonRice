@@ -5,12 +5,14 @@ function [pr_dist] = bl_get_dist(pr_mat)
 probabilities = zeros(num_rows,(n+1));
 for row = 1:num_rows
     for k = 0:n
-        tic;
-        row
-        k
+%         tic;
         probabilities(row,k+1) = get_values(pr_mat(row,:),n,k);
-        toc;
+%         toc;
     end
 end
-pr_dist = sum(probabilities)/num_rows;
+if num_rows ~= 1
+    pr_dist = sum(probabilities)/num_rows;
+else
+    pr_dist = probabilities;
+end
 end

@@ -8,12 +8,18 @@ elseif(k == n)
     v = prod(pr_mat);
 else
     total = 0;
-    combos = nchoosek(pr_mat,k);
+    [~,num_cols] = size(pr_mat);
+    ss = 1:num_cols;
+%     need to change it for indexes
+    combos = nchoosek(ss,k);
     for i = 1:nchoosek(n,k)
-        temp = union(combos(i,:),pr_mat,'stable');
-        [~,s] = size(temp);
-        if s ~= k
-            
+        temp = zeros(1,n);
+        dd = setdiff(ss, combos(i));    
+        for j = 1:k
+            temp(1,j) = pr_mat(ss(j)); 
+        end
+        for j = 1:n-k
+            temp(1,j+k) = pr_mat(dd(j));
         end
         temp = 1-temp;
         for j = 1:k
