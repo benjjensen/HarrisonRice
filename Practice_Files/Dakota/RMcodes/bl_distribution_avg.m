@@ -14,7 +14,6 @@ for row = 1:num_rows
         end
     end
     gg = get_groups(pr,bl);
-    row
     aa(row,:) = bl_get_dist(gg);
 end
 averages = aa;
