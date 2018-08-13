@@ -1,6 +1,8 @@
 function [gg] = get_groups(pr_mat,bl)
-%UNTITLED11 Gets the potential carrier groups based on blocklength
-%   Detailed explanation goes here
+%get_groups Gets the potential carrier groups based on blocklength
+%   Given a certain block length and a set of carriers it finds every
+%   combination of carriers to use all of the carriers and the given block
+%   length and each group consists of only adjacent carriers.
 [~,num_cols] = size(pr_mat);
 i = 0;
 row = 0;

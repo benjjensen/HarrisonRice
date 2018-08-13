@@ -5,7 +5,7 @@ function [pr_dist] = bl_get_dist(pr_mat)
 %   different combination of carriers, each combination is passed into the get_values
 %   function where the probability for each number of revealed bits is
 %   calculated, if there is more than one combination the probabilities are
-%   averaged.
+%   averaged which becomes the output.
 [num_rows,n] = size(pr_mat);
 probabilities = zeros(num_rows,(n+1));
 for row = 1:num_rows

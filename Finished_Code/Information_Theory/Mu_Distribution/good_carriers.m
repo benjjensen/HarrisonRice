@@ -1,12 +1,12 @@
-function [good_ones] = good_carriers(pr_mat)
-%UNTITLED3 Summary of this function goes here
-% % Finds the indices where the probability is greater than 95%
+function [good_ones] = good_carriers(pr_mat, per_threshold)
+% good_carriers 
+% % Finds the indices where the probability is greater than the threshold
 [num_rows,num_cols] = size(pr_mat);
 indices = [];
 for row = 1:num_rows
     index = 0;
     for col = 1:num_cols
-        if pr_mat(row,col) >= .95
+        if pr_mat(row,col) >= per_threshold
             index = index + 1;
             indices(row,index) = col;
         end

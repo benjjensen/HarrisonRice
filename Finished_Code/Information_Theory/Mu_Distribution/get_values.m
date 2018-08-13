@@ -1,7 +1,9 @@
 function [v] = get_values(pr_mat,n,k)
 %get_values Finds the probability of k carriers being good 
-%   Goes through all of the n choose k combinations and sums up the
-%   probability of it occuring
+%   Receives an array of probabilities and parameters n and k, n being the 
+%   block length and k being the number of revealed bits.  It then goes 
+%   through all of the n choose k combinations and calculates the
+%   probability of that n and k occuring
 if(k == 0)
     v = prod(1 - pr_mat);
 elseif(k == n)
@@ -10,7 +12,6 @@ else
     total = 0;
     [~,num_cols] = size(pr_mat);
     ss = 1:num_cols;
-%     need to change it for indexes
     combos = nchoosek(ss,k);
     for i = 1:nchoosek(n,k)
         temp = zeros(1,n);

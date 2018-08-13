@@ -1,5 +1,6 @@
 function [averages] = bl_distribution_avg(gc,pr_mat,bl)
-%UNTITLED5 Summary of this function goes here
+%bl_distribution_avg Finds the average number of revealed bits as a
+%probability distribution
 %   Finds the average of number of revealed bits based on the carrier
 %   probabilities of the eavesdropper
 tic;
