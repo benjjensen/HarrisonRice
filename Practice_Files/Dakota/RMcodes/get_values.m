@@ -10,7 +10,6 @@ else
     total = 0;
     [~,num_cols] = size(pr_mat);
     ss = 1:num_cols;
-%     need to change it for indexes
     combos = nchoosek(ss,k);
     for i = 1:nchoosek(n,k)
         temp = zeros(1,n);
