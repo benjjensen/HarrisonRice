@@ -15,17 +15,23 @@ else
     combos = nchoosek(ss,k);
     for i = 1:nchoosek(n,k)
         temp = zeros(1,n);
-        dd = setdiff(ss, combos(i));    
-        for j = 1:k
-            temp(1,j) = pr_mat(ss(j)); 
+        tt = ss;
+        [~,num_cols] = size(combos);
+        for col = 1:num_cols
+            tt(tt == combos(i,col)) = [];
         end
-        for j = 1:n-k
-            temp(1,j+k) = pr_mat(dd(j));
+        dd = cat(2,combos(i,:),tt);
+%         dd = setdiff(ss, combos(i,:));    
+        for j = 1:k
+            temp(1,j) = 1 - pr_mat(dd(j)); 
+        end
+        for j = k+1:n
+            temp(1,j) = pr_mat(dd(j));
         end
         temp = 1-temp;
-        for j = 1:k
-            temp(j) = 1-temp(j);
-        end
+%         for j = 1:k
+%             temp(j) = 1-temp(j);
+%         end
         total = total + prod(temp);
     end
     v = total;
