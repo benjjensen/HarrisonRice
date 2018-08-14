@@ -23,12 +23,12 @@ else
         dd = cat(2,combos(i,:),tt);
 %         dd = setdiff(ss, combos(i,:));    
         for j = 1:k
-            temp(1,j) = 1 - pr_mat(dd(j)); 
+            temp(1,j) = pr_mat(dd(j)); 
         end
         for j = k+1:n
-            temp(1,j) = pr_mat(dd(j));
+            temp(1,j) = 1 - pr_mat(dd(j));
         end
-        temp = 1-temp;
+%         temp = 1-temp;
 %         for j = 1:k
 %             temp(j) = 1-temp(j);
 %         end
