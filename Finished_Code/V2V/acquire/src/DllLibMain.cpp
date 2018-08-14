@@ -6311,8 +6311,8 @@ EXPORTED_FUNCTION void setupAcquire(unsigned short BoardNum,unsigned int NumBloc
 	#endif
 
 	// TODO figure out if this sleep is necessary
-	//if (GetNumBlocksToAcquireValue(BoardNum) > 2)
-		//SLEEP(50);
+	if (GetNumBlocksToAcquireValue(BoardNum) > 2)
+		SLEEP(50);
 
 
 
