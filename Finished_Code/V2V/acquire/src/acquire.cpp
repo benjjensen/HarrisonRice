@@ -171,9 +171,9 @@ int main(int argc, char ** argv)
 			grand_total_setup_time = 0,
 			loop_elapsed_time = 0,
 			subtotal_setup_time = 0;
-	// This is the data transfer rate that ideally would happen if we're sampling 100,000,000 times per second.
 	
 #endif
+	// This is the data transfer rate that ideally would happen if we're sampling adcClock times per second.
 	const double EXPECTED_RATE = adcClock * 1000000.0 * 2 / 1024 / 1024;
 	continueReadingData = true;
 	unsigned int data_written_megabytes = 0;
