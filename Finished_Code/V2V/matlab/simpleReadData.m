@@ -1,6 +1,6 @@
 % clear all
 
-data = readBatched_DAQshortSamples_host('/media/V2V/1_block_new_2018-08-06__15-59-30.dat');
+data = readBatched_DAQshortSamples_host('/media/V2V/continuous_fm_2018-08-13__09-51-59.dat');
 
 figure(1); clf
 plot(1:300,data(1:300)-8180.7,'.-'); grid on;%,...

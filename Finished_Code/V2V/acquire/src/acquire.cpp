@@ -9,11 +9,14 @@
 #include <signal.h>
 #include <ctime>
 #include <iostream>
-#include "uvAPI.h"
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <stdlib.h>
+#include <boost/thread.hpp>
+#include <stdint.h>
 
+#include "uvAPI.h"
 #include "DataCapture.h"
 
 
@@ -44,6 +47,11 @@ The timestamp will be of the format
 _YYYY-mm-dd__HH-MM-SS
 */
 void timestamp_filename(std::string &selected_name, DataCapture &capture);
+
+/**
+ * The thread that writes the buffers to the file.
+ */
+void write_thread_main_function();
 
 /*
 Default values for SetupBoard. These may change due to acquire_parser.
@@ -81,49 +89,55 @@ unsigned int Fiducial = 0;
 unsigned int forceCal = 0;
 double Frequency = 0.0;
 
+const size_t BUFFER_ALIGNMENT = 4096;
+const size_t BLOCKS_PER_BUFFER = 100;
+const size_t BUFFER_SIZE = BLOCKS_PER_BUFFER * DIG_BLOCK_SIZE;
+
+const size_t BLOCKS_PER_READ = 1;
+const size_t READ_SIZE = DIG_BLOCK_SIZE * BLOCKS_PER_READ;
+
+const size_t BLOCKS_PER_SETUP_ACQUIRE = 1024 * 8;
+
 const std::string default_output_extension = ".dat";
 char * user_outputfile = NULL;
-int early_exit;
-
-bool UseLargeMem = false;
 
 bool continueReadingData = false;
+	
+uint8_t* first_buffer = NULL;
+uint8_t* second_buffer = NULL;
+
+bool writing_to_first_buffer = true;
+bool ready_to_save_buffer = false;
+size_t blocks_in_buffer_ready_to_save = 0;
+bool finished_reading = false;
+
+size_t buffers_read = 0;
+size_t buffers_written = 0;
+HANDLE disk_fd = INVALID_HANDLE_VALUE; // disk file handle
 
 int main(int argc, char ** argv)
 {
 	// Set the signal handler for when the user presses ctrl-c
 	signal(SIGINT, &exit_signal_handler);
 
-	std::cout << "custom_acquire v0.1" << std::endl << std::endl;
+	std::cout << "custom_acquire v0.2" << std::endl << std::endl;
 
-	unsigned long overruns;
-	int error;
-	HANDLE disk_fd = INVALID_HANDLE_VALUE; // disk file handle	
+	int error = 0;	
 	char output_file[MAX_DEVICES][128] = {"uvdma.dat", "uvdma1.dat", "uvdma2.dat", "uvdma3.dat"};
 
 	// Create a class with convienient access functions to the DLL
 	uvAPI *uv = new uvAPI;
 	unsigned char * sysMem = NULL;
-	// system memory buffer for large acquisitions		
-	unsigned char * sysMemBig = NULL;	
 
-	// used for accessing memory above 2GB
-	size_t large_alloc_size; 
-
-	unsigned int sysmem_size = 0;
-
-	// Obtain user desired settings
+	// Parse the command line options:
 	acquire_parser(argc, argv);
 
-	// Initialize settings    
+	// Initialize settings:
 	if (forceCal)
 	{
 		uv->setSetupDoneBit(BoardNum,0); // force full setup
 	}
-
 	uv->setupBoard(BoardNum);
-
-
 
 	// Write user settings to the board
 	acquire_set_session(uv);
@@ -137,12 +151,24 @@ int main(int argc, char ** argv)
 	error = uv->X_MemAlloc((void**)&sysMem, DIG_BLOCK_SIZE);
 	if (error)
 	{
-		std::cout << "failed to allocate block buffer" << std::endl;
+		std::cerr << "ERROR: UNABLE TO ALLOCATE MEMORY" << std::endl;
 		return  -1;
+	}
+	error = posix_memalign((void**)&first_buffer, BUFFER_ALIGNMENT, BUFFER_SIZE);
+	if(error)
+	{
+		std::cerr << "ERROR: UNABLE TO ALLOCATE MEMORY" << std::endl;
+		return -1;
+	}
+	error = posix_memalign((void**)&second_buffer, BUFFER_ALIGNMENT, BUFFER_SIZE);
+	if(error)
+	{
+		std::cerr << "ERROR: UNABLE TO ALLOCATE MEMORY" << std::endl;
+		return -1;
 	}
 
 	DataCapture capture_info;
-	capture_info.name = user_outputfile == NULL ? "Unnamed" : user_outputfile;
+	capture_info.name = (user_outputfile == NULL ? "Unnamed" : user_outputfile);
 
 	std::string filename = DATA_FOLDER + "/" + (user_outputfile == NULL ? output_file[BoardNum] : user_outputfile);
 
@@ -156,27 +182,35 @@ int main(int argc, char ** argv)
 		if(sysMem)
 		{
 			uv->X_FreeMem(sysMem);
+			sysMem = NULL;
 		}
+		if(first_buffer)
+		{
+			free(first_buffer);
+			first_buffer = NULL;
+		}
+		if(second_buffer)
+		{
+			free(second_buffer);
+			second_buffer = NULL;
+		}
+		std::cerr << "ERROR: UNABLE TO OPEN OUTPUT FILE " << filename << std::endl;
 		exit(1);
 	}
-
-//#define CUSTOM_DEBUG
-#ifdef CUSTOM_DEBUG
-	timespec test_start_time, test_end_time, loop_end_time, loop_start_time;
-	long test_elapsed_time, 
-			subtotal_read_time = 0, 
-			subtotal_write_time = 0, 
-			grand_total_read_time = 0, 
-			grand_total_write_time = 0, 
-			grand_total_setup_time = 0,
-			loop_elapsed_time = 0,
-			subtotal_setup_time = 0;
 	
-#endif
 	// This is the data transfer rate that ideally would happen if we're sampling adcClock times per second.
 	const double EXPECTED_RATE = adcClock * 1000000.0 * 2 / 1024 / 1024;
 	continueReadingData = true;
 	unsigned int data_written_megabytes = 0;
+	
+	finished_reading = false;
+	ready_to_save_buffer = false;
+	boost::thread write_thread(write_thread_main_function);
+	
+	writing_to_first_buffer = true;
+	uint8_t* current_buffer = first_buffer;
+	unsigned int blocks_in_current_buffer = 0;
+	
 	
 	timespec start_time;
 	timespec end_time;
@@ -184,50 +218,36 @@ int main(int argc, char ** argv)
 	// continueReadingData will be true until the user presses ctrl-c (exit_signal_handler() function changes continueReadingData)
 	while (continueReadingData) 
 	{
-#ifdef CUSTOM_DEBUG
-		clock_gettime(CLOCK_REALTIME, &loop_start_time);
-		subtotal_read_time = 0;
-		subtotal_write_time = 0;
-		subtotal_setup_time = 0;
-		clock_gettime(CLOCK_REALTIME, &test_start_time);
-#endif
-
-		uv->SetupAcquire(BoardNum,numBlocksToAcquire);
-	   	
-#ifdef CUSTOM_DEBUG
-	   	clock_gettime(CLOCK_REALTIME, &test_end_time);
-	   	subtotal_setup_time = (test_end_time.tv_sec - test_start_time.tv_sec) * 1000000000 + (test_end_time.tv_nsec - test_start_time.tv_nsec);
-#endif
-
+		uv->SetupAcquire(BoardNum, BLOCKS_PER_SETUP_ACQUIRE);
+		
 		// For each block of data requested
 		unsigned int blocks_acquired = 0;
-		for (; blocks_acquired < numBlocksToAcquire && continueReadingData; blocks_acquired++)
+		for (; blocks_acquired < BLOCKS_PER_SETUP_ACQUIRE && continueReadingData; blocks_acquired++)
 		{
-#ifdef CUSTOM_DEBUG
-			clock_gettime(CLOCK_REALTIME, &test_start_time);
-#endif
 			// read a block from the board
-			uv->X_Read(BoardNum, sysMem, DIG_BLOCK_SIZE);
-			
-#ifdef CUSTOM_DEBUG
-			clock_gettime(CLOCK_REALTIME, &test_end_time);
-			test_elapsed_time = (test_end_time.tv_sec - test_start_time.tv_sec) * 1000000000 + (test_end_time.tv_nsec - test_start_time.tv_nsec);
-			//printf("Read time: %10d ns\n", test_elapsed_time);
-			subtotal_read_time += test_elapsed_time;
-
-			clock_gettime(CLOCK_REALTIME, &test_start_time);
-#endif
-			// write block to file
-			error = uv->X_Write(disk_fd, sysMem, DIG_BLOCKSIZE);
-#ifdef CUSTOM_DEBUG
-			clock_gettime(CLOCK_REALTIME, &test_end_time);
-			test_elapsed_time = (test_end_time.tv_sec - test_start_time.tv_sec) * 1000000000 + (test_end_time.tv_nsec - test_start_time.tv_nsec);
-			//printf("Write time:%10d ns\n", test_elapsed_time);
-			subtotal_write_time += test_elapsed_time;
-#endif
+			uv->X_Read(BoardNum, current_buffer, READ_SIZE);
+			blocks_in_current_buffer += BLOCKS_PER_READ;
+			if(blocks_in_current_buffer >= BLOCKS_PER_BUFFER)
+			{
+				// std::cout << "Read " << ++buffers_read << " buffers" << std::endl;
+				current_buffer = (writing_to_first_buffer ? second_buffer : first_buffer);
+				writing_to_first_buffer = !writing_to_first_buffer;
+				blocks_in_buffer_ready_to_save = blocks_in_current_buffer;
+				blocks_in_current_buffer = 0;
+				if(ready_to_save_buffer)
+				{
+					std::cerr << "ERROR: BUFFER NOT EMPTIED BEFORE IT WAS NEEDED AGAIN" << std::endl;
+					// TODO quit?
+				}
+				ready_to_save_buffer = true;
+			}
+			else
+			{
+				current_buffer += READ_SIZE;
+			}
 		}
 
-		overruns = uv->getOverruns(BoardNum);
+		unsigned long overruns = uv->getOverruns(BoardNum);
 		if (overruns > 0)
 		{
 			std::cout << "WARNING: " <<  overruns << " OVERRUNS OCCURRED" << std::endl;
@@ -235,28 +255,27 @@ int main(int argc, char ** argv)
 
 		data_written_megabytes += blocks_acquired;
 		
-		std::cout << "Written " << data_written_megabytes << " MB" << std::endl;
-		
-#ifdef CUSTOM_DEBUG
-		clock_gettime(CLOCK_REALTIME, &loop_end_time);
-		loop_elapsed_time = (loop_end_time.tv_sec - loop_start_time.tv_sec) * 1000000000 + (loop_end_time.tv_nsec - loop_start_time.tv_nsec);
-		printf("Loop time:      %10ld ns\n", loop_elapsed_time);
-		printf("Loop setup time:%10ld ns\n", subtotal_setup_time);
-		printf("Loop read time: %10ld ns\n", subtotal_read_time);
-		printf("Loop write time:%10ld ns\n", subtotal_write_time);
-		printf("%.2f%% spent setting up\n", (double)subtotal_setup_time / loop_elapsed_time * 100);
-		printf("%.2f%% spent reading\n", (double)subtotal_read_time / loop_elapsed_time * 100);
-		printf("%.2f%% spent writing\n", (double)subtotal_write_time / loop_elapsed_time * 100);
-		printf("%.2f%% spent otherwise\n\n\n", (double)(loop_elapsed_time - subtotal_write_time -
-				subtotal_read_time - subtotal_setup_time) / loop_elapsed_time * 100);
-		
-		grand_total_read_time += subtotal_read_time;
-		grand_total_write_time += subtotal_write_time;
-		grand_total_setup_time += subtotal_setup_time;
-#endif
-		// fflush(stdout);
+		// std::cout << "Written " << data_written_megabytes << " MB" << std::endl;
 	}
 	clock_gettime(CLOCK_REALTIME, &end_time);
+	
+	current_buffer = NULL;
+	
+	// Wait for the most recent buffer to finish being saved
+	while(ready_to_save_buffer)
+	{
+		SLEEP(1);
+	}
+	
+	// Save to file the blocks that have already been read into the current buffer
+	writing_to_first_buffer = !writing_to_first_buffer;
+	blocks_in_buffer_ready_to_save = blocks_in_current_buffer;
+	blocks_in_current_buffer = 0;
+	finished_reading = true;
+	ready_to_save_buffer = true;
+	// wait for the writing to finish:
+	write_thread.join();
+	
 	
 	std::cout << std::endl << "Data capture and writing to disk complete" << std::endl;
 
@@ -270,17 +289,6 @@ int main(int argc, char ** argv)
 
 	printf("--------------------------------------\nProportion of data points gathered:\n%.5f%%\n--------------------------------------\n\n\n",
 			(data_written_megabytes / elapsed_time_seconds) / EXPECTED_RATE * 100);
-
-#ifdef CUSTOM_DEBUG
-	printf("Grand total setup time:%15ld ns\n", grand_total_setup_time);
-	printf("Grand total read time: %15ld ns\n", grand_total_read_time);
-	printf("Grand total write time:%15ld ns\n", grand_total_write_time);
-	printf("Grand total time:      %15ld ns\n", (long)(elapsed_time_seconds * 1000000000));
-	// divide by 1 billion to convert from ns to s, multiply by 100 to convert to percent:
-	printf("%.2f%% spent setting up\n", (double)grand_total_setup_time / 1000000000 / elapsed_time_seconds * 100);
-	printf("%.2f%% spent reading\n", (double)grand_total_read_time / 1000000000 / elapsed_time_seconds * 100);
-	printf("%.2f%% spent writing\n\n", (double)grand_total_write_time / 1000000000 / elapsed_time_seconds * 100);
-#endif
 
 	capture_info.write_to_file();
 	std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " << capture_info.meta_filename << std::endl << std::endl;
@@ -300,11 +308,46 @@ int main(int argc, char ** argv)
 		uv->X_FreeMem(sysMem);
 		sysMem = NULL;
 	}
+	
+	while(ready_to_save_buffer)
+	{
+		// wait for the buffers to be emptied
+		SLEEP(1);
+	}
+	if(first_buffer)
+	{
+		free(first_buffer);
+		first_buffer = NULL;
+	}
+	if(second_buffer)
+	{
+		free(second_buffer);
+		second_buffer = NULL;
+	}
 
 	delete uv;
 	uv = NULL;
 
 	return 0;
+}
+
+void write_thread_main_function()
+{
+	while(!finished_reading)
+	{
+		while(!ready_to_save_buffer)
+		{
+			// wait for the buffer to fill up
+			SLEEP(1);
+		}
+		
+		void* buffer = (writing_to_first_buffer ? second_buffer : first_buffer);
+		write(disk_fd, buffer, blocks_in_buffer_ready_to_save * DIG_BLOCK_SIZE);
+		
+		ready_to_save_buffer = false;
+		
+		// std::cout << "Wrote " << ++buffers_written << " buffers" << std::endl;
+	}
 }
 
 std::string get_current_timestamp(DataCapture &capture)
