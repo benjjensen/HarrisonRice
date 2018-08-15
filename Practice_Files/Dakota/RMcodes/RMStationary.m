@@ -5,10 +5,10 @@ load('average_harrison.mat');
 load('average_smalley.mat');
 load('pr_harrison.mat');
 load('pr_smalley.mat');
-load('mu_16.mat');
-load('mu_8.mat');
-load('mu_4.mat');
-load('mu_2.mat');
+load('mu_16_2.mat');
+load('mu_8_2.mat');
+load('mu_4_2.mat');
+load('mu_2_2.mat');
 har = good_carriers(pr_harrison);
 mus = [];
 mus(:,1) = get_exp(mu_2);
@@ -22,6 +22,7 @@ ratio(:,1) = ratio(:,1)/2;
 ratio(:,2) = ratio(:,2)/4;
 ratio(:,3) = ratio(:,3)/8;
 ratio(:,4) = ratio(:,4)/16;
+[col_num,~] = size(mu_2_2);
 
 
 mmax = 4;
@@ -98,7 +99,7 @@ for dB = 250 : 292
 %     end
 end
 % toc
-colors = jet(71);
+colors = jet(col_num);
 counter = 0;
 j = 0;
 % tic
@@ -160,7 +161,7 @@ for dB = 250 : 292
 %         hold off;
 %         figure(2);
 %         hold on;
-        scatter3(rate,percentLeaked,ss,[],colors(72-counter,:),'o');
+        scatter3(rate,percentLeaked,ss,[],colors(col_num-counter,:),'o');
         hold off;
         sss = categorical(ss);
 %         scatter3(rate,percentLeaked,sss.',36,colors(33-counter,:),'o');
@@ -190,12 +191,12 @@ hold on;
 %             rates(1,i) = max_unique(dB-249,1) + index;
 %             ratios(1,i) = (1 - index/(max_unique(dB-249)+index))*100;
 %             type(1,i) = categorical(cellstr('No code ' + string(dB/10) + 'dB'));
-%             scatter3(max_unique(dB-249,1) + index,(1 - index/(max_unique(dB-249)+index))*100, categorical(cellstr('No code ' + string(dB/10) + 'dB')),72,'g','d');
+%             scatter3(max_unique(dB-249,1) + index,(1 - index/(max_unique(dB-249)+index))*100, categorical(cellstr('No code ' + string(dB/10) + 'dB')),col_num,'g','d');
 %         end
 %         sss(end + 1,1) = cellstr('No code ' + string(dB/10));
 % %     end
 % end
-% scatter3(rates,ratios,type,72,'g','d');
+% scatter3(rates,ratios,type,col_num,'g','d');
 % set(gca,'zticklabel',sss)
 
 title('Code Efficiency');
