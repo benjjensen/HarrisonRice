@@ -96,7 +96,7 @@ const size_t BUFFER_SIZE = BLOCKS_PER_BUFFER * DIG_BLOCK_SIZE;
 const size_t BLOCKS_PER_READ = 1;
 const size_t READ_SIZE = DIG_BLOCK_SIZE * BLOCKS_PER_READ;
 
-const size_t BLOCKS_PER_SETUP_ACQUIRE = 1024 * 8;
+const size_t BLOCKS_PER_SETUP_ACQUIRE = 1024 * 1024 * 8;
 
 const std::string default_output_extension = ".dat";
 char * user_outputfile = NULL;
@@ -109,15 +109,19 @@ uint8_t* second_buffer = NULL;
 bool writing_to_first_buffer = true;
 bool ready_to_save_buffer = false;
 size_t blocks_in_buffer_ready_to_save = 0;
-bool finished_reading = false;
+bool finished_capturing = false;
 
 size_t buffers_read = 0;
 size_t buffers_written = 0;
-HANDLE disk_fd = INVALID_HANDLE_VALUE; // disk file handle
+HANDLE disk_fd = INVALID_HANDLE_VALUE;
 
 int main(int argc, char ** argv)
 {
-	// Set the signal handler for when the user presses ctrl-c
+	//-----------------------------------------
+	//         Initialize the program
+	//-----------------------------------------
+	
+	// Set the signal handler for when the user presses ctrl-c.
 	signal(SIGINT, &exit_signal_handler);
 
 	std::cout << "custom_acquire v0.2" << std::endl << std::endl;
@@ -125,35 +129,29 @@ int main(int argc, char ** argv)
 	int error = 0;	
 	char output_file[MAX_DEVICES][128] = {"uvdma.dat", "uvdma1.dat", "uvdma2.dat", "uvdma3.dat"};
 
-	// Create a class with convienient access functions to the DLL
+	// A class with convienient access functions to the DLL.
 	uvAPI *uv = new uvAPI;
-	unsigned char * sysMem = NULL;
 
-	// Parse the command line options:
+	// Parse the command line options.
 	acquire_parser(argc, argv);
 
-	// Initialize settings:
-	if (forceCal)
+	// Initialize settings.
+	if(forceCal)
 	{
-		uv->setSetupDoneBit(BoardNum,0); // force full setup
+		// Force full setup.
+		uv->setSetupDoneBit(BoardNum,0);
 	}
 	uv->setupBoard(BoardNum);
 
-	// Write user settings to the board
+	// Write user settings to the board.
 	acquire_set_session(uv);
 
-	// read the clock freq
+	// Read the clock frequency.
 	unsigned int adcClock = uv->getAdcClockFreq(BoardNum);
 	std::cout << " ADC clock freq ~= " << adcClock << "MHz" << std::endl;
 	fflush(stdout);
 
-	// Allocate a page-aligned buffer for DMA 
-	error = uv->X_MemAlloc((void**)&sysMem, DIG_BLOCK_SIZE);
-	if (error)
-	{
-		std::cerr << "ERROR: UNABLE TO ALLOCATE MEMORY" << std::endl;
-		return  -1;
-	}
+	// Allocate page-aligned buffers for DMA.
 	error = posix_memalign((void**)&first_buffer, BUFFER_ALIGNMENT, BUFFER_SIZE);
 	if(error)
 	{
@@ -167,23 +165,23 @@ int main(int argc, char ** argv)
 		return -1;
 	}
 
+	// A class to keep track of information about the data we're about to capture.
 	DataCapture capture_info;
 	capture_info.name = (user_outputfile == NULL ? "Unnamed" : user_outputfile);
 
+	// If the user specified a filename, use that name, else use the default name.
 	std::string filename = DATA_FOLDER + "/" + (user_outputfile == NULL ? output_file[BoardNum] : user_outputfile);
 
+	// Add the timestamp to the filename.
 	timestamp_filename(filename, capture_info);
+	
 	capture_info.data_filename = filename;
 
-	// open the data disk file
-	// if the user specified a name, use that name, else use the default name
-	if ((disk_fd = uv->X_CreateFile((char *)filename.c_str())) < 0)
-	{ 
-		if(sysMem)
-		{
-			uv->X_FreeMem(sysMem);
-			sysMem = NULL;
-		}
+	// Open the data disk file.
+	disk_fd = uv->X_CreateFile(filename.c_str());
+	// disk_fd will be less than zero if the open operation failed:
+	if(disk_fd < 0)
+	{
 		if(first_buffer)
 		{
 			free(first_buffer);
@@ -198,88 +196,147 @@ int main(int argc, char ** argv)
 		exit(1);
 	}
 	
-	// This is the data transfer rate that ideally would happen if we're sampling adcClock times per second.
+	
+	
+	
+	//-----------------------------------------
+	//        Capture the data
+	//-----------------------------------------
+	
+	// This EXPECTED_RATE is the data transfer rate, in MB/s, that ideally would happen if we're sampling at adcClock MHz.
+	// The granularity of adcClock is 1 MHz, so this calculated rate won't be exactly correct, but it can
+	// give us a good idea.
+	
+	// Multily by 1,000,000 because adcClock is in MHz; multiply by 2 because we capture two bytes per sample;
+	// divide by (1024 * 1024) because 1 MB = 1024 * 1024 bytes.
 	const double EXPECTED_RATE = adcClock * 1000000.0 * 2 / 1024 / 1024;
+	
+	// This flag will be true until the user presses ctrl-c.
 	continueReadingData = true;
+	
 	unsigned int data_written_megabytes = 0;
 	
-	finished_reading = false;
+	// Make sure the write thread knows that we're not done capturing and that we haven't filled any buffers with data yet:
+	finished_capturing = false;
 	ready_to_save_buffer = false;
+	// Start up the thread that will write to disk the data that we read in this thread:
 	boost::thread write_thread(write_thread_main_function);
 	
 	writing_to_first_buffer = true;
 	uint8_t* current_buffer = first_buffer;
 	unsigned int blocks_in_current_buffer = 0;
 	
-	
 	timespec start_time;
 	timespec end_time;
+	// Measure the time when we started capturing data.
 	clock_gettime(CLOCK_REALTIME, &start_time);
-	// continueReadingData will be true until the user presses ctrl-c (exit_signal_handler() function changes continueReadingData)
+	
+	// continueReadingData will be true until the user presses ctrl-c. (exit_signal_handler() function changes continueReadingData.)
 	while (continueReadingData) 
 	{
 		uv->SetupAcquire(BoardNum, BLOCKS_PER_SETUP_ACQUIRE);
 		
-		// For each block of data requested
 		unsigned int blocks_acquired = 0;
 		for (; blocks_acquired < BLOCKS_PER_SETUP_ACQUIRE && continueReadingData; blocks_acquired++)
 		{
-			// read a block from the board
+			// Read a block from the board.
 			uv->X_Read(BoardNum, current_buffer, READ_SIZE);
 			blocks_in_current_buffer += BLOCKS_PER_READ;
+			
+			// If we've filled up the current buffer
 			if(blocks_in_current_buffer >= BLOCKS_PER_BUFFER)
 			{
-				// std::cout << "Read " << ++buffers_read << " buffers" << std::endl;
+				// Change which buffer we're writing to.
 				current_buffer = (writing_to_first_buffer ? second_buffer : first_buffer);
-				writing_to_first_buffer = !writing_to_first_buffer;
-				blocks_in_buffer_ready_to_save = blocks_in_current_buffer;
-				blocks_in_current_buffer = 0;
+				
+				// If ready_to_save_buffer is still true, it means that the other thread hasn't finished saving
+				// the last buffer we filled up.
 				if(ready_to_save_buffer)
 				{
+					// Print an error message, then wait until the write thread is done writing.
 					std::cerr << "ERROR: BUFFER NOT EMPTIED BEFORE IT WAS NEEDED AGAIN" << std::endl;
-					// TODO quit?
+					while(ready_to_save_buffer)
+					{
+						SLEEP(1);
+					}
 				}
+				// At this point, it's safe to change variables that the other thread uses because we know that
+				// it is waiting for ready_to_save_buffer to become true.
+				
+				// Tell the other thread how many blocks are currently in this buffer.
+				blocks_in_buffer_ready_to_save = blocks_in_current_buffer;
+				
+				// (Reset the count of blocks in the current buffer for in a minute when we start writing to
+				// the next buffer.)
+				blocks_in_current_buffer = 0;
+				
+				// Tell the other thread which buffer we're going to be writing on (so it knows to read from the
+				// other buffer).
+				writing_to_first_buffer = !writing_to_first_buffer;
+				
+				// Tell the other thread that we're ready for them to start reading and saving the data from the
+				// buffer we just finished writing.
 				ready_to_save_buffer = true;
 			}
 			else
 			{
+				// The current buffer's not full, so just move the pointer up by how much we just read.
 				current_buffer += READ_SIZE;
 			}
 		}
 
+		// Let the user know if there were any data overruns.
 		unsigned long overruns = uv->getOverruns(BoardNum);
 		if (overruns > 0)
 		{
-			std::cout << "WARNING: " <<  overruns << " OVERRUNS OCCURRED" << std::endl;
+			std::cerr << "WARNING: " <<  overruns << " OVERRUNS OCCURRED" << std::endl;
 		}
 
 		data_written_megabytes += blocks_acquired;
-		
-		// std::cout << "Written " << data_written_megabytes << " MB" << std::endl;
 	}
+	// Measure the time when we stopped capturing new data.
 	clock_gettime(CLOCK_REALTIME, &end_time);
 	
 	current_buffer = NULL;
 	
-	// Wait for the most recent buffer to finish being saved
+	// Wait for the most recent buffer to finish being saved.
 	while(ready_to_save_buffer)
 	{
 		SLEEP(1);
 	}
+	// At this point, it's safe to change variables that the other thread uses because we know that
+	// it is waiting for ready_to_save_buffer to become true.
 	
-	// Save to file the blocks that have already been read into the current buffer
+	
+	
+	// Save to file the blocks that have already been read into the current buffer:
+	
+	// Let the other thread know which buffer to read from.
 	writing_to_first_buffer = !writing_to_first_buffer;
+	// Let the other thread know how many blocks we wrote into that buffer.
 	blocks_in_buffer_ready_to_save = blocks_in_current_buffer;
 	blocks_in_current_buffer = 0;
-	finished_reading = true;
+	// Let the other thread know that we're done capturing new data, so it can finish once it's done
+	// saving this most recent buffer.
+	finished_capturing = true;
+	// Tell the other thread to start saving the data we captured.
 	ready_to_save_buffer = true;
-	// wait for the writing to finish:
+	
+	// Wait for the writing thread to finish.
 	write_thread.join();
 	
 	
+	
+	
+	//-----------------------------------------
+	//        Output and cleanup
+	//-----------------------------------------
+	
 	std::cout << std::endl << "Data capture and writing to disk complete" << std::endl;
 
+	// Calculate the time spent capturing data from the start time and the end time.
 	double elapsed_time_seconds = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / (double)1000000000;
+	
 	capture_info.duration = elapsed_time_seconds;
 	capture_info.size = data_written_megabytes;
 	
@@ -290,30 +347,22 @@ int main(int argc, char ** argv)
 	printf("--------------------------------------\nProportion of data points gathered:\n%.5f%%\n--------------------------------------\n\n\n",
 			(data_written_megabytes / elapsed_time_seconds) / EXPECTED_RATE * 100);
 
+	// Save the metadata to a file.
 	capture_info.write_to_file();
+	// Output the name of the metadata file so that any program that knows what to look for (e.g. sampler) can
+	// know what it is.
 	std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " << capture_info.meta_filename << std::endl << std::endl;
 
 	fflush(stdout);
 	
-	// close file
+	// Close output file.
 	if(disk_fd)
 	{
-		uv->X_Close(disk_fd);    // Close the disk file
+		uv->X_Close(disk_fd);
 		disk_fd = INVALID_HANDLE_VALUE;
 	}
 
-	// deallocate resources
-	if(sysMem)
-	{
-		uv->X_FreeMem(sysMem);
-		sysMem = NULL;
-	}
-	
-	while(ready_to_save_buffer)
-	{
-		// wait for the buffers to be emptied
-		SLEEP(1);
-	}
+	// Deallocate resources.
 	if(first_buffer)
 	{
 		free(first_buffer);
@@ -333,20 +382,27 @@ int main(int argc, char ** argv)
 
 void write_thread_main_function()
 {
-	while(!finished_reading)
+	// The flag finished_capturing should be false until the capture thread (main thread) finishes
+	// capturing all of the data.
+	while(!finished_capturing)
 	{
+		// The capture thread changes ready_to_save_buffer when it has filled a buffer with data.
 		while(!ready_to_save_buffer)
 		{
-			// wait for the buffer to fill up
+			// Wait for the capture thread.
 			SLEEP(1);
 		}
 		
+		// Figure out which buffer is full. If the capture thread is writing to the first buffer,
+		// that means that the second buffer is full, and vice-versa.
 		void* buffer = (writing_to_first_buffer ? second_buffer : first_buffer);
+		
+		// Write the data in the buffer to the output file.
 		write(disk_fd, buffer, blocks_in_buffer_ready_to_save * DIG_BLOCK_SIZE);
+		// TODO handle case where the SSD gets completely full
 		
+		// Let the capture thread know that we're done saving the data to the output file.
 		ready_to_save_buffer = false;
-		
-		// std::cout << "Wrote " << ++buffers_written << " buffers" << std::endl;
 	}
 }
 
