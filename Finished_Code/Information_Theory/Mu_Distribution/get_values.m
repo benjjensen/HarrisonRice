@@ -16,8 +16,8 @@ else
     for i = 1:nchoosek(n,k)
         temp = zeros(1,n);
         tt = ss;
-        [~,num_cols] = size(combos);
-        for col = 1:num_cols
+%         [~,num_cols] = size(combos);
+        for col = 1:k
             tt(tt == combos(i,col)) = [];
         end
         dd = cat(2,combos(i,:),tt);
