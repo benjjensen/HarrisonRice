@@ -2,7 +2,7 @@
  * @file acquire.cpp
  *
  * To run without breaks in the acquired data:
- * sudo nice -n -20 ./acquire 150 -scm -scs 0 -f [filename]
+ * ./acquire 150 -scm -scs 0 -f [filename]
  */
 
 //TODO: Clean up commented-out sections, remove windows-specific sections (?), change command line options
@@ -17,6 +17,8 @@
 #include <stdlib.h>
 #include <boost/thread.hpp>
 #include <stdint.h>
+#include <unistd.h>
+#include <sstream>
 
 #include "uvAPI.h"
 #include "DataCapture.h"
@@ -123,6 +125,12 @@ int main(int argc, char ** argv)
 	//-----------------------------------------
 	//         Initialize the program
 	//-----------------------------------------
+	
+	pid_t process_id = getpid();
+	
+	std::stringstream command;
+	command << "/bin/echo " << process_id << " > /cgroup/cpuset/acquire/tasks";
+	system(command.str().c_str());
 	
 	// Set the signal handler for when the user presses ctrl-c.
 	signal(SIGINT, &exit_signal_handler);
