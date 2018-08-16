@@ -1,6 +1,6 @@
 clearvars;
 
-base_filename = 'multithreaded_2018-08-16__12-11-23';
+base_filename = 'reserved_cores_2018-08-16__14-41-44';
 
 standard_deviation_multiple_threshold = 10;
 samples_per_block = 524288;
