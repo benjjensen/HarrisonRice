@@ -4,6 +4,9 @@
 #include <string>
 #include <iomanip>
 
+#include <unistd.h>
+#include <fcntl.h>
+
 #include "DataCapture.h"
 
 DataCapture::DataCapture()
@@ -39,31 +42,14 @@ std::string DataCapture::get_time_string()
 int DataCapture::write_to_file(std::string filename)
 {
 	// If the filename provided is empty, use the meta_filename.
-	// If the meta_filename is also empty, use the data_filename with
-	// the file extension removed and CAPTURE_META_ENDING appended.
-	// If the data_filename is also empty, print an error message and return.
+	// If the meta_filename is also empty, generate it from the data_filename.
+	// If generating the meta_filename failed, print an error message and return 1.
 	if(filename == "")
 	{
-		if(meta_filename == "")
+		if(meta_filename == "" && !generate_meta_filename())
 		{
-			if(data_filename != "")
-			{
-				size_t extension_index = data_filename.rfind('.');
-	
-				if(extension_index == std::string::npos)
-				{
-					meta_filename = data_filename + CAPTURE_META_ENDING;
-				}
-				else
-				{
-					meta_filename = data_filename.substr(0, extension_index) + CAPTURE_META_ENDING;
-				}
-			}
-			else
-			{
-				std::cerr << "ERROR: no file to write this DataCapture to" << std::endl;
-				return 1;
-			}
+			std::cerr << "ERROR: no file to write this DataCapture to" << std::endl;
+			return 1;
 		}
 		filename = meta_filename;
 	}
@@ -237,4 +223,57 @@ void DataCapture::read_from_stream(std::istream &in)
 			std::cerr << "ERROR: unkown line in capture stream: " << line_str << std::endl;
 		}
 	}
+}
+bool DataCapture::generate_meta_filename()
+{
+	if(data_filename != "")
+	{
+		size_t extension_index = data_filename.rfind('.');
+		size_t last_slash_index = data_filename.find_last_of("\\/");
+		
+		if(extension_index != std::string::npos && last_slash_index != std::string::npos)
+		{
+			if(extension_index <= last_slash_index)
+			{
+				// If the last period is before the last slash in the filename, we know
+				// that that period does not represent the beginning of a file extension.
+				extension_index = std::string::npos;
+			}
+		}
+
+		if(extension_index == std::string::npos)
+		{
+			meta_filename = data_filename + CAPTURE_META_ENDING;
+		}
+		else
+		{
+			meta_filename = data_filename.substr(0, extension_index) + CAPTURE_META_ENDING;
+		}
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+	
+int DataCapture::reserve_meta_file_space()
+{
+	// If there's no meta_filename, we can't reserve space for the file:
+	if(meta_filename == "" && !generate_meta_filename())
+	{
+		return -1;
+	}
+	
+	int meta_file_descriptor = open(meta_filename.c_str(), O_WRONLY | O_CREAT);
+	if(meta_file_descriptor < 0)
+	{
+		return -1;
+	}
+	
+	int result = posix_fallocate(meta_file_descriptor, 0, 1000);
+	close(meta_file_descriptor);
+	meta_file_descriptor = -1;
+	
+	return result;
 }

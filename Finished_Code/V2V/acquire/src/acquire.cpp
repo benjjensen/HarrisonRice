@@ -1,9 +1,11 @@
 /**
-@file pUV_acquire_main.cpp
-* This is a simple example program which acquires 8192 blocks (8GBytes) of data into onboard memory (continuously) then reads it into system memory, and demonstrates use of the acquired data
-*/
+ * @file acquire.cpp
+ *
+ * To run without breaks in the acquired data:
+ * sudo nice -n -20 ./acquire 150 -scm -scs 0 -f [filename]
+ */
 
-//TODO: Clean up commented-out sections, remove windows-specific sections (?), update git on this computer so that this can be pushed to github
+//TODO: Clean up commented-out sections, remove windows-specific sections (?), change command line options
 
 #include <cstdlib>
 #include <signal.h>
@@ -111,9 +113,10 @@ bool ready_to_save_buffer = false;
 size_t blocks_in_buffer_ready_to_save = 0;
 bool finished_capturing = false;
 
-size_t buffers_read = 0;
-size_t buffers_written = 0;
+ssize_t write_thread_status = 0;
+
 HANDLE disk_fd = INVALID_HANDLE_VALUE;
+
 
 int main(int argc, char ** argv)
 {
@@ -176,9 +179,15 @@ int main(int argc, char ** argv)
 	timestamp_filename(filename, capture_info);
 	
 	capture_info.data_filename = filename;
+	
+	if(capture_info.reserve_meta_file_space() != 0)
+	{
+		std::cerr << "ERROR: UNABLE TO RESERVE SPACE FOR THE METADATA FILE" << std::endl;
+		return -1;
+	}
 
 	// Open the data disk file.
-	disk_fd = uv->X_CreateFile(filename.c_str());
+	disk_fd = uv->X_CreateFile((char *)filename.c_str());
 	// disk_fd will be less than zero if the open operation failed:
 	if(disk_fd < 0)
 	{
@@ -226,6 +235,9 @@ int main(int argc, char ** argv)
 	uint8_t* current_buffer = first_buffer;
 	unsigned int blocks_in_current_buffer = 0;
 	
+	ssize_t expected_write_thread_status = 0;
+	bool abort_reading = false;
+	
 	timespec start_time;
 	timespec end_time;
 	// Measure the time when we started capturing data.
@@ -260,11 +272,33 @@ int main(int argc, char ** argv)
 						SLEEP(1);
 					}
 				}
-				// At this point, it's safe to change variables that the other thread uses because we know that
+				// At this point, it's safe to access and change variables that the other thread uses because we know that
 				// it is waiting for ready_to_save_buffer to become true.
+				
+				if(write_thread_status != expected_write_thread_status)
+				{
+					std::cerr << "ERROR: WRITE OPERATION FAIL" << std::endl;
+					
+					blocks_acquired -= blocks_in_current_buffer;
+					if(write_thread_status > 0)
+					{
+						int blocks_not_written = blocks_in_buffer_ready_to_save - write_thread_status / DIG_BLOCK_SIZE;
+						blocks_acquired -= blocks_not_written;
+					}
+					else
+					{
+						blocks_acquired -= blocks_in_buffer_ready_to_save;
+					}
+					
+					abort_reading = true;
+					continueReadingData = false;
+					break;
+				}
 				
 				// Tell the other thread how many blocks are currently in this buffer.
 				blocks_in_buffer_ready_to_save = blocks_in_current_buffer;
+				
+				expected_write_thread_status = blocks_in_buffer_ready_to_save * DIG_BLOCK_SIZE;
 				
 				// (Reset the count of blocks in the current buffer for in a minute when we start writing to
 				// the next buffer.)
@@ -307,23 +341,75 @@ int main(int argc, char ** argv)
 	// At this point, it's safe to change variables that the other thread uses because we know that
 	// it is waiting for ready_to_save_buffer to become true.
 	
+	if(!abort_reading)
+	{
+		if(write_thread_status != expected_write_thread_status)
+		{
+			std::cerr << "ERROR: WRITE OPERATION FAIL" << std::endl;
+			
+			data_written_megabytes -= blocks_in_current_buffer;
+			if(write_thread_status > 0)
+			{
+				int blocks_not_written = blocks_in_buffer_ready_to_save - write_thread_status / DIG_BLOCK_SIZE;
+				data_written_megabytes -= blocks_not_written;
+			}
+			else
+			{
+				data_written_megabytes -= blocks_in_buffer_ready_to_save;
+			}
+			
+			abort_reading = true;
+		}
+		else
+		{
+			// Save to file the blocks that have already been read into the current buffer:
+	
+			// Let the other thread know which buffer to read from.
+			writing_to_first_buffer = !writing_to_first_buffer;
+		
+			// Let the other thread know how many blocks we wrote into that buffer.
+			blocks_in_buffer_ready_to_save = blocks_in_current_buffer;
+		
+			expected_write_thread_status = blocks_in_buffer_ready_to_save * DIG_BLOCK_SIZE;
+		
+			blocks_in_current_buffer = 0;
+		
+			// Let the other thread know that we're done capturing new data, so it can finish once it's done
+			// saving this most recent buffer.
+			finished_capturing = true;
+		
+			// Tell the other thread to start saving the data we captured.
+			ready_to_save_buffer = true;
+	
+			// Wait for the writing thread to finish.
+			write_thread.join();
+			
+			if(write_thread_status != expected_write_thread_status)
+			{
+				std::cerr << "ERROR: WRITE OPERATION FAIL" << std::endl;
+				
+				if(write_thread_status > 0)
+				{
+					int blocks_not_written = blocks_in_buffer_ready_to_save - write_thread_status / DIG_BLOCK_SIZE;
+					data_written_megabytes -= blocks_not_written;
+				}
+				else
+				{
+					data_written_megabytes -= blocks_in_buffer_ready_to_save;
+				}
+			}
+		}
+	}
 	
 	
-	// Save to file the blocks that have already been read into the current buffer:
-	
-	// Let the other thread know which buffer to read from.
-	writing_to_first_buffer = !writing_to_first_buffer;
-	// Let the other thread know how many blocks we wrote into that buffer.
-	blocks_in_buffer_ready_to_save = blocks_in_current_buffer;
-	blocks_in_current_buffer = 0;
-	// Let the other thread know that we're done capturing new data, so it can finish once it's done
-	// saving this most recent buffer.
-	finished_capturing = true;
-	// Tell the other thread to start saving the data we captured.
-	ready_to_save_buffer = true;
-	
-	// Wait for the writing thread to finish.
-	write_thread.join();
+	if(abort_reading)
+	{
+		blocks_in_buffer_ready_to_save = 0;
+		blocks_in_current_buffer = 0;
+		finished_capturing = true;
+		ready_to_save_buffer = true;
+		write_thread.join();
+	}
 	
 	
 	
@@ -347,7 +433,9 @@ int main(int argc, char ** argv)
 	printf("--------------------------------------\nProportion of data points gathered:\n%.5f%%\n--------------------------------------\n\n\n",
 			(data_written_megabytes / elapsed_time_seconds) / EXPECTED_RATE * 100);
 
+	
 	// Save the metadata to a file.
+	// We know that there's enough space on disk to store the metadata because we reserved it earlier.
 	capture_info.write_to_file();
 	// Output the name of the metadata file so that any program that knows what to look for (e.g. sampler) can
 	// know what it is.
@@ -398,8 +486,7 @@ void write_thread_main_function()
 		void* buffer = (writing_to_first_buffer ? second_buffer : first_buffer);
 		
 		// Write the data in the buffer to the output file.
-		write(disk_fd, buffer, blocks_in_buffer_ready_to_save * DIG_BLOCK_SIZE);
-		// TODO handle case where the SSD gets completely full
+		write_thread_status = write(disk_fd, buffer, blocks_in_buffer_ready_to_save * DIG_BLOCK_SIZE);
 		
 		// Let the capture thread know that we're done saving the data to the output file.
 		ready_to_save_buffer = false;

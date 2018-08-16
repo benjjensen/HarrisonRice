@@ -128,4 +128,18 @@ public:
 	 * Reads the data capture from a stream.
 	 */
 	void read_from_stream(std::istream &in);
+	
+	/**
+	 * Generates the meta_filename from data_filename.
+	 *
+	 * Returns true on success, false on failure (if there's no data_filename).
+	 */
+	bool generate_meta_filename();
+	
+	/**
+	 * Reserves space for the meta file.
+	 *
+	 * Returns 0 on success, nonzero on failure.
+	 */
+	int reserve_meta_file_space();
 };
