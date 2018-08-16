@@ -36,7 +36,7 @@ for m = mmin : mmax
         
         weights = RMWeightHier(u,m,false);
         
-        for dB = 250 : 292
+        for dB = 250 : 291
 %         for dB = 270 : 270
 %             if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
                 %creates object
@@ -89,7 +89,7 @@ for m = mmin : mmax
 end
 % toc
 % tic
-for dB = 250 : 292
+for dB = 250 : 291
 % for dB = 270 : 270
 %     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         workspace = who;
@@ -112,7 +112,7 @@ j = 0;
 % percentLeaked_matched = zeros(1,32*mmax);
 % figure();
 hold on;
-for dB = 250 : 292
+for dB = 250 : 291
 % for dB = 270 : 270
 %     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         counter = counter + 1;
@@ -181,7 +181,7 @@ type = categorical(322);
 i = 0;
 figure(1);
 hold on;
-% for dB = 250 : 292
+% for dB = 250 : 291
 % % for dB = 270 : 270
 % %     if max_har(dB-249,1) - max_har(dB-248,1) ~= 0
 %         counter = counter + 1;
