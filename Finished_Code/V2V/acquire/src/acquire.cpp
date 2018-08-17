@@ -7,7 +7,10 @@
 
 //TODO: Clean up commented-out sections, remove windows-specific sections (?), change command line options
 
+// TODO test when the SSD gets full, figure out why 8092 still loses data as well as most of one block less than 8092
+
 #include <cstdlib>
+#include <cstdio>
 #include <signal.h>
 #include <ctime>
 #include <iostream>
@@ -93,6 +96,9 @@ unsigned int Fiducial = 0;
 unsigned int forceCal = 0;
 double Frequency = 0.0;
 
+const int NO_SIGNAL_PROCESS = -1;
+int signal_pid = NO_SIGNAL_PROCESS;
+
 const size_t BUFFER_ALIGNMENT = 4096;
 const size_t BLOCKS_PER_BUFFER = 100;
 const size_t BUFFER_SIZE = BLOCKS_PER_BUFFER * DIG_BLOCK_SIZE;
@@ -100,7 +106,7 @@ const size_t BUFFER_SIZE = BLOCKS_PER_BUFFER * DIG_BLOCK_SIZE;
 const size_t BLOCKS_PER_READ = 1;
 const size_t READ_SIZE = DIG_BLOCK_SIZE * BLOCKS_PER_READ;
 
-const size_t BLOCKS_PER_SETUP_ACQUIRE = 1024 * 1024 * 8;
+const size_t BLOCKS_PER_SETUP_ACQUIRE = 100000;
 
 const std::string default_output_extension = ".dat";
 char * user_outputfile = NULL;
@@ -191,6 +197,15 @@ int main(int argc, char ** argv)
 	if(capture_info.reserve_meta_file_space() != 0)
 	{
 		std::cerr << "ERROR: UNABLE TO RESERVE SPACE FOR THE METADATA FILE" << std::endl;
+		if(capture_info.meta_filename != "")
+		{
+			remove(capture_info.meta_filename.c_str());
+		}
+		if(signal_pid != NO_SIGNAL_PROCESS)
+		{
+			std::cout << "Sending abort signal to signal process " << signal_pid << std::endl;
+			kill(signal_pid, SIGUSR1);
+		}
 		return -1;
 	}
 
@@ -210,6 +225,11 @@ int main(int argc, char ** argv)
 			second_buffer = NULL;
 		}
 		std::cerr << "ERROR: UNABLE TO OPEN OUTPUT FILE " << filename << std::endl;
+		if(signal_pid != NO_SIGNAL_PROCESS)
+		{
+			std::cout << "Sending abort signal to signal process " << signal_pid << std::endl;
+			kill(signal_pid, SIGUSR1);
+		}
 		exit(1);
 	}
 	
@@ -290,7 +310,9 @@ int main(int argc, char ** argv)
 					blocks_acquired -= blocks_in_current_buffer;
 					if(write_thread_status > 0)
 					{
-						int blocks_not_written = blocks_in_buffer_ready_to_save - write_thread_status / DIG_BLOCK_SIZE;
+						int size = DIG_BLOCK_SIZE;
+						int blocks_written = write_thread_status / size;
+						int blocks_not_written = blocks_in_buffer_ready_to_save - blocks_written;
 						blocks_acquired -= blocks_not_written;
 					}
 					else
@@ -358,7 +380,9 @@ int main(int argc, char ** argv)
 			data_written_megabytes -= blocks_in_current_buffer;
 			if(write_thread_status > 0)
 			{
-				int blocks_not_written = blocks_in_buffer_ready_to_save - write_thread_status / DIG_BLOCK_SIZE;
+				int size = DIG_BLOCK_SIZE;
+				int blocks_written = write_thread_status / size;
+				int blocks_not_written = blocks_in_buffer_ready_to_save - blocks_written;
 				data_written_megabytes -= blocks_not_written;
 			}
 			else
@@ -366,7 +390,11 @@ int main(int argc, char ** argv)
 				data_written_megabytes -= blocks_in_buffer_ready_to_save;
 			}
 			
-			abort_reading = true;
+			blocks_in_buffer_ready_to_save = 0;
+			blocks_in_current_buffer = 0;
+			finished_capturing = true;
+			ready_to_save_buffer = true;
+			write_thread.join();
 		}
 		else
 		{
@@ -398,7 +426,9 @@ int main(int argc, char ** argv)
 				
 				if(write_thread_status > 0)
 				{
-					int blocks_not_written = blocks_in_buffer_ready_to_save - write_thread_status / DIG_BLOCK_SIZE;
+					int size = DIG_BLOCK_SIZE;
+					int blocks_written = write_thread_status / size;
+					int blocks_not_written = blocks_in_buffer_ready_to_save - blocks_written;
 					data_written_megabytes -= blocks_not_written;
 				}
 				else
@@ -408,15 +438,19 @@ int main(int argc, char ** argv)
 			}
 		}
 	}
-	
-	
-	if(abort_reading)
+	else
 	{
 		blocks_in_buffer_ready_to_save = 0;
 		blocks_in_current_buffer = 0;
 		finished_capturing = true;
 		ready_to_save_buffer = true;
 		write_thread.join();
+		
+		if(signal_pid != NO_SIGNAL_PROCESS)
+		{
+			std::cout << "Sending abort signal to signal process " << signal_pid << std::endl;
+			kill(signal_pid, SIGUSR1);
+		}
 	}
 	
 	
@@ -576,7 +610,21 @@ void acquire_parser(int argc, char ** argv)
 		// starting at third arguement look for options
 		for(arg_index=2; arg_index<argc; arg_index++)
 		{
-			if( strcmp(argv[arg_index], "-b") == 0 )
+			if( strcmp(argv[arg_index], "-pid") == 0 )
+			{
+				// Make sure option is followed by the process id
+				if(argc>(arg_index+1))
+				{
+					arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
+					signal_pid = atoi(argv[arg_index]);
+				}
+				else
+				{
+					std::cout << "Invalid process id with -pid option" << std::endl;
+					exit(1);
+				}
+			}
+			else if( strcmp(argv[arg_index], "-b") == 0 )
 			{
 				// make sure option is followed by (BoardNum)
 				if(argc>(arg_index+1))
@@ -1145,6 +1193,7 @@ void acquire_parser_printf()
 
 	printf("-f (filename)\t\tUse this argument to specify the name of the file to write. Must append .dat at the end of filename\n");
 	printf("\n");
+	printf("-pid (pid)\t\tUse this argument to specify the process id to send the error signal to in case writing the data\n\t\t\tto file fails partway through.\n");
 	printf("-ic\t\t\tBoard will use the internal clock. If not specified board uses external clock.\n");
 	printf("-freq\t\t\tSpecifies the internal clock frequency for boards equipped with a microsynth programmable oscillator\n");
 	printf("\t\t\t300MHz-2GHz for AD12, 50MHz-250MHz for AD16\n");
