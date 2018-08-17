@@ -1,6 +1,6 @@
 clearvars;
 
-base_filename = 'reserved_cores_2018-08-16__14-41-44';
+base_filename = 'L_pR-M_2018-08-17__13-29-49';
 
 standard_deviation_multiple_threshold = 10;
 samples_per_block = 524288;
@@ -10,6 +10,7 @@ data_per_iteration = 100000000;
 number_breaks_to_graph = 50;
 data_per_graph = 1000;
 graph_center_offset = 499;
+graph_breaks = false;
 
 COL_BREAK_INDEX = 2;
 COL_BREAK_SIZE = 1;
@@ -113,18 +114,20 @@ breaks = all_breaks;
 out_filename = sprintf('%s-breaks.mat', base_filename);
 save(out_filename, 'breaks');
 
-% Graph the first number_breaks_to_graph breaks so the user can see them.
-for break_number = 1:min(total_break_count, number_breaks_to_graph)
-    break_index = all_breaks(break_number, COL_BREAK_INDEX);
-    
-    starting_file_position = max((break_index - graph_center_offset) * bytes_per_sample, 0);
-    fseek(data_file_id, starting_file_position, 'bof');
-    
-    data = fread(data_file_id, data_per_graph, data_file_precision);
-    
-    figure(break_number); clf;
-    plot(data);
-    grid on;
+if graph_breaks == true
+    % Graph the first number_breaks_to_graph breaks so the user can see them.
+    for break_number = 1:min(total_break_count, number_breaks_to_graph)
+        break_index = all_breaks(break_number, COL_BREAK_INDEX);
+
+        starting_file_position = max((break_index - graph_center_offset) * bytes_per_sample, 0);
+        fseek(data_file_id, starting_file_position, 'bof');
+
+        data = fread(data_file_id, data_per_graph, data_file_precision);
+
+        figure(break_number); clf;
+        plot(data);
+        grid on;
+    end
 end
 
 fclose(data_file_id);

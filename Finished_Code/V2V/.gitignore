@@ -1,7 +1,7 @@
 *.o
 acquire
 sampler
-data/
 *.dat
 !ultra_config.dat
 *~
+*.mat

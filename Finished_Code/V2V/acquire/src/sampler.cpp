@@ -106,6 +106,10 @@ GtkWidget *current_capture_name = NULL;
  */
 GtkWidget *current_capture_status = NULL;
 /**
+ * The label that shows an error message to the user when there's an issue writing the captured data to disk.
+ */
+GtkWidget *label_capture_error = NULL;
+/**
  * The label that shows the total amount of data captured.
  */
 GtkWidget *label_total_data_captured = NULL;
@@ -372,13 +376,29 @@ static bool start_acquire_in_child_process();
  * Stops the acquire program, which is running in a child process
  * with process id acquire_process_id.
  */
-static bool stop_acquiring();
+static void stop_acquiring();
+/**
+ * Processes the output of the acquire program. Should only be called after the
+ * acquire program has stopped.
+ */
+static void process_acquire_output();
+/**
+ * Handles the SIGUSR1 signal from the acquire program.
+ *
+ * The acquire program should send this signal to this program when it encounters
+ * an error while writing the captured data to a file.
+ */
+static void handler_signal_from_child(int signal);
 
 
 
 int main(int argc, char **argv)
 {
 	naming_convention = new NamingConvention;	
+	
+	system("sudo ./reserve_acquire_cpus.sh >/dev/null 2>/dev/null");
+	
+	signal(SIGUSR1, &handler_signal_from_child);
 	
 	gtk_init(&argc, &argv);
 	
@@ -393,10 +413,13 @@ int main(int argc, char **argv)
 	all_initialized = TRUE;
 	
 	gtk_widget_show(main_window);
+	// Run the GUI until it's done:
 	gtk_main();
 	
 	delete naming_convention;
 	naming_convention = NULL;
+	
+	system("sudo ./revert_cpus.sh >/dev/null 2>/dev/null");
 	
 	return 0;
 }
@@ -420,6 +443,9 @@ static bool start_acquire_in_child_process()
 		std::cerr << "ERROR: unable to open pipe for child to parent" << std::endl;
 	}
 	
+	std::stringstream parent_pid_stringstream;
+	parent_pid_stringstream << getpid();
+	
 	pid_t pid;
 	switch ( pid = fork() )
 	{
@@ -441,8 +467,11 @@ static bool start_acquire_in_child_process()
 			std::cerr << "ERROR: unable to close other side of child_to_parent from child process" << std::endl;
 		}
 		
+		
+		
 		// Not necessary to change directories because acquire is in the same directory as this.
-		execlp("acquire", "acquire", "20", "-f", current_capture.name.c_str(), "-scm", "-scs", "0", NULL);
+		execlp("sudo", "sudo", "nice", "-n", "-20", "./acquire", "20", "-f", current_capture.name.c_str(),
+				"-scm", "-scs", "0", "-pid", parent_pid_stringstream.str().c_str(), NULL);
 
 		std::cerr << "ERROR: this line should never be reached!" << std::endl;
 		std::exit(-1);
@@ -450,7 +479,6 @@ static bool start_acquire_in_child_process()
 	default:
 		break;
 	}
-	std::cout << "Child " << pid << " process running..." << std::endl;
 	
 	// Close the side of the pipe that we won't use in the parent process:
 	if(close(child_to_parent[WRITE_FD]) != SUCCESS)
@@ -465,19 +493,56 @@ static bool start_acquire_in_child_process()
 	return true;
 }
 
-static bool stop_acquiring()
+static void stop_acquiring()
 {
-	// Convert the file descriptor acquire_output_fd that reads what acquire wrote to its standard output
-	// into a stream we can easily read from:
-	__gnu_cxx::stdio_filebuf<char> *sb = new __gnu_cxx::stdio_filebuf<char>(acquire_output_fd, std::ios::in);
-	std::istream input_from_acquire(sb);
-	
 	// Sent the SIGINT signal to acquire--this is the same as if the user had pressed ctrl-c at the terminal
 	// where acquire is running.
 	kill(acquire_process_id, SIGINT);
 	
 	// Wait for acquire to be done. (This is necessary--otherwise it ends up as a zombie process.)
 	wait(NULL);
+	
+	process_acquire_output();
+	
+	acquire_output_fd = -1;
+	acquire_process_id = -1;
+}
+
+static void handler_signal_from_child(int signal)
+{
+	if(signal != SIGUSR1)
+	{
+		std::cerr << "ERROR: WRONG SIGNAL " << signal << " PASSED TO SIGUSR1 " << SIGUSR1 << " HANDLER" << std::endl;
+		return;
+	}
+	
+	// We wait for the acquire process to finish. We know that it will finish on its own because it sent us the
+	// SIGUSR1 signal, which means that it encountered an error and is exiting.
+	wait(NULL);
+	
+	gtk_widget_hide(current_capture_box);
+	process_acquire_output();
+	
+	acquire_output_fd = -1;
+	acquire_process_id = -1;
+	
+	current_capture.name = "";
+	
+	// The only active button when there is no current capture should be the new capture button:
+	gtk_widget_set_sensitive(start_button, FALSE);
+	gtk_widget_set_sensitive(stop_button, FALSE);
+	gtk_widget_set_sensitive(new_button, TRUE);
+	gtk_widget_set_sensitive(reset_button, FALSE);
+	
+	gtk_widget_show(label_capture_error);
+}
+
+static void process_acquire_output()
+{
+	// Convert the file descriptor acquire_output_fd that reads what acquire wrote to its standard output
+	// into a stream we can easily read from:
+	__gnu_cxx::stdio_filebuf<char> *sb = new __gnu_cxx::stdio_filebuf<char>(acquire_output_fd, std::ios::in);
+	std::istream input_from_acquire(sb);
 	
 	// For every line in acquire's output:
 	std::string line_str = "";
@@ -509,10 +574,6 @@ static bool stop_acquiring()
 		std::cerr << "ERROR: failed to close acquire_output_fd" << std::endl;
 	}
 	delete sb;
-	acquire_output_fd = -1;
-	acquire_process_id = -1;
-	
-	return TRUE;
 }
 
 
@@ -600,6 +661,15 @@ static void init_main_window()
 	current_capture_status = gtk_label_new("ready...");
 	gtk_box_pack_start(GTK_BOX(current_capture_box), current_capture_status, FALSE, FALSE, READY_BUTTON_PADDING);
 	gtk_widget_show(current_capture_status);
+	
+	// This label tells the user when there's an error saving the captured data to the disk.
+	label_capture_error = gtk_label_new("ERROR: Problem saving data. Is the disk full?");
+	GdkColor color;
+  	gdk_color_parse ("red", &color);
+  	// Set the error label's text color to red:
+  	gtk_widget_modify_fg(label_capture_error, GTK_STATE_NORMAL, &color);
+	gtk_box_pack_start(GTK_BOX(footer_box), label_capture_error, FALSE, FALSE, NO_PADDING);
+	// Intentionally don't show this yet.
 	
 	label_total_data_captured = gtk_label_new("0 GB captured in total");
 	gtk_box_pack_end(GTK_BOX(footer_box), label_total_data_captured, FALSE, FALSE, NO_PADDING);
@@ -1099,6 +1169,8 @@ static void cb_start_capture(GtkWidget *widget, gpointer data)
 	gtk_widget_set_sensitive(stop_button, TRUE);
 	gtk_widget_set_sensitive(new_button, FALSE);
 	gtk_widget_set_sensitive(reset_button, FALSE);
+	
+	gtk_widget_hide(label_capture_error);
 }
 
 static void cb_stop_capture(GtkWidget *widget, gpointer data)
@@ -1116,6 +1188,8 @@ static void cb_stop_capture(GtkWidget *widget, gpointer data)
 	gtk_widget_set_sensitive(stop_button, FALSE);
 	gtk_widget_set_sensitive(new_button, TRUE);
 	gtk_widget_set_sensitive(reset_button, FALSE);
+	
+	gtk_widget_hide(label_capture_error);
 }
 
 static void cb_new_capture(GtkWidget *widget, gpointer data)
@@ -1130,6 +1204,8 @@ static void cb_new_capture(GtkWidget *widget, gpointer data)
 	// new capture window).
 	gtk_window_set_modal(GTK_WINDOW(new_capture_window), TRUE);
 	gtk_widget_show(new_capture_window);
+	
+	gtk_widget_hide(label_capture_error);
 }
 
 static void cb_reset_capture(GtkWidget *widget, gpointer data)
@@ -1146,6 +1222,8 @@ static void cb_reset_capture(GtkWidget *widget, gpointer data)
 	gtk_widget_set_sensitive(stop_button, FALSE);
 	gtk_widget_set_sensitive(new_button, TRUE);
 	gtk_widget_set_sensitive(reset_button, FALSE);
+	
+	gtk_widget_hide(label_capture_error);
 }
 
 static void cb_create_new_capture(GtkWidget *widget, gpointer data)
@@ -1349,6 +1427,12 @@ static void cb_delete_capture(GtkWidget *widget, gpointer data)
 		std::cerr << "ERROR: unable to delete " << capture.data_filename << " and/or "
 				<< capture.meta_filename << std::endl;
 	}
+	
+	// Update the total data label:
+	total_data_captured -= capture.size;
+	std::stringstream ss;
+	ss << total_data_captured / 1024 << " GB captured in total";
+	gtk_label_set_text(GTK_LABEL(label_total_data_captured), ss.str().c_str());
 }
 
 static bool validate_new_option_and_trim(std::string &new_option_code, std::string &new_option_name)
