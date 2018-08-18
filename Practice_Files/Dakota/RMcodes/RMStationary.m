@@ -219,4 +219,3 @@ hold off
 grid on;
 hold off;
 toc;
-toc;
