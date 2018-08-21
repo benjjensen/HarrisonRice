@@ -11,6 +11,7 @@ aa = zeros(num_rows,bl+1);
 gg = [];
 
 for row = 1:num_rows
+%     tic;
     pr = [];
     for col = 1:num_cols
         if gc(row,col) ~= 0
@@ -23,7 +24,7 @@ for row = 1:num_rows
     pr = pr(1:pr_cols);
     gg = get_groups(pr,bl);
     aa(row,:) = bl_get_dist(gg);
-    toc;
+%     toc;
 end
 averages = aa;
 toc;
