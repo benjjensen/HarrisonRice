@@ -3,7 +3,7 @@ load('pr_smalley.mat');
 
 threshold = .99;
 gc = good_carriers(pr_harrison, threshold);
-for i = 1:5
+for i = 5:5
     block_length = 2^i;
     eval(sprintf( ...
         'mu_%d_%d = bl_distribution_avg(gc,pr_smalley,block_length);'...
