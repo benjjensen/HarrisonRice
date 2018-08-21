@@ -9,10 +9,11 @@ function [pr_dist] = bl_get_dist(pr_mat)
 [num_rows,n] = size(pr_mat);
 probabilities = zeros(num_rows,(n+1));
 for row = 1:num_rows
-    for k = 0:n
-%         tic;
+    parfor k = 0:n
+        tic;
+        disp(k);
         probabilities(row,k+1) = get_values(pr_mat(row,:),n,k);
-%         toc;
+        toc;
     end
 end
 if num_rows ~= 1

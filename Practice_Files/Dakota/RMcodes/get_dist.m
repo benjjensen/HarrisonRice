@@ -3,7 +3,7 @@ function [pr_dist] = get_dist(pr_mat)
 %   Detailed explanation goes here
 [~,n] = size(pr_mat);
 probabilities = zeros(1,n);
-for k = 0:n
+parfor k = 0:n
     tic;
     probabilities(1,k+1) = get_values(pr_mat,n,k);
     toc;

@@ -13,7 +13,7 @@ else
     [~,num_cols] = size(pr_mat);
     ss = 1:num_cols;
     combos = nchoosek(ss,k);
-    for i = 1:nchoosek(n,k)
+    parfor i = 1:nchoosek(n,k)
         temp = zeros(1,n);
         tt = ss;
 %         [~,num_cols] = size(combos);
