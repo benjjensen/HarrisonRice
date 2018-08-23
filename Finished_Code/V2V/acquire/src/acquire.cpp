@@ -5,7 +5,7 @@
  * sudo nice -n -20 ./acquire -f trigger_stopped
  */
 
-//TODO: Clean up commented-out sections, remove windows-specific sections (?), change command line options
+//TODO: Clean up commented-out sections, remove windows-specific sections (?)
 
 #include <cstdio>
 #include <cstdlib>
@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <boost/atomic.hpp>
 #include <boost/thread.hpp>
 
 #include "DataCapture.h"
@@ -115,11 +116,11 @@ volatile bool continueReadingData = false;
 uint8_t* first_buffer = NULL;
 uint8_t* second_buffer = NULL;
 
+boost::atomic<bool> ready_to_save_buffer(false);
+
 volatile bool writing_to_first_buffer = true;
-volatile bool ready_to_save_buffer = false;
 volatile size_t blocks_in_buffer_ready_to_save = 0;
 volatile bool finished_capturing = false;
-
 volatile ssize_t write_thread_status = 0;
 
 HANDLE disk_fd = INVALID_HANDLE_VALUE;
@@ -127,9 +128,9 @@ HANDLE disk_fd = INVALID_HANDLE_VALUE;
 
 int main(int argc, char ** argv)
 {
-	//-----------------------------------------
-	//         Initialize the program
-	//-----------------------------------------
+	//--------------------------------------------------------------------------------------------------------------
+	//                                                Initialize the program
+	//--------------------------------------------------------------------------------------------------------------
 	
 	pid_t process_id = getpid();
 	
@@ -180,7 +181,49 @@ int main(int argc, char ** argv)
 		std::cerr << "ERROR: UNABLE TO ALLOCATE MEMORY" << std::endl;
 		return -1;
 	}
-
+	
+	
+	// This flag will be true until the user presses ctrl-c.
+	continueReadingData = true;
+	// TODO figure out safe exit for exit_signal_handler
+	
+	//--------------------------------------------------------------------------------------------------------------
+	//                                               Setup DAQ Card
+	//--------------------------------------------------------------------------------------------------------------
+	
+	// Tell the board that we're going to acquire data.
+	// After this function is called, the beginning of the data we're acquiring does not start until
+	// we call uv->X_Read, and so all the data that should be captured during the intervening time
+	// will be lost. (This amounts to quite a bit of data because the SetupAcquire function sleeps
+	// for 50 ms.) Thus, this function should only be called once, with an argument so large that we
+	// will never acquire more than that much data in a single run of this program. We have chosen
+	// 8,000,000 blocks, which is just under 8 TB of data. If this is not enough, change the value
+	// of BLOCKS_PER_SETUP_ACQUIRE.
+	uv->SetupAcquire(BoardNum, BLOCKS_PER_SETUP_ACQUIRE);
+	
+	// Acquire and discard the first block of data. Once this happens, the DAQ card starts saving the
+	// incoming data to its interal buffer until it has saved BLOCKS_PER_SETUP_ACQUIRE blocks.
+	uv->X_Read(BoardNum, first_buffer, READ_SIZE);
+	
+	// ----------IMPORTANT----------
+	// For some reason, the DAQ card does not always work properly if we don't give it a little bit
+	// of a head start on acquiring data. It doesn't make any sense at all, but it's true. Once we
+	// give it a head start by sleeping for a few seconds, we can start saving data and stay caught
+	// up with it indefinitely and it won't skip data. If we jump right in and start acquiring data
+	// as fast as we can as soon as we call SetupAcquire (above), the DAQ card can't take the
+	// pressure and often skips some data in the first 8 GB of captured data.
+	sleep(SECONDS_TO_SLEEP); // Sleep for 3 seconds.
+	
+	
+	
+	//--------------------------------------------------------------------------------------------------------------
+	//                                               Open Files
+	//--------------------------------------------------------------------------------------------------------------
+	
+	// We have to wait until now to open the data files because we want to give them a timestamp
+	// accurate to the second, and so we wait until after we've slept to give the DAQ card a head
+	// start.
+	
 	// A class to keep track of information about the data we're about to capture.
 	DataCapture capture_info;
 	capture_info.name = (user_outputfile == NULL ? "Unnamed" : user_outputfile);
@@ -254,61 +297,36 @@ int main(int argc, char ** argv)
 	
 	
 	
+	//--------------------------------------------------------------------------------------------------------------
+	//                                               Setup write thread
+	//--------------------------------------------------------------------------------------------------------------
 	
-	//-----------------------------------------
-	//        Capture the data
-	//-----------------------------------------
-	
-	// This EXPECTED_RATE is the data transfer rate, in MB/s, that ideally would happen if we're sampling at adcClock MHz.
-	// The granularity of adcClock is 1 MHz, so this calculated rate won't be exactly correct, but it can
-	// give us a good idea.
-	
-	// Multiply by 1,000,000 because adcClock is in MHz; multiply by 2 because we capture two bytes per sample;
-	// divide by (1024 * 1024) because 1 MB = 1024 * 1024 bytes.
-	const double EXPECTED_RATE = adcClock * 1000000.0 * 2 / 1024 / 1024;
-	
-	// This flag will be true until the user presses ctrl-c.
-	continueReadingData = true;
-	
-	unsigned int data_written_megabytes = 0;
+	// We must wait until now to setup the write thread so that the output file descriptor in disk_fd is already
+	// initialized. (disk_fd is initialized just above here.)
 	
 	// Make sure the write thread knows that we're not done capturing and that we haven't filled any buffers with data yet.
 	finished_capturing = false;
-	ready_to_save_buffer = false;
+	ready_to_save_buffer.store(false);
+	
+	ssize_t expected_write_thread_status = 0;
+	
+	//----------------MULTITHREADING START----------------
+	
 	// Start up the thread that will write to disk the data that we read in this thread.
 	boost::thread write_thread(write_thread_main_function);
 	
-	writing_to_first_buffer = true;
-	uint8_t* current_buffer = first_buffer;
 	
+	
+	//--------------------------------------------------------------------------------------------------------------
+	//                                               Capture the data
+	//--------------------------------------------------------------------------------------------------------------
+	
+	unsigned int data_written_megabytes = 0;
 	unsigned int blocks_in_current_buffer = 0;
-	
-	ssize_t expected_write_thread_status = 0;
 	bool abort_reading = false;
 	
-	
-	// Tell the board that we're going to acquire data.
-	// After this function is called, the beginning of the data we're acquiring does not start until
-	// we call uv->X_Read, and so all the data that should be captured during the intervening time
-	// will be lost. (This amounts to quite a bit of data because the SetupAcquire function sleeps
-	// for 50 ms.) Thus, this function should only be called once, with an argument so large that we
-	// will never acquire more than that much data in a single run of this program. We have chosen
-	// 8,000,000 blocks, which is just under 8 TB of data. If this is not enough, change the value
-	// of BLOCKS_PER_SETUP_ACQUIRE.
-	uv->SetupAcquire(BoardNum, BLOCKS_PER_SETUP_ACQUIRE);
-	
-	// Acquire and discard the first block of data. Once this happens, the DAQ card starts saving the
-	// incoming data to its interal buffer until it has saved BLOCKS_PER_SETUP_ACQUIRE blocks.
-	uv->X_Read(BoardNum, first_buffer, READ_SIZE);
-	
-	// ----------IMPORTANT----------
-	// For some reason, the DAQ card does not always work properly if we don't give it a little bit
-	// of a head start on acquiring data. It doesn't make any sense at all, but it's true. Once we
-	// give it a head start by sleeping for a few seconds, we can start saving data and stay caught
-	// up with it indefinitely and it won't skip data. If we jump right in and start acquiring data
-	// as fast as we can as soon as we call SetupAcquire (above), the DAQ card can't take the
-	// pressure and often skips some data in the first 8 GB of captured data.
-	sleep(SECONDS_TO_SLEEP); // Sleep for 3 seconds.
+	writing_to_first_buffer = true;
+	uint8_t* current_buffer = first_buffer;
 	
 	timespec start_time;
 	timespec end_time;
@@ -336,15 +354,18 @@ int main(int argc, char ** argv)
 				// the last buffer we filled up.
 				// If this happens, there's a problem, and we might be skipping data because we can't write it
 				// to disk as fast as we can read it in.
-				if(ready_to_save_buffer)
+				if(ready_to_save_buffer.load())
 				{
 					// Print an error message, then wait until the write thread is done writing.
 					std::cerr << "ERROR: BUFFER NOT EMPTIED BEFORE IT WAS NEEDED AGAIN" << std::endl;
-					while(ready_to_save_buffer)
+					while(ready_to_save_buffer.load())
 					{
 						SLEEP(1); // Sleep for 1 millisecond.
 					}
 				}
+				
+				//----------------CRITICAL SECTION START----------------
+				
 				// At this point, it's safe to access and change variables that the other thread uses because we know that
 				// it is waiting for ready_to_save_buffer to become true.
 				
@@ -395,7 +416,9 @@ int main(int argc, char ** argv)
 				
 				// Tell the other thread that we're ready for them to start reading and saving the data from the
 				// buffer we just finished writing.
-				ready_to_save_buffer = true;
+				ready_to_save_buffer.store(true);
+				
+				//----------------CRITICAL SECTION END----------------
 			}
 			else
 			{
@@ -424,10 +447,15 @@ int main(int argc, char ** argv)
 	current_buffer = NULL;
 	
 	// Wait for the most recent buffer to finish being saved.
-	while(ready_to_save_buffer)
+	while(ready_to_save_buffer.load())
 	{
-		SLEEP(1);
+		SLEEP(1); // Sleep for 1 millisecond.
 	}
+	
+	//----------------CRITICAL SECTION START----------------
+	// This critical section has three possible control paths, each of which end this critical section
+	// and end the multithreaded section of the program.
+	
 	// At this point, it's safe to change variables that the other thread uses because we know that
 	// it is waiting for ready_to_save_buffer to become true.
 	
@@ -463,9 +491,14 @@ int main(int argc, char ** argv)
 			blocks_in_buffer_ready_to_save = 0;
 			blocks_in_current_buffer = 0;
 			finished_capturing = true;
-			ready_to_save_buffer = true;
+			ready_to_save_buffer.store(true);
+			
+			//----------------CRITICAL SECTION END----------------
+			
 			// Wait for the write thread to finish up.
 			write_thread.join();
+			
+			//----------------MULTITHREADING END----------------
 			
 			abort_reading = true;
 		}
@@ -488,10 +521,14 @@ int main(int argc, char ** argv)
 			finished_capturing = true;
 		
 			// Tell the other thread to start saving the data we captured.
-			ready_to_save_buffer = true;
+			ready_to_save_buffer.store(true);
+			
+			//----------------CRITICAL SECTION END----------------
 	
 			// Wait for the writing thread to finish.
 			write_thread.join();
+			
+			//----------------MULTITHREADING END----------------
 			
 			// At this point, the other thread no longer exists, so we don't need to worry about not accessing
 			// variables it might be changing.
@@ -529,9 +566,14 @@ int main(int argc, char ** argv)
 		blocks_in_buffer_ready_to_save = 0;
 		blocks_in_current_buffer = 0;
 		finished_capturing = true;
-		ready_to_save_buffer = true;
+		ready_to_save_buffer.store(true);
+		
+		//----------------CRITICAL SECTION END----------------
+		
 		// Wait for the write thread to finish up.
 		write_thread.join();
+		
+		//----------------MULTITHREADING END----------------
 	}
 	
 	// If there was an error writing the data to file at all (whether in the capture loop or after it),
@@ -547,10 +589,9 @@ int main(int argc, char ** argv)
 	
 	
 	
-	
-	//-----------------------------------------
-	//        Output and cleanup
-	//-----------------------------------------
+	//--------------------------------------------------------------------------------------------------------------
+	//                                               Output and cleanup
+	//--------------------------------------------------------------------------------------------------------------
 	
 	std::cout << std::endl << "Data capture and writing to disk complete." << std::endl;
 
@@ -563,6 +604,15 @@ int main(int argc, char ** argv)
 	printf("Data captured: %d MB\n", data_written_megabytes);
 	printf("Elapsed time: %.4f s\n", elapsed_time_seconds);
 	printf("Average data capture rate: %.4f MB/s\n\n\n", ((float)data_written_megabytes) / elapsed_time_seconds);
+	
+	
+	// This EXPECTED_RATE is the data transfer rate, in MB/s, that ideally would happen if we're sampling at adcClock MHz.
+	// The granularity of adcClock is 1 MHz, so this calculated rate won't be exactly correct, but it can
+	// give us a good idea.
+	
+	// Multiply by 1,000,000 because adcClock is in MHz; multiply by 2 because we capture two bytes per sample;
+	// divide by (1024 * 1024) because 1 MB = 1024 * 1024 bytes.
+	const double EXPECTED_RATE = adcClock * 1000000.0 * 2 / 1024 / 1024;
 
 	printf("--------------------------------------\nProportion of data points gathered:\n%.5f%%\n--------------------------------------\n\n\n",
 			(data_written_megabytes / elapsed_time_seconds) / EXPECTED_RATE * 100);
@@ -610,11 +660,17 @@ void write_thread_main_function()
 	while(!finished_capturing)
 	{
 		// The capture thread changes ready_to_save_buffer when it has filled a buffer with data.
-		while(!ready_to_save_buffer)
+		while(!ready_to_save_buffer.load())
 		{
 			// Wait for the capture thread.
-			SLEEP(1);
+			SLEEP(1); // Sleep for 1 millisecond.
 		}
+		
+		//----------------CRITICAL SECTION START----------------
+		
+		// At this point, it's safe to access and modify the variables we share between threads,
+		// because the other thread is either (a) busy reading new data into a buffer that we're
+		// not going to access or (b) waiting for us to mark ready_to_save_buffer as false.
 		
 		// Figure out which buffer is full. If the capture thread is writing to the first buffer,
 		// that means that the second buffer is full, and vice-versa.
@@ -624,7 +680,9 @@ void write_thread_main_function()
 		write_thread_status = write(disk_fd, buffer, blocks_in_buffer_ready_to_save * DIG_BLOCK_SIZE);
 		
 		// Let the capture thread know that we're done saving the data to the output file.
-		ready_to_save_buffer = false;
+		ready_to_save_buffer.store(false);
+		
+		//----------------CRITICAL SECTION END----------------
 	}
 }
 
