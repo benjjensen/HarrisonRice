@@ -111,7 +111,7 @@ const size_t BLOCKS_PER_SETUP_ACQUIRE = 8000000;
 const std::string default_output_extension = ".dat";
 char * user_outputfile = NULL;
 
-volatile bool continueReadingData = false;
+boost::atomic<bool> continueReadingData(true);
 	
 uint8_t* first_buffer = NULL;
 uint8_t* second_buffer = NULL;
@@ -183,9 +183,6 @@ int main(int argc, char ** argv)
 	}
 	
 	
-	// This flag will be true until the user presses ctrl-c.
-	continueReadingData = true;
-	// TODO figure out safe exit for exit_signal_handler
 	
 	//--------------------------------------------------------------------------------------------------------------
 	//                                               Setup DAQ Card
@@ -335,10 +332,10 @@ int main(int argc, char ** argv)
 	clock_gettime(CLOCK_REALTIME, &start_time);
 	
 	// continueReadingData will be true until the user presses ctrl-c. (exit_signal_handler() function changes continueReadingData.)
-	while (continueReadingData) 
+	while (continueReadingData.load()) 
 	{
 		unsigned int blocks_acquired = 0;
-		for (; blocks_acquired < BLOCKS_PER_SETUP_ACQUIRE && continueReadingData; blocks_acquired++)
+		for (; blocks_acquired < BLOCKS_PER_SETUP_ACQUIRE && continueReadingData.load(); blocks_acquired++)
 		{
 			// Read a block from the board.
 			uv->X_Read(BoardNum, current_buffer, READ_SIZE);
@@ -394,7 +391,7 @@ int main(int argc, char ** argv)
 					}
 					
 					abort_reading = true;
-					continueReadingData = false;
+					continueReadingData.store(false);
 					break;
 				}
 				
@@ -436,7 +433,7 @@ int main(int argc, char ** argv)
 
 		data_written_megabytes += blocks_acquired;
 		
-		if(continueReadingData)
+		if(continueReadingData.load())
 		{
 			uv->SetupAcquire(BoardNum, BLOCKS_PER_SETUP_ACQUIRE);
 		}
@@ -726,14 +723,12 @@ void timestamp_filename(std::string &selected_name, DataCapture &capture)
 
 void exit_signal_handler(int signal)
 {
-	if(continueReadingData) {
-		fflush(stdout);
-		continueReadingData = false;
+	if(continueReadingData.load()) {
+		continueReadingData.store(false);
 	}
 	else
 	{
 		std::cout << "----Exit signal received outside of loop----" << std::endl;
-		exit(0);
 	}
 }
 
