@@ -428,6 +428,7 @@ int main(int argc, char **argv)
 
 static bool start_acquire_in_child_process()
 {
+	// TODO handle case where it exits early for another reason--check return value of program?
 	const int READ_FD = 0;
 	const int WRITE_FD = 1;
 	
