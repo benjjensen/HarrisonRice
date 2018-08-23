@@ -1,20 +1,19 @@
 clearvars;
 
-base_filename = 'L_pR-M_2018-08-17__13-29-49';
+base_filename = 'discard_first_data_2018-08-23__12-02-19';
 
 standard_deviation_multiple_threshold = 10;
 samples_per_block = 524288;
 bytes_per_sample = 2;
 data_file_precision = 'unsigned short';
 data_per_iteration = 100000000;
-number_breaks_to_graph = 50;
-data_per_graph = 1000;
-graph_center_offset = 499;
 graph_breaks = false;
 
 COL_BREAK_INDEX = 2;
 COL_BREAK_SIZE = 1;
-BREAK_COLS = 2;
+COL_BREAK_BLOCK = 3;
+COL_BREAK_SAMPLE_IN_BLOCK = 4;
+BREAK_COLS = 4;
 
 
 
@@ -28,7 +27,7 @@ iterations = ceil(length_of_data_file / data_per_iteration);
 
 total_break_count = 0;
 % Preallocating space for 10,000 breaks should be more than enough.
-all_breaks = zeros(10000, BREAK_COLS);
+all_breaks = zeros(10000, 2);
 
 for iteration = 1:iterations
     if iteration == 1
@@ -93,41 +92,18 @@ for iteration = 1:iterations
         total_break_count = total_break_count + break_count_this_iteration;
     end
 end
+fclose(data_file_id);
 % Trim the all_breaks matrix down to its real size (from 10000x2, which
 % is what we preallocated it to be).
 all_breaks = all_breaks(1:total_break_count, :);
 
-% Print out information about each break.
-for break_number = 1:total_break_count
-    break_size = all_breaks(break_number, COL_BREAK_SIZE);
-    break_index = all_breaks(break_number, COL_BREAK_INDEX);
-    
-    break_block = floor(break_index / samples_per_block);
-    break_sample_in_block = break_index - samples_per_block * break_block;
-    
-    fprintf('Break size %d at index %d (sample %d in block %d)\n', ...
-        break_size, break_index, break_sample_in_block, break_block);
-end
+all_breaks(:, COL_BREAK_BLOCK) = floor(all_breaks(:, COL_BREAK_INDEX) / samples_per_block);
+all_breaks(:, COL_BREAK_SAMPLE_IN_BLOCK) = all_breaks(:, COL_BREAK_INDEX) - ...
+    samples_per_block * all_breaks(:, COL_BREAK_BLOCK);
 
 % Save the breaks to a file.
 breaks = all_breaks;
 out_filename = sprintf('%s-breaks.mat', base_filename);
 save(out_filename, 'breaks');
 
-if graph_breaks == true
-    % Graph the first number_breaks_to_graph breaks so the user can see them.
-    for break_number = 1:min(total_break_count, number_breaks_to_graph)
-        break_index = all_breaks(break_number, COL_BREAK_INDEX);
-
-        starting_file_position = max((break_index - graph_center_offset) * bytes_per_sample, 0);
-        fseek(data_file_id, starting_file_position, 'bof');
-
-        data = fread(data_file_id, data_per_graph, data_file_precision);
-
-        figure(break_number); clf;
-        plot(data);
-        grid on;
-    end
-end
-
-fclose(data_file_id);
+interpretBreaks(base_filename, graph_breaks);

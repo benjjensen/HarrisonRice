@@ -2,29 +2,28 @@
  * @file acquire.cpp
  *
  * To run without breaks in the acquired data:
- * ./acquire 150 -scm -scs 0 -f [filename]
+ * sudo nice -n -20 ./acquire -f trigger_stopped
  */
 
 //TODO: Clean up commented-out sections, remove windows-specific sections (?), change command line options
 
-// TODO test when the SSD gets full, figure out why 8092 still loses data as well as most of one block less than 8092
-
-#include <cstdlib>
 #include <cstdio>
-#include <signal.h>
+#include <cstdlib>
 #include <ctime>
-#include <iostream>
-#include <string>
-#include <sstream>
 #include <iomanip>
-#include <stdlib.h>
-#include <boost/thread.hpp>
-#include <stdint.h>
-#include <unistd.h>
+#include <iostream>
+#include <signal.h>
 #include <sstream>
+#include <string>
 
-#include "uvAPI.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#include <boost/thread.hpp>
+
 #include "DataCapture.h"
+#include "uvAPI.h"
 
 
 /*
@@ -64,10 +63,9 @@ void write_thread_main_function();
 Default values for SetupBoard. These may change due to acquire_parser.
 */
 unsigned short BoardNum = 0;
-unsigned int numBlocksToAcquire = 1;
 unsigned int InternalClock = CLOCK_EXTERNAL;		// Changed default setting to 0 to match "-ic" from old version
-unsigned int SingleChannelMode = 0;
-unsigned int SingleChannelSelect = 1;
+unsigned int SingleChannelMode = 1; // default to single channel mode
+unsigned int SingleChannelSelect = 0;
 unsigned int ChannelSelect = 1;
 unsigned int DESIQ = 0;
 unsigned int DESCLKIQ = 0;
@@ -100,28 +98,29 @@ const int NO_SIGNAL_PROCESS = -1;
 int signal_pid = NO_SIGNAL_PROCESS;
 
 const size_t BUFFER_ALIGNMENT = 4096;
-const size_t BLOCKS_PER_BUFFER = 100;
+const size_t BLOCKS_PER_BUFFER = 200;
 const size_t BUFFER_SIZE = BLOCKS_PER_BUFFER * DIG_BLOCK_SIZE;
+const int SECONDS_TO_SLEEP = 3;
 
 const size_t BLOCKS_PER_READ = 1;
 const size_t READ_SIZE = DIG_BLOCK_SIZE * BLOCKS_PER_READ;
 
-const size_t BLOCKS_PER_SETUP_ACQUIRE = 100000;
+const size_t BLOCKS_PER_SETUP_ACQUIRE = 8000000;
 
 const std::string default_output_extension = ".dat";
 char * user_outputfile = NULL;
 
-bool continueReadingData = false;
+volatile bool continueReadingData = false;
 	
 uint8_t* first_buffer = NULL;
 uint8_t* second_buffer = NULL;
 
-bool writing_to_first_buffer = true;
-bool ready_to_save_buffer = false;
-size_t blocks_in_buffer_ready_to_save = 0;
-bool finished_capturing = false;
+volatile bool writing_to_first_buffer = true;
+volatile bool ready_to_save_buffer = false;
+volatile size_t blocks_in_buffer_ready_to_save = 0;
+volatile bool finished_capturing = false;
 
-ssize_t write_thread_status = 0;
+volatile ssize_t write_thread_status = 0;
 
 HANDLE disk_fd = INVALID_HANDLE_VALUE;
 
@@ -141,16 +140,16 @@ int main(int argc, char ** argv)
 	// Set the signal handler for when the user presses ctrl-c.
 	signal(SIGINT, &exit_signal_handler);
 
-	std::cout << "custom_acquire v0.2" << std::endl << std::endl;
+	std::cout << "\aacquire continuously v1.0" << std::endl << std::endl;
 
 	int error = 0;	
 	char output_file[MAX_DEVICES][128] = {"uvdma.dat", "uvdma1.dat", "uvdma2.dat", "uvdma3.dat"};
 
-	// A class with convienient access functions to the DLL.
-	uvAPI *uv = new uvAPI;
-
 	// Parse the command line options.
 	acquire_parser(argc, argv);
+
+	// A class with convienient access functions to the DLL.
+	uvAPI *uv = new uvAPI;
 
 	// Initialize settings.
 	if(forceCal)
@@ -194,8 +193,22 @@ int main(int argc, char ** argv)
 	
 	capture_info.data_filename = filename;
 	
+	// Reserve space on disk for the metadata file, in case we completely
+	// fill up the disk with data.
 	if(capture_info.reserve_meta_file_space() != 0)
 	{
+		if(first_buffer)
+		{
+			free(first_buffer);
+			first_buffer = NULL;
+		}
+		if(second_buffer)
+		{
+			free(second_buffer);
+			second_buffer = NULL;
+		}
+		delete uv;
+		
 		std::cerr << "ERROR: UNABLE TO RESERVE SPACE FOR THE METADATA FILE" << std::endl;
 		if(capture_info.meta_filename != "")
 		{
@@ -211,7 +224,7 @@ int main(int argc, char ** argv)
 
 	// Open the data disk file.
 	disk_fd = uv->X_CreateFile((char *)filename.c_str());
-	// disk_fd will be less than zero if the open operation failed:
+	// disk_fd will be less than zero if the open operation failed.
 	if(disk_fd < 0)
 	{
 		if(first_buffer)
@@ -224,13 +237,19 @@ int main(int argc, char ** argv)
 			free(second_buffer);
 			second_buffer = NULL;
 		}
+		delete uv;
+		
 		std::cerr << "ERROR: UNABLE TO OPEN OUTPUT FILE " << filename << std::endl;
+		if(capture_info.meta_filename != "")
+		{
+			remove(capture_info.meta_filename.c_str());
+		}
 		if(signal_pid != NO_SIGNAL_PROCESS)
 		{
 			std::cout << "Sending abort signal to signal process " << signal_pid << std::endl;
 			kill(signal_pid, SIGUSR1);
 		}
-		exit(1);
+		return -1;
 	}
 	
 	
@@ -244,7 +263,7 @@ int main(int argc, char ** argv)
 	// The granularity of adcClock is 1 MHz, so this calculated rate won't be exactly correct, but it can
 	// give us a good idea.
 	
-	// Multily by 1,000,000 because adcClock is in MHz; multiply by 2 because we capture two bytes per sample;
+	// Multiply by 1,000,000 because adcClock is in MHz; multiply by 2 because we capture two bytes per sample;
 	// divide by (1024 * 1024) because 1 MB = 1024 * 1024 bytes.
 	const double EXPECTED_RATE = adcClock * 1000000.0 * 2 / 1024 / 1024;
 	
@@ -253,29 +272,53 @@ int main(int argc, char ** argv)
 	
 	unsigned int data_written_megabytes = 0;
 	
-	// Make sure the write thread knows that we're not done capturing and that we haven't filled any buffers with data yet:
+	// Make sure the write thread knows that we're not done capturing and that we haven't filled any buffers with data yet.
 	finished_capturing = false;
 	ready_to_save_buffer = false;
-	// Start up the thread that will write to disk the data that we read in this thread:
+	// Start up the thread that will write to disk the data that we read in this thread.
 	boost::thread write_thread(write_thread_main_function);
 	
 	writing_to_first_buffer = true;
 	uint8_t* current_buffer = first_buffer;
+	
 	unsigned int blocks_in_current_buffer = 0;
 	
 	ssize_t expected_write_thread_status = 0;
 	bool abort_reading = false;
 	
+	
+	// Tell the board that we're going to acquire data.
+	// After this function is called, the beginning of the data we're acquiring does not start until
+	// we call uv->X_Read, and so all the data that should be captured during the intervening time
+	// will be lost. (This amounts to quite a bit of data because the SetupAcquire function sleeps
+	// for 50 ms.) Thus, this function should only be called once, with an argument so large that we
+	// will never acquire more than that much data in a single run of this program. We have chosen
+	// 8,000,000 blocks, which is just under 8 TB of data. If this is not enough, change the value
+	// of BLOCKS_PER_SETUP_ACQUIRE.
+	uv->SetupAcquire(BoardNum, BLOCKS_PER_SETUP_ACQUIRE);
+	
+	// Acquire and discard the first block of data. Once this happens, the DAQ card starts saving the
+	// incoming data to its interal buffer until it has saved BLOCKS_PER_SETUP_ACQUIRE blocks.
+	uv->X_Read(BoardNum, first_buffer, READ_SIZE);
+	
+	// ----------IMPORTANT----------
+	// For some reason, the DAQ card does not always work properly if we don't give it a little bit
+	// of a head start on acquiring data. It doesn't make any sense at all, but it's true. Once we
+	// give it a head start by sleeping for a few seconds, we can start saving data and stay caught
+	// up with it indefinitely and it won't skip data. If we jump right in and start acquiring data
+	// as fast as we can as soon as we call SetupAcquire (above), the DAQ card can't take the
+	// pressure and often skips some data in the first 8 GB of captured data.
+	sleep(SECONDS_TO_SLEEP); // Sleep for 3 seconds.
+	
 	timespec start_time;
 	timespec end_time;
-	// Measure the time when we started capturing data.
+	// Measure the time when we started capturing data. This should be after we sleep (above) because
+	// most of the data that is captured while we're sleeping is lost.
 	clock_gettime(CLOCK_REALTIME, &start_time);
 	
 	// continueReadingData will be true until the user presses ctrl-c. (exit_signal_handler() function changes continueReadingData.)
 	while (continueReadingData) 
 	{
-		uv->SetupAcquire(BoardNum, BLOCKS_PER_SETUP_ACQUIRE);
-		
 		unsigned int blocks_acquired = 0;
 		for (; blocks_acquired < BLOCKS_PER_SETUP_ACQUIRE && continueReadingData; blocks_acquired++)
 		{
@@ -283,7 +326,7 @@ int main(int argc, char ** argv)
 			uv->X_Read(BoardNum, current_buffer, READ_SIZE);
 			blocks_in_current_buffer += BLOCKS_PER_READ;
 			
-			// If we've filled up the current buffer
+			// If we've filled up the current buffer,
 			if(blocks_in_current_buffer >= BLOCKS_PER_BUFFER)
 			{
 				// Change which buffer we're writing to.
@@ -291,32 +334,41 @@ int main(int argc, char ** argv)
 				
 				// If ready_to_save_buffer is still true, it means that the other thread hasn't finished saving
 				// the last buffer we filled up.
+				// If this happens, there's a problem, and we might be skipping data because we can't write it
+				// to disk as fast as we can read it in.
 				if(ready_to_save_buffer)
 				{
 					// Print an error message, then wait until the write thread is done writing.
 					std::cerr << "ERROR: BUFFER NOT EMPTIED BEFORE IT WAS NEEDED AGAIN" << std::endl;
 					while(ready_to_save_buffer)
 					{
-						SLEEP(1);
+						SLEEP(1); // Sleep for 1 millisecond.
 					}
 				}
 				// At this point, it's safe to access and change variables that the other thread uses because we know that
 				// it is waiting for ready_to_save_buffer to become true.
 				
+				// If there was an error saving the data from the last buffer,
 				if(write_thread_status != expected_write_thread_status)
 				{
 					std::cerr << "ERROR: WRITE OPERATION FAIL" << std::endl;
 					
+					// Forget about the blocks we were about to save from this buffer.
 					blocks_acquired -= blocks_in_current_buffer;
+					// If the write thread managed to save any data at all,
 					if(write_thread_status > 0)
 					{
+						// Calculate how many blocks the write thread managed to save and forget
+						// about the blocks it didn't manage to save.
 						int size = DIG_BLOCK_SIZE;
 						int blocks_written = write_thread_status / size;
 						int blocks_not_written = blocks_in_buffer_ready_to_save - blocks_written;
 						blocks_acquired -= blocks_not_written;
 					}
+					// If the write thread didn't save any data,
 					else
 					{
+						// Forget about all the blocks we thought we saved from the last buffer.
 						blocks_acquired -= blocks_in_buffer_ready_to_save;
 					}
 					
@@ -328,6 +380,9 @@ int main(int argc, char ** argv)
 				// Tell the other thread how many blocks are currently in this buffer.
 				blocks_in_buffer_ready_to_save = blocks_in_current_buffer;
 				
+				// The write_thread_status variable contains the number of bytes that the write thread was
+				// able to write to the disk. Thus, the status we expect is equal to the number of 1 MB blocks
+				// we're asking it to write multiplied by the number of bytes per MB.
 				expected_write_thread_status = blocks_in_buffer_ready_to_save * DIG_BLOCK_SIZE;
 				
 				// (Reset the count of blocks in the current buffer for in a minute when we start writing to
@@ -344,7 +399,7 @@ int main(int argc, char ** argv)
 			}
 			else
 			{
-				// The current buffer's not full, so just move the pointer up by how much we just read.
+				// The current buffer is not full, so just move the pointer up by how much we just read.
 				current_buffer += READ_SIZE;
 			}
 		}
@@ -357,6 +412,11 @@ int main(int argc, char ** argv)
 		}
 
 		data_written_megabytes += blocks_acquired;
+		
+		if(continueReadingData)
+		{
+			uv->SetupAcquire(BoardNum, BLOCKS_PER_SETUP_ACQUIRE);
+		}
 	}
 	// Measure the time when we stopped capturing new data.
 	clock_gettime(CLOCK_REALTIME, &end_time);
@@ -371,30 +431,43 @@ int main(int argc, char ** argv)
 	// At this point, it's safe to change variables that the other thread uses because we know that
 	// it is waiting for ready_to_save_buffer to become true.
 	
+	// If there wasn't previously a problem with saving data,
 	if(!abort_reading)
 	{
+		// If there was a problem with saving the most recent complete buffer,
 		if(write_thread_status != expected_write_thread_status)
 		{
 			std::cerr << "ERROR: WRITE OPERATION FAIL" << std::endl;
 			
+			// Forget about the blocks we were about to save from the partially-full buffer.
 			data_written_megabytes -= blocks_in_current_buffer;
+			
+			// If the write thread managed to save any data at all,
 			if(write_thread_status > 0)
 			{
+				// Calculate how many blocks the write thread managed to save and forget
+				// about the blocks it didn't manage to save.
 				int size = DIG_BLOCK_SIZE;
 				int blocks_written = write_thread_status / size;
 				int blocks_not_written = blocks_in_buffer_ready_to_save - blocks_written;
 				data_written_megabytes -= blocks_not_written;
 			}
+			// If the write thread didn't save any data,
 			else
 			{
+				// Forget about all the blocks we thought we saved from the last buffer.
 				data_written_megabytes -= blocks_in_buffer_ready_to_save;
 			}
 			
+			// Have the write thread go ahead and exit.
 			blocks_in_buffer_ready_to_save = 0;
 			blocks_in_current_buffer = 0;
 			finished_capturing = true;
 			ready_to_save_buffer = true;
+			// Wait for the write thread to finish up.
 			write_thread.join();
+			
+			abort_reading = true;
 		}
 		else
 		{
@@ -420,32 +493,51 @@ int main(int argc, char ** argv)
 			// Wait for the writing thread to finish.
 			write_thread.join();
 			
+			// At this point, the other thread no longer exists, so we don't need to worry about not accessing
+			// variables it might be changing.
+			
+			// If there was a problem with saving this last partially-full buffer,
 			if(write_thread_status != expected_write_thread_status)
 			{
 				std::cerr << "ERROR: WRITE OPERATION FAIL" << std::endl;
 				
+				// If the write thread managed to save any data at all,
 				if(write_thread_status > 0)
 				{
+					// Calculate how many blocks the write thread managed to save and forget
+					// about the blocks it didn't manage to save.
 					int size = DIG_BLOCK_SIZE;
 					int blocks_written = write_thread_status / size;
 					int blocks_not_written = blocks_in_buffer_ready_to_save - blocks_written;
 					data_written_megabytes -= blocks_not_written;
 				}
+				// If the write thread didn't save any data,
 				else
 				{
+					// Forget about all the blocks we thought we saved from the last buffer.
 					data_written_megabytes -= blocks_in_buffer_ready_to_save;
 				}
+				
+				abort_reading = true;
 			}
 		}
 	}
+	// Otherwise, if we exited the capture loop because of an error writing,
 	else
 	{
+		// Have the write thread go ahead and exit.
 		blocks_in_buffer_ready_to_save = 0;
 		blocks_in_current_buffer = 0;
 		finished_capturing = true;
 		ready_to_save_buffer = true;
+		// Wait for the write thread to finish up.
 		write_thread.join();
-		
+	}
+	
+	// If there was an error writing the data to file at all (whether in the capture loop or after it),
+	if(abort_reading)
+	{
+		// Send the signal to the parent process (sampler) to let it know that we had to abort.
 		if(signal_pid != NO_SIGNAL_PROCESS)
 		{
 			std::cout << "Sending abort signal to signal process " << signal_pid << std::endl;
@@ -460,7 +552,7 @@ int main(int argc, char ** argv)
 	//        Output and cleanup
 	//-----------------------------------------
 	
-	std::cout << std::endl << "Data capture and writing to disk complete" << std::endl;
+	std::cout << std::endl << "Data capture and writing to disk complete." << std::endl;
 
 	// Calculate the time spent capturing data from the start time and the end time.
 	double elapsed_time_seconds = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / (double)1000000000;
@@ -477,7 +569,8 @@ int main(int argc, char ** argv)
 
 	
 	// Save the metadata to a file.
-	// We know that there's enough space on disk to store the metadata because we reserved it earlier.
+	// We know that there's enough space on disk to store the metadata, even if the disk filled up completely,
+	// because we reserved it earlier.
 	capture_info.write_to_file();
 	// Output the name of the metadata file so that any program that knows what to look for (e.g. sampler) can
 	// know what it is.
@@ -597,18 +690,9 @@ void acquire_parser(int argc, char ** argv)
 		exit(1);
 	}
 	else 
-	{ 
-		// make sure 2nd arguement is valid number of blocks (1st arguement is the application name)
-		numBlocksToAcquire = atoi(argv[1]);
-
-		if(numBlocksToAcquire <= 0)
-		{
-			std::cout << "Invalid number of blocks specified, exiting!" << std::endl;
-			exit(1);
-		}
-
-		// starting at third arguement look for options
-		for(arg_index=2; arg_index<argc; arg_index++)
+	{
+		// starting at second argument look for options
+		for(arg_index=1; arg_index<argc; arg_index++)
 		{
 			if( strcmp(argv[arg_index], "-pid") == 0 )
 			{
@@ -934,7 +1018,6 @@ void acquire_set_session(uvAPI *pUV)
 
 	pUV->selClock(BoardNum, InternalClock);
 	int defaultchannels = pUV->GetAllChannels(BoardNum);
-	//	printf("All channels = %d\n",defaultchannels);
 	if (pUV->IS_ISLA216P(BoardNum))
 	{
 		if (pUV->HAS_microsynth(BoardNum) && Frequency!=0){
@@ -979,7 +1062,6 @@ void acquire_set_session(uvAPI *pUV)
 			printf("channel info not found, exiting\n");
 			exit(1);
 		}
-		//        std::cout << std::endl << std::endl << BoardNum << "AD16 setup selected channels= " <<  selectedChannels << "scs=" << SingleChannelSelect << std::endl << std::endl;
 		pUV->selectAdcChannels(BoardNum, selectedChannels);
 
 		unsigned int TriggerChannel;
@@ -1000,9 +1082,8 @@ void acquire_set_session(uvAPI *pUV)
 				TriggerChannel = IN0;
 				break;
 		}
-		//		fflush(stdout);
-		//		pUV->selectTrigger(BoardNum, WAVEFORM_TRIGGER,FALLING_EDGE , IN0);
-		pUV->selectTrigger(BoardNum, TriggerMode, TriggerSlope, TriggerCh);			//this might need to be changed to "TriggerCh" as was changed on 12bit
+		// this might need to be changed to "TriggerCh" as was changed on 12bit
+		pUV->selectTrigger(BoardNum, TriggerMode, TriggerSlope, TriggerCh);			
 		pUV->configureWaveformTrigger(BoardNum, TriggerThreshold16, TriggerHysteresis);
 		pUV->configureSegmentedCapture(BoardNum, CaptureCount, CaptureDepth, 0);
 		if (NumAverages > 0){
@@ -1010,7 +1091,6 @@ void acquire_set_session(uvAPI *pUV)
 		}
 		pUV->setFiducialMarks(BoardNum, Fiducial);
 		unsigned int trigVal = pUV->isTriggerEnabled(BoardNum);
-		//	std::cout << "trigVal" << trigVal << std::endl;
 
 	}
 	if (pUV->IS_adc12d2000(BoardNum))
@@ -1050,8 +1130,6 @@ void acquire_set_session(uvAPI *pUV)
 		}
 
 		unsigned int TriggerChannel;
-		//printf("triggerCh:%d\n",TriggerCh);
-		//printf("triggerCh:%d\n",TriggerCh);
 		switch (TriggerCh) {
 			case 0:
 				TriggerChannel = IN0;
@@ -1075,11 +1153,7 @@ void acquire_set_session(uvAPI *pUV)
 		// Set Decimation
 		pUV->setAdcDecimation(BoardNum, Decimation);
 		// Set ECL Trigger
-		//       std::cout << "ECLTrigger=" << ECLTrigger << std::endl;
 		pUV->SetECLTriggerEnable(BoardNum, ECLTrigger);
-
-		//printf("boardnum=%d triggermode=%d triggerslope=%d triggerch=%d triggerthreshold12=%d triggerhysteresis=%d\n",BoardNum,TriggerMode,TriggerSlope,TriggerCh,TriggerThreshold12,TriggerHysteresis);
-		//printf("capturecount=%d capturedepth=%d numaverages=%d averagerlength=%d pretrigger=%d\n",CaptureCount,CaptureDepth,NumAverages,AveragerLength,PretriggerMemory);
 		pUV->selectTrigger(BoardNum, TriggerMode, TriggerSlope, TriggerCh); //not using "TriggerChannel" and instead using "TriggerCh".
 		pUV->configureWaveformTrigger(BoardNum, TriggerThreshold12, TriggerHysteresis);
 		pUV->configureSegmentedCapture(BoardNum, CaptureCount, CaptureDepth, 0);
@@ -1091,8 +1165,6 @@ void acquire_set_session(uvAPI *pUV)
 			pUV->configureAverager(BoardNum, NumAverages, AveragerLength, 0);
 		}
 		pUV->setFiducialMarks(BoardNum, Fiducial);
-		//printf("finished AD12 section\n");
-		//Sleep(10000);
 	}
 
 	if (pUV->IS_AD5474(BoardNum)){
@@ -1186,8 +1258,8 @@ void acquire_parser_printf()
 {
 	printf("\n");
 	printf("acquire will setup the requested board with desired settings, initiate\nacquisition and store data to disk file. \n\nUsage:\n\n");
-	printf("acquire (N blocks) [OPTIONS]\n");
-	printf("\t\t\tAcquires specified number of blocks. Number of blocks option must always be first.\n\n");
+	printf("acquire [OPTIONS]\n");
+	printf("\t\t\tAcquires and saves blocks continuously.\n\n");
 
 	printf("The following [OPTIONS] may follow the number of blocks option in any order:\n\n");    
 
@@ -1232,5 +1304,4 @@ void acquire_parser_printf()
 	printf("\t\t\t\t\t2-channel mode: N=65536,32768,16384,8192,4096,2048,1024,512,256,128,64,32,16,8\n");
 	printf("\t\t\t\t\t4-channel mode: N=32768,16384,8192,4096,2048,1024,512,256,128,64,32,16,8,4\n");
 	printf("\t\t\tavg_len default is 4096.\n");
-	//printf("-v\t\tEnable extra print statements.\n");
 }
