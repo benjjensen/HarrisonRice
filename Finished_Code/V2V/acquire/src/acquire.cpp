@@ -173,12 +173,22 @@ int main(int argc, char ** argv)
 	if(error)
 	{
 		std::cerr << "ERROR: UNABLE TO ALLOCATE MEMORY" << std::endl;
+		if(signal_pid != NO_SIGNAL_PROCESS)
+		{
+			std::cout << "Sending abort signal to signal process " << signal_pid << std::endl;
+			kill(signal_pid, SIGUSR1);
+		}
 		return -1;
 	}
 	error = posix_memalign((void**)&second_buffer, BUFFER_ALIGNMENT, BUFFER_SIZE);
 	if(error)
 	{
 		std::cerr << "ERROR: UNABLE TO ALLOCATE MEMORY" << std::endl;
+		if(signal_pid != NO_SIGNAL_PROCESS)
+		{
+			std::cout << "Sending abort signal to signal process " << signal_pid << std::endl;
+			kill(signal_pid, SIGUSR1);
+		}
 		return -1;
 	}
 	

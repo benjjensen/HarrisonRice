@@ -428,7 +428,6 @@ int main(int argc, char **argv)
 
 static bool start_acquire_in_child_process()
 {
-	// TODO handle case where it exits early for another reason--check return value of program?
 	const int READ_FD = 0;
 	const int WRITE_FD = 1;
 	
@@ -1148,8 +1147,17 @@ static void hide_capture_from_table(long capture_index)
 
 static gboolean cb_destroy(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
+	std::cout << "destroy called " << acquire_process_id << std::endl;
+	// If we are currently acquiring data,
+	if(acquire_process_id != -1)
+	{
+		// Stop the acquire program.
+		stop_acquiring();
+	}
+	
 	// When the main window is closed by the user, quit the program:
 	gtk_main_quit();
+	
 	// Return false to signify that the window destroy event should proceed.
 	// (Returning true would prevent the window from actually being closed.)
 	return FALSE;
@@ -1181,14 +1189,17 @@ static void cb_stop_capture(GtkWidget *widget, gpointer data)
 		return;
 	}
 	
+	
+	gtk_widget_set_sensitive(start_button, FALSE);
+	gtk_widget_set_sensitive(stop_button, FALSE);
+	gtk_widget_set_sensitive(new_button, FALSE);
+	gtk_widget_set_sensitive(reset_button, FALSE);
+	
 	gtk_widget_hide(current_capture_box);
 	stop_acquiring();
 	
 	// The only active button when there is no current capture should be the new capture button:
-	gtk_widget_set_sensitive(start_button, FALSE);
-	gtk_widget_set_sensitive(stop_button, FALSE);
 	gtk_widget_set_sensitive(new_button, TRUE);
-	gtk_widget_set_sensitive(reset_button, FALSE);
 	
 	gtk_widget_hide(label_capture_error);
 }
