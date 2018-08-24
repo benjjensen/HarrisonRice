@@ -13,7 +13,8 @@ for row = 1:num_rows
 %     for k = 0:n
 %         tic;
 %         disp(k);
-        probabilities(row,:) = get_values(pr_mat(row,:),n);
+%         probabilities(row,:) = get_values(pr_mat(row,:),n);
+    probabilities(row,:) = recurse_get_value(pr_mat(row,:),n);
 %         toc;
 %     end
 end

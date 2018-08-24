@@ -18,10 +18,10 @@ for row = 1:num_rows
             pr(1,col) = pr_mat(row,gc(row,col));
         end
     end
-    [~,pr_cols] = size(pr);
-    base = floor(log2(pr_cols));
-    pr_cols = 2^base;
-    pr = pr(1:pr_cols);
+%     [~,pr_cols] = size(pr);
+%     base = floor(log2(pr_cols));
+%     pr_cols = 2^base;
+%     pr = pr(1:pr_cols);
     gg = get_groups(pr,bl);
     aa(row,:) = bl_get_dist(gg);
 %     toc;
