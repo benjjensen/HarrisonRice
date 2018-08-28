@@ -293,8 +293,8 @@ int DataCapture::reserve_meta_file_space()
 		return -1;
 	}
 	
-	// Reserve a full megabyte to be sure we have enough.
-	int result = posix_fallocate(meta_file_descriptor, 0, 1024 * 1024);
+	// Reserve a full 10 megabytes to be sure we have enough.
+	int result = posix_fallocate(meta_file_descriptor, 0, META_FILE_RESERVE_SIZE);
 	close(meta_file_descriptor);
 	meta_file_descriptor = -1;
 	
@@ -378,6 +378,28 @@ int DataCapture::save_gps_to_google_earth_file(std::string filename)
 	system(command.str().c_str());
 	
 	return 0;
+}
+
+int DataCapture::reserve_gps_file_space()
+{
+	// If there's no meta_filename, we can't reserve space for the file:
+	if(gps_filename == "" && !generate_gps_filename())
+	{
+		return -1;
+	}
+	
+	int gps_file_descriptor = open(gps_filename.c_str(), O_WRONLY | O_CREAT);
+	if(gps_file_descriptor < 0)
+	{
+		return -1;
+	}
+	
+	// Reserve a full megabyte to be sure we have enough.
+	int result = posix_fallocate(gps_file_descriptor, 0, GPS_FILE_RESERVE_SIZE);
+	close(gps_file_descriptor);
+	gps_file_descriptor = -1;
+	
+	return result;
 }
 
 

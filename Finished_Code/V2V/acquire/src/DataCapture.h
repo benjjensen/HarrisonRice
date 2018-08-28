@@ -27,6 +27,9 @@ const std::string DATA_FOLDER = "/media/V2V";
 
 const std::string FIELD_DELIMITER = ", ";
 
+const int META_FILE_RESERVE_SIZE = 1024 * 1024;
+const int GPS_FILE_RESERVE_SIZE = 10 * 1024 * 1024;
+
 class GPSPosition
 {
 public:
@@ -189,6 +192,13 @@ public:
 	bool generate_gps_filename();
 	
 	int save_gps_to_google_earth_file(std::string filename = "");
+	
+	/**
+	 * Reserves space for the gps file.
+	 *
+	 * Returns 0 on success, nonzero on failure.
+	 */
+	int reserve_gps_file_space();
 };
 
 std::istream & operator >> (std::istream &in, GPSPosition &position);
