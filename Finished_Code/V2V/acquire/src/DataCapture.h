@@ -2,6 +2,7 @@
 
 #include <string>
 #include <ctime>
+#include <vector>
 
 /**
  * The ending of the filename for a capture metadata file.
@@ -18,6 +19,32 @@ const std::string CAPTURE_META_FILENAME_HANDOFF_TAG = "DataCapture.meta_filename
  * The path to the folder where the data is stored.
  */
 const std::string DATA_FOLDER = "/media/V2V";
+
+const std::string FIELD_DELIMITER = ", ";
+
+class GPSPosition
+{
+public:
+	time_t year;
+	time_t month;
+	time_t date;
+	
+	time_t hour;
+	time_t minute;
+	time_t second;
+
+	size_t blocks_captured;
+	
+	double latitude;
+	double longitude;
+	double altitude_feet;
+	
+	
+	GPSPosition();
+	
+	void write_to_stream(std::ostream &out);
+	void read_from_stream(std::istream &in);
+};
 
 /**
  * A class to represent the metadata for a single data capture.
@@ -79,6 +106,8 @@ public:
 	 * The filename where the data of the capture is stored.
 	 */
 	std::string data_filename;
+	
+	std::vector<GPSPosition> gps_positions;
 	
 	
 	/**
@@ -143,3 +172,6 @@ public:
 	 */
 	int reserve_meta_file_space();
 };
+
+std::istream & operator >> (std::istream &in, GPSPosition &position);
+std::ostream & operator << (std::ostream &out, GPSPosition &position);
