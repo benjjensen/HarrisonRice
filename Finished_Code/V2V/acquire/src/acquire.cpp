@@ -281,6 +281,36 @@ int main(int argc, char ** argv)
 		}
 		return -1;
 	}
+	// Reserve space on disk for the gps file, in case we completely
+	// fill up the disk with data.
+	// Short circuiting ensures that we don't reserve space for the gps
+	// file if RecordGPSData == false.
+	if(RecordGPSData && capture_info.reserve_gps_file_space() != 0)
+	{
+		if(first_buffer)
+		{
+			free(first_buffer);
+			first_buffer = NULL;
+		}
+		if(second_buffer)
+		{
+			free(second_buffer);
+			second_buffer = NULL;
+		}
+		delete uv;
+		
+		std::cerr << "ERROR: UNABLE TO RESERVE SPACE FOR THE GPS FILE" << std::endl;
+		if(capture_info.meta_filename != "")
+		{
+			remove(capture_info.meta_filename.c_str());
+		}
+		if(signal_pid != NO_SIGNAL_PROCESS)
+		{
+			std::cout << "Sending abort signal to signal process " << signal_pid << std::endl;
+			kill(signal_pid, SIGUSR1);
+		}
+		return -1;
+	}
 
 	// Open the data disk file.
 	disk_fd = uv->X_CreateFile((char *)filename.c_str());
@@ -346,8 +376,12 @@ int main(int argc, char ** argv)
 	
 	//----------------GPS THREAD START----------------
 	
-	// Start up the thread that will record the gps data.
-	boost::thread *gps_thread = start_gps_thread(capture_info, data_written_megabytes, continueReadingData);
+	boost::thread *gps_thread = NULL;
+	if(RecordGPSData)
+	{
+		// Start up the thread that will record the gps data.
+		gps_thread = start_gps_thread(capture_info, data_written_megabytes, continueReadingData);
+	}
 	
 	
 	
@@ -623,9 +657,12 @@ int main(int argc, char ** argv)
 	
 	// The gps thread got the signal to finish when we marked continueReadingData as false.
 	// Wait for the gps thread to finish.
-	gps_thread->join();
-	delete gps_thread;
-	gps_thread = NULL;
+	if(RecordGPSData)
+	{
+		gps_thread->join();
+		delete gps_thread;
+		gps_thread = NULL;
+	}
 	
 	//----------------GPS THREAD END----------------
 	//----------------MULTITHREADING END----------------
