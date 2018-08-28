@@ -666,6 +666,10 @@ int main(int argc, char ** argv)
 	// Output the name of the metadata file so that any program that knows what to look for (e.g. sampler) can
 	// know what it is.
 	std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " << capture_info.meta_filename << std::endl << std::endl;
+	
+	// Save the gps data to a file.
+	// TODO reserve space in advance for this.
+	capture_info.save_gps_to_google_earth_file();
 
 	fflush(stdout);
 	
@@ -805,6 +809,8 @@ void gps_thread_main_function(pid_t gps_process_id, int gps_output_fd, DataCaptu
 	std::istream input_from_gps(sb);
 	
 	GPSPosition position;
+	// The flag continue_recording_gps will be set to false by another thread; possibly the main thread, but more likely
+	// by the SIGINT signal handler.
 	while(continue_recording_gps.load())
 	{
 		// Read the input from gpsbabel into a position object.

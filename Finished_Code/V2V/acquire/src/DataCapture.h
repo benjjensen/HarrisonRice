@@ -10,6 +10,11 @@
 const std::string CAPTURE_META_ENDING = "-meta.txt";
 
 /**
+ * The ending of the filename for a capture metadata file.
+ */
+const std::string CAPTURE_GPS_ENDING = "-GPS.kml";
+
+/**
  * The tag to use for acquire.cpp to pass the name of the capture metafile to sampler.cpp via acquire's
  * standard output.
  */
@@ -106,6 +111,10 @@ public:
 	 * The filename where the data of the capture is stored.
 	 */
 	std::string data_filename;
+	/**
+	 * The filename where the GPS data is stored.
+	 */
+	std::string gps_filename;
 	
 	std::vector<GPSPosition> gps_positions;
 	
@@ -171,6 +180,15 @@ public:
 	 * Returns 0 on success, nonzero on failure.
 	 */
 	int reserve_meta_file_space();
+	
+	/**
+	 * Generates the gps_filename from data_filename.
+	 *
+	 * Returns true on success, false on failure (if there's no data_filename).
+	 */
+	bool generate_gps_filename();
+	
+	int save_gps_to_google_earth_file(std::string filename = "");
 };
 
 std::istream & operator >> (std::istream &in, GPSPosition &position);

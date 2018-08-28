@@ -4,8 +4,9 @@
 #include <string>
 #include <iomanip>
 
-#include <unistd.h>
 #include <fcntl.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #include "DataCapture.h"
 
@@ -300,6 +301,84 @@ int DataCapture::reserve_meta_file_space()
 	return result;
 }
 
+bool DataCapture::generate_gps_filename()
+{
+	if(data_filename != "")
+	{
+		size_t extension_index = data_filename.rfind('.');
+		size_t last_slash_index = data_filename.find_last_of("\\/");
+		
+		if(extension_index != std::string::npos && last_slash_index != std::string::npos)
+		{
+			if(extension_index <= last_slash_index)
+			{
+				// If the last period is before the last slash in the filename, we know
+				// that that period does not represent the beginning of a file extension.
+				extension_index = std::string::npos;
+			}
+		}
+
+		if(extension_index == std::string::npos)
+		{
+			gps_filename = data_filename + CAPTURE_GPS_ENDING;
+		}
+		else
+		{
+			gps_filename = data_filename.substr(0, extension_index) + CAPTURE_GPS_ENDING;
+		}
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+	
+int DataCapture::save_gps_to_google_earth_file(std::string filename)
+{
+	// If the filename provided is empty, use gps_filename.
+	// If the gps_filename is also empty, generate it from data_filename.
+	// If generating gps_filename failed, print an error message and return 1.
+	if(filename == "")
+	{
+		if(gps_filename == "" && !generate_gps_filename())
+		{
+			std::cerr << "ERROR: NO FILE TO WRITE THE GPS DATA TO" << std::endl;
+			return 1;
+		}
+		filename = gps_filename;
+	}
+	// If the user provided a filename, save that as the gps_filename:
+	else
+	{
+		gps_filename = filename;
+	}
+	
+	// Save the gps data in its current format to an xcsv file:
+	
+	std::ofstream file;
+	file.open(filename.c_str());
+	if(!file.is_open()) 
+	{
+		std::cerr << "ERROR: UNABLE TO OPEN FILE " << filename << std::endl;
+		return 1;
+	}
+	
+	for(std::vector<GPSPosition>::iterator it = gps_positions.begin(); it != gps_positions.end(); ++it)
+	{
+		file << (*it) << std::endl;
+	}
+	
+	file.close();
+	
+	// Convert the xcsv file to a kml file:
+	
+	std::stringstream command;
+	command << "/usr/local/bin/gpsbabel -i xcsv,style=gpsbabel_xcsv_format.txt -f " << gps_filename << " -x transform,trk=w -o kml -F " << gps_filename;
+	system(command.str().c_str());
+	
+	return 0;
+}
 
 
 
