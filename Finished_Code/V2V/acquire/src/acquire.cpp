@@ -5,7 +5,7 @@
  * sudo nice -n -20 ./acquire -f trigger_stopped
  */
 
-//TODO: Clean up commented-out sections, remove windows-specific sections (?)
+//TODO: Clean up commented-out sections, remove windows-specific sections (?), remove global variables
 
 #include <cstdio>
 #include <cstdlib>
@@ -16,12 +16,16 @@
 #include <sstream>
 #include <string>
 
+#include <ext/stdio_filebuf.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include <boost/atomic.hpp>
 #include <boost/thread.hpp>
+#include <boost/core/ref.hpp>
 
 #include "DataCapture.h"
 #include "uvAPI.h"
@@ -60,6 +64,11 @@ void timestamp_filename(std::string &selected_name, DataCapture &capture);
  */
 void write_thread_main_function();
 
+boost::thread* start_gps_thread(DataCapture &capture_info, boost::atomic<unsigned int> &blocks_acquired, boost::atomic<bool> &continue_recording_gps);
+
+void gps_thread_main_function(pid_t gps_process_id, int gps_output_fd, DataCapture &capture_info, boost::atomic<unsigned int> &blocks_acquired,
+	boost::atomic<bool> &continue_recording_gps);
+
 /*
 Default values for SetupBoard. These may change due to acquire_parser.
 */
@@ -95,6 +104,8 @@ unsigned int Fiducial = 0;
 unsigned int forceCal = 0;
 double Frequency = 0.0;
 
+bool RecordGPSData = false;
+
 const int NO_SIGNAL_PROCESS = -1;
 int signal_pid = NO_SIGNAL_PROCESS;
 
@@ -120,11 +131,10 @@ boost::atomic<bool> ready_to_save_buffer(false);
 
 volatile bool writing_to_first_buffer = true;
 volatile size_t blocks_in_buffer_ready_to_save = 0;
-volatile bool finished_capturing = false;
+boost::atomic<bool> finished_capturing(false);
 volatile ssize_t write_thread_status = 0;
 
 HANDLE disk_fd = INVALID_HANDLE_VALUE;
-
 
 int main(int argc, char ** argv)
 {
@@ -312,12 +322,14 @@ int main(int argc, char ** argv)
 	// initialized. (disk_fd is initialized just above here.)
 	
 	// Make sure the write thread knows that we're not done capturing and that we haven't filled any buffers with data yet.
-	finished_capturing = false;
+	finished_capturing.store(false);
 	ready_to_save_buffer.store(false);
 	
 	ssize_t expected_write_thread_status = 0;
 	
 	//----------------MULTITHREADING START----------------
+	
+	//----------------WRITE THREAD START----------------
 	
 	// Start up the thread that will write to disk the data that we read in this thread.
 	boost::thread write_thread(write_thread_main_function);
@@ -325,11 +337,27 @@ int main(int argc, char ** argv)
 	
 	
 	//--------------------------------------------------------------------------------------------------------------
+	//                                               Setup gps thread
+	//--------------------------------------------------------------------------------------------------------------
+	
+	// This is the number of blocks that we've captured so far. It needs to be atomic because the gps thread
+	// accesses this value while the main thread writes to it.
+	boost::atomic<unsigned int> data_written_megabytes(0);
+	
+	//----------------GPS THREAD START----------------
+	
+	// Start up the thread that will record the gps data.
+	boost::thread *gps_thread = start_gps_thread(capture_info, data_written_megabytes, continueReadingData);
+	
+	
+	
+	//--------------------------------------------------------------------------------------------------------------
 	//                                               Capture the data
 	//--------------------------------------------------------------------------------------------------------------
 	
-	unsigned int data_written_megabytes = 0;
+	
 	unsigned int blocks_in_current_buffer = 0;
+	unsigned int setup_acquire_call_count = 1;
 	bool abort_reading = false;
 	
 	writing_to_first_buffer = true;
@@ -342,10 +370,10 @@ int main(int argc, char ** argv)
 	clock_gettime(CLOCK_REALTIME, &start_time);
 	
 	// continueReadingData will be true until the user presses ctrl-c. (exit_signal_handler() function changes continueReadingData.)
-	while (continueReadingData.load()) 
+	while(continueReadingData.load()) 
 	{
-		unsigned int blocks_acquired = 0;
-		for (; blocks_acquired < BLOCKS_PER_SETUP_ACQUIRE && continueReadingData.load(); blocks_acquired++)
+		unsigned int block_limit = BLOCKS_PER_SETUP_ACQUIRE * setup_acquire_call_count;
+		for(; data_written_megabytes.load() < block_limit && continueReadingData.load(); data_written_megabytes.add(BLOCKS_PER_READ))
 		{
 			// Read a block from the board.
 			uv->X_Read(BoardNum, current_buffer, READ_SIZE);
@@ -357,7 +385,7 @@ int main(int argc, char ** argv)
 				// Change which buffer we're writing to.
 				current_buffer = (writing_to_first_buffer ? second_buffer : first_buffer);
 				
-				// If ready_to_save_buffer is still true, it means that the other thread hasn't finished saving
+				// If ready_to_save_buffer is still true, it means that the write thread hasn't finished saving
 				// the last buffer we filled up.
 				// If this happens, there's a problem, and we might be skipping data because we can't write it
 				// to disk as fast as we can read it in.
@@ -373,7 +401,7 @@ int main(int argc, char ** argv)
 				
 				//----------------CRITICAL SECTION START----------------
 				
-				// At this point, it's safe to access and change variables that the other thread uses because we know that
+				// At this point, it's safe to access and change variables that the write thread uses because we know that
 				// it is waiting for ready_to_save_buffer to become true.
 				
 				// If there was an error saving the data from the last buffer,
@@ -382,7 +410,7 @@ int main(int argc, char ** argv)
 					std::cerr << "ERROR: WRITE OPERATION FAIL" << std::endl;
 					
 					// Forget about the blocks we were about to save from this buffer.
-					blocks_acquired -= blocks_in_current_buffer;
+					data_written_megabytes.sub(blocks_in_current_buffer);
 					// If the write thread managed to save any data at all,
 					if(write_thread_status > 0)
 					{
@@ -391,13 +419,13 @@ int main(int argc, char ** argv)
 						int size = DIG_BLOCK_SIZE;
 						int blocks_written = write_thread_status / size;
 						int blocks_not_written = blocks_in_buffer_ready_to_save - blocks_written;
-						blocks_acquired -= blocks_not_written;
+						data_written_megabytes.sub(blocks_not_written);
 					}
 					// If the write thread didn't save any data,
 					else
 					{
 						// Forget about all the blocks we thought we saved from the last buffer.
-						blocks_acquired -= blocks_in_buffer_ready_to_save;
+						data_written_megabytes.sub(blocks_in_buffer_ready_to_save);
 					}
 					
 					abort_reading = true;
@@ -405,7 +433,7 @@ int main(int argc, char ** argv)
 					break;
 				}
 				
-				// Tell the other thread how many blocks are currently in this buffer.
+				// Tell the write thread how many blocks are currently in this buffer.
 				blocks_in_buffer_ready_to_save = blocks_in_current_buffer;
 				
 				// The write_thread_status variable contains the number of bytes that the write thread was
@@ -417,11 +445,11 @@ int main(int argc, char ** argv)
 				// the next buffer.)
 				blocks_in_current_buffer = 0;
 				
-				// Tell the other thread which buffer we're going to be writing on (so it knows to read from the
+				// Tell the write thread which buffer we're going to be writing on (so it knows to read from the
 				// other buffer).
 				writing_to_first_buffer = !writing_to_first_buffer;
 				
-				// Tell the other thread that we're ready for them to start reading and saving the data from the
+				// Tell the write thread that we're ready for it to start reading and saving the data from the
 				// buffer we just finished writing.
 				ready_to_save_buffer.store(true);
 				
@@ -436,15 +464,14 @@ int main(int argc, char ** argv)
 
 		// Let the user know if there were any data overruns.
 		unsigned long overruns = uv->getOverruns(BoardNum);
-		if (overruns > 0)
+		if(overruns > 0)
 		{
 			std::cerr << "WARNING: " <<  overruns << " OVERRUNS OCCURRED" << std::endl;
 		}
-
-		data_written_megabytes += blocks_acquired;
 		
 		if(continueReadingData.load())
 		{
+			++setup_acquire_call_count;
 			uv->SetupAcquire(BoardNum, BLOCKS_PER_SETUP_ACQUIRE);
 		}
 	}
@@ -461,7 +488,7 @@ int main(int argc, char ** argv)
 	
 	//----------------CRITICAL SECTION START----------------
 	// This critical section has three possible control paths, each of which end this critical section
-	// and end the multithreaded section of the program.
+	// and end the write thread.
 	
 	// At this point, it's safe to change variables that the other thread uses because we know that
 	// it is waiting for ready_to_save_buffer to become true.
@@ -475,7 +502,7 @@ int main(int argc, char ** argv)
 			std::cerr << "ERROR: WRITE OPERATION FAIL" << std::endl;
 			
 			// Forget about the blocks we were about to save from the partially-full buffer.
-			data_written_megabytes -= blocks_in_current_buffer;
+			data_written_megabytes.sub(blocks_in_current_buffer);
 			
 			// If the write thread managed to save any data at all,
 			if(write_thread_status > 0)
@@ -485,19 +512,19 @@ int main(int argc, char ** argv)
 				int size = DIG_BLOCK_SIZE;
 				int blocks_written = write_thread_status / size;
 				int blocks_not_written = blocks_in_buffer_ready_to_save - blocks_written;
-				data_written_megabytes -= blocks_not_written;
+				data_written_megabytes.sub(blocks_not_written);
 			}
 			// If the write thread didn't save any data,
 			else
 			{
 				// Forget about all the blocks we thought we saved from the last buffer.
-				data_written_megabytes -= blocks_in_buffer_ready_to_save;
+				data_written_megabytes.sub(blocks_in_buffer_ready_to_save);
 			}
 			
 			// Have the write thread go ahead and exit.
 			blocks_in_buffer_ready_to_save = 0;
 			blocks_in_current_buffer = 0;
-			finished_capturing = true;
+			finished_capturing.store(true);
 			ready_to_save_buffer.store(true);
 			
 			//----------------CRITICAL SECTION END----------------
@@ -505,7 +532,7 @@ int main(int argc, char ** argv)
 			// Wait for the write thread to finish up.
 			write_thread.join();
 			
-			//----------------MULTITHREADING END----------------
+			//----------------WRITE THREAD END----------------
 			
 			abort_reading = true;
 		}
@@ -525,7 +552,7 @@ int main(int argc, char ** argv)
 		
 			// Let the other thread know that we're done capturing new data, so it can finish once it's done
 			// saving this most recent buffer.
-			finished_capturing = true;
+			finished_capturing.store(true);
 		
 			// Tell the other thread to start saving the data we captured.
 			ready_to_save_buffer.store(true);
@@ -535,7 +562,7 @@ int main(int argc, char ** argv)
 			// Wait for the writing thread to finish.
 			write_thread.join();
 			
-			//----------------MULTITHREADING END----------------
+			//----------------WRITE THREAD END----------------
 			
 			// At this point, the other thread no longer exists, so we don't need to worry about not accessing
 			// variables it might be changing.
@@ -553,13 +580,13 @@ int main(int argc, char ** argv)
 					int size = DIG_BLOCK_SIZE;
 					int blocks_written = write_thread_status / size;
 					int blocks_not_written = blocks_in_buffer_ready_to_save - blocks_written;
-					data_written_megabytes -= blocks_not_written;
+					data_written_megabytes.sub(blocks_not_written);
 				}
 				// If the write thread didn't save any data,
 				else
 				{
 					// Forget about all the blocks we thought we saved from the last buffer.
-					data_written_megabytes -= blocks_in_buffer_ready_to_save;
+					data_written_megabytes.sub(blocks_in_buffer_ready_to_save);
 				}
 				
 				abort_reading = true;
@@ -572,7 +599,7 @@ int main(int argc, char ** argv)
 		// Have the write thread go ahead and exit.
 		blocks_in_buffer_ready_to_save = 0;
 		blocks_in_current_buffer = 0;
-		finished_capturing = true;
+		finished_capturing.store(true);
 		ready_to_save_buffer.store(true);
 		
 		//----------------CRITICAL SECTION END----------------
@@ -580,7 +607,7 @@ int main(int argc, char ** argv)
 		// Wait for the write thread to finish up.
 		write_thread.join();
 		
-		//----------------MULTITHREADING END----------------
+		//----------------WRITE THREAD END----------------
 	}
 	
 	// If there was an error writing the data to file at all (whether in the capture loop or after it),
@@ -594,7 +621,14 @@ int main(int argc, char ** argv)
 		}
 	}
 	
+	// The gps thread got the signal to finish when we marked continueReadingData as false.
+	// Wait for the gps thread to finish.
+	gps_thread->join();
+	delete gps_thread;
+	gps_thread = NULL;
 	
+	//----------------GPS THREAD END----------------
+	//----------------MULTITHREADING END----------------
 	
 	//--------------------------------------------------------------------------------------------------------------
 	//                                               Output and cleanup
@@ -606,11 +640,11 @@ int main(int argc, char ** argv)
 	double elapsed_time_seconds = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / (double)1000000000;
 	
 	capture_info.duration = elapsed_time_seconds;
-	capture_info.size = data_written_megabytes;
+	capture_info.size = data_written_megabytes.load();
 	
-	printf("Data captured: %d MB\n", data_written_megabytes);
+	printf("Data captured: %d MB\n", data_written_megabytes.load());
 	printf("Elapsed time: %.4f s\n", elapsed_time_seconds);
-	printf("Average data capture rate: %.4f MB/s\n\n\n", ((float)data_written_megabytes) / elapsed_time_seconds);
+	printf("Average data capture rate: %.4f MB/s\n\n\n", data_written_megabytes.load() / elapsed_time_seconds);
 	
 	
 	// This EXPECTED_RATE is the data transfer rate, in MB/s, that ideally would happen if we're sampling at adcClock MHz.
@@ -622,7 +656,7 @@ int main(int argc, char ** argv)
 	const double EXPECTED_RATE = adcClock * 1000000.0 * 2 / 1024 / 1024;
 
 	printf("--------------------------------------\nProportion of data points gathered:\n%.5f%%\n--------------------------------------\n\n\n",
-			(data_written_megabytes / elapsed_time_seconds) / EXPECTED_RATE * 100);
+			data_written_megabytes.load() / elapsed_time_seconds / EXPECTED_RATE * 100);
 
 	
 	// Save the metadata to a file.
@@ -664,7 +698,7 @@ void write_thread_main_function()
 {
 	// The flag finished_capturing should be false until the capture thread (main thread) finishes
 	// capturing all of the data.
-	while(!finished_capturing)
+	while(!finished_capturing.load())
 	{
 		// The capture thread changes ready_to_save_buffer when it has filled a buffer with data.
 		while(!ready_to_save_buffer.load())
@@ -691,6 +725,118 @@ void write_thread_main_function()
 		
 		//----------------CRITICAL SECTION END----------------
 	}
+}
+
+boost::thread* start_gps_thread(DataCapture &capture_info, boost::atomic<unsigned int> &blocks_acquired, boost::atomic<bool> &continue_recording_gps)
+{
+	const int READ_FD = 0;
+	const int WRITE_FD = 1;
+	
+	const int SUCCESS = 0;
+	const int FAILURE = -1;
+	
+	const int CHILD_PID = 0;
+	
+	boost::thread *not_thread = new boost::thread();
+	
+	// A pipe to get info from acquire and read it in sampler (via acquire's standard output):
+	int child_to_parent[2];
+	if(pipe(child_to_parent) != SUCCESS)
+	{
+		std::cerr << "ERROR: UNABLE TO OPEN PIPE FOR GPSBABEL OUTPUT" << std::endl;
+		return not_thread;// TODO return error value?
+	}
+	
+	pid_t pid;
+	switch ( pid = fork() )
+	{
+	// -1 means that the fork failed.
+	case FAILURE:
+		std::cerr << "ERROR: FAILURE TO FORK FOR GPSBABEL" << std::endl;
+		return not_thread; // TODO return error value?
+	// If we get 0, we're the child process.
+	case CHILD_PID:
+		// Set up the process interaction by replacing standard out with the
+		// pipe to the parent process.
+		if(dup2(child_to_parent[WRITE_FD], STDOUT_FILENO) == FAILURE)
+		{
+			std::cerr << "ERROR: unable to attach std::cout" << std::endl;
+		}
+		// Close the side of the pipe we (the child process) won't use:
+		if(close(child_to_parent[READ_FD]) != SUCCESS)
+		{
+			std::cerr << "ERROR: unable to close other side of child_to_parent from child process" << std::endl;
+		}
+		
+		// TODO change to the sys core group?
+		
+		// Not necessary to change directories because gpsbabel is on the path and gpsbabel_xcsv_format.txt is in
+		// the current directory.
+		execlp("/usr/local/bin/gpsbabel", "gpsbabel", "-T", "-i", "garmin", "-f", "usb:", 
+			"-o", "xcsv,style=gpsbabel_xcsv_format.txt", "-F", "/dev/stdout", NULL);
+
+		std::cerr << "ERROR: EXEC CALL FAILURE IN GPS CHILD PROCESS" << std::endl;
+		std::exit(-1);
+	// Otherwise, we're the parent process, so break out of this switch statement and continue on.
+	default:
+		break;
+	}
+	
+	// Close the side of the pipe that we won't use in the parent process.
+	if(close(child_to_parent[WRITE_FD]) != SUCCESS)
+	{
+		std::cerr << "ERROR: failed to close child_to_parent write" << std::endl;
+	}
+	
+	pid_t gps_process_id = pid;
+	int gps_output_fd = child_to_parent[READ_FD];
+	
+	boost::thread *gps_thread = new boost::thread(gps_thread_main_function, gps_process_id, gps_output_fd, boost::ref(capture_info), boost::ref(blocks_acquired),
+		boost::ref(continue_recording_gps));
+	delete not_thread;
+	return gps_thread;
+}
+
+void gps_thread_main_function(pid_t gps_process_id, int gps_output_fd, DataCapture &capture_info, boost::atomic<unsigned int> &blocks_acquired,
+	boost::atomic<bool> &continue_recording_gps)
+{
+	// Get an istream from the pipe file descriptor.
+	__gnu_cxx::stdio_filebuf<char> *sb = new __gnu_cxx::stdio_filebuf<char>(gps_output_fd, std::ios::in);
+	std::istream input_from_gps(sb);
+	
+	GPSPosition position;
+	while(continue_recording_gps.load())
+	{
+		// Read the input from gpsbabel into a position object.
+		input_from_gps >> position;
+		
+		// Check to make sure that the main thread is still not done capturing; the previous line
+		// blocks for about a second each time through the loop, and a lot can happen in a second.
+		// Also check to be sure that we didn't run out of gps fixes from gpsbabel.
+		if(!continue_recording_gps.load() || input_from_gps.eof())
+		{
+			break;
+		}
+		
+		position.blocks_captured = blocks_acquired.load();
+		capture_info.gps_positions.push_back(position);
+	}
+	
+	// Stop the gpsbabel process, as if by pressing ctrl-c.
+	kill(gps_process_id, SIGINT);
+	// Wait for the gpsbabel process to finish.
+	// This function call is necessary to prevent gpsbabel from becoming a zombie process.
+	int error = waitid(P_PID, gps_process_id, NULL, WEXITED);
+	if(error < 0)
+	{
+		std::cerr << "ERROR: FAILED TO CLOSE GPSBABEL PROCESS" << std::endl;
+	}
+	
+	if(close(gps_output_fd) != 0)
+	{
+		std::cerr << "ERROR: failed to close gps_output_fd" << std::endl;
+	}
+	delete sb;
 }
 
 std::string get_current_timestamp(DataCapture &capture)
@@ -770,6 +916,10 @@ void acquire_parser(int argc, char ** argv)
 					std::cout << "Invalid process id with -pid option" << std::endl;
 					exit(1);
 				}
+			}
+			else if( strcmp(argv[arg_index], "-gps") == 0 )
+			{
+				RecordGPSData = true;
 			}
 			else if( strcmp(argv[arg_index], "-b") == 0 )
 			{

@@ -107,11 +107,18 @@ void DataCapture::write_to_stream(std::ostream &out)
 	out << "duration " << duration << std::endl;
 	out << "size " << size << std::endl;
 	out << "datafile " << data_filename << std::endl;
-	out << "notes " << notes << "`";
+	out << "notes " << notes << "`" << std::endl;
+	out << "positions " << gps_positions.size() << std::endl;
+	for(std::vector<GPSPosition>::iterator it = gps_positions.begin(); it != gps_positions.end(); ++it)
+	{
+		out << (*it) << std::endl;
+	}
 }
 
 void DataCapture::read_from_stream(std::istream &in)
 {
+	gps_positions.clear();
+	
 	// For each line in the stream, read the first word to figure out the type.
 	// Based on the type, read in the rest of the info for that type.
 	std::string line_str;
@@ -203,7 +210,7 @@ void DataCapture::read_from_stream(std::istream &in)
 		else if(type == "datafile")
 		{
 			std::getline(line, data_filename);
-			// Strip whitespace away from the data filename:
+			// Strip whitespace away from the data filename.
 			if(data_filename != "")
 			{
 				int start_index = data_filename.find_first_not_of(" \n\t\r");
@@ -217,6 +224,20 @@ void DataCapture::read_from_stream(std::istream &in)
 					data_filename = "";
 				}
 			}
+		}
+		else if(type == "positions")
+		{
+			int num_positions;
+			line >> num_positions;
+			gps_positions.reserve(num_positions);
+			for(int index = 0; index < num_positions; ++index)
+			{
+				GPSPosition position;
+				in >> position;
+				gps_positions.push_back(position);
+			}
+			// Ignore the last endline character after the list of positions.
+			in.ignore();
 		}
 		else
 		{
@@ -271,9 +292,101 @@ int DataCapture::reserve_meta_file_space()
 		return -1;
 	}
 	
-	int result = posix_fallocate(meta_file_descriptor, 0, 1000);
+	// Reserve a full megabyte to be sure we have enough.
+	int result = posix_fallocate(meta_file_descriptor, 0, 1024 * 1024);
 	close(meta_file_descriptor);
 	meta_file_descriptor = -1;
 	
 	return result;
+}
+
+
+
+
+
+
+
+
+
+GPSPosition::GPSPosition()
+{
+	year = 2018;
+	month = 8;
+	date = 27;
+	hour = 12;
+	minute = 0;
+	second = 0;
+	
+	blocks_captured = 0;
+	
+	latitude = 4500;
+	
+	longitude = 11100;
+	
+	altitude_feet = 4500;
+}
+	
+void GPSPosition::write_to_stream(std::ostream &out)
+{
+	out << std::setfill('0');
+	out << std::setw(2) << year << '-' << std::setw(2) << month << '-' << std::setw(2) << date << ' ';
+	out << std::setw(2) << hour << ':' << std::setw(2) << minute << ':' << std::setw(2) << second << FIELD_DELIMITER;
+	
+	out << blocks_captured << " blocks" << FIELD_DELIMITER;
+	
+	out << latitude << FIELD_DELIMITER;
+	out << longitude << FIELD_DELIMITER;
+	
+	out << altitude_feet;
+}
+void GPSPosition::read_from_stream(std::istream &in)
+{
+	in >> year;
+	// Ignore the '-' character.
+	in.ignore();
+	in >> month;
+	// Ignore the '-' character.
+	in.ignore();
+	in >> date;
+	
+	in >> hour;
+	// Ignore the ':' character.
+	in.ignore();
+	in >> minute;
+	// Ignore the ':' character.
+	in.ignore();
+	in >> second;
+	
+	// Ignore the field delimiter.
+	in.ignore();
+	
+	in >> blocks_captured;
+	// Ignore the " blocks" string here.
+	in.ignore(7);
+	
+	// Ignore the field delimiter.
+	in.ignore();
+	
+	in >> latitude;
+	
+	// Ignore the field delimiter.
+	in.ignore();
+	
+	in >> longitude;
+	
+	// Ignore the field delimiter.
+	in.ignore();
+	
+	in >> altitude_feet;
+}
+
+std::istream & operator >> (std::istream &in, GPSPosition &position)
+{
+	position.read_from_stream(in);
+	return in;
+}
+std::ostream & operator << (std::ostream &out, GPSPosition &position)
+{
+	position.write_to_stream(out);
+	return out;
 }
