@@ -11,11 +11,11 @@ probabilities = zeros(num_rows,(n+1));
 for row = 1:num_rows
     
 %     for k = 0:n
-%         tic;
+        tic;
 %         disp(k);
 %         probabilities(row,:) = get_values(pr_mat(row,:),n);
     probabilities(row,:) = recurse_get_value(pr_mat(row,:),n);
-%         toc;
+        toc;
 %     end
 end
 if num_rows ~= 1

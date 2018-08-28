@@ -1,33 +1,36 @@
 % % RM plots for big sample
 tic;
 close all;
-load('average_harrison.mat');
-load('average_smalley.mat');
+% load('average_harrison.mat');
+% load('average_smalley.mat');
 load('pr_harrison.mat');
 load('pr_smalley.mat');
-load('mu_16_2.mat');
-load('mu_8_2.mat');
-load('mu_4_2.mat');
-load('mu_2_2.mat');
+threshold = .99;
+average_harrison = get_num_carrier(pr_harrison,threshold);
+for bl = 0:17
+    eval(sprintf('load("mu_%d_%d");',2^bl,6));
+end
 har = good_carriers(pr_harrison);
 mus = [];
-mus(:,1) = get_exp(mu_2);
-mus(:,2) = get_exp(mu_4);
-mus(:,3) = get_exp(mu_8);
-mus(:,4) = get_exp(mu_16);
+for bl = 0:17
+    eval(sprintf('mus(:,%d) = get_exp(mu_%d_6);',bl+1,2^bl));
+end
 max_dif = average_harrison - average_smalley;
 % ratio = average_smalley./average_harrison;
 ratio = mus;
-ratio(:,1) = ratio(:,1)/2;
-ratio(:,2) = ratio(:,2)/4;
-ratio(:,3) = ratio(:,3)/8;
-ratio(:,4) = ratio(:,4)/16;
-[col_num,~] = size(mu_2_2);
+for bl = 0:17
+    ratio(:,bl+1) = ratio(:,bl+1)/(bl+1)^2;
+% ratio(:,2) = ratio(:,2)/4;
+% ratio(:,3) = ratio(:,3)/8;
+% ratio(:,4) = ratio(:,4)/16;
+end
+[col_num,~] = size(mu_2_6);
+col_num = col_num + 1;
 
 
-mmax = 4;
+mmax = 15;
 imax = 0;
-mmin = 1;
+mmin = 0;
 for j = mmin : mmax
     imax = imax + j;
 end
@@ -36,7 +39,7 @@ for m = mmin : mmax
         
         weights = RMWeightHier(u,m,false);
         
-        for dB = 250 : 291
+        for dB = 250 : 268
 %         for dB = 270 : 270
 %             if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
                 %creates object
@@ -89,7 +92,7 @@ for m = mmin : mmax
 end
 % toc
 % tic
-for dB = 250 : 291
+for dB = 250 : 268
 % for dB = 270 : 270
 %     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         workspace = who;
@@ -112,7 +115,7 @@ j = 0;
 % percentLeaked_matched = zeros(1,32*mmax);
 % figure();
 hold on;
-for dB = 250 : 291
+for dB = 250 : 268
 % for dB = 270 : 270
 %     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
         counter = counter + 1;
@@ -181,7 +184,7 @@ type = categorical(322);
 i = 0;
 figure(1);
 hold on;
-% for dB = 250 : 291
+% for dB = 250 : 268
 % % for dB = 270 : 270
 % %     if max_har(dB-249,1) - max_har(dB-248,1) ~= 0
 %         counter = counter + 1;
@@ -203,8 +206,8 @@ title('Code Efficiency');
 xlabel('Throughput Rate');
 ylabel('Equivocation (%)');
 zlabel('Reed-Muller Code (r,m)');
-ylim([0 100]);
-xlim([0 50]);
+% ylim([0 100]);
+% xlim([0 50]);
 hold off
 % grid on;
 % hold off;

@@ -1,6 +1,11 @@
 function [pr] = recurse_get_value(pr_mat,n)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+%recurse_get_value Recursively breaks the probability array into smaller
+%groups and then combines those groups to find the probability distribution
+%   Takes the current group and splits it into two groups of equal length,
+%   if the current group is already size 1 then it returns in the first
+%   index 1 - the probability and the second index is the original
+%   probability.  After getting the two groups it cycles through the groups
+%   to get the distribution on the groups.
 pr = zeros(1,n+1);
 bl = n/2;
 if n == 1
