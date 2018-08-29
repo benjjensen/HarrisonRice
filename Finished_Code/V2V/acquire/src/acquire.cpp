@@ -126,25 +126,25 @@ struct AcquireEnvironment {
     char * user_outputfile;
 };
 
-/*
+/**
  * Reads the command sent in by the user and parses what board settings the user
  * wishes to set.
  */
-void acquire_parser(int argc, char** argv, AcquireEnvironment& environment);
+AcquireEnvironment acquire_parser(int argc, char** argv);
 
-/*
+/**
  * If "acquire" was sent with no arguments, a list of printf statements will
  * display to guide the user.
  */
 void acquire_parser_printf();
 
-/*
+/**
  * Takes the arguments read by acquire_parser and sets the board to run with the
  * desired settings.
  */
 void acquire_set_session(uvAPI& pUV, AcquireEnvironment& environment);
 
-/*
+/**
  * Handles the exit signal given by pressing ctrl-c.
  */
 void exit_signal_handler(int signal, boost::atomic<bool>* flag_pointer);
@@ -152,7 +152,7 @@ void exit_signal_handler(int signal) {
     exit_signal_handler(signal, NULL);
 }
 
-/*
+/**
  * Adds a timestamp to the given filename, before any file type.
  *
  * The timestamp will be of the format
@@ -162,6 +162,14 @@ void timestamp_filename(std::string& selected_name, DataCapture& capture);
 
 /**
  * The thread that writes the buffers to the file.
+ *
+ * This thread modifies all of its arguments except for the constant ones and
+ * finished_capturing. However, it never modifies any arguments except for when
+ * ready_to_save_buffer is true. Thus, it is safe for other threads to modify
+ * the arguments only when ready_to_save_buffer is false.
+ *
+ * When finished_capturing becomes false, this thread finishes saving the buffer
+ * it's currently saving and then exits.
  */
 void write_thread_main_function(const HANDLE disk_fd,
         boost::atomic<bool>& finished_capturing,
@@ -171,55 +179,110 @@ void write_thread_main_function(const HANDLE disk_fd,
         const uint8_t* first_buffer, const uint8_t* second_buffer,
         volatile ssize_t& write_thread_status);
 
+/**
+ * Starts a gpsbabel process and the gps thread.
+ *
+ * The gps thread listens for input from the gpsbabel process and reads it into
+ * GPSPosition objects, which can later be saved to a file.
+ *
+ * The gps thread only modifies capture_info, and may do so at any time. Thus,
+ * it is not safe for any other thread to modify capture_info as long as the gps
+ * thread is running.
+ *
+ * When continue_recording_gps becomes false, the gps thread kills the gpsbabel
+ * process and exits.
+ */
 boost::thread* start_gps_thread(DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
         boost::atomic<bool>& continue_recording_gps);
 
+/**
+ * The main function of the gps thread.
+ *
+ * This thread listens for input from the gpsbabel process and reads it into
+ * GPSPosition objects, which can later be saved to a file.
+ *
+ * This thread only modifies capture_info, and may do so at any time. Thus, it
+ * is not safe for any other thread to modify capture_info as long as this
+ * thread is running.
+ *
+ * When continue_recording_gps becomes false, this thread kills the gpsbabel
+ * process and exits.
+ */
 void gps_thread_main_function(const pid_t gps_process_id,
         const HANDLE gps_output_fd, DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
         boost::atomic<bool>& continue_recording_gps);
 
-void send_abort_signal(AcquireEnvironment environment);
+/**
+ * This function sends the abort signal to the parent process, if there is one.
+ */
+void send_abort_signal(const AcquireEnvironment environment);
 
+/**
+ * This function free()s the memory pointed to by its non-NULL arguments and then
+ * sets those arguments to NULL.
+ */
 void free_memory(uint8_t*& first_buffer, uint8_t*& second_buffer);
 
+/**
+ * This function deletes any metadata or gps files associated with capture_info.
+ */
 void remove_meta_gps_files(DataCapture& capture_info);
 
 int main(int argc, char** argv) {
     //--------------------------------------------------------------------------
     //                          Initialize the program
     //--------------------------------------------------------------------------
-    pid_t process_id = getpid();
 
+    // Move this process to its own cpuset, assuming that one was created for it
+    // previously.
+    pid_t process_id = getpid();
     std::stringstream command;
+    // This is a safe command to pass to system() because it contains the
+    // absolute path of echo.
     command << "/bin/echo " << process_id << " > /cgroup/cpuset/acquire/tasks";
     system(command.str().c_str());
 
+    // This is the flag that tells whether we're still reading data or not. It
+    // will remain true until either there's an error writing the data to file
+    // or the exit signal handler function sets it to false.
     boost::atomic<bool> continue_reading_data(true);
 
-    // Set the signal handler for when the user presses ctrl-c.
+    // Give continue_reading_data to exit_signal_handler() so that the function
+    // can store the flag in its local static variable. This assignment only
+    // works once; after that, exit_signal_handler is stuck with the flag we
+    // gave it the first time.
     exit_signal_handler(0, &continue_reading_data);
+    // Set the signal handler for when the user presses ctrl-c.
+    // (Sneakily, this passes the pointer to exit_signal_handler(int), not
+    // exit_signal_handler(int, boost::atomic<bool>*), so don't be confused.)
     signal(SIGINT, &exit_signal_handler);
 
     std::cout << "acquire continuously v1.1" << std::endl << std::endl;
 
-    AcquireEnvironment environment;
-    // Parse the command line options.
-    acquire_parser(argc, argv, environment);
-
-    // A class with convenient access functions to the DLL.
+    // The environment that the user defined with the command line arguments.
+    const AcquireEnvironment environment;
+    // The API that wraps the DAQ card.
     uvAPI uv;
+    {
+        // Get the settings that the user passed in with the command line
+        // arguments.
+        AcquireEnvironment mutable_environment = acquire_parser(argc, argv);
 
-    // Initialize settings.
-    if(environment.force_calibration) {
-        // Force full setup.
-        uv.setSetupDoneBit(environment.board_num, 0);
+        // Initialize settings.
+        if(mutable_environment.force_calibration) {
+            // Force full setup.
+            uv.setSetupDoneBit(mutable_environment.board_num, 0);
+        }
+        uv.setupBoard(mutable_environment.board_num);
+
+        // Write user settings to the board.
+        acquire_set_session(uv, mutable_environment);
+
+        // After this point, the environment is not changing.
+        environment = mutable_environment;
     }
-    uv.setupBoard(environment.board_num);
-
-    // Write user settings to the board.
-    acquire_set_session(uv, environment);
 
     // Read the clock frequency.
     const unsigned int clock_frequency =
@@ -229,7 +292,9 @@ int main(int argc, char** argv) {
     fflush(stdout);
 
 
+    // The first buffer where incoming data is stored.
     uint8_t *first_buffer = NULL;
+    // The second buffer where incoming data is stored.
     uint8_t *second_buffer = NULL;
 
     // Allocate page-aligned buffers for DMA.
@@ -288,8 +353,7 @@ int main(int argc, char** argv) {
     // them a timestamp accurate to the second, and so we wait until after we've
     // slept to give the DAQ card a head start.
 
-    // A class to keep track of information about the data we're about to
-    // capture.
+    // An object containing information about the data we're about to capture.
     DataCapture capture_info;
     capture_info.name = (environment.user_outputfile == NULL ?
             "Unnamed" : environment.user_outputfile);
@@ -357,16 +421,44 @@ int main(int argc, char** argv) {
     // descriptor in disk_fd is already initialized. (disk_fd is initialized
     // just above here.)
 
+    // The flag that indicates whether we're done capturing new data or not.
     boost::atomic<bool> finished_capturing(false);
+    // The flag that indicates whether there's a buffer that's ready to be saved
+    // to file.
     boost::atomic<bool> ready_to_save_buffer(false);
 
+    // The flag that indicates whether the main thread is writing new data to
+    // the first buffer. (If not, it's writing new data to the second buffer.)
     volatile bool writing_to_first_buffer = true;
+    // How many blocks were stored in the buffer that's ready to save to file.
     volatile size_t blocks_in_buffer_ready_to_save = 0;
 
+    // The status of the write thread. This is how the write thread keeps the
+    // main thread informed about any errors that occurred while writing the
+    // data to file.
     volatile ssize_t write_thread_status = 0;
+    // The expected status of the write thread.
     ssize_t expected_write_thread_status = 0;
 
     //----------------MULTITHREADING START----------------
+
+    // The following variables and objects must not be changed or accessed by
+    // the main thread during the multithreaded portion of the program:
+    //     capture_info (except as an argument to start the gps thread)
+    //
+    // The following variables and objects must not be changed or accessed by
+    // the main thread during the multithreaded portion of the program except
+    // when ready_to_save_buffer is false:
+    //     ready_to_save_buffer (can be accessed because it's atomic)
+    //     finished_capturing (can be accessed because it's atomic)
+    //     writing_to_first_buffer
+    //     blocks_in_buffer_ready_to_save
+    //     write_thread_status
+    // Additionally, the main thread must only write to the buffer indicated by
+    // writing_to_first_buffer; that is, when writing_to_first_buffer is true,
+    // the main thread must not write to the second buffer, and when
+    // writing_to_first_buffer is false, the main thread must not write to the
+    // first buffer.
 
     //----------------WRITE THREAD START----------------
 
@@ -407,23 +499,32 @@ int main(int argc, char** argv) {
     //                             Capture the data
     //--------------------------------------------------------------------------
 
-
+    // The number of blocks in the buffer currently being written to.
     unsigned int blocks_in_current_buffer = 0;
+    // The number of times that uv.SetupAcquire has been called.
     unsigned int setup_acquire_call_count = 1;
-    bool abort_reading = false;
+    // Whether we had to abort reading the data because of an error saving it to
+    // file.
+    bool reading_aborted = false;
 
+    // Safe to change this because ready_to_save_buffer is false.
     writing_to_first_buffer = true;
+    // The buffer that needs to be written to next.
     uint8_t* current_buffer = first_buffer;
 
+    // The time when we started acquiring data.
     timespec start_time;
+    // The time when we finished acquiring data.
     timespec end_time;
+
     // Measure the time when we started capturing data. This should be after we
     // sleep (above) because most of the data that is captured while we're
     // sleeping is lost.
     clock_gettime(CLOCK_REALTIME, &start_time);
 
-    // continueReadingData will be true until the user presses ctrl-c.
-    // (The exit_signal_handler function changes continueReadingData.)
+    // The continue_reading_data flag will be true until the user presses
+    // ctrl-c (or the SIGINT signal is received).
+    // (The exit_signal_handler function changes continue_reading_data.)
     while(continue_reading_data.load()) {
         // This is the total number of blocks we will have acquired when we run
         // out of the current call to SetupAcquire; in other words, once we've
@@ -492,7 +593,7 @@ int main(int argc, char** argv) {
                                 blocks_in_buffer_ready_to_save);
                     }
 
-                    abort_reading = true;
+                    reading_aborted = true;
                     continue_reading_data.store(false);
                     break;
                 }
@@ -538,7 +639,9 @@ int main(int argc, char** argv) {
                     std::endl;
         }
 
+        // If we will go through this loop again,
         if(continue_reading_data.load()) {
+            // Call SetupAcquire again to get more data.
             ++setup_acquire_call_count;
             uv.SetupAcquire(environment.board_num, BLOCKS_PER_SETUP_ACQUIRE);
         }
@@ -562,7 +665,7 @@ int main(int argc, char** argv) {
     // true.
 
     // If there wasn't previously a problem with saving data,
-    if(!abort_reading) {
+    if(!reading_aborted) {
         // If there was a problem with saving the most recent complete buffer,
         if(write_thread_status != expected_write_thread_status) {
             std::cerr << "ERROR: WRITE OPERATION FAIL" << std::endl;
@@ -601,7 +704,7 @@ int main(int argc, char** argv) {
 
             //----------------WRITE THREAD END----------------
 
-            abort_reading = true;
+            reading_aborted = true;
         }
         else {
             // Save to file the blocks that have already been read into the
@@ -659,7 +762,7 @@ int main(int argc, char** argv) {
                     blocks_captured.sub(blocks_in_buffer_ready_to_save);
                 }
 
-                abort_reading = true;
+                reading_aborted = true;
             }
         }
     }
@@ -681,7 +784,7 @@ int main(int argc, char** argv) {
 
     // If there was an error writing the data to file at all (whether in the
     // capture loop or after it),
-    if(abort_reading) {
+    if(reading_aborted) {
         // Send the signal to the parent process (sampler) to let it know that
         // we had to abort.
         send_abort_signal(environment);
@@ -706,8 +809,7 @@ int main(int argc, char** argv) {
     std::cout << std::endl << "Data capture and writing to disk complete." <<
             std::endl;
 
-    // Calculate the time spent capturing data from the start time and the end
-    // time.
+    // Calculate the time spent capturing data.
     double elapsed_time_seconds = (end_time.tv_sec - start_time.tv_sec) +
             (end_time.tv_nsec - start_time.tv_nsec) / (double)1000000000;
 
@@ -820,8 +922,8 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
 
     // A pipe to get info from acquire and read it in sampler (via acquire's
     // standard output):
-    HANDLE child_to_parent[2];
-    if(pipe(child_to_parent) != SUCCESS) {
+    HANDLE pipe[2];
+    if(pipe(pipe) != SUCCESS) {
         std::cerr << "ERROR: UNABLE TO OPEN PIPE FOR GPSBABEL OUTPUT" <<
                 std::endl;
         return NULL;
@@ -837,12 +939,12 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
     case CHILD_PID:
         // Set up the process interaction by replacing standard out with the
         // pipe to the parent process.
-        if(dup2(child_to_parent[WRITE_FD], STDOUT_FILENO) == FAILURE) {
+        if(dup2(pipe[WRITE_FD], STDOUT_FILENO) == FAILURE) {
             std::cerr << "ERROR: UNABLE TO PIPE STDOUT FROM GPS PROCESS INTO" <<
                     " PARENT PROCESS" << std::endl;
         }
         // Close the side of the pipe we (the child process) won't use:
-        if(close(child_to_parent[READ_FD]) != SUCCESS) {
+        if(close(pipe[READ_FD]) != SUCCESS) {
             std::cerr << "ERROR: UNABLE TO CLOSE UNUSED SIDE OF PIPE IN GPS " <<
                     "PROCESS" << std::endl;
         }
@@ -865,14 +967,15 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
     }
 
     // Close the side of the pipe that we won't use in the parent process.
-    if(close(child_to_parent[WRITE_FD]) != SUCCESS) {
+    if(close(pipe[WRITE_FD]) != SUCCESS) {
         std::cerr << "ERROR: UNABLE TO CLOSE UNUSED SIDE OF PIPE IN ACQUIRE " <<
                 "PROCESS" << std::endl;
     }
 
-    pid_t gps_process_id = pid;
-    HANDLE gps_output_fd = child_to_parent[READ_FD];
+    const pid_t gps_process_id = pid;
+    const HANDLE gps_output_fd = pipe[READ_FD];
 
+    // Start the gps thread and pass in the information it needs to function.
     boost::thread *gps_thread = new boost::thread(gps_thread_main_function,
             gps_process_id, gps_output_fd, boost::ref(capture_info),
             boost::ref(blocks_acquired), boost::ref(continue_recording_gps));
@@ -975,7 +1078,7 @@ void exit_signal_handler(int signal, boost::atomic<bool>* flag_pointer) {
     }
 }
 
-void send_abort_signal(AcquireEnvironment environment) {
+void send_abort_signal(const AcquireEnvironment environment) {
     if(environment.signal_pid != NO_SIGNAL_PROCESS) {
         std::cout << "Sending abort signal to signal process " <<
                 environment.signal_pid << std::endl;
@@ -1005,11 +1108,9 @@ void remove_meta_gps_files(DataCapture& capture_info) {
     }
 }
 
-
-
-
-void acquire_parser(int argc, char** argv, AcquireEnvironment &environment) {
-    int arg_index;
+AcquireEnvironment acquire_parser(int argc, char** argv) {
+    AcquireEnvironment environment;
+    int arg_index = 0;
 
     // check how many arguments, if run without arguements prints usage.
     if(argc == 1) {
@@ -1271,6 +1372,7 @@ void acquire_parser(int argc, char** argv, AcquireEnvironment &environment) {
             }
         }
     }
+    return environment;
 }
 
 void acquire_set_session(uvAPI& uv, AcquireEnvironment& environment) {
