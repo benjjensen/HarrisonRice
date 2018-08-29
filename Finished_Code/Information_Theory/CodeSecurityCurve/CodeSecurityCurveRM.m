@@ -3,11 +3,11 @@
 
 %closes all figure windows
 close all;
-
-for m = 2 : 10   %cycles through a range of m values
+for m = 2 : 20   %cycles through a range of m values
+    tic
     %creates a new figure
     figure();
-    for r = 1 : m   %cycles through a range of r values
+    parfor r = 1 : m   %cycles through a range of r values
 %         if r < m    %RM codes are only valid if this is true.
             n = 2^m;    %length of code words
             k = 0;  %initialize k = 0
@@ -30,7 +30,7 @@ for m = 2 : 10   %cycles through a range of m values
             %calulates the weight heirarchy of RM code
             for numCombos = 1:r
                 combos = nchoosek(alphaValues(1,:), numCombos); %finds possilbe combos of matrix
-                [rows columns] = size(combos);
+                [rows, columns] = size(combos);
                 
                 %sums up all of combinations
                 for index = 1 : rows
@@ -75,5 +75,6 @@ for m = 2 : 10   %cycles through a range of m values
         
     end
     hold off;
+    disp(m)
+    toc;
 end
-toc
