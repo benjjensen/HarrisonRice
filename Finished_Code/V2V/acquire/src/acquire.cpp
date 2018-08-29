@@ -130,7 +130,7 @@ struct AcquireEnvironment {
  * Reads the command sent in by the user and parses what board settings the user
  * wishes to set.
  */
-void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment);
+void acquire_parser(int argc, char** argv, AcquireEnvironment& environment);
 
 /*
  * If "acquire" was sent with no arguments, a list of printf statements will
@@ -142,12 +142,12 @@ void acquire_parser_printf();
  * Takes the arguments read by acquire_parser and sets the board to run with the
  * desired settings.
  */
-void acquire_set_session(uvAPI * pUV, AcquireEnvironment &environment);
+void acquire_set_session(uvAPI& pUV, AcquireEnvironment& environment);
 
 /*
  * Handles the exit signal given by pressing ctrl-c.
  */
-void exit_signal_handler(int signal, boost::atomic<bool> *flag_pointer);
+void exit_signal_handler(int signal, boost::atomic<bool>* flag_pointer);
 void exit_signal_handler(int signal) {
     exit_signal_handler(signal, NULL);
 }
@@ -158,30 +158,35 @@ void exit_signal_handler(int signal) {
  * The timestamp will be of the format
  * _YYYY-mm-dd__HH-MM-SS
  */
-void timestamp_filename(std::string &selected_name, DataCapture &capture);
+void timestamp_filename(std::string& selected_name, DataCapture& capture);
 
 /**
  * The thread that writes the buffers to the file.
  */
-void write_thread_main_function(const HANDLE &disk_fd,
-        boost::atomic<bool> &finished_capturing,
-        boost::atomic<bool> &ready_to_save_buffer,
-        volatile bool &writing_to_first_buffer,
-        volatile size_t &blocks_in_buffer_ready_to_save,
-        const uint8_t *first_buffer, const uint8_t *second_buffer,
-        volatile ssize_t &write_thread_status);
+void write_thread_main_function(const HANDLE disk_fd,
+        boost::atomic<bool>& finished_capturing,
+        boost::atomic<bool>& ready_to_save_buffer,
+        volatile bool& writing_to_first_buffer,
+        volatile size_t& blocks_in_buffer_ready_to_save,
+        const uint8_t* first_buffer, const uint8_t* second_buffer,
+        volatile ssize_t& write_thread_status);
 
-boost::thread* start_gps_thread(DataCapture &capture_info,
-        boost::atomic_uint_fast32_t &blocks_acquired,
-        boost::atomic<bool> &continue_recording_gps);
+boost::thread* start_gps_thread(DataCapture& capture_info,
+        boost::atomic_uint_fast32_t& blocks_acquired,
+        boost::atomic<bool>& continue_recording_gps);
 
-void gps_thread_main_function(pid_t gps_process_id, int gps_output_fd,
-        DataCapture &capture_info, boost::atomic_uint_fast32_t &blocks_acquired,
-        boost::atomic<bool> &continue_recording_gps);
+void gps_thread_main_function(const pid_t gps_process_id,
+        const HANDLE gps_output_fd, DataCapture& capture_info,
+        boost::atomic_uint_fast32_t& blocks_acquired,
+        boost::atomic<bool>& continue_recording_gps);
 
+void send_abort_signal(AcquireEnvironment environment);
 
+void free_memory(uint8_t*& first_buffer, uint8_t*& second_buffer);
 
-int main(int argc, char ** argv) {
+void remove_meta_gps_files(DataCapture& capture_info);
+
+int main(int argc, char** argv) {
     //--------------------------------------------------------------------------
     //                          Initialize the program
     //--------------------------------------------------------------------------
@@ -204,21 +209,23 @@ int main(int argc, char ** argv) {
     acquire_parser(argc, argv, environment);
 
     // A class with convenient access functions to the DLL.
-    uvAPI *uv = new uvAPI;
+    uvAPI uv;
 
     // Initialize settings.
     if(environment.force_calibration) {
         // Force full setup.
-        uv->setSetupDoneBit(environment.board_num, 0);
+        uv.setSetupDoneBit(environment.board_num, 0);
     }
-    uv->setupBoard(environment.board_num);
+    uv.setupBoard(environment.board_num);
 
     // Write user settings to the board.
     acquire_set_session(uv, environment);
 
     // Read the clock frequency.
-    unsigned int adcClock = uv->getAdcClockFreq(environment.board_num);
-    std::cout << "ADC clock frequency ~= " << adcClock << "MHz" << std::endl;
+    const unsigned int clock_frequency =
+            uv.getAdcClockFreq(environment.board_num);
+    std::cout << "ADC clock frequency ~= " << clock_frequency << "MHz" <<
+            std::endl;
     fflush(stdout);
 
 
@@ -228,24 +235,12 @@ int main(int argc, char ** argv) {
     // Allocate page-aligned buffers for DMA.
     int error = posix_memalign((void**)&first_buffer, BUFFER_ALIGNMENT,
             BUFFER_SIZE);
-    if(error) {
-        std::cerr << "ERROR: UNABLE TO ALLOCATE MEMORY" << std::endl;
-        if(environment.signal_pid != NO_SIGNAL_PROCESS) {
-            std::cout << "Sending abort signal to signal process " <<
-                    environment.signal_pid << std::endl;
-            kill(environment.signal_pid, SIGUSR1);
-        }
-        return -1;
-    }
-    error = posix_memalign((void**)&second_buffer, BUFFER_ALIGNMENT,
+    error |= posix_memalign((void**)&second_buffer, BUFFER_ALIGNMENT,
             BUFFER_SIZE);
     if(error) {
         std::cerr << "ERROR: UNABLE TO ALLOCATE MEMORY" << std::endl;
-        if(environment.signal_pid != NO_SIGNAL_PROCESS) {
-            std::cout << "Sending abort signal to signal process " <<
-                    environment.signal_pid << std::endl;
-            kill(environment.signal_pid, SIGUSR1);
-        }
+        send_abort_signal(environment);
+        free_memory(first_buffer, second_buffer);
         return -1;
     }
 
@@ -257,7 +252,7 @@ int main(int argc, char ** argv) {
 
     // Tell the board that we're going to acquire data.
     // After this function is called, the beginning of the data we're acquiring
-    // does not start until we call uv->X_Read, and so all the data that should
+    // does not start until we call uv.X_Read, and so all the data that should
     // be captured during the intervening time will be lost. (This amounts to
     // quite a bit of data because the SetupAcquire function sleeps for 50 ms.)
     // Thus, this function should only be called once, with an argument so large
@@ -265,12 +260,12 @@ int main(int argc, char ** argv) {
     // this program. We have chosen 8,000,000 blocks, which is just under 8 TB
     // of data. If this is not enough, change the value of
     // BLOCKS_PER_SETUP_ACQUIRE.
-    uv->SetupAcquire(environment.board_num, BLOCKS_PER_SETUP_ACQUIRE);
+    uv.SetupAcquire(environment.board_num, BLOCKS_PER_SETUP_ACQUIRE);
 
     // Acquire and discard the first block of data. Once this happens, the DAQ
     // card starts saving the incoming data to its internal buffer until it has
     // saved BLOCKS_PER_SETUP_ACQUIRE blocks.
-    uv->X_Read(environment.board_num, first_buffer, READ_SIZE);
+    uv.X_Read(environment.board_num, first_buffer, READ_SIZE);
 
     // ----------IMPORTANT----------
     // For some reason, the DAQ card does not always work properly if we don't
@@ -310,31 +305,16 @@ int main(int argc, char ** argv) {
 
     capture_info.data_filename = filename;
 
-    // TODO refactor the contents of the if blocks into a function.
-
     // Reserve space on disk for the metadata file, in case we completely
     // fill up the disk with data.
     if(capture_info.reserve_meta_file_space() != 0) {
-        if(first_buffer) {
-            free(first_buffer);
-            first_buffer = NULL;
-        }
-        if(second_buffer) {
-            free(second_buffer);
-            second_buffer = NULL;
-        }
-        delete uv;
-
         std::cerr << "ERROR: UNABLE TO RESERVE SPACE FOR THE METADATA FILE" <<
                 std::endl;
-        if(capture_info.meta_filename != "") {
-            remove(capture_info.meta_filename.c_str());
-        }
-        if(environment.signal_pid != NO_SIGNAL_PROCESS) {
-            std::cout << "Sending abort signal to signal process " <<
-                    environment.signal_pid << std::endl;
-            kill(environment.signal_pid, SIGUSR1);
-        }
+
+        remove_meta_gps_files(capture_info);
+        send_abort_signal(environment);
+        free_memory(first_buffer, second_buffer);
+
         return -1;
     }
     // Reserve space on disk for the gps file, in case we completely fill up the
@@ -343,53 +323,27 @@ int main(int argc, char ** argv) {
     // record_gps_data == false.
     if(environment.record_gps_data &&
             capture_info.reserve_gps_file_space() != 0) {
-        if(first_buffer) {
-            free(first_buffer);
-            first_buffer = NULL;
-        }
-        if(second_buffer) {
-            free(second_buffer);
-            second_buffer = NULL;
-        }
-        delete uv;
-
         std::cerr << "ERROR: UNABLE TO RESERVE SPACE FOR THE GPS FILE" <<
                 std::endl;
-        if(capture_info.gps_filename != "") {
-            remove(capture_info.gps_filename.c_str());
-        }
-        if(environment.signal_pid != NO_SIGNAL_PROCESS) {
-            std::cout << "Sending abort signal to signal process " <<
-                    environment.signal_pid << std::endl;
-            kill(environment.signal_pid, SIGUSR1);
-        }
+
+        remove_meta_gps_files(capture_info);
+        send_abort_signal(environment);
+        free_memory(first_buffer, second_buffer);
+
         return -1;
     }
 
     // Open the data disk file.
-    HANDLE outfile_fd = uv->X_CreateFile((char *)filename.c_str());
+    HANDLE outfile_fd = uv.X_CreateFile((char*)filename.c_str());
     // disk_fd will be less than zero if the open operation failed.
     if(outfile_fd < 0) {
-        if(first_buffer) {
-            free(first_buffer);
-            first_buffer = NULL;
-        }
-        if(second_buffer) {
-            free(second_buffer);
-            second_buffer = NULL;
-        }
-        delete uv;
-
         std::cerr << "ERROR: UNABLE TO OPEN OUTPUT FILE " << filename <<
                 std::endl;
-        if(capture_info.meta_filename != "") {
-            remove(capture_info.meta_filename.c_str());
-        }
-        if(environment.signal_pid != NO_SIGNAL_PROCESS) {
-            std::cout << "Sending abort signal to signal process " <<
-                    environment.signal_pid << std::endl;
-            kill(environment.signal_pid, SIGUSR1);
-        }
+
+        remove_meta_gps_files(capture_info);
+        send_abort_signal(environment);
+        free_memory(first_buffer, second_buffer);
+
         return -1;
     }
 
@@ -418,8 +372,7 @@ int main(int argc, char ** argv) {
 
     // Start up the thread that will write to disk the data that we read in this
     // thread.
-    boost::thread write_thread(write_thread_main_function,
-            boost::ref(outfile_fd),
+    boost::thread write_thread(write_thread_main_function, outfile_fd,
             boost::ref(finished_capturing), boost::ref(ready_to_save_buffer),
             boost::ref(writing_to_first_buffer),
             boost::ref(blocks_in_buffer_ready_to_save), first_buffer,
@@ -438,7 +391,7 @@ int main(int argc, char ** argv) {
 
     //----------------GPS THREAD START----------------
 
-    boost::thread *gps_thread = NULL;
+    boost::thread* gps_thread = NULL;
     if(environment.record_gps_data) {
         // Start up the thread that will record the gps data.
         gps_thread = start_gps_thread(capture_info, blocks_captured,
@@ -482,7 +435,7 @@ int main(int argc, char ** argv) {
                 continue_reading_data.load();
                 blocks_captured.add(BLOCKS_PER_READ)) {
             // Read a block from the board.
-            uv->X_Read(environment.board_num, current_buffer, READ_SIZE);
+            uv.X_Read(environment.board_num, current_buffer, READ_SIZE);
             blocks_in_current_buffer += BLOCKS_PER_READ;
 
             // If we've filled up the current buffer,
@@ -579,7 +532,7 @@ int main(int argc, char ** argv) {
         }
 
         // Let the user know if there were any data overruns.
-        unsigned long overruns = uv->getOverruns(environment.board_num);
+        unsigned long overruns = uv.getOverruns(environment.board_num);
         if(overruns > 0) {
             std::cerr << "WARNING: " << overruns << " OVERRUNS OCCURRED" <<
                     std::endl;
@@ -587,7 +540,7 @@ int main(int argc, char ** argv) {
 
         if(continue_reading_data.load()) {
             ++setup_acquire_call_count;
-            uv->SetupAcquire(environment.board_num, BLOCKS_PER_SETUP_ACQUIRE);
+            uv.SetupAcquire(environment.board_num, BLOCKS_PER_SETUP_ACQUIRE);
         }
     }
     // Measure the time when we stopped capturing new data.
@@ -731,11 +684,7 @@ int main(int argc, char ** argv) {
     if(abort_reading) {
         // Send the signal to the parent process (sampler) to let it know that
         // we had to abort.
-        if(environment.signal_pid != NO_SIGNAL_PROCESS) {
-            std::cout << "Sending abort signal to signal process " <<
-                    environment.signal_pid << std::endl;
-            kill(environment.signal_pid, SIGUSR1);
-        }
+        send_abort_signal(environment);
     }
 
     if(environment.record_gps_data && gps_thread != NULL) {
@@ -779,7 +728,7 @@ int main(int argc, char ** argv) {
     // Multiply by 1,000,000 because adcClock is in MHz; multiply by 2 because
     // we capture two bytes per sample; divide by (1024 * 1024) because 1 MB =
     // 1024 * 1024 bytes.
-    const double EXPECTED_RATE = adcClock * 1000000.0 * 2 / 1024 / 1024;
+    const double EXPECTED_RATE = clock_frequency * 1000000.0 * 2 / 1024 / 1024;
 
     std::cout << "--------------------------------------\n";
     printf("Proportion of data points gathered:\n%.5f%%\n",
@@ -806,33 +755,23 @@ int main(int argc, char ** argv) {
 
     // Close output file.
     if(outfile_fd) {
-        uv->X_Close(outfile_fd);
+        uv.X_Close(outfile_fd);
         outfile_fd = INVALID_HANDLE_VALUE;
     }
 
     // Deallocate resources.
-    if(first_buffer) {
-        free(first_buffer);
-        first_buffer = NULL;
-    }
-    if(second_buffer) {
-        free(second_buffer);
-        second_buffer = NULL;
-    }
-
-    delete uv;
-    uv = NULL;
+    free_memory(first_buffer, second_buffer);
 
     return 0;
 }
 
-void write_thread_main_function(const HANDLE &disk_fd,
-        boost::atomic<bool> &finished_capturing,
-        boost::atomic<bool> &ready_to_save_buffer,
-        volatile bool &writing_to_first_buffer,
-        volatile size_t &blocks_in_buffer_ready_to_save,
-        const uint8_t *first_buffer, const uint8_t *second_buffer,
-        volatile ssize_t &write_thread_status) {
+void write_thread_main_function(const HANDLE disk_fd,
+        boost::atomic<bool>& finished_capturing,
+        boost::atomic<bool>& ready_to_save_buffer,
+        volatile bool& writing_to_first_buffer,
+        volatile size_t& blocks_in_buffer_ready_to_save,
+        const uint8_t* first_buffer, const uint8_t* second_buffer,
+        volatile ssize_t& write_thread_status) {
     // The flag finished_capturing should be false until the capture thread
     // (main thread) finishes capturing all of the data.
     while(!finished_capturing.load()) {
@@ -868,9 +807,9 @@ void write_thread_main_function(const HANDLE &disk_fd,
     }
 }
 
-boost::thread* start_gps_thread(DataCapture &capture_info,
-        boost::atomic_uint_fast32_t &blocks_acquired,
-        boost::atomic<bool> &continue_recording_gps) {
+boost::thread* start_gps_thread(DataCapture& capture_info,
+        boost::atomic_uint_fast32_t& blocks_acquired,
+        boost::atomic<bool>& continue_recording_gps) {
     const int READ_FD = 0;
     const int WRITE_FD = 1;
 
@@ -881,7 +820,7 @@ boost::thread* start_gps_thread(DataCapture &capture_info,
 
     // A pipe to get info from acquire and read it in sampler (via acquire's
     // standard output):
-    int child_to_parent[2];
+    HANDLE child_to_parent[2];
     if(pipe(child_to_parent) != SUCCESS) {
         std::cerr << "ERROR: UNABLE TO OPEN PIPE FOR GPSBABEL OUTPUT" <<
                 std::endl;
@@ -932,7 +871,7 @@ boost::thread* start_gps_thread(DataCapture &capture_info,
     }
 
     pid_t gps_process_id = pid;
-    int gps_output_fd = child_to_parent[READ_FD];
+    HANDLE gps_output_fd = child_to_parent[READ_FD];
 
     boost::thread *gps_thread = new boost::thread(gps_thread_main_function,
             gps_process_id, gps_output_fd, boost::ref(capture_info),
@@ -940,9 +879,10 @@ boost::thread* start_gps_thread(DataCapture &capture_info,
     return gps_thread;
 }
 
-void gps_thread_main_function(pid_t gps_process_id, int gps_output_fd,
-        DataCapture &capture_info, boost::atomic_uint_fast32_t &blocks_acquired,
-        boost::atomic<bool> &continue_recording_gps) {
+void gps_thread_main_function(const pid_t gps_process_id,
+        const HANDLE gps_output_fd, DataCapture& capture_info,
+        boost::atomic_uint_fast32_t& blocks_acquired,
+        boost::atomic<bool>& continue_recording_gps) {
     // Get an istream from the pipe file descriptor.
     __gnu_cxx::stdio_filebuf<char> *sb =
             new __gnu_cxx::stdio_filebuf<char>(gps_output_fd, std::ios::in);
@@ -984,7 +924,7 @@ void gps_thread_main_function(pid_t gps_process_id, int gps_output_fd,
     delete sb;
 }
 
-std::string get_current_timestamp(DataCapture &capture) {
+std::string get_current_timestamp(DataCapture& capture) {
     std::time_t t = std::time(0);
     std::tm* time = std::localtime(&t);
 
@@ -1006,7 +946,7 @@ std::string get_current_timestamp(DataCapture &capture) {
     return timestamp.str();
 }
 
-void timestamp_filename(std::string &selected_name, DataCapture &capture) {
+void timestamp_filename(std::string& selected_name, DataCapture& capture) {
     std::string timestamp = get_current_timestamp(capture);
 
     size_t extension_index = selected_name.rfind('.');
@@ -1020,7 +960,7 @@ void timestamp_filename(std::string &selected_name, DataCapture &capture) {
     }
 }
 
-void exit_signal_handler(int signal, boost::atomic<bool> *flag_pointer) {
+void exit_signal_handler(int signal, boost::atomic<bool>* flag_pointer) {
     static boost::atomic<bool> &continue_reading_data = *flag_pointer;
     if(flag_pointer != NULL) {
         return;
@@ -1035,7 +975,40 @@ void exit_signal_handler(int signal, boost::atomic<bool> *flag_pointer) {
     }
 }
 
-void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
+void send_abort_signal(AcquireEnvironment environment) {
+    if(environment.signal_pid != NO_SIGNAL_PROCESS) {
+        std::cout << "Sending abort signal to signal process " <<
+                environment.signal_pid << std::endl;
+        kill(environment.signal_pid, SIGUSR1);
+    }
+}
+
+void free_memory(uint8_t*& first_buffer, uint8_t*& second_buffer) {
+    if(first_buffer) {
+        free(first_buffer);
+        first_buffer = NULL;
+    }
+    if(second_buffer) {
+        free(second_buffer);
+        second_buffer = NULL;
+    }
+}
+
+void remove_meta_gps_files(DataCapture& capture_info) {
+    if(capture_info.meta_filename != "") {
+        remove(capture_info.meta_filename.c_str());
+        capture_info.meta_filename = "";
+    }
+    if(capture_info.gps_filename != "") {
+        remove(capture_info.gps_filename.c_str());
+        capture_info.gps_filename = "";
+    }
+}
+
+
+
+
+void acquire_parser(int argc, char** argv, AcquireEnvironment &environment) {
     int arg_index;
 
     // check how many arguments, if run without arguements prints usage.
@@ -1300,14 +1273,13 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
     }
 }
 
-void acquire_set_session(uvAPI *pUV, AcquireEnvironment &environment) {
-
-    pUV->selClock(environment.board_num, environment.internal_clock);
-    int defaultchannels = pUV->GetAllChannels(environment.board_num);
-    if(pUV->IS_ISLA216P(environment.board_num)) {
-        if(pUV->HAS_microsynth(environment.board_num) && environment.internal_frequency != 0) {
+void acquire_set_session(uvAPI& uv, AcquireEnvironment& environment) {
+    uv.selClock(environment.board_num, environment.internal_clock);
+    int defaultchannels = uv.GetAllChannels(environment.board_num);
+    if(uv.IS_ISLA216P(environment.board_num)) {
+        if(uv.HAS_microsynth(environment.board_num) && environment.internal_frequency != 0) {
             if(environment.internal_frequency <= 250000000) {
-                pUV->MICROSYNTH_freq(environment.board_num, environment.internal_frequency);
+                uv.MICROSYNTH_freq(environment.board_num, environment.internal_frequency);
             }
             else {
                 printf("Frequency outside range 50MHz-250MHz, using previous frequency\n");
@@ -1344,22 +1316,22 @@ void acquire_set_session(uvAPI *pUV, AcquireEnvironment &environment) {
             printf("channel info not found, exiting\n");
             exit(1);
         }
-        pUV->selectAdcChannels(environment.board_num, selectedChannels);
+        uv.selectAdcChannels(environment.board_num, selectedChannels);
 
-        pUV->selectTrigger(environment.board_num, environment.trigger_mode, environment.trigger_slope, environment.trigger_channel);
-        pUV->configureWaveformTrigger(environment.board_num, environment.trigger_threshold_16, environment.trigger_hysteresis);
-        pUV->configureSegmentedCapture(environment.board_num, environment.capture_count, environment.capture_depth, 0);
+        uv.selectTrigger(environment.board_num, environment.trigger_mode, environment.trigger_slope, environment.trigger_channel);
+        uv.configureWaveformTrigger(environment.board_num, environment.trigger_threshold_16, environment.trigger_hysteresis);
+        uv.configureSegmentedCapture(environment.board_num, environment.capture_count, environment.capture_depth, 0);
         if(environment.num_averages > 0) {
-            pUV->configureAverager(environment.board_num, environment.num_averages, environment.averager_length, 0);
+            uv.configureAverager(environment.board_num, environment.num_averages, environment.averager_length, 0);
         }
-        pUV->setFiducialMarks(environment.board_num, environment.fiducial);
-        unsigned int trigVal = pUV->isTriggerEnabled(environment.board_num);
+        uv.setFiducialMarks(environment.board_num, environment.fiducial);
+        unsigned int trigVal = uv.isTriggerEnabled(environment.board_num);
 
     }
-    if(pUV->IS_adc12d2000(environment.board_num)) {
-        if(pUV->HAS_microsynth(environment.board_num) && environment.internal_frequency != 0) {
+    if(uv.IS_adc12d2000(environment.board_num)) {
+        if(uv.HAS_microsynth(environment.board_num) && environment.internal_frequency != 0) {
             if(environment.internal_frequency >= 300000000) {
-                pUV->MICROSYNTH_freq(environment.board_num, environment.internal_frequency);
+                uv.MICROSYNTH_freq(environment.board_num, environment.internal_frequency);
             }
             else {
                 printf("Frequency outside range 300MHz-2GHz, using previous frequency\n");
@@ -1383,33 +1355,33 @@ void acquire_set_session(uvAPI *pUV, AcquireEnvironment &environment) {
             else {
                 selectedChannels = 1;
             }
-            pUV->selectAdcChannels(environment.board_num, selectedChannels);
+            uv.selectAdcChannels(environment.board_num, selectedChannels);
         }
         else {
-            pUV->selectAdcChannels(environment.board_num, IN0 | IN1); // Two channel mode
+            uv.selectAdcChannels(environment.board_num, IN0 | IN1); // Two channel mode
             printf("two channel mode\n");
         }
 
         // Set ECL Trigger Delay
-        pUV->SetECLTriggerDelay(environment.board_num, environment.ecl_trigger_delay);
+        uv.SetECLTriggerDelay(environment.board_num, environment.ecl_trigger_delay);
         // Set Decimation
-        pUV->setAdcDecimation(environment.board_num, environment.decimation);
+        uv.setAdcDecimation(environment.board_num, environment.decimation);
         // Set ECL Trigger
-        pUV->SetECLTriggerEnable(environment.board_num, environment.ecl_trigger);
-        pUV->selectTrigger(environment.board_num, environment.trigger_mode, environment.trigger_slope, environment.trigger_channel);
-        pUV->configureWaveformTrigger(environment.board_num, environment.trigger_threshold_12, environment.trigger_hysteresis);
-        pUV->configureSegmentedCapture(environment.board_num, environment.capture_count, environment.capture_depth, 0);
+        uv.SetECLTriggerEnable(environment.board_num, environment.ecl_trigger);
+        uv.selectTrigger(environment.board_num, environment.trigger_mode, environment.trigger_slope, environment.trigger_channel);
+        uv.configureWaveformTrigger(environment.board_num, environment.trigger_threshold_12, environment.trigger_hysteresis);
+        uv.configureSegmentedCapture(environment.board_num, environment.capture_count, environment.capture_depth, 0);
         if(environment.num_averages > 0) {
             if(environment.num_averages > 64) {
                 environment.num_averages = 64;
                 printf("!!CAUTION!!: Averages reduced to maximum for AD12 (64)\n");
             }
-            pUV->configureAverager(environment.board_num, environment.num_averages, environment.averager_length, 0);
+            uv.configureAverager(environment.board_num, environment.num_averages, environment.averager_length, 0);
         }
-        pUV->setFiducialMarks(environment.board_num, environment.fiducial);
+        uv.setFiducialMarks(environment.board_num, environment.fiducial);
     }
 
-    if(pUV->IS_AD5474(environment.board_num)) {
+    if(uv.IS_AD5474(environment.board_num)) {
         printf("AD14 found\n");
         unsigned int selectedChannels = 0;
 
@@ -1430,35 +1402,35 @@ void acquire_set_session(uvAPI *pUV, AcquireEnvironment &environment) {
                 selectedChannels = IN0;
             }
 
-            pUV->selectAdcChannels(environment.board_num, selectedChannels);
+            uv.selectAdcChannels(environment.board_num, selectedChannels);
         }
         else {
             selectedChannels = 3; //1 || 2 = 3
             printf("Setting board to 2 channel mode\n");
-            pUV->selectAdcChannels(environment.board_num, selectedChannels);
+            uv.selectAdcChannels(environment.board_num, selectedChannels);
         }
 
         // Configure Trigger
-        pUV->selectTrigger(environment.board_num, environment.trigger_mode, environment.trigger_slope, environment.trigger_channel);
+        uv.selectTrigger(environment.board_num, environment.trigger_mode, environment.trigger_slope, environment.trigger_channel);
 
         //Configure Waveform Trigger
-        pUV->configureWaveformTrigger(environment.board_num, environment.trigger_threshold_14, environment.trigger_hysteresis);
+        uv.configureWaveformTrigger(environment.board_num, environment.trigger_threshold_14, environment.trigger_hysteresis);
 
         // Configure Segmented Capture
-        pUV->configureSegmentedCapture(environment.board_num, environment.capture_count, environment.capture_depth, 0);
+        uv.configureSegmentedCapture(environment.board_num, environment.capture_count, environment.capture_depth, 0);
 
         // Configure Averager
-        pUV->configureAverager(environment.board_num, environment.num_averages, environment.averager_length, 0);
+        uv.configureAverager(environment.board_num, environment.num_averages, environment.averager_length, 0);
 
         // Set Decimation
-        pUV->setAdcDecimation(environment.board_num, environment.decimation);
+        uv.setAdcDecimation(environment.board_num, environment.decimation);
 
         // Set Fiducial Marks
-        pUV->setFiducialMarks(environment.board_num, environment.fiducial);
+        uv.setFiducialMarks(environment.board_num, environment.fiducial);
 
     }
 
-    if(!pUV->IS_adc12d2000(environment.board_num) && !pUV->IS_ISLA216P(environment.board_num) && !pUV->IS_AD5474(environment.board_num)) {
+    if(!uv.IS_adc12d2000(environment.board_num) && !uv.IS_ISLA216P(environment.board_num) && !uv.IS_AD5474(environment.board_num)) {
         printf("AD8 found\n");
 
 
@@ -1475,21 +1447,21 @@ void acquire_set_session(uvAPI *pUV, AcquireEnvironment &environment) {
         else {
             selectedChannels = 3;
         }
-        //pUV->selectAdcChannels(environment.BoardNum, selectedChannels);
-        pUV->selectAdcChannels(environment.board_num, selectedChannels);
+        //pUV.selectAdcChannels(environment.BoardNum, selectedChannels);
+        uv.selectAdcChannels(environment.board_num, selectedChannels);
         // Set ECL Trigger Delay
-        pUV->SetECLTriggerDelay(environment.board_num, environment.ecl_trigger_delay);
+        uv.SetECLTriggerDelay(environment.board_num, environment.ecl_trigger_delay);
         // Set Decimation
-        pUV->setAdcDecimation(environment.board_num, environment.decimation);
+        uv.setAdcDecimation(environment.board_num, environment.decimation);
         // Set ECL Trigger
-        pUV->SetECLTriggerEnable(environment.board_num, environment.ecl_trigger);
+        uv.SetECLTriggerEnable(environment.board_num, environment.ecl_trigger);
         // Configure Segmented Capture
-        pUV->configureSegmentedCapture(environment.board_num, environment.capture_count, environment.capture_depth, 0);
+        uv.configureSegmentedCapture(environment.board_num, environment.capture_count, environment.capture_depth, 0);
     }
 
-    //       pUV->SetAdcDecimation(environment.BoardNum, environment.Decimation);
-    pUV->SetTTLInvert(environment.board_num, environment.ttl_invert);
-    pUV->setPreTriggerMemory(environment.board_num, environment.pretrigger_memory);
+    //       pUV.SetAdcDecimation(environment.BoardNum, environment.Decimation);
+    uv.SetTTLInvert(environment.board_num, environment.ttl_invert);
+    uv.setPreTriggerMemory(environment.board_num, environment.pretrigger_memory);
 }
 
 void acquire_parser_printf() {
