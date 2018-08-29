@@ -1012,14 +1012,13 @@ void timestamp_filename(std::string &selected_name, DataCapture &capture) {
 }
 
 void exit_signal_handler(int signal, boost::atomic<bool> *flag_pointer) {
-    static boost::atomic<bool> *continue_reading_data;
+    static boost::atomic<bool> &continue_reading_data = *flag_pointer;
     if(flag_pointer != NULL) {
-        continue_reading_data = flag_pointer;
         return;
     }
 
-    if(continue_reading_data->load()) {
-        continue_reading_data->store(false);
+    if(continue_reading_data.load()) {
+        continue_reading_data.store(false);
     }
     else {
         std::cout << "----Exit signal received outside of loop----" <<
