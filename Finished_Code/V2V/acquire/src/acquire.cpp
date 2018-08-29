@@ -31,7 +31,99 @@
 #include "DataCapture.h"
 #include "uvAPI.h"
 
-struct AcquireEnvironment;
+
+
+const int NO_SIGNAL_PROCESS = -1;
+
+const size_t BUFFER_ALIGNMENT = 4096;
+const size_t BLOCKS_PER_BUFFER = 200;
+const size_t BUFFER_SIZE = BLOCKS_PER_BUFFER * DIG_BLOCK_SIZE;
+
+const size_t BLOCKS_PER_READ = 1;
+const size_t READ_SIZE = DIG_BLOCK_SIZE * BLOCKS_PER_READ;
+
+const size_t BLOCKS_PER_SETUP_ACQUIRE = 8000000;
+
+const int SECONDS_TO_SLEEP = 3;
+
+const std::string default_output_extension = ".dat";
+
+
+
+struct AcquireEnvironment {
+
+    AcquireEnvironment() {
+        // Default values for SetupBoard. These may change in acquire_parser.
+        board_num = 0;
+        internal_clock = CLOCK_EXTERNAL;
+        single_channel_mode = 1; // Default to single channel mode.
+        single_channel_select = 0;
+        desiq = 0;
+        desclkiq = 0;
+        ecl_trigger = 0;
+        ecl_trigger_delay = 0;
+        dual_channel_mode = 0;
+        dual_channel_select = 01;
+        first_channel = 0; // Default to channel 0.
+        second_channel = 3; // Default to channel 3.
+        channels = 9; // Default bitwise channel 0 and 3.
+        capture_count = 0;
+        capture_depth = 0;
+        decimation = 1;
+        pretrigger_memory = 0;
+        ttl_invert = 0;
+        trigger_mode = NO_TRIGGER;
+        trigger_channel = 0;
+        trigger_slope = FALLING_EDGE;
+        trigger_threshold_16 = 32768;
+        trigger_threshold_14 = 8192;
+        trigger_threshold_12 = 2048;
+        trigger_hysteresis = 100;
+        num_averages = 0;
+        averager_length = 4096;
+        fiducial = 0;
+        force_calibration = 0;
+        internal_frequency = 0.0;
+
+        record_gps_data = false;
+        signal_pid = NO_SIGNAL_PROCESS;
+        user_outputfile = NULL;
+    }
+    unsigned short board_num;
+    unsigned int internal_clock;
+    unsigned int single_channel_mode;
+    unsigned int single_channel_select;
+    unsigned int desiq;
+    unsigned int desclkiq;
+    unsigned int ecl_trigger;
+    unsigned int ecl_trigger_delay;
+    unsigned int dual_channel_mode;
+    unsigned int dual_channel_select;
+    unsigned int first_channel;
+    unsigned int second_channel;
+    unsigned int channels;
+    unsigned int capture_count;
+    unsigned int capture_depth;
+    unsigned int decimation;
+    unsigned int pretrigger_memory;
+    unsigned int ttl_invert;
+    unsigned int trigger_mode;
+    unsigned int trigger_channel;
+    unsigned int trigger_slope;
+    unsigned int trigger_threshold_16;
+    unsigned int trigger_threshold_14;
+    unsigned int trigger_threshold_12;
+    unsigned int trigger_hysteresis;
+    unsigned int num_averages;
+    unsigned int averager_length;
+    unsigned int fiducial;
+    unsigned int force_calibration;
+    double internal_frequency;
+
+    bool record_gps_data;
+    int signal_pid;
+    char * user_outputfile;
+};
 
 /*
  * Reads the command sent in by the user and parses what board settings the user
@@ -54,7 +146,10 @@ void acquire_set_session(uvAPI * pUV, AcquireEnvironment &environment);
 /*
  * Handles the exit signal given by pressing ctrl-c.
  */
-void exit_signal_handler(int signal);
+void exit_signal_handler(int signal, boost::atomic<bool> *flag_pointer);
+void exit_signal_handler(int signal) {
+    exit_signal_handler(signal, NULL);
+}
 
 /*
  * Adds a timestamp to the given filename, before any file type.
@@ -78,98 +173,6 @@ void gps_thread_main_function(pid_t gps_process_id, int gps_output_fd,
         boost::atomic<bool> &continue_recording_gps);
 
 
-
-const int NO_SIGNAL_PROCESS = -1;
-
-struct AcquireEnvironment {
-
-    AcquireEnvironment() {
-        // Default values for SetupBoard. These may change in acquire_parser.
-        BoardNum = 0;
-        InternalClock = CLOCK_EXTERNAL;
-        SingleChannelMode = 1; // Default to single channel mode.
-        SingleChannelSelect = 0;
-        DESIQ = 0;
-        DESCLKIQ = 0;
-        ECLTrigger = 0;
-        ECLTriggerDelay = 0;
-        DualChannelMode = 0;
-        DualChannelSelect = 01;
-        firstchan = 0; // Default to channel 0.
-        secondchan = 3; // Default to channel 3.
-        chans = 9; // Default bitwise channel 0 and 3.
-        CaptureCount = 0;
-        CaptureDepth = 0;
-        Decimation = 1;
-        PretriggerMemory = 0;
-        TTLInvert = 0;
-        TriggerMode = NO_TRIGGER;
-        TriggerCh = 0;
-        TriggerSlope = FALLING_EDGE;
-        TriggerThreshold16 = 32768;
-        TriggerThreshold14 = 8192;
-        TriggerThreshold12 = 2048;
-        TriggerHysteresis = 100;
-        NumAverages = 0;
-        AveragerLength = 4096;
-        Fiducial = 0;
-        forceCal = 0;
-        Frequency = 0.0;
-
-        RecordGPSData = false;
-        signal_pid = NO_SIGNAL_PROCESS;
-        user_outputfile = NULL;
-    }
-    unsigned short BoardNum;
-    unsigned int InternalClock;
-    unsigned int SingleChannelMode;
-    unsigned int SingleChannelSelect;
-    unsigned int DESIQ;
-    unsigned int DESCLKIQ;
-    unsigned int ECLTrigger;
-    unsigned int ECLTriggerDelay;
-    unsigned int DualChannelMode;
-    unsigned int DualChannelSelect;
-    unsigned int firstchan;
-    unsigned int secondchan;
-    unsigned int chans;
-    unsigned int CaptureCount;
-    unsigned int CaptureDepth;
-    unsigned int Decimation;
-    unsigned int PretriggerMemory;
-    unsigned int TTLInvert;
-    unsigned int TriggerMode;
-    unsigned int TriggerCh;
-    unsigned int TriggerSlope;
-    unsigned int TriggerThreshold16;
-    unsigned int TriggerThreshold14;
-    unsigned int TriggerThreshold12;
-    unsigned int TriggerHysteresis;
-    unsigned int NumAverages;
-    unsigned int AveragerLength;
-    unsigned int Fiducial;
-    unsigned int forceCal;
-    double Frequency;
-
-    bool RecordGPSData;
-    int signal_pid;
-    char * user_outputfile;
-};
-
-
-const size_t BUFFER_ALIGNMENT = 4096;
-const size_t BLOCKS_PER_BUFFER = 200;
-const size_t BUFFER_SIZE = BLOCKS_PER_BUFFER * DIG_BLOCK_SIZE;
-const int SECONDS_TO_SLEEP = 3;
-
-const size_t BLOCKS_PER_READ = 1;
-const size_t READ_SIZE = DIG_BLOCK_SIZE * BLOCKS_PER_READ;
-
-const size_t BLOCKS_PER_SETUP_ACQUIRE = 8000000;
-
-const std::string default_output_extension = ".dat";
-
-boost::atomic<bool> continueReadingData(true);
 
 uint8_t* first_buffer = NULL;
 uint8_t* second_buffer = NULL;
@@ -196,10 +199,13 @@ int main(int argc, char ** argv) {
     command << "/bin/echo " << process_id << " > /cgroup/cpuset/acquire/tasks";
     system(command.str().c_str());
 
+    boost::atomic<bool> continue_reading_data(true);
+
     // Set the signal handler for when the user presses ctrl-c.
+    exit_signal_handler(0, &continue_reading_data);
     signal(SIGINT, &exit_signal_handler);
 
-    std::cout << "\aacquire continuously v1.0" << std::endl << std::endl;
+    std::cout << "acquire continuously v1.0" << std::endl << std::endl;
 
     int error = 0;
     char output_file[MAX_DEVICES][128] = {"uvdma.dat", "uvdma1.dat",
@@ -208,21 +214,21 @@ int main(int argc, char ** argv) {
     // Parse the command line options.
     acquire_parser(argc, argv, environment);
 
-    // A class with convienient access functions to the DLL.
+    // A class with convenient access functions to the DLL.
     uvAPI *uv = new uvAPI;
 
     // Initialize settings.
-    if(environment.forceCal) {
+    if(environment.force_calibration) {
         // Force full setup.
-        uv->setSetupDoneBit(environment.BoardNum, 0);
+        uv->setSetupDoneBit(environment.board_num, 0);
     }
-    uv->setupBoard(environment.BoardNum);
+    uv->setupBoard(environment.board_num);
 
     // Write user settings to the board.
     acquire_set_session(uv, environment);
 
     // Read the clock frequency.
-    unsigned int adcClock = uv->getAdcClockFreq(environment.BoardNum);
+    unsigned int adcClock = uv->getAdcClockFreq(environment.board_num);
     std::cout << " ADC clock freq ~= " << adcClock << "MHz" << std::endl;
     fflush(stdout);
 
@@ -266,12 +272,12 @@ int main(int argc, char ** argv) {
     // this program. We have chosen 8,000,000 blocks, which is just under 8 TB
     // of data. If this is not enough, change the value of
     // BLOCKS_PER_SETUP_ACQUIRE.
-    uv->SetupAcquire(environment.BoardNum, BLOCKS_PER_SETUP_ACQUIRE);
+    uv->SetupAcquire(environment.board_num, BLOCKS_PER_SETUP_ACQUIRE);
 
     // Acquire and discard the first block of data. Once this happens, the DAQ
     // card starts saving the incoming data to its internal buffer until it has
     // saved BLOCKS_PER_SETUP_ACQUIRE blocks.
-    uv->X_Read(environment.BoardNum, first_buffer, READ_SIZE);
+    uv->X_Read(environment.board_num, first_buffer, READ_SIZE);
 
     // ----------IMPORTANT----------
     // For some reason, the DAQ card does not always work properly if we don't
@@ -304,7 +310,7 @@ int main(int argc, char ** argv) {
     // name.
     std::string filename = DATA_FOLDER + "/" +
             (environment.user_outputfile == NULL ?
-            output_file[environment.BoardNum] : environment.user_outputfile);
+            output_file[environment.board_num] : environment.user_outputfile);
 
     // Add the timestamp to the filename.
     timestamp_filename(filename, capture_info);
@@ -341,8 +347,8 @@ int main(int argc, char ** argv) {
     // Reserve space on disk for the gps file, in case we completely fill up the
     // disk with data.
     // Short circuiting ensures that we don't reserve space for the gps file if
-    // RecordGPSData == false.
-    if(environment.RecordGPSData &&
+    // record_gps_data == false.
+    if(environment.record_gps_data &&
             capture_info.reserve_gps_file_space() != 0) {
         if(first_buffer) {
             free(first_buffer);
@@ -428,15 +434,15 @@ int main(int argc, char ** argv) {
     // This is the number of blocks that we've captured so far. It needs to be
     // atomic because the gps thread accesses this value while the main thread
     // writes to it.
-    boost::atomic_uint_fast32_t data_written_megabytes(0);
+    boost::atomic_uint_fast32_t blocks_captured(0);
 
     //----------------GPS THREAD START----------------
 
     boost::thread *gps_thread = NULL;
-    if(environment.RecordGPSData) {
+    if(environment.record_gps_data) {
         // Start up the thread that will record the gps data.
-        gps_thread = start_gps_thread(capture_info, data_written_megabytes,
-                continueReadingData);
+        gps_thread = start_gps_thread(capture_info, blocks_captured,
+                continue_reading_data);
         if(gps_thread == NULL) {
             std::cerr << "ERROR: UNABLE TO START GPS THREAD" << std::endl;
         }
@@ -465,18 +471,18 @@ int main(int argc, char ** argv) {
 
     // continueReadingData will be true until the user presses ctrl-c.
     // (The exit_signal_handler function changes continueReadingData.)
-    while(continueReadingData.load()) {
+    while(continue_reading_data.load()) {
         // This is the total number of blocks we will have acquired when we run
         // out of the current call to SetupAcquire; in other words, once we've
         // acquired block_limit total blocks, it's time to call SetupAcquire
         // again.
         unsigned int block_limit =
                 BLOCKS_PER_SETUP_ACQUIRE * setup_acquire_call_count;
-        for(; data_written_megabytes.load() < block_limit &&
-                continueReadingData.load();
-                data_written_megabytes.add(BLOCKS_PER_READ)) {
+        for(; blocks_captured.load() < block_limit &&
+                continue_reading_data.load();
+                blocks_captured.add(BLOCKS_PER_READ)) {
             // Read a block from the board.
-            uv->X_Read(environment.BoardNum, current_buffer, READ_SIZE);
+            uv->X_Read(environment.board_num, current_buffer, READ_SIZE);
             blocks_in_current_buffer += BLOCKS_PER_READ;
 
             // If we've filled up the current buffer,
@@ -513,7 +519,7 @@ int main(int argc, char ** argv) {
 
                     // Forget about the blocks we were about to save from this
                     // buffer.
-                    data_written_megabytes.sub(blocks_in_current_buffer);
+                    blocks_captured.sub(blocks_in_current_buffer);
                     // If the write thread managed to save any data at all,
                     if(write_thread_status > 0) {
                         // Calculate how many blocks the write thread managed
@@ -523,18 +529,18 @@ int main(int argc, char ** argv) {
                         int blocks_written = write_thread_status / size;
                         int blocks_not_written =
                                 blocks_in_buffer_ready_to_save - blocks_written;
-                        data_written_megabytes.sub(blocks_not_written);
+                        blocks_captured.sub(blocks_not_written);
                     }
                         // If the write thread didn't save any data,
                     else {
                         // Forget about all the blocks we thought we saved from
                         // the last buffer.
-                        data_written_megabytes.sub(
+                        blocks_captured.sub(
                                 blocks_in_buffer_ready_to_save);
                     }
 
                     abort_reading = true;
-                    continueReadingData.store(false);
+                    continue_reading_data.store(false);
                     break;
                 }
 
@@ -573,15 +579,15 @@ int main(int argc, char ** argv) {
         }
 
         // Let the user know if there were any data overruns.
-        unsigned long overruns = uv->getOverruns(environment.BoardNum);
+        unsigned long overruns = uv->getOverruns(environment.board_num);
         if(overruns > 0) {
             std::cerr << "WARNING: " << overruns << " OVERRUNS OCCURRED" <<
                     std::endl;
         }
 
-        if(continueReadingData.load()) {
+        if(continue_reading_data.load()) {
             ++setup_acquire_call_count;
-            uv->SetupAcquire(environment.BoardNum, BLOCKS_PER_SETUP_ACQUIRE);
+            uv->SetupAcquire(environment.board_num, BLOCKS_PER_SETUP_ACQUIRE);
         }
     }
     // Measure the time when we stopped capturing new data.
@@ -610,7 +616,7 @@ int main(int argc, char ** argv) {
 
             // Forget about the blocks we were about to save from the
             // partially-full buffer.
-            data_written_megabytes.sub(blocks_in_current_buffer);
+            blocks_captured.sub(blocks_in_current_buffer);
 
             // If the write thread managed to save any data at all,
             if(write_thread_status > 0) {
@@ -620,13 +626,13 @@ int main(int argc, char ** argv) {
                 int blocks_written = write_thread_status / size;
                 int blocks_not_written = blocks_in_buffer_ready_to_save -
                         blocks_written;
-                data_written_megabytes.sub(blocks_not_written);
+                blocks_captured.sub(blocks_not_written);
             }
                 // If the write thread didn't save any data,
             else {
                 // Forget about all the blocks we thought we saved from the last
                 // buffer.
-                data_written_megabytes.sub(blocks_in_buffer_ready_to_save);
+                blocks_captured.sub(blocks_in_buffer_ready_to_save);
             }
 
             // Have the write thread go ahead and exit.
@@ -691,13 +697,13 @@ int main(int argc, char ** argv) {
                     int blocks_written = write_thread_status / size;
                     int blocks_not_written = blocks_in_buffer_ready_to_save -
                             blocks_written;
-                    data_written_megabytes.sub(blocks_not_written);
+                    blocks_captured.sub(blocks_not_written);
                 }
                     // If the write thread didn't save any data,
                 else {
                     // Forget about all the blocks we thought we saved from the
                     // last buffer.
-                    data_written_megabytes.sub(blocks_in_buffer_ready_to_save);
+                    blocks_captured.sub(blocks_in_buffer_ready_to_save);
                 }
 
                 abort_reading = true;
@@ -732,7 +738,7 @@ int main(int argc, char ** argv) {
         }
     }
 
-    if(environment.RecordGPSData && gps_thread != NULL) {
+    if(environment.record_gps_data && gps_thread != NULL) {
         // The gps thread got the signal to finish when we marked
         // continueReadingData as false.
         // Wait for the gps thread to finish.
@@ -757,12 +763,12 @@ int main(int argc, char ** argv) {
             (end_time.tv_nsec - start_time.tv_nsec) / (double)1000000000;
 
     capture_info.duration = elapsed_time_seconds;
-    capture_info.size = data_written_megabytes.load();
+    capture_info.size = blocks_captured.load();
 
-    printf("Data captured: %lu MB\n", data_written_megabytes.load());
+    printf("Data captured: %lu MB\n", blocks_captured.load());
     printf("Elapsed time: %.4f s\n", elapsed_time_seconds);
     printf("Average data capture rate: %.4f MB/s\n\n\n",
-            data_written_megabytes.load() / elapsed_time_seconds);
+            blocks_captured.load() / elapsed_time_seconds);
 
 
     // This EXPECTED_RATE is the data transfer rate, in MB/s, that ideally would
@@ -777,7 +783,7 @@ int main(int argc, char ** argv) {
 
     std::cout << "--------------------------------------\n";
     printf("Proportion of data points gathered:\n%.5f%%\n",
-            data_written_megabytes.load() / elapsed_time_seconds / EXPECTED_RATE
+            blocks_captured.load() / elapsed_time_seconds / EXPECTED_RATE
             * 100);
     std::cout << "--------------------------------------\n\n\n";
 
@@ -788,7 +794,8 @@ int main(int argc, char ** argv) {
     capture_info.write_to_file();
     // Output the name of the metadata file so that any program that knows what
     // to look for (e.g. sampler) can know what it is.
-    std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " << capture_info.meta_filename << std::endl << std::endl;
+    std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " <<
+            capture_info.meta_filename << std::endl << std::endl;
 
     // Save the gps data to a file.
     capture_info.save_gps_to_google_earth_file();
@@ -896,8 +903,8 @@ boost::thread* start_gps_thread(DataCapture &capture_info,
 
         // Not necessary to change directories because gpsbabel is on the path
         // and gpsbabel_xcsv_format.txt is in the current directory.
-        execlp("/usr/local/bin/gpsbabel", "gpsbabel", "-T", "-i", "garmin",
-                "-f", "usb:", "-o", "xcsv,style=gpsbabel_xcsv_format.txt", "-F",
+        execl("/usr/local/bin/gpsbabel", "gpsbabel", "-T", "-i", "garmin", "-f",
+                "usb:", "-o", "xcsv,style=gpsbabel_xcsv_format.txt", "-F",
                 "/dev/stdout", NULL);
 
         std::cerr << "ERROR: EXEC CALL FAILURE IN GPS CHILD PROCESS" <<
@@ -1004,9 +1011,15 @@ void timestamp_filename(std::string &selected_name, DataCapture &capture) {
     }
 }
 
-void exit_signal_handler(int signal) {
-    if(continueReadingData.load()) {
-        continueReadingData.store(false);
+void exit_signal_handler(int signal, boost::atomic<bool> *flag_pointer) {
+    static boost::atomic<bool> *continue_reading_data;
+    if(flag_pointer != NULL) {
+        continue_reading_data = flag_pointer;
+        return;
+    }
+
+    if(continue_reading_data->load()) {
+        continue_reading_data->store(false);
     }
     else {
         std::cout << "----Exit signal received outside of loop----" <<
@@ -1037,13 +1050,13 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
                 }
             }
             else if(strcmp(argv[arg_index], "-gps") == 0) {
-                environment.RecordGPSData = true;
+                environment.record_gps_data = true;
             }
             else if(strcmp(argv[arg_index], "-b") == 0) {
                 // make sure option is followed by (BoardNum)
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.BoardNum = atoi(argv[arg_index]);
+                    environment.board_num = atoi(argv[arg_index]);
                 }
                 else {
                     std::cout << "Invalid board number with ""-b"" option" << std::endl;
@@ -1051,20 +1064,20 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
                 }
             }
             else if(strcmp(argv[arg_index], "-forceCal") == 0) {
-                environment.forceCal = 1;
+                environment.force_calibration = 1;
                 std::cout << "force calibration selected" << std::endl;
             }
             else if(strcmp(argv[arg_index], "-ic") == 0) {
-                environment.InternalClock = CLOCK_INTERNAL;
+                environment.internal_clock = CLOCK_INTERNAL;
                 std::cout << "internal clock selected" << std::endl;
             }
             else if(strcmp(argv[arg_index], "-freq") == 0) {
                 // make sure option is followed by (Chan N)user_outputfile  = argv[arg_index];
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taking care of the next arguement
-                    environment.Frequency = atoi(argv[arg_index]);
-                    if(environment.Frequency <= 2000000000 && environment.Frequency >= 50000000) {
-                        std::cout << "Internal clock frequency " << environment.Frequency << std::endl;
+                    environment.internal_frequency = atoi(argv[arg_index]);
+                    if(environment.internal_frequency <= 2000000000 && environment.internal_frequency >= 50000000) {
+                        std::cout << "Internal clock frequency " << environment.internal_frequency << std::endl;
                     }
                     else {
                         std::cout << "Frequency selected must be between 300MHz and 2GHz for AD12 and 50MHz and 250MHz for AD16" << std::endl;
@@ -1084,15 +1097,15 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
                 }
             }
             else if(strcmp(argv[arg_index], "-scm") == 0) {
-                environment.SingleChannelMode = 1;
-                environment.SingleChannelSelect = 0;
+                environment.single_channel_mode = 1;
+                environment.single_channel_select = 0;
             }
             else if(strcmp(argv[arg_index], "-scs") == 0) {
                 // make sure option is followed by (Chan N)
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.SingleChannelSelect = atoi(argv[arg_index]);
-                    std::cout << "SingleChannelSelect " << environment.SingleChannelSelect << std::endl;
+                    environment.single_channel_select = atoi(argv[arg_index]);
+                    std::cout << "SingleChannelSelect " << environment.single_channel_select << std::endl;
                 }
                 else {
                     std::cout << "(Chan N) must be in range 0,1 for 2-channel boards and 0,1,2,3 for 4-channel boards" << std::endl;
@@ -1100,22 +1113,22 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
                 }
             }
             else if(strcmp(argv[arg_index], "-desiq") == 0) {
-                environment.DESIQ = 1;
-                environment.SingleChannelMode = 1;
-                environment.SingleChannelSelect = 0;
+                environment.desiq = 1;
+                environment.single_channel_mode = 1;
+                environment.single_channel_select = 0;
             }
             else if(strcmp(argv[arg_index], "-desclkiq") == 0) {
-                environment.DESCLKIQ = 1;
-                environment.SingleChannelMode = 1;
-                environment.SingleChannelSelect = 0;
+                environment.desclkiq = 1;
+                environment.single_channel_mode = 1;
+                environment.single_channel_select = 0;
             }
             else if(strcmp(argv[arg_index], "-ecltrig") == 0) {
-                environment.ECLTrigger = 1;
+                environment.ecl_trigger = 1;
             }
             else if(strcmp(argv[arg_index], "-ecldelay") == 0) {
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.ECLTriggerDelay = atoi(argv[arg_index]);
+                    environment.ecl_trigger_delay = atoi(argv[arg_index]);
                 }
                 else {
                     std::cout << "ECL trigger delay must be [0,2^32]" << std::endl;
@@ -1123,17 +1136,17 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
                 }
             }
             else if(strcmp(argv[arg_index], "-dcm") == 0) {
-                environment.DualChannelMode = 1;
-                environment.DualChannelSelect = 3; // Default DualChannelSelect = channel 0 channel 1
+                environment.dual_channel_mode = 1;
+                environment.dual_channel_select = 3; // Default DualChannelSelect = channel 0 channel 1
             }
             else if(strcmp(argv[arg_index], "-dcs") == 0) {
                 // make sure option is followed by (Chan N)
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.DualChannelSelect = atoi(argv[arg_index]);
-                    environment.firstchan = environment.DualChannelSelect / 10;
-                    environment.secondchan = environment.DualChannelSelect % 10;
-                    environment.chans = (1 << environment.firstchan) + (1 << environment.secondchan); //bitwise representation of channels
+                    environment.dual_channel_select = atoi(argv[arg_index]);
+                    environment.first_channel = environment.dual_channel_select / 10;
+                    environment.second_channel = environment.dual_channel_select % 10;
+                    environment.channels = (1 << environment.first_channel) + (1 << environment.second_channel); //bitwise representation of channels
                 }
                 else {
                     std::cout << "(Chan NM) must be 01, 02, 03, 12, 13, 23" << std::endl;
@@ -1143,7 +1156,7 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
             else if(strcmp(argv[arg_index], "-capture_count") == 0) {
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.CaptureCount = atoi(argv[arg_index]);
+                    environment.capture_count = atoi(argv[arg_index]);
                 }
                 else {
                     printf("setCaptureDepth must be [0,2^32] \n");
@@ -1153,14 +1166,14 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
             else if(strcmp(argv[arg_index], "-capture_depth") == 0) {
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.CaptureDepth = atoi(argv[arg_index]);
+                    environment.capture_depth = atoi(argv[arg_index]);
                 }
                 else {
                     std::cout << "capture_depth must a multiple of 8 up to 2^32. 0 = normal acquisition." << std::endl;
                     exit(1);
                 }
 
-                if((environment.CaptureDepth % 8) != 0) {
+                if((environment.capture_depth % 8) != 0) {
                     std::cout << "capture_depth must a multiple of 8 up to 2^32. 0 = normal acquisition." << std::endl;
                     exit(1);
                 }
@@ -1169,17 +1182,17 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
                 // Make sure option is followed by the desired decimation amount
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.Decimation = atoi(argv[arg_index]);
+                    environment.decimation = atoi(argv[arg_index]);
                 }
                 else {
                     std::cout << "Decimation must either be 1, 2, 4, 8" << std::endl;
                     exit(1);
                 }
 
-                if(!((environment.Decimation == 1) ||
-                        (environment.Decimation == 2) ||
-                        (environment.Decimation == 4) ||
-                        (environment.Decimation == 8))) {
+                if(!((environment.decimation == 1) ||
+                        (environment.decimation == 2) ||
+                        (environment.decimation == 4) ||
+                        (environment.decimation == 8))) {
                     std::cout << "Decimation must either be 1, 2, 4, 8" << std::endl;
                     exit(1);
                 }
@@ -1187,42 +1200,42 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
             else if(strcmp(argv[arg_index], "-pretrigger") == 0) {
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.PretriggerMemory = atoi(argv[arg_index]);
+                    environment.pretrigger_memory = atoi(argv[arg_index]);
                 }
                 else {
                     std::cout << "pretrigger must be 0 to 4096" << std::endl;
                     exit(1);
                 }
-                if(environment.PretriggerMemory > 4096) {
+                if(environment.pretrigger_memory > 4096) {
                     std::cout << "pretrigger must be 0 to 4096" << std::endl;
                     exit(1);
                 }
             }
             else if(strcmp(argv[arg_index], "-ttledge") == 0) {
-                environment.TriggerMode = TTL_TRIGGER_EDGE;
+                environment.trigger_mode = TTL_TRIGGER_EDGE;
             }
             else if(strcmp(argv[arg_index], "-ttlinv") == 0) {
-                environment.TTLInvert = 1;
+                environment.ttl_invert = 1;
             }
             else if(strcmp(argv[arg_index], "-hdiode") == 0) {
-                environment.TriggerMode = HETERODYNE;
+                environment.trigger_mode = HETERODYNE;
             }
             else if(strcmp(argv[arg_index], "-syncselrecord") == 0) {
-                environment.TriggerMode = SYNC_SELECTIVE_RECORDING;
+                environment.trigger_mode = SYNC_SELECTIVE_RECORDING;
             }
             else if(strcmp(argv[arg_index], "-analog") == 0) {
-                environment.TriggerMode = WAVEFORM_TRIGGER;
+                environment.trigger_mode = WAVEFORM_TRIGGER;
             }
             else if(strcmp(argv[arg_index], "-analog_ch") == 0) {
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.TriggerCh = atoi(argv[arg_index]);
+                    environment.trigger_channel = atoi(argv[arg_index]);
                 }
                 else {
                     std::cout << "analog_ch must be either 0,1,2,3 (4-channel boards), or 0,1 (2-channel boards)" << std::endl;
                     exit(1);
                 }
-                if(environment.PretriggerMemory > 2047) {
+                if(environment.pretrigger_memory > 2047) {
                     std::cout << "analog_ch must be either 0,1,2,3 (4-channel boards), or 0,1 (2-channel boards)" << std::endl;
                     exit(1);
                 }
@@ -1230,9 +1243,9 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
             else if(strcmp(argv[arg_index], "-threshold") == 0) {
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.TriggerThreshold12 = atoi(argv[arg_index]);
-                    environment.TriggerThreshold16 = environment.TriggerThreshold12; //this may need a better scheme
-                    environment.TriggerThreshold14 = environment.TriggerThreshold12; //this may need a better scheme
+                    environment.trigger_threshold_12 = atoi(argv[arg_index]);
+                    environment.trigger_threshold_16 = environment.trigger_threshold_12; //this may need a better scheme
+                    environment.trigger_threshold_14 = environment.trigger_threshold_12; //this may need a better scheme
                 }
                 else {
                     std::cout << "thresh_a must be 0 to 65535 (16bit)" << std::cout;
@@ -1245,7 +1258,7 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
             else if(strcmp(argv[arg_index], "-hysteresis") == 0) {
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.TriggerHysteresis = atoi(argv[arg_index]);
+                    environment.trigger_hysteresis = atoi(argv[arg_index]);
                 }
                 else {
                     std::cout << "thresh_b must be 0 to 65535" << std::endl;
@@ -1255,7 +1268,7 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
             else if(strcmp(argv[arg_index], "-avg") == 0) {
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taking care of the next arguement
-                    environment.NumAverages = atoi(argv[arg_index]);
+                    environment.num_averages = atoi(argv[arg_index]);
                 }
                 else {
                     std::cout << "NumAverages must be [0,2^32]" << std::endl;
@@ -1265,7 +1278,7 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
             else if(strcmp(argv[arg_index], "-avg_len") == 0) {
                 if(argc > (arg_index + 1)) {
                     arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.AveragerLength = atoi(argv[arg_index]);
+                    environment.averager_length = atoi(argv[arg_index]);
                 }
                 else {
                     std::cout << "AveragerLength must be [0, 2^17]" << std::endl;
@@ -1273,7 +1286,7 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
                 }
             }
             else if(strcmp(argv[arg_index], "-fiducial") == 0) {
-                environment.Fiducial = 1;
+                environment.fiducial = 1;
             }
         }
     }
@@ -1281,12 +1294,12 @@ void acquire_parser(int argc, char ** argv, AcquireEnvironment &environment) {
 
 void acquire_set_session(uvAPI *pUV, AcquireEnvironment &environment) {
 
-    pUV->selClock(environment.BoardNum, environment.InternalClock);
-    int defaultchannels = pUV->GetAllChannels(environment.BoardNum);
-    if(pUV->IS_ISLA216P(environment.BoardNum)) {
-        if(pUV->HAS_microsynth(environment.BoardNum) && environment.Frequency != 0) {
-            if(environment.Frequency <= 250000000) {
-                pUV->MICROSYNTH_freq(environment.BoardNum, environment.Frequency);
+    pUV->selClock(environment.board_num, environment.internal_clock);
+    int defaultchannels = pUV->GetAllChannels(environment.board_num);
+    if(pUV->IS_ISLA216P(environment.board_num)) {
+        if(pUV->HAS_microsynth(environment.board_num) && environment.internal_frequency != 0) {
+            if(environment.internal_frequency <= 250000000) {
+                pUV->MICROSYNTH_freq(environment.board_num, environment.internal_frequency);
             }
             else {
                 printf("Frequency outside range 50MHz-250MHz, using previous frequency\n");
@@ -1294,8 +1307,8 @@ void acquire_set_session(uvAPI *pUV, AcquireEnvironment &environment) {
         }
         unsigned int selectedChannels = 0;
 
-        if(environment.SingleChannelMode == 1) {
-            switch(environment.SingleChannelSelect) {
+        if(environment.single_channel_mode == 1) {
+            switch(environment.single_channel_select) {
             case 0:
                 selectedChannels = IN0;
                 break;
@@ -1313,8 +1326,8 @@ void acquire_set_session(uvAPI *pUV, AcquireEnvironment &environment) {
                 break;
             }
         }
-        else if(environment.DualChannelMode == 1 || defaultchannels == 2) {
-            selectedChannels = (environment.chans);
+        else if(environment.dual_channel_mode == 1 || defaultchannels == 2) {
+            selectedChannels = (environment.channels);
         }
         else if(defaultchannels == 4) {
             selectedChannels = (IN0 | IN1 | IN2 | IN3);
@@ -1323,84 +1336,84 @@ void acquire_set_session(uvAPI *pUV, AcquireEnvironment &environment) {
             printf("channel info not found, exiting\n");
             exit(1);
         }
-        pUV->selectAdcChannels(environment.BoardNum, selectedChannels);
+        pUV->selectAdcChannels(environment.board_num, selectedChannels);
 
-        pUV->selectTrigger(environment.BoardNum, environment.TriggerMode, environment.TriggerSlope, environment.TriggerCh);
-        pUV->configureWaveformTrigger(environment.BoardNum, environment.TriggerThreshold16, environment.TriggerHysteresis);
-        pUV->configureSegmentedCapture(environment.BoardNum, environment.CaptureCount, environment.CaptureDepth, 0);
-        if(environment.NumAverages > 0) {
-            pUV->configureAverager(environment.BoardNum, environment.NumAverages, environment.AveragerLength, 0);
+        pUV->selectTrigger(environment.board_num, environment.trigger_mode, environment.trigger_slope, environment.trigger_channel);
+        pUV->configureWaveformTrigger(environment.board_num, environment.trigger_threshold_16, environment.trigger_hysteresis);
+        pUV->configureSegmentedCapture(environment.board_num, environment.capture_count, environment.capture_depth, 0);
+        if(environment.num_averages > 0) {
+            pUV->configureAverager(environment.board_num, environment.num_averages, environment.averager_length, 0);
         }
-        pUV->setFiducialMarks(environment.BoardNum, environment.Fiducial);
-        unsigned int trigVal = pUV->isTriggerEnabled(environment.BoardNum);
+        pUV->setFiducialMarks(environment.board_num, environment.fiducial);
+        unsigned int trigVal = pUV->isTriggerEnabled(environment.board_num);
 
     }
-    if(pUV->IS_adc12d2000(environment.BoardNum)) {
-        if(pUV->HAS_microsynth(environment.BoardNum) && environment.Frequency != 0) {
-            if(environment.Frequency >= 300000000) {
-                pUV->MICROSYNTH_freq(environment.BoardNum, environment.Frequency);
+    if(pUV->IS_adc12d2000(environment.board_num)) {
+        if(pUV->HAS_microsynth(environment.board_num) && environment.internal_frequency != 0) {
+            if(environment.internal_frequency >= 300000000) {
+                pUV->MICROSYNTH_freq(environment.board_num, environment.internal_frequency);
             }
             else {
                 printf("Frequency outside range 300MHz-2GHz, using previous frequency\n");
             }
         }
         unsigned int selectedChannels = 0;
-        if(environment.SingleChannelMode == 1) // One channel mode
+        if(environment.single_channel_mode == 1) // One channel mode
         {
-            if(environment.DESIQ == 1) {
+            if(environment.desiq == 1) {
                 selectedChannels = 8;
             }
-            else if(environment.DESCLKIQ == 1) {
+            else if(environment.desclkiq == 1) {
                 selectedChannels = 4;
             }
-            else if(environment.SingleChannelSelect == 0) {
+            else if(environment.single_channel_select == 0) {
                 selectedChannels = 1;
             }
-            else if(environment.SingleChannelSelect == 1) {
+            else if(environment.single_channel_select == 1) {
                 selectedChannels = 2;
             }
             else {
                 selectedChannels = 1;
             }
-            pUV->selectAdcChannels(environment.BoardNum, selectedChannels);
+            pUV->selectAdcChannels(environment.board_num, selectedChannels);
         }
         else {
-            pUV->selectAdcChannels(environment.BoardNum, IN0 | IN1); // Two channel mode
+            pUV->selectAdcChannels(environment.board_num, IN0 | IN1); // Two channel mode
             printf("two channel mode\n");
         }
 
         // Set ECL Trigger Delay
-        pUV->SetECLTriggerDelay(environment.BoardNum, environment.ECLTriggerDelay);
+        pUV->SetECLTriggerDelay(environment.board_num, environment.ecl_trigger_delay);
         // Set Decimation
-        pUV->setAdcDecimation(environment.BoardNum, environment.Decimation);
+        pUV->setAdcDecimation(environment.board_num, environment.decimation);
         // Set ECL Trigger
-        pUV->SetECLTriggerEnable(environment.BoardNum, environment.ECLTrigger);
-        pUV->selectTrigger(environment.BoardNum, environment.TriggerMode, environment.TriggerSlope, environment.TriggerCh);
-        pUV->configureWaveformTrigger(environment.BoardNum, environment.TriggerThreshold12, environment.TriggerHysteresis);
-        pUV->configureSegmentedCapture(environment.BoardNum, environment.CaptureCount, environment.CaptureDepth, 0);
-        if(environment.NumAverages > 0) {
-            if(environment.NumAverages > 64) {
-                environment.NumAverages = 64;
+        pUV->SetECLTriggerEnable(environment.board_num, environment.ecl_trigger);
+        pUV->selectTrigger(environment.board_num, environment.trigger_mode, environment.trigger_slope, environment.trigger_channel);
+        pUV->configureWaveformTrigger(environment.board_num, environment.trigger_threshold_12, environment.trigger_hysteresis);
+        pUV->configureSegmentedCapture(environment.board_num, environment.capture_count, environment.capture_depth, 0);
+        if(environment.num_averages > 0) {
+            if(environment.num_averages > 64) {
+                environment.num_averages = 64;
                 printf("!!CAUTION!!: Averages reduced to maximum for AD12 (64)\n");
             }
-            pUV->configureAverager(environment.BoardNum, environment.NumAverages, environment.AveragerLength, 0);
+            pUV->configureAverager(environment.board_num, environment.num_averages, environment.averager_length, 0);
         }
-        pUV->setFiducialMarks(environment.BoardNum, environment.Fiducial);
+        pUV->setFiducialMarks(environment.board_num, environment.fiducial);
     }
 
-    if(pUV->IS_AD5474(environment.BoardNum)) {
+    if(pUV->IS_AD5474(environment.board_num)) {
         printf("AD14 found\n");
         unsigned int selectedChannels = 0;
 
-        if(environment.SingleChannelMode == 1) // One channel mode
+        if(environment.single_channel_mode == 1) // One channel mode
         {
             printf("Setting board to 1 channel mode. ");
 
-            if(environment.SingleChannelSelect == 0) {
+            if(environment.single_channel_select == 0) {
                 printf("Acquire IN0.\n");
                 selectedChannels = IN0;
             }
-            else if(environment.SingleChannelSelect == 1) {
+            else if(environment.single_channel_select == 1) {
                 printf("Acquire IN1.\n");
                 selectedChannels = IN1;
             }
@@ -1409,42 +1422,42 @@ void acquire_set_session(uvAPI *pUV, AcquireEnvironment &environment) {
                 selectedChannels = IN0;
             }
 
-            pUV->selectAdcChannels(environment.BoardNum, selectedChannels);
+            pUV->selectAdcChannels(environment.board_num, selectedChannels);
         }
         else {
             selectedChannels = 3; //1 || 2 = 3
             printf("Setting board to 2 channel mode\n");
-            pUV->selectAdcChannels(environment.BoardNum, selectedChannels);
+            pUV->selectAdcChannels(environment.board_num, selectedChannels);
         }
 
         // Configure Trigger
-        pUV->selectTrigger(environment.BoardNum, environment.TriggerMode, environment.TriggerSlope, environment.TriggerCh);
+        pUV->selectTrigger(environment.board_num, environment.trigger_mode, environment.trigger_slope, environment.trigger_channel);
 
         //Configure Waveform Trigger
-        pUV->configureWaveformTrigger(environment.BoardNum, environment.TriggerThreshold14, environment.TriggerHysteresis);
+        pUV->configureWaveformTrigger(environment.board_num, environment.trigger_threshold_14, environment.trigger_hysteresis);
 
         // Configure Segmented Capture
-        pUV->configureSegmentedCapture(environment.BoardNum, environment.CaptureCount, environment.CaptureDepth, 0);
+        pUV->configureSegmentedCapture(environment.board_num, environment.capture_count, environment.capture_depth, 0);
 
         // Configure Averager
-        pUV->configureAverager(environment.BoardNum, environment.NumAverages, environment.AveragerLength, 0);
+        pUV->configureAverager(environment.board_num, environment.num_averages, environment.averager_length, 0);
 
         // Set Decimation
-        pUV->setAdcDecimation(environment.BoardNum, environment.Decimation);
+        pUV->setAdcDecimation(environment.board_num, environment.decimation);
 
         // Set Fiducial Marks
-        pUV->setFiducialMarks(environment.BoardNum, environment.Fiducial);
+        pUV->setFiducialMarks(environment.board_num, environment.fiducial);
 
     }
 
-    if(!pUV->IS_adc12d2000(environment.BoardNum) && !pUV->IS_ISLA216P(environment.BoardNum) && !pUV->IS_AD5474(environment.BoardNum)) {
+    if(!pUV->IS_adc12d2000(environment.board_num) && !pUV->IS_ISLA216P(environment.board_num) && !pUV->IS_AD5474(environment.board_num)) {
         printf("AD8 found\n");
 
 
         unsigned int selectedChannels = 0;
 
-        if(environment.SingleChannelMode == 1) { // One channel mode
-            if(environment.SingleChannelSelect == 1) {
+        if(environment.single_channel_mode == 1) { // One channel mode
+            if(environment.single_channel_select == 1) {
                 selectedChannels = IN1;
             }
             else {
@@ -1455,20 +1468,20 @@ void acquire_set_session(uvAPI *pUV, AcquireEnvironment &environment) {
             selectedChannels = 3;
         }
         //pUV->selectAdcChannels(environment.BoardNum, selectedChannels);
-        pUV->selectAdcChannels(environment.BoardNum, selectedChannels);
+        pUV->selectAdcChannels(environment.board_num, selectedChannels);
         // Set ECL Trigger Delay
-        pUV->SetECLTriggerDelay(environment.BoardNum, environment.ECLTriggerDelay);
+        pUV->SetECLTriggerDelay(environment.board_num, environment.ecl_trigger_delay);
         // Set Decimation
-        pUV->setAdcDecimation(environment.BoardNum, environment.Decimation);
+        pUV->setAdcDecimation(environment.board_num, environment.decimation);
         // Set ECL Trigger
-        pUV->SetECLTriggerEnable(environment.BoardNum, environment.ECLTrigger);
+        pUV->SetECLTriggerEnable(environment.board_num, environment.ecl_trigger);
         // Configure Segmented Capture
-        pUV->configureSegmentedCapture(environment.BoardNum, environment.CaptureCount, environment.CaptureDepth, 0);
+        pUV->configureSegmentedCapture(environment.board_num, environment.capture_count, environment.capture_depth, 0);
     }
 
     //       pUV->SetAdcDecimation(environment.BoardNum, environment.Decimation);
-    pUV->SetTTLInvert(environment.BoardNum, environment.TTLInvert);
-    pUV->setPreTriggerMemory(environment.BoardNum, environment.PretriggerMemory);
+    pUV->SetTTLInvert(environment.board_num, environment.ttl_invert);
+    pUV->setPreTriggerMemory(environment.board_num, environment.pretrigger_memory);
 }
 
 void acquire_parser_printf() {
