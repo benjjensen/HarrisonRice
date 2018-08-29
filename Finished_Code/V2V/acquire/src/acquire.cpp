@@ -797,8 +797,10 @@ int main(int argc, char ** argv) {
     std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " <<
             capture_info.meta_filename << std::endl << std::endl;
 
-    // Save the gps data to a file.
-    capture_info.save_gps_to_google_earth_file();
+    if(environment.record_gps_data) {
+        // Save the gps data to a file.
+        capture_info.save_gps_to_google_earth_file();
+    }
 
     fflush(stdout);
 
