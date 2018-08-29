@@ -46,7 +46,8 @@ const size_t BLOCKS_PER_SETUP_ACQUIRE = 8000000;
 
 const int SECONDS_TO_SLEEP = 3;
 
-const std::string default_output_extension = ".dat";
+const std::string DEFAULT_OUTPUT_EXTENSION = ".dat";
+const std::string DEFAULT_FILENAME = "uvdma.dat";
 
 
 
@@ -162,7 +163,13 @@ void timestamp_filename(std::string &selected_name, DataCapture &capture);
 /**
  * The thread that writes the buffers to the file.
  */
-void write_thread_main_function();
+void write_thread_main_function(const HANDLE &disk_fd,
+        boost::atomic<bool> &finished_capturing,
+        boost::atomic<bool> &ready_to_save_buffer,
+        volatile bool &writing_to_first_buffer,
+        volatile size_t &blocks_in_buffer_ready_to_save,
+        const uint8_t *first_buffer, const uint8_t *second_buffer,
+        volatile ssize_t &write_thread_status);
 
 boost::thread* start_gps_thread(DataCapture &capture_info,
         boost::atomic_uint_fast32_t &blocks_acquired,
@@ -174,25 +181,10 @@ void gps_thread_main_function(pid_t gps_process_id, int gps_output_fd,
 
 
 
-uint8_t* first_buffer = NULL;
-uint8_t* second_buffer = NULL;
-
-boost::atomic<bool> ready_to_save_buffer(false);
-
-volatile bool writing_to_first_buffer = true;
-volatile size_t blocks_in_buffer_ready_to_save = 0;
-boost::atomic<bool> finished_capturing(false);
-volatile ssize_t write_thread_status = 0;
-
-HANDLE disk_fd = INVALID_HANDLE_VALUE;
-
 int main(int argc, char ** argv) {
     //--------------------------------------------------------------------------
     //                          Initialize the program
     //--------------------------------------------------------------------------
-
-    AcquireEnvironment environment;
-
     pid_t process_id = getpid();
 
     std::stringstream command;
@@ -205,12 +197,9 @@ int main(int argc, char ** argv) {
     exit_signal_handler(0, &continue_reading_data);
     signal(SIGINT, &exit_signal_handler);
 
-    std::cout << "acquire continuously v1.0" << std::endl << std::endl;
+    std::cout << "acquire continuously v1.1" << std::endl << std::endl;
 
-    int error = 0;
-    char output_file[MAX_DEVICES][128] = {"uvdma.dat", "uvdma1.dat",
-        "uvdma2.dat", "uvdma3.dat"};
-
+    AcquireEnvironment environment;
     // Parse the command line options.
     acquire_parser(argc, argv, environment);
 
@@ -229,11 +218,15 @@ int main(int argc, char ** argv) {
 
     // Read the clock frequency.
     unsigned int adcClock = uv->getAdcClockFreq(environment.board_num);
-    std::cout << " ADC clock freq ~= " << adcClock << "MHz" << std::endl;
+    std::cout << "ADC clock frequency ~= " << adcClock << "MHz" << std::endl;
     fflush(stdout);
 
+
+    uint8_t *first_buffer = NULL;
+    uint8_t *second_buffer = NULL;
+
     // Allocate page-aligned buffers for DMA.
-    error = posix_memalign((void**)&first_buffer, BUFFER_ALIGNMENT,
+    int error = posix_memalign((void**)&first_buffer, BUFFER_ALIGNMENT,
             BUFFER_SIZE);
     if(error) {
         std::cerr << "ERROR: UNABLE TO ALLOCATE MEMORY" << std::endl;
@@ -310,7 +303,7 @@ int main(int argc, char ** argv) {
     // name.
     std::string filename = DATA_FOLDER + "/" +
             (environment.user_outputfile == NULL ?
-            output_file[environment.board_num] : environment.user_outputfile);
+            DEFAULT_FILENAME : environment.user_outputfile);
 
     // Add the timestamp to the filename.
     timestamp_filename(filename, capture_info);
@@ -374,9 +367,9 @@ int main(int argc, char ** argv) {
     }
 
     // Open the data disk file.
-    disk_fd = uv->X_CreateFile((char *)filename.c_str());
+    HANDLE outfile_fd = uv->X_CreateFile((char *)filename.c_str());
     // disk_fd will be less than zero if the open operation failed.
-    if(disk_fd < 0) {
+    if(outfile_fd < 0) {
         if(first_buffer) {
             free(first_buffer);
             first_buffer = NULL;
@@ -410,11 +403,13 @@ int main(int argc, char ** argv) {
     // descriptor in disk_fd is already initialized. (disk_fd is initialized
     // just above here.)
 
-    // Make sure the write thread knows that we're not done capturing and that
-    // we haven't filled any buffers with data yet.
-    finished_capturing.store(false);
-    ready_to_save_buffer.store(false);
+    boost::atomic<bool> finished_capturing(false);
+    boost::atomic<bool> ready_to_save_buffer(false);
 
+    volatile bool writing_to_first_buffer = true;
+    volatile size_t blocks_in_buffer_ready_to_save = 0;
+
+    volatile ssize_t write_thread_status = 0;
     ssize_t expected_write_thread_status = 0;
 
     //----------------MULTITHREADING START----------------
@@ -423,7 +418,12 @@ int main(int argc, char ** argv) {
 
     // Start up the thread that will write to disk the data that we read in this
     // thread.
-    boost::thread write_thread(write_thread_main_function);
+    boost::thread write_thread(write_thread_main_function,
+            boost::ref(outfile_fd),
+            boost::ref(finished_capturing), boost::ref(ready_to_save_buffer),
+            boost::ref(writing_to_first_buffer),
+            boost::ref(blocks_in_buffer_ready_to_save), first_buffer,
+            second_buffer, boost::ref(write_thread_status));
 
 
 
@@ -803,9 +803,9 @@ int main(int argc, char ** argv) {
     fflush(stdout);
 
     // Close output file.
-    if(disk_fd) {
-        uv->X_Close(disk_fd);
-        disk_fd = INVALID_HANDLE_VALUE;
+    if(outfile_fd) {
+        uv->X_Close(outfile_fd);
+        outfile_fd = INVALID_HANDLE_VALUE;
     }
 
     // Deallocate resources.
@@ -824,7 +824,13 @@ int main(int argc, char ** argv) {
     return 0;
 }
 
-void write_thread_main_function() {
+void write_thread_main_function(const HANDLE &disk_fd,
+        boost::atomic<bool> &finished_capturing,
+        boost::atomic<bool> &ready_to_save_buffer,
+        volatile bool &writing_to_first_buffer,
+        volatile size_t &blocks_in_buffer_ready_to_save,
+        const uint8_t *first_buffer, const uint8_t *second_buffer,
+        volatile ssize_t &write_thread_status) {
     // The flag finished_capturing should be false until the capture thread
     // (main thread) finishes capturing all of the data.
     while(!finished_capturing.load()) {
@@ -845,7 +851,8 @@ void write_thread_main_function() {
         // Figure out which buffer is full. If the capture thread is writing to
         // the first buffer, that means that the second buffer is full, and
         // vice-versa.
-        void* buffer = (writing_to_first_buffer ? second_buffer : first_buffer);
+        const void* buffer =
+                (writing_to_first_buffer ? second_buffer : first_buffer);
 
         // Write the data in the buffer to the output file.
         write_thread_status = write(disk_fd, buffer,
@@ -1004,7 +1011,7 @@ void timestamp_filename(std::string &selected_name, DataCapture &capture) {
 
     if(extension_index == std::string::npos) {
         selected_name += timestamp;
-        selected_name += default_output_extension;
+        selected_name += DEFAULT_OUTPUT_EXTENSION;
     }
     else {
         selected_name.insert(extension_index, timestamp);
