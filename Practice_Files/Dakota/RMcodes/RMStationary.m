@@ -16,7 +16,7 @@ for bl = 0:17
 end
 % ratio = mus;
 [col_num,~] = size(mu_2_6);
-col_num = col_num + 1;
+col_num;
 
 
 mmax = 17;
@@ -84,7 +84,7 @@ if decibel == true
             ind = ~cellfun('isempty',outStr);
             eval(sprintf('vars%d = workspace(ind);', dB));
     end
-    colors = jet(col_num);
+    colors = jet(col_num+1);
     counter = 0;
     j = 0;
     hold on;
@@ -122,7 +122,7 @@ if decibel == true
             figure(1);
             hold on;
             scatter3(rate_matched,percentLeaked_matched,ss_matched,144,'black','*');
-            scatter3(rate,percentLeaked,ss,[],colors(col_num-counter,:),'o');
+            scatter3(rate,percentLeaked,ss,[],colors(col_num+1-counter,:),'o');
             hold off;
     end
 else
@@ -137,16 +137,17 @@ else
     counter = 0;
     j = 0;
     hold on;
-    for m = mmin : mmax
+    for m = 1 : mmax
+        imax = 32*m;
             counter = counter + 1;
             match_count = 0;
             unmatch_count = 0;
-            ss = categorical(1,imax-mmax);
-            rate = zeros(1,imax-mmax);
-            percentLeaked = zeros(1,imax-mmax);
-            ss_matched = categorical(1,mmax);
-            rate_matched = zeros(1,mmax);
-            percentLeaked_matched = zeros(1,mmax);
+            ss = categorical(1,imax-col_num);
+            rate = zeros(1,imax-col_num);
+            percentLeaked = zeros(1,imax-col_num);
+            ss_matched = categorical(1,col_num);
+            rate_matched = zeros(1,col_num);
+            percentLeaked_matched = zeros(1,col_num);
             for i = 1:32*m
 
                 eval(sprintf('name = vars%d{%d,1};',m,i));
@@ -172,7 +173,9 @@ else
             figure(1);
             hold on;
             scatter3(rate_matched,percentLeaked_matched,ss_matched,144,'black','*');
-            scatter3(rate,percentLeaked,ss,[],colors(col_num-counter,:),'o');
+            if(m~=1)
+            scatter3(rate,percentLeaked,ss,[],colors(m,:),'o');
+            end
             hold off;
     end
 end
