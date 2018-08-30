@@ -464,7 +464,7 @@ static void handler_signal_from_child(int signal, SamplerState* state_pointer);
 int main(int argc, char **argv) {
     SamplerState state;
 
-    system("sudo ./reserve_acquire_cpus.sh >/dev/null 2>/dev/null");
+    system("/bin/sudo ./reserve_acquire_cpus.sh >/dev/null 2>/dev/null");
 
     handler_signal_from_child(SIGUSR1, &state);
     signal(SIGUSR1, &handler_signal_from_child);
@@ -486,7 +486,7 @@ int main(int argc, char **argv) {
     gtk_main();
 
     std::cout << "After gtk_main() function" << std::endl;
-    system("sudo ./revert_cpus.sh >/dev/null 2>/dev/null");
+    system("/bin/sudo ./revert_cpus.sh >/dev/null 2>/dev/null");
 
     return 0;
 }
@@ -569,8 +569,7 @@ static void stop_acquiring(SamplerState& state) {
 
     // Wait for acquire to be done. (This is necessary--otherwise it ends up as
     // a zombie process.)
-    // TODO better wait function
-    wait(NULL);
+    waitid(P_PID, state.acquire_process_id, NULL, WEXITED);
 
     process_acquire_output(state);
 
@@ -597,8 +596,7 @@ static void handler_signal_from_child(int signal, SamplerState* state_pointer) {
     // We wait for the acquire process to finish. We know that it will finish on
     // its own because it sent us the SIGUSR1 signal, which means that it
     // encountered an error and is exiting.
-    // TODO better version of wait
-    wait(NULL);
+    waitid(P_PID, state.acquire_process_id, NULL, WEXITED);
 
     gtk_widget_hide(state.gui.current_capture_box);
     process_acquire_output(state);
@@ -1364,7 +1362,6 @@ static void cb_stop_capture(GtkWidget *widget, gpointer data) {
         return;
     }
 
-    // TODO refactor this into a function
     gtk_widget_set_sensitive(state.gui.start_button, FALSE);
     gtk_widget_set_sensitive(state.gui.stop_button, FALSE);
     gtk_widget_set_sensitive(state.gui.new_button, FALSE);
@@ -1650,7 +1647,6 @@ static void cb_delete_capture(GtkWidget *widget, gpointer data) {
 
     // Update the total data label:
     state.total_data_captured -= capture.size;
-    // TODO refactor this into a function
     std::stringstream ss;
     ss << state.total_data_captured / 1024 << " GB captured in total";
     gtk_label_set_text(GTK_LABEL(state.gui.label_total_data_captured),
