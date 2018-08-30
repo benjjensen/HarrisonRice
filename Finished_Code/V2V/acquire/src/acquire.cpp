@@ -1,12 +1,27 @@
 /**
- * @file acquire.cpp
+ * @file acquire.cpp This program acquires data continuously from the DAQ card
+ * and saves it to disk.
  *
- * To run without breaks in the acquired data:
- * sudo nice -n -20 ./acquire -f trigger_stopped
+ * For best results, give acquire access to it's own exclusive cpu cores;
+ * running reserve_acquire_cpus.sh will move all other (movable) processes to
+ * a separate cpuset called sys and prepare a cpuset called acquire, which is
+ * reserved for just this program. If there is such a cpuset, acquire
+ * moves itself into that cpuset in order to take advantage of the reserved
+ * cpus.
+ *
+ * The acquire program must be run in the folder that contains get_usercode.svf,
+ * ultra_config.dat, and gpsbabel_xcsv_format.txt. If those files are not
+ * present in the working directory, acquire will not function as intended.
+ * (The gpsbabel_xcsv_format.txt file is optional if acquire is not being run
+ * with the -gps option.)
+ *
+ * The recommended command to run acquire is this:
+ *     sudo nice -n -20 ./acquire -f <filename> [-gps]
+ * The nice command gives acquire the highest cpu priority short of runtime
+ * priority.
  */
 
-// TODO: Clean up commented-out sections, remove windows-specific sections (?),
-// remove global variables
+// TODO: Clean up commented-out sections, remove windows-specific sections (?)
 
 #include <cstdio>
 #include <cstdlib>
@@ -49,8 +64,10 @@ const int SECONDS_TO_SLEEP = 3;
 const std::string DEFAULT_OUTPUT_EXTENSION = ".dat";
 const std::string DEFAULT_FILENAME = "uvdma.dat";
 
-
-
+/**
+ * A struct to keep track of the arguments that the user has passed in to the
+ * acquire program.
+ */
 struct AcquireEnvironment {
 
     AcquireEnvironment() {
@@ -90,6 +107,7 @@ struct AcquireEnvironment {
         signal_pid = NO_SIGNAL_PROCESS;
         user_outputfile = NULL;
     }
+
     unsigned short board_num;
     unsigned int internal_clock;
     unsigned int single_channel_mode;
@@ -123,7 +141,7 @@ struct AcquireEnvironment {
 
     bool record_gps_data;
     int signal_pid;
-    char * user_outputfile;
+    char* user_outputfile;
 };
 
 /**
@@ -148,6 +166,7 @@ void acquire_set_session(uvAPI& pUV, AcquireEnvironment& environment);
  * Handles the exit signal given by pressing ctrl-c.
  */
 void exit_signal_handler(int signal, boost::atomic<bool>* flag_pointer);
+
 void exit_signal_handler(int signal) {
     exit_signal_handler(signal, NULL);
 }
@@ -343,6 +362,9 @@ int main(int argc, char** argv) {
     // first 8 GB of captured data.
     sleep(SECONDS_TO_SLEEP); // Sleep for 3 seconds.
 
+    // TODO Don't create files if SIGINT was received by now.
+    // TODO Let the parent process know if no data was captured/let it know
+    // when we actually start capturing data.
 
 
     //--------------------------------------------------------------------------
@@ -505,7 +527,7 @@ int main(int argc, char** argv) {
     unsigned int setup_acquire_call_count = 1;
     // Whether we had to abort reading the data because of an error saving it to
     // file.
-    bool reading_aborted = false;
+    bool fatal_write_error = false;
 
     // Safe to change this because ready_to_save_buffer is false.
     writing_to_first_buffer = true;
@@ -593,7 +615,7 @@ int main(int argc, char** argv) {
                                 blocks_in_buffer_ready_to_save);
                     }
 
-                    reading_aborted = true;
+                    fatal_write_error = true;
                     continue_reading_data.store(false);
                     break;
                 }
@@ -665,7 +687,7 @@ int main(int argc, char** argv) {
     // true.
 
     // If there wasn't previously a problem with saving data,
-    if(!reading_aborted) {
+    if(!fatal_write_error) {
         // If there was a problem with saving the most recent complete buffer,
         if(write_thread_status != expected_write_thread_status) {
             std::cerr << "ERROR: WRITE OPERATION FAIL" << std::endl;
@@ -704,7 +726,7 @@ int main(int argc, char** argv) {
 
             //----------------WRITE THREAD END----------------
 
-            reading_aborted = true;
+            fatal_write_error = true;
         }
         else {
             // Save to file the blocks that have already been read into the
@@ -762,7 +784,7 @@ int main(int argc, char** argv) {
                     blocks_captured.sub(blocks_in_buffer_ready_to_save);
                 }
 
-                reading_aborted = true;
+                fatal_write_error = true;
             }
         }
     }
@@ -784,7 +806,7 @@ int main(int argc, char** argv) {
 
     // If there was an error writing the data to file at all (whether in the
     // capture loop or after it),
-    if(reading_aborted) {
+    if(fatal_write_error) {
         // Send the signal to the parent process (sampler) to let it know that
         // we had to abort.
         send_abort_signal(environment);
