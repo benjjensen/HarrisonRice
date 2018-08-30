@@ -1,30 +1,20 @@
 % % RM plots for big sample
 tic;
 close all;
-% load('average_harrison.mat');
-% load('average_smalley.mat');
 load('pr_harrison.mat');
 load('pr_smalley.mat');
 threshold1 = .99;
 threshold2 = .99999999;
-average_harrison = get_num_carrier(pr_harrison,threshold1);
+decibel = false;
 for bl = 0:17
     eval(sprintf('load("mu_%d_%d");',2^bl,6));
 end
-har = good_carriers(pr_harrison);
+num_carriers = get_num_carrier(pr_harrison,threshold1);
 mus = [];
 for bl = 0:17
     eval(sprintf('mus(:,%d) = get_worst_case(mu_%d_6,threshold2);',bl+1,2^bl));
 end
-max_dif = average_harrison - average_smalley;
-% ratio = average_smalley./average_harrison;
-ratio = mus;
-% for bl = 0:17
-%     ratio(:,bl+1) = ratio(:,bl+1)/2^(bl+1);
-% % ratio(:,2) = ratio(:,2)/4;
-% % ratio(:,3) = ratio(:,3)/8;
-% % ratio(:,4) = ratio(:,4)/16;
-% end
+% ratio = mus;
 [col_num,~] = size(mu_2_6);
 col_num = col_num + 1;
 
@@ -40,9 +30,7 @@ for m = mmin : mmax
         
         weights = RMWeightHier(u,m,false);
         
-        for dB = 250 : 268
-%         for dB = 270 : 270
-%             if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
+        for dB = 250 : 281
                 %creates object
                 eval(sprintf('codeInfo_%d_%d_%d = codeInfo;', dB , u, m));
                 
@@ -72,7 +60,7 @@ for m = mmin : mmax
                 eval(sprintf('codeInfo_%d_%d_%d.dBLevel = %d;', dB , u, m, RdB));
                 
                 %assigns mu
-                mu = ratio(dB-249,m+1);
+                mu = mus(dB-249,m+1);
                 eval(sprintf('codeInfo_%d_%d_%d.mu = %d;', dB , u, m, mu));
                 
                 %assigns H
@@ -84,142 +72,122 @@ for m = mmin : mmax
                 eval(sprintf('codeInfo_%d_%d_%d.percentLeaked = %d;', dB , u, m, percentLeaked));
                 
                 %assigns carrierRate
-                carrierRate = average_harrison(dB-249,1)*rate;
-                eval(sprintf('codeInfo_%d_%d_%d.carrierRate = %d;', dB , u, m, carrierRate));
-                
-%             end
+                carrierRate = num_carriers(dB-249,1)*rate;
+                eval(sprintf('codeInfo_%d_%d_%d.carrierRate = %d;', dB , u, m, carrierRate));                
         end
     end
 end
-% toc
-% tic
-for dB = 250 : 268
-% for dB = 270 : 270
-%     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
-        workspace = who;
-        eval(sprintf('outStr = regexpi(workspace, "codeInfo_%d_");', dB));
-        ind = ~cellfun('isempty',outStr);
-        eval(sprintf('vars%d = workspace(ind);', dB));
-%     end
-end
-% toc
-colors = jet(col_num);
-counter = 0;
-j = 0;
-% tic
+if decibel == true
+    for dB = 250 : 281
+            workspace = who;
+            eval(sprintf('outStr = regexpi(workspace, "codeInfo_%d_");', dB));
+            ind = ~cellfun('isempty',outStr);
+            eval(sprintf('vars%d = workspace(ind);', dB));
+    end
+    colors = jet(col_num);
+    counter = 0;
+    j = 0;
+    hold on;
+    for dB = 250 : 281
+            counter = counter + 1;
+            match_count = 0;
+            unmatch_count = 0;
+            ss = categorical(1,imax-mmax);
+            rate = zeros(1,imax-mmax);
+            percentLeaked = zeros(1,imax-mmax);
+            ss_matched = categorical(1,mmax);
+            rate_matched = zeros(1,mmax);
+            percentLeaked_matched = zeros(1,mmax);
+            for i = 1:imax
 
-% ss = categorical(1,(imax-mmax)*32);
-% rate = zeros(1,(imax-mmax)*32);
-% percentLeaked = zeros(1,(imax-mmax)*32);
-% ss_matched = categorical(1,32*mmax);
-% rate_matched = zeros(1,32*mmax);
-% percentLeaked_matched = zeros(1,32*mmax);
-% figure();
-hold on;
-for dB = 250 : 268
-% for dB = 270 : 270
-%     if max_har(dB-249,1)- max_har(dB-248,1) ~= 0
-        counter = counter + 1;
-        match_count = 0;
-        unmatch_count = 0;
-        ss = categorical(1,imax-mmax);
-        rate = zeros(1,imax-mmax);
-        percentLeaked = zeros(1,imax-mmax);
-        ss_matched = categorical(1,mmax);
-        rate_matched = zeros(1,mmax);
-        percentLeaked_matched = zeros(1,mmax);
-%         pp = [];
-%         figure(dB);
-%         hold on;
-        for i = 1:imax
-            
-            eval(sprintf('name = vars%d{%d,1};',dB,i));
-            eval(sprintf('plotRate = %s.carrierRate;', name));
-            eval(sprintf('plotPercentLeaked = 100 - %s.percentLeaked;', name));
-            eval(sprintf('m = %s.m;', name));
-            eval(sprintf('u = %s.u;', name));
-            formatSpec = 'RM(%d,%d) %f1 dB';
-            s = sprintf(formatSpec,u,m,dB/10);
-%             ss{i,1} = s;
-%             rate(1,i) = plotRate;
-%             percentLeaked(1,i) = plotPercentLeaked;
-            if m == u
-%                 j = j + 1;
-                match_count = match_count + 1;
-                ss_matched(1,match_count) = categorical(cellstr(s));
-                rate_matched(1,match_count) = plotRate;
-                percentLeaked_matched(1,match_count) = plotPercentLeaked;
-%                 scatter3(plotRate, plotPercentLeaked,categorical(cellstr(s)),144,colors(33-counter,:),'*');
-            else
-                unmatch_count = unmatch_count + 1;
-                ss(1,unmatch_count) = categorical(cellstr(s));
-                rate(1,unmatch_count) = plotRate;
-                percentLeaked(1,unmatch_count) = plotPercentLeaked;
-%                 scatter3(plotRate, plotPercentLeaked,categorical(cellstr(s)),[],colors(33-counter,:),'o');
+                eval(sprintf('name = vars%d{%d,1};',dB,i));
+                eval(sprintf('plotRate = %s.carrierRate;', name));
+                eval(sprintf('plotPercentLeaked = 100 - %s.percentLeaked;', name));
+                eval(sprintf('m = %s.m;', name));
+                eval(sprintf('u = %s.u;', name));
+                formatSpec = 'RM(%d,%d) %f1 dB';
+                s = sprintf(formatSpec,u,m,dB/10);
+                if m == u
+                    match_count = match_count + 1;
+                    ss_matched(1,match_count) = categorical(cellstr(s));
+                    rate_matched(1,match_count) = plotRate;
+                    percentLeaked_matched(1,match_count) = plotPercentLeaked;
+                else
+                    unmatch_count = unmatch_count + 1;
+                    ss(1,unmatch_count) = categorical(cellstr(s));
+                    rate(1,unmatch_count) = plotRate;
+                    percentLeaked(1,unmatch_count) = plotPercentLeaked;
+                end
             end
-%             text(plotRate,plotPercentLeaked,num2str(i));
-        end
-        figure(1);
-        hold on;
-        scatter3(rate_matched,percentLeaked_matched,ss_matched,144,'black','*');
-%         hold off;
-%         figure(2);
-%         hold on;
-        scatter3(rate,percentLeaked,ss,[],colors(col_num-counter,:),'o');
-        hold off;
-        sss = categorical(ss);
-%         scatter3(rate,percentLeaked,sss.',36,colors(33-counter,:),'o');
-        
+            figure(1);
+            hold on;
+            scatter3(rate_matched,percentLeaked_matched,ss_matched,144,'black','*');
+            scatter3(rate,percentLeaked,ss,[],colors(col_num-counter,:),'o');
+            hold off;
+    end
+else
+    for m = 1:mmax
+            workspace = who;
+            str = sprintf("%scodeInfo_%s_%s_%d%s","\w*","\d*","\d*",m,"\>");
+            outStr = regexpi(workspace, str);
+            ind = ~cellfun('isempty',outStr);
+            eval(sprintf('vars%d = workspace(ind);', m));
+    end
+    colors = jet(18);
+    counter = 0;
+    j = 0;
+    hold on;
+    for m = mmin : mmax
+            counter = counter + 1;
+            match_count = 0;
+            unmatch_count = 0;
+            ss = categorical(1,imax-mmax);
+            rate = zeros(1,imax-mmax);
+            percentLeaked = zeros(1,imax-mmax);
+            ss_matched = categorical(1,mmax);
+            rate_matched = zeros(1,mmax);
+            percentLeaked_matched = zeros(1,mmax);
+            for i = 1:32*m
 
-%     end
+                eval(sprintf('name = vars%d{%d,1};',m,i));
+                eval(sprintf('plotRate = %s.carrierRate;', name));
+                eval(sprintf('plotPercentLeaked = 100 - %s.percentLeaked;', name));
+                eval(sprintf('m = %s.m;', name));
+                eval(sprintf('u = %s.u;', name));
+                eval(sprintf('dB = %s.dBLevel;', name));
+                formatSpec = 'RM(%d,%d) %f1 dB';
+                s = sprintf(formatSpec,u,m,dB);
+                if m == u
+                    match_count = match_count + 1;
+                    ss_matched(1,match_count) = categorical(cellstr(s));
+                    rate_matched(1,match_count) = plotRate;
+                    percentLeaked_matched(1,match_count) = plotPercentLeaked;
+                else
+                    unmatch_count = unmatch_count + 1;
+                    ss(1,unmatch_count) = categorical(cellstr(s));
+                    rate(1,unmatch_count) = plotRate;
+                    percentLeaked(1,unmatch_count) = plotPercentLeaked;
+                end
+            end
+            figure(1);
+            hold on;
+            scatter3(rate_matched,percentLeaked_matched,ss_matched,144,'black','*');
+            scatter3(rate,percentLeaked,ss,[],colors(col_num-counter,:),'o');
+            hold off;
+    end
 end
-% scatter3(rate_matched,percentLeaked_matched,ss_matched,144,'*');
-% scatter3(rate,percentLeaked,ss);
-% sss = [ss.';ss_matched.'];
-counter = 0;
-% toc
-% tic
-rates = zeros(1,322);
-ratios = zeros(1,322);
-type = categorical(322);
-i = 0;
+
+
 figure(1);
 hold on;
-% for dB = 250 : 268
-% % for dB = 270 : 270
-% %     if max_har(dB-249,1) - max_har(dB-248,1) ~= 0
-%         counter = counter + 1;
-% %         scatter3(max_unique(dB-249,:),100,categorical(cellstr('No code ' + string(dB/10) + 'dB')),144,colors(33-counter,:),'s');
-%         for index = 0 : average_sma(dB-249,1)
-%             i = i + 1;
-%             rates(1,i) = max_unique(dB-249,1) + index;
-%             ratios(1,i) = (1 - index/(max_unique(dB-249)+index))*100;
-%             type(1,i) = categorical(cellstr('No code ' + string(dB/10) + 'dB'));
-%             scatter3(max_unique(dB-249,1) + index,(1 - index/(max_unique(dB-249)+index))*100, categorical(cellstr('No code ' + string(dB/10) + 'dB')),col_num,'g','d');
-%         end
-%         sss(end + 1,1) = cellstr('No code ' + string(dB/10));
-% %     end
-% end
-% scatter3(rates,ratios,type,col_num,'g','d');
-% set(gca,'zticklabel',sss)
+
 
 title('Code Efficiency');
 xlabel('Throughput Rate');
 ylabel('Equivocation (%)');
 zlabel('Reed-Muller Code (r,m)');
-% ylim([0 100]);
-% xlim([0 50]);
-hold off
-% grid on;
-% hold off;
-% figure(2);
-% hold on;
-% title('Code Efficiency');
-% xlabel('Throughput Rate');
-% ylabel('Equivocation (%)');
-% zlabel('Reed-Muller Code (r,m)');
-% ylim([0 100]);
-% xlim([0 50]);
+% ylim([90 100]);
+% xlim([0 20]);
 grid on;
-hold off;
+hold off
 toc;
