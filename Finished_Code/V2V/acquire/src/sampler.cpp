@@ -1364,7 +1364,7 @@ static void cb_stop_capture(GtkWidget *widget, gpointer data) {
         return;
     }
 
-
+    // TODO refactor this into a function
     gtk_widget_set_sensitive(state.gui.start_button, FALSE);
     gtk_widget_set_sensitive(state.gui.stop_button, FALSE);
     gtk_widget_set_sensitive(state.gui.new_button, FALSE);
@@ -1641,10 +1641,11 @@ static void cb_delete_capture(GtkWidget *widget, gpointer data) {
     int err = 0;
     err |= remove(capture.data_filename.c_str());
     err |= remove(capture.meta_filename.c_str());
-    // TODO remove gps file as well
+    err |= remove(capture.gps_filename.c_str());
     if(err) {
         std::cerr << "ERROR: UNABLE TO DELETE " << capture.data_filename <<
-                " and/or " << capture.meta_filename << std::endl;
+                ", " << capture.gps_filename << " and/or " <<
+                capture.meta_filename << std::endl;
     }
 
     // Update the total data label:
