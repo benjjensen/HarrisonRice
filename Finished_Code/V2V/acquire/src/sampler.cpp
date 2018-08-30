@@ -102,16 +102,16 @@ struct GuiElements {
     /**
      * The main window.
      */
-    GtkWidget *main_window;
+    GtkWidget* main_window;
 
     /**
      * The scrolled window that the table is inside.
      */
-    GtkWidget *capture_table_scroll_window;
+    GtkWidget* capture_table_scroll_window;
     /**
      * The table where the captures are displayed.
      */
-    GtkWidget *capture_table;
+    GtkWidget* capture_table;
     /**
      * The current number of rows in the capture table.
      */
@@ -124,56 +124,56 @@ struct GuiElements {
     /**
      * The box that contains the current capture info.
      */
-    GtkWidget *current_capture_box;
+    GtkWidget* current_capture_box;
     /**
      * The label that shows the name of the current capture.
      */
-    GtkWidget *current_capture_name;
+    GtkWidget* current_capture_name;
     /**
      * The label that shows the status of the current capture.
      */
-    GtkWidget *current_capture_status;
+    GtkWidget* current_capture_status;
 
     /**
      * The label that shows an error message to the user when there's an issue
      * writing the captured data to disk.
      */
-    GtkWidget *label_capture_error;
+    GtkWidget* label_capture_error;
 
     /**
      * The label that shows the total amount of data captured.
      */
-    GtkWidget *label_total_data_captured;
+    GtkWidget* label_total_data_captured;
 
     /**
      * The button in the main window that starts the data capture.
      */
-    GtkWidget *start_button;
+    GtkWidget* start_button;
     /**
      * The button in the main window that stops the current data capture.
      */
-    GtkWidget *stop_button;
+    GtkWidget* stop_button;
     /**
      * The button in the main window that opens the new capture window.
      */
-    GtkWidget *new_button;
+    GtkWidget* new_button;
     /**
      * The button in the main window that clears the current capture.
      */
-    GtkWidget *reset_button;
+    GtkWidget* reset_button;
 
 
 
     /**
      * The window that allows the user to set up a new capture.
      */
-    GtkWidget *new_capture_window;
+    GtkWidget* new_capture_window;
 
     /**
      * The box in the new capture window that contains the fields and options
      * for the naming convention.
      */
-    GtkWidget *fields_parent_box;
+    GtkWidget* fields_parent_box;
 
 
 
@@ -181,29 +181,29 @@ struct GuiElements {
      * The window that allows the user to add a new option to a naming
      * convention field.
      */
-    GtkWidget *add_option_window;
+    GtkWidget* add_option_window;
 
     /**
      * The label in the add option window that tells the user the name of the
      * field they're adding to.
      */
-    GtkWidget *add_option_field_label;
+    GtkWidget* add_option_field_label;
     /**
      * The entry in the add option window where the user enters the code for the
      * entry.
      */
-    GtkWidget *add_option_entry_code;
+    GtkWidget* add_option_entry_code;
     /**
      * The entry in the add option window where the user enters the name for the
      * entry.
      */
-    GtkWidget *add_option_entry_name;
+    GtkWidget* add_option_entry_name;
     /**
      * The label in the add option window where we display any problems with the
      * user's input in the add_option_entry_code and add_option_entry_name
      * fields.
      */
-    GtkWidget *add_option_label_error;
+    GtkWidget* add_option_label_error;
 
     /**
      * The window where the user edits the notes for a certain capture.
@@ -298,73 +298,73 @@ struct SamplerState {
 /**
  * A callback function for when the user closes the main window.
  */
-static void cb_destroy(GtkWidget *widget, gpointer data);
+static void cb_destroy(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks the start button.
  */
-static void cb_start_capture(GtkWidget *widget, gpointer data);
+static void cb_start_capture(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks the stop button.
  */
-static void cb_stop_capture(GtkWidget *widget, gpointer data);
+static void cb_stop_capture(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks the new capture button.
  */
-static void cb_new_capture(GtkWidget *widget, gpointer data);
+static void cb_new_capture(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks the reset button.
  */
-static void cb_reset_capture(GtkWidget *widget, gpointer data);
+static void cb_reset_capture(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks the create button in the
  * new capture window.
  */
-static void cb_create_new_capture(GtkWidget *widget, gpointer data);
+static void cb_create_new_capture(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks the cancel button in the
  * new capture window.
  */
-static void cb_cancel_new_capture(GtkWidget *widget, gpointer data);
+static void cb_cancel_new_capture(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks a button to add a new
  * option to a naming convention field.
  */
-static void cb_add_new_option(GtkWidget *widget, gpointer data);
+static void cb_add_new_option(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks the cancel button in
  * the add option window.
  */
-static void cb_add_option_cancel(GtkWidget *widget, gpointer data);
+static void cb_add_option_cancel(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks the add button in the
  * add option window.
  */
-static void cb_add_option_add(GtkWidget *widget, gpointer data);
+static void cb_add_option_add(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks on an option in the
  * new capture window.
  */
-static void cb_field_selection_changed(GtkWidget *widget, gpointer data);
+static void cb_field_selection_changed(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks the button to edit the
  * notes for a capture in the capture table.
  */
-static void cb_edit_notes(GtkWidget *widget, gpointer data);
+static void cb_edit_notes(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks the save button in the
  * edit notes window.
  */
-static void cb_edit_notes_save(GtkWidget *widget, gpointer data);
+static void cb_edit_notes_save(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks the cancel button in
  * the edit notes window.
  */
-static void cb_edit_notes_cancel(GtkWidget *widget, gpointer data);
+static void cb_edit_notes_cancel(GtkWidget* widget, gpointer data);
 /**
  * A callback function for when the user clicks the delete button for a
  * row in the capture table.
  */
-static void cb_delete_capture(GtkWidget *widget, gpointer data);
+static void cb_delete_capture(GtkWidget* widget, gpointer data);
 
 /**
  * Validates the code and the name for a new option that the user has
@@ -461,11 +461,20 @@ static void handler_signal_from_child(int signal);
  */
 static void handler_signal_from_child(int signal, SamplerState* state_pointer);
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     SamplerState state;
 
-    system("/bin/sudo ./reserve_acquire_cpus.sh >/dev/null 2>/dev/null");
+    std::cout << "sampler v1.0\n" << std::endl;
 
+    std::cout << "Reserving a cpuset for acquire...";
+    system("/bin/sudo ./reserve_acquire_cpus.sh >/dev/null 2>/dev/null");
+    std::cout << " done." << std::endl;
+
+    std::cout << "Initializing GUI...";
+
+    // Store a reference to state in the handler function. This initializes the
+    // local static variable in the signal handler so that it can access it
+    // later.
     handler_signal_from_child(SIGUSR1, &state);
     signal(SIGUSR1, &handler_signal_from_child);
 
@@ -482,11 +491,19 @@ int main(int argc, char **argv) {
     state.all_initialized = true;
 
     gtk_widget_show(state.gui.main_window);
+
+    std::cout << " done." << std::endl;
+
+    std::cout << "\n\nRunning sampler GUI." << std::endl;
+
     // Run the GUI until it's done.
     gtk_main();
 
-    std::cout << "After gtk_main() function" << std::endl;
+    std::cout << "\nReseting cpusets...";
     system("/bin/sudo ./revert_cpus.sh >/dev/null 2>/dev/null");
+    std::cout << " done." << std::endl;
+
+    std::cout << "Exiting..." << std::endl;
 
     return 0;
 }
@@ -555,7 +572,7 @@ static bool start_acquire_in_child_process(SamplerState& state) {
                 std::endl;
     }
 
-    // Save this info for future use:
+    // Save this info for future use.
     state.acquire_process_id = pid;
     state.acquire_output_fd = output_pipe[READ_FD];
 
@@ -619,7 +636,7 @@ static void handler_signal_from_child(int signal, SamplerState* state_pointer) {
 static void process_acquire_output(SamplerState& state) {
     // Convert the file descriptor acquire_output_fd that reads what acquire
     // wrote to its standard output into a stream we can easily read from:
-    __gnu_cxx::stdio_filebuf<char> *sb = new __gnu_cxx::stdio_filebuf<char>(
+    __gnu_cxx::stdio_filebuf<char>* sb = new __gnu_cxx::stdio_filebuf<char>(
             state.acquire_output_fd, std::ios::in);
     std::istream input_from_acquire(sb);
 
@@ -648,7 +665,7 @@ static void process_acquire_output(SamplerState& state) {
     }
 
     if(close(state.acquire_output_fd) != 0) {
-        std::cerr << "ERROR: failed to close acquire_output_fd" << std::endl;
+        std::cerr << "ERROR: FAILED TO CLOSE PIPE FROM ACQUIRE" << std::endl;
     }
     delete sb;
 }
@@ -670,7 +687,7 @@ static void init_main_window(SamplerState& state) {
             (gpointer)(&state));
     std::cout << "Connected signal" << std::endl;
 
-    GtkWidget *layout_box = gtk_vbox_new(FALSE, NO_PADDING);
+    GtkWidget* layout_box = gtk_vbox_new(FALSE, NO_PADDING);
     gtk_container_add(GTK_CONTAINER(gui.main_window), layout_box);
 
     gui.capture_table_scroll_window = gtk_scrolled_window_new(NULL, NULL);
@@ -685,7 +702,7 @@ static void init_main_window(SamplerState& state) {
     // expand to fill its parent, which is what we want with the capture
     // table--it should have its own height and width independent from the
     // height and width of the scrolled window.
-    GtkWidget *align = gtk_alignment_new(0, 0, 0, 0);
+    GtkWidget* align = gtk_alignment_new(0, 0, 0, 0);
     gtk_scrolled_window_add_with_viewport(
             GTK_SCROLLED_WINDOW(gui.capture_table_scroll_window), align);
     gtk_widget_show(align);
@@ -705,7 +722,7 @@ static void init_main_window(SamplerState& state) {
     int row = 0;
 
     // Inserting each label into the table:
-    GtkWidget *label = gtk_label_new("Name");
+    GtkWidget* label = gtk_label_new("Name");
     gtk_label_set_markup(GTK_LABEL(label), "<b>Name</b>");
     gtk_widget_show(label);
     gtk_table_attach_defaults(GTK_TABLE(gui.capture_table), label, COL_NAME,
@@ -778,7 +795,7 @@ static void init_main_window(SamplerState& state) {
             FALSE, FALSE, NO_PADDING);
     gtk_widget_show(gui.label_total_data_captured);
 
-    GtkWidget *sub_box = gtk_hbox_new(FALSE, NO_PADDING);
+    GtkWidget* sub_box = gtk_hbox_new(FALSE, NO_PADDING);
     gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, NO_PADDING);
 
     // The new capture button. The callback opens the new capture screen.
@@ -853,7 +870,7 @@ static void init_new_capture_window(SamplerState& state) {
     // right.
     gtk_window_set_deletable(GTK_WINDOW(gui.new_capture_window), FALSE);
 
-    GtkWidget *layout_box = gtk_vbox_new(FALSE, NO_PADDING);
+    GtkWidget* layout_box = gtk_vbox_new(FALSE, NO_PADDING);
     gtk_container_add(GTK_CONTAINER(gui.new_capture_window), layout_box);
 
     // This box contains the fields--each field has a box with a radio list of
@@ -866,7 +883,7 @@ static void init_new_capture_window(SamplerState& state) {
     // fields_parent_box:
     populate_fields_and_options(state);
 
-    GtkWidget *sub_box = gtk_hbox_new(FALSE, NO_PADDING);
+    GtkWidget* sub_box = gtk_hbox_new(FALSE, NO_PADDING);
     gtk_box_pack_end(GTK_BOX(layout_box), sub_box, FALSE, FALSE, NO_PADDING);
 
     // The new capture button sends the capture info to the main window so that
@@ -909,10 +926,10 @@ static void init_add_option_window(SamplerState& state) {
     // The user can't close this window except through our GUI:
     gtk_window_set_deletable(GTK_WINDOW(gui.add_option_window), FALSE);
 
-    GtkWidget *layout_box = gtk_vbox_new(FALSE, NO_PADDING);
+    GtkWidget* layout_box = gtk_vbox_new(FALSE, NO_PADDING);
     gtk_container_add(GTK_CONTAINER(gui.add_option_window), layout_box);
 
-    GtkWidget *frame = gtk_frame_new("Field:");
+    GtkWidget* frame = gtk_frame_new("Field:");
     gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, NO_PADDING);
     gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
 
@@ -1002,10 +1019,10 @@ static void init_edit_notes_window(SamplerState& state) {
     // The user can't close this window except through our GUI:
     gtk_window_set_deletable(GTK_WINDOW(gui.edit_notes_window), FALSE);
 
-    GtkWidget *layout_box = gtk_vbox_new(FALSE, NO_PADDING);
+    GtkWidget* layout_box = gtk_vbox_new(FALSE, NO_PADDING);
     gtk_container_add(GTK_CONTAINER(gui.edit_notes_window), layout_box);
 
-    GtkWidget *frame = gtk_frame_new("Name:");
+    GtkWidget* frame = gtk_frame_new("Name:");
     gtk_box_pack_start(GTK_BOX(layout_box), frame, FALSE, FALSE, NO_PADDING);
     gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
 
@@ -1067,13 +1084,15 @@ static void init_edit_notes_window(SamplerState& state) {
 
 static void populate_fields_and_options(SamplerState& state) {
     if(state.gui.fields_parent_box == NULL) {
-        std::cerr << "ERROR: populate_fields_and_options() called before " <<
-                "fields_parent_box was set." << std::endl;
+        std::cerr << "ERROR: populate_fields_and_options() CALLED BEFORE " <<
+                "fields_parent_box WAS SET." << std::endl;
+        return;
     }
 
     {
         // Remove all of the old fields from fields_parent_box:
-        GList *children, *iter;
+        GList* children;
+        GList* iter;
 
         children = gtk_container_get_children(
                 GTK_CONTAINER(state.gui.fields_parent_box));
@@ -1163,7 +1182,7 @@ static void populate_fields_and_options(SamplerState& state) {
         // that all of the add option buttons are the same size.
         // 0, 0, 0, 0 makes it top-left aligned with no option for expanding to
         // fill all the available space.
-        GtkWidget *align = gtk_alignment_new(0, 0, 0, 0);
+        GtkWidget* align = gtk_alignment_new(0, 0, 0, 0);
         gtk_container_add(GTK_CONTAINER(align), add_option_button);
         gtk_widget_show(add_option_button);
 
@@ -1189,7 +1208,7 @@ static void insert_capture_into_table(SamplerState& state,
 static void insert_capture_into_table_row(SamplerState& state,
         DataCapture capture, const int row) {
     // This label shows the name of the capture:
-    GtkWidget *label = gtk_label_new(capture.name.c_str());
+    GtkWidget* label = gtk_label_new(capture.name.c_str());
     // Top-left align:
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
     gtk_widget_show(label);
@@ -1245,7 +1264,7 @@ static void insert_capture_into_table_row(SamplerState& state,
     state.gui.notes_labels.push_back(label);
 
     // This button opens the edit notes window:
-    GtkWidget *edit_notes_button = gtk_button_new_with_label("Edit...");
+    GtkWidget* edit_notes_button = gtk_button_new_with_label("Edit...");
     ss.str("");
     ss << (row - 1);
     gtk_widget_show(edit_notes_button);
@@ -1255,14 +1274,14 @@ static void insert_capture_into_table_row(SamplerState& state,
 
     // This alignment widget prevents the edit notes button from expanding.
     // 0, 0, 0, 0 means top-left alignment and no expansion.
-    GtkWidget *align = gtk_alignment_new(0, 0, 0, 0);
+    GtkWidget* align = gtk_alignment_new(0, 0, 0, 0);
     gtk_container_add(GTK_CONTAINER(align), edit_notes_button);
     gtk_widget_show(align);
     gtk_table_attach_defaults(GTK_TABLE(state.gui.capture_table), align,
             COL_EDIT_NOTES, COL_EDIT_NOTES + 1, row, row + 1);
 
     // This button deletes the capture:
-    GtkWidget *delete_capture_button = gtk_button_new_with_label("Delete");
+    GtkWidget* delete_capture_button = gtk_button_new_with_label("Delete");
     gtk_widget_show(delete_capture_button);
     gtk_widget_set_name(delete_capture_button, ss.str().c_str());
     g_signal_connect(delete_capture_button, "clicked",
@@ -1284,7 +1303,7 @@ static void insert_capture_into_table_row(SamplerState& state,
             ss.str().c_str());
 
     // Scroll to the bottom:
-    GtkAdjustment *adjustment = gtk_scrolled_window_get_vadjustment(
+    GtkAdjustment* adjustment = gtk_scrolled_window_get_vadjustment(
             GTK_SCROLLED_WINDOW(state.gui.capture_table_scroll_window));
     gtk_adjustment_set_value(adjustment, gtk_adjustment_get_upper(adjustment));
     gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(
@@ -1296,7 +1315,8 @@ static void hide_capture_from_table(GuiElements& gui, const int capture_index) {
     const int row = capture_index + 1;
 
 
-    GList *children, *iter;
+    GList* children;
+    GList* iter;
 
     children = gtk_container_get_children(GTK_CONTAINER(gui.capture_table));
     for(iter = children; iter != NULL; iter = g_list_next(iter)) {
@@ -1314,12 +1334,8 @@ static void hide_capture_from_table(GuiElements& gui, const int capture_index) {
     gtk_table_set_row_spacing(GTK_TABLE(gui.capture_table), row, 0);
 }
 
-static void cb_destroy(GtkWidget *widget, gpointer data) {
+static void cb_destroy(GtkWidget* widget, gpointer data) {
     SamplerState& state = *((SamplerState*)data);
-
-    std::cerr << "In cb_destroy, acquire_process_id == " <<
-            state.acquire_process_id << std::endl;
-    fflush(stdout);
 
     // If we are currently acquiring data,
     if(state.acquire_process_id != -1) {
@@ -1335,7 +1351,7 @@ static void cb_destroy(GtkWidget *widget, gpointer data) {
     // return FALSE;
 }
 
-static void cb_start_capture(GtkWidget *widget, gpointer data) {
+static void cb_start_capture(GtkWidget* widget, gpointer data) {
     SamplerState& state = *((SamplerState*)data);
 
     if(!state.all_initialized) {
@@ -1355,7 +1371,7 @@ static void cb_start_capture(GtkWidget *widget, gpointer data) {
     gtk_widget_hide(state.gui.label_capture_error);
 }
 
-static void cb_stop_capture(GtkWidget *widget, gpointer data) {
+static void cb_stop_capture(GtkWidget* widget, gpointer data) {
     SamplerState& state = *((SamplerState*)data);
 
     if(!state.all_initialized) {
@@ -1377,7 +1393,7 @@ static void cb_stop_capture(GtkWidget *widget, gpointer data) {
     gtk_widget_hide(state.gui.label_capture_error);
 }
 
-static void cb_new_capture(GtkWidget *widget, gpointer data) {
+static void cb_new_capture(GtkWidget* widget, gpointer data) {
     SamplerState& state = *((SamplerState*)data);
 
     if(!state.all_initialized) {
@@ -1393,7 +1409,7 @@ static void cb_new_capture(GtkWidget *widget, gpointer data) {
     gtk_widget_hide(state.gui.label_capture_error);
 }
 
-static void cb_reset_capture(GtkWidget *widget, gpointer data) {
+static void cb_reset_capture(GtkWidget* widget, gpointer data) {
     SamplerState& state = *((SamplerState*)data);
 
     if(!state.all_initialized) {
@@ -1412,7 +1428,7 @@ static void cb_reset_capture(GtkWidget *widget, gpointer data) {
     gtk_widget_hide(state.gui.label_capture_error);
 }
 
-static void cb_create_new_capture(GtkWidget *widget, gpointer data) {
+static void cb_create_new_capture(GtkWidget* widget, gpointer data) {
     SamplerState& state = *((SamplerState*)data);
 
     if(!state.all_initialized) {
@@ -1446,7 +1462,7 @@ static void cb_create_new_capture(GtkWidget *widget, gpointer data) {
     gtk_window_set_modal(GTK_WINDOW(state.gui.new_capture_window), FALSE);
 }
 
-static void cb_cancel_new_capture(GtkWidget *widget, gpointer data) {
+static void cb_cancel_new_capture(GtkWidget* widget, gpointer data) {
     SamplerState& state = *((SamplerState*)data);
 
     if(!state.all_initialized) {
@@ -1465,7 +1481,7 @@ static void cb_cancel_new_capture(GtkWidget *widget, gpointer data) {
     gtk_window_set_modal(GTK_WINDOW(state.gui.new_capture_window), FALSE);
 }
 
-static void cb_add_new_option(GtkWidget *widget, gpointer data) {
+static void cb_add_new_option(GtkWidget* widget, gpointer data) {
     SamplerState& state = *((SamplerState*)data);
 
     if(!state.all_initialized) {
@@ -1489,7 +1505,7 @@ static void cb_add_new_option(GtkWidget *widget, gpointer data) {
     gtk_window_set_modal(GTK_WINDOW(state.gui.add_option_window), TRUE);
 }
 
-static void cb_field_selection_changed(GtkWidget *widget, gpointer data) {
+static void cb_field_selection_changed(GtkWidget* widget, gpointer data) {
     SamplerState& state = *((SamplerState*)data);
 
     if(!state.all_initialized) {
@@ -1554,7 +1570,7 @@ static void cb_add_option_add(GtkWidget* widget, gpointer data) {
     gtk_window_set_modal(GTK_WINDOW(state.gui.add_option_window), FALSE);
 }
 
-static void cb_edit_notes(GtkWidget *widget, gpointer data) {
+static void cb_edit_notes(GtkWidget* widget, gpointer data) {
     SamplerState& state = *((SamplerState*)data);
 
     const int capture_index = atoi(gtk_widget_get_name(widget));
@@ -1583,11 +1599,11 @@ static void cb_edit_notes(GtkWidget *widget, gpointer data) {
     gtk_window_set_modal(GTK_WINDOW(state.gui.edit_notes_window), TRUE);
 }
 
-static void cb_edit_notes_save(GtkWidget *widget, gpointer data) {
+static void cb_edit_notes_save(GtkWidget* widget, gpointer data) {
     SamplerState& state = *((SamplerState*)data);
 
     // This is the only way to read all of the text out of the text view:
-    GtkTextBuffer *buffer = gtk_text_view_get_buffer(
+    GtkTextBuffer* buffer = gtk_text_view_get_buffer(
             GTK_TEXT_VIEW(state.gui.edit_notes_text_view));
     GtkTextIter start_iter, end_iter;
     gtk_text_buffer_get_start_iter(buffer, &start_iter);
@@ -1618,7 +1634,7 @@ static void cb_edit_notes_save(GtkWidget *widget, gpointer data) {
     gtk_window_set_modal(GTK_WINDOW(state.gui.edit_notes_window), FALSE);
 }
 
-static void cb_edit_notes_cancel(GtkWidget *widget, gpointer data) {
+static void cb_edit_notes_cancel(GtkWidget* widget, gpointer data) {
     SamplerState& state = *((SamplerState*)data);
 
     state.notes_being_edited = -1;
@@ -1627,7 +1643,7 @@ static void cb_edit_notes_cancel(GtkWidget *widget, gpointer data) {
     gtk_window_set_modal(GTK_WINDOW(state.gui.edit_notes_window), FALSE);
 }
 
-static void cb_delete_capture(GtkWidget *widget, gpointer data) {
+static void cb_delete_capture(GtkWidget* widget, gpointer data) {
     SamplerState& state = *((SamplerState*)data);
 
     const int capture_index = atoi(gtk_widget_get_name(widget));
@@ -1777,8 +1793,8 @@ static void load_all_captures_from_files(SamplerState& state) {
     {
         // Crawl the data folder to find all of the files that end with
         // CAPTURE_META_ENDING.
-        DIR *directory_pointer = NULL;
-        struct dirent *item = NULL;
+        DIR* directory_pointer = NULL;
+        struct dirent* item = NULL;
 
         directory_pointer = opendir(DATA_FOLDER.c_str());
         if(directory_pointer) {
