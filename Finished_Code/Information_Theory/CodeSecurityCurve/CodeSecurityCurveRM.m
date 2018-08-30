@@ -3,11 +3,11 @@
 
 %closes all figure windows
 close all;
-for m = 2 : 20   %cycles through a range of m values
+for m = 1 : 3   %cycles through a range of m values
     tic
     %creates a new figure
     figure();
-    parfor r = 1 : m   %cycles through a range of r values
+    for r = 1 : m   %cycles through a range of r values
 %         if r < m    %RM codes are only valid if this is true.
             n = 2^m;    %length of code words
             k = 0;  %initialize k = 0

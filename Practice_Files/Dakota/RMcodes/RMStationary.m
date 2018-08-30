@@ -5,30 +5,31 @@ close all;
 % load('average_smalley.mat');
 load('pr_harrison.mat');
 load('pr_smalley.mat');
-threshold = .99;
-average_harrison = get_num_carrier(pr_harrison,threshold);
+threshold1 = .99;
+threshold2 = .99999999;
+average_harrison = get_num_carrier(pr_harrison,threshold1);
 for bl = 0:17
     eval(sprintf('load("mu_%d_%d");',2^bl,6));
 end
 har = good_carriers(pr_harrison);
 mus = [];
 for bl = 0:17
-    eval(sprintf('mus(:,%d) = get_exp(mu_%d_6);',bl+1,2^bl));
+    eval(sprintf('mus(:,%d) = get_worst_case(mu_%d_6,threshold2);',bl+1,2^bl));
 end
 max_dif = average_harrison - average_smalley;
 % ratio = average_smalley./average_harrison;
 ratio = mus;
-for bl = 0:17
-    ratio(:,bl+1) = ratio(:,bl+1)/(bl+1)^2;
-% ratio(:,2) = ratio(:,2)/4;
-% ratio(:,3) = ratio(:,3)/8;
-% ratio(:,4) = ratio(:,4)/16;
-end
+% for bl = 0:17
+%     ratio(:,bl+1) = ratio(:,bl+1)/2^(bl+1);
+% % ratio(:,2) = ratio(:,2)/4;
+% % ratio(:,3) = ratio(:,3)/8;
+% % ratio(:,4) = ratio(:,4)/16;
+% end
 [col_num,~] = size(mu_2_6);
 col_num = col_num + 1;
 
 
-mmax = 15;
+mmax = 17;
 imax = 0;
 mmin = 0;
 for j = mmin : mmax
@@ -71,7 +72,7 @@ for m = mmin : mmax
                 eval(sprintf('codeInfo_%d_%d_%d.dBLevel = %d;', dB , u, m, RdB));
                 
                 %assigns mu
-                mu = ceil(ratio(dB-249,1) * n);
+                mu = ratio(dB-249,m+1);
                 eval(sprintf('codeInfo_%d_%d_%d.mu = %d;', dB , u, m, mu));
                 
                 %assigns H
