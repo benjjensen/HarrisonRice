@@ -7,15 +7,15 @@ threshold1 = .99;
 threshold2 = .999999999;
 decibel = false;
 for bl = 0:17
-    eval(sprintf('load("mu_%d_%d");',2^bl,6));
+    eval(sprintf('load("mu_%d");',bl));
 end
 num_carriers = get_num_carrier(pr_harrison,threshold1);
 mus = [];
 for bl = 0:17
-    eval(sprintf('mus(:,%d) = get_worst_case(mu_%d_6,threshold2);',bl+1,2^bl));
+    eval(sprintf('mus(:,%d) = get_worst_case(mu_%d,threshold2);',bl+1,bl));
 end
 % ratio = mus;
-[col_num,~] = size(mu_2_6);
+[col_num,~] = size(mu_2);
 col_num;
 
 
