@@ -4,7 +4,7 @@ close all;
 load('pr_harrison.mat');
 load('pr_smalley.mat');
 threshold1 = .99;
-threshold2 = .99999999;
+threshold2 = .999999999;
 decibel = false;
 for bl = 0:17
     eval(sprintf('load("mu_%d_%d");',2^bl,6));
