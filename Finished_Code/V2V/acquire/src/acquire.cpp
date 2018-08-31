@@ -874,7 +874,7 @@ int main(int argc, char** argv) {
                 capture_info.meta_filename << std::endl << std::endl;
     }
 
-    if(environment.record_gps_data) {
+    if(environment.record_gps_data && !capture_info.gps_positions.empty()) {
         // Save the gps data to a file.
         capture_info.save_gps_to_google_earth_file();
     }
