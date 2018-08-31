@@ -2,7 +2,7 @@ function [averages] = bl_distribution_avg(gc,pr_mat,bl)
 %UNTITLED5 Summary of this function goes here
 %   Finds the average of number of revealed bits based on the carrier
 %   probabilities of the eavesdropper
-tic;
+%tic;
 [num_rows,num_cols] = size(gc);
 aa = zeros(num_rows,bl+1);
 gg = [];
@@ -17,5 +17,5 @@ for row = 1:num_rows
     aa(row,:) = bl_get_dist(gg);
 end
 averages = aa;
-toc;
+%toc;
 end
