@@ -10,6 +10,6 @@ for i = 0:17
     eval(sprintf( ...
         'mu_%d = bl_distribution_avg(gc,pr_smalley,block_length);'...
         , i));
-    eval(sprintf('save("mu_%d");',i));
+    eval(sprintf('save("mu_%d","mu_%d");',i,i));
 end
 toc;
