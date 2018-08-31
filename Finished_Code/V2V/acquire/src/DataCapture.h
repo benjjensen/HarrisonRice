@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <ctime>
+#include <string>
 #include <vector>
 
 /**
@@ -15,11 +15,15 @@ const std::string CAPTURE_META_ENDING = "-meta.txt";
 const std::string CAPTURE_GPS_ENDING = "-GPS.kml";
 
 /**
- * The tag to use for acquire.cpp to pass the name of the capture metafile to sampler.cpp via acquire's
- * standard output.
+ * The tag to use for acquire.cpp to pass the name of the capture metadata
+ * file to sampler.cpp via acquire's standard output.
  */
-const std::string CAPTURE_META_FILENAME_HANDOFF_TAG = "DataCapture.meta_filename";
+const std::string CAPTURE_META_FILENAME_HANDOFF_TAG =
+        "DataCapture.meta_filename";
 
+/**
+ * The tag to use for acquire.cpp to tell sampler.cpp that no data was captured.
+ */
 const std::string CAPTURE_CANCELED_TAG = "DataCapture.canceled";
 
 /**
@@ -27,9 +31,18 @@ const std::string CAPTURE_CANCELED_TAG = "DataCapture.canceled";
  */
 const std::string DATA_FOLDER = "/media/V2V";
 
+/**
+ * The delimiter between fields in the gps data.
+ */
 const std::string FIELD_DELIMITER = ", ";
 
+/**
+ * The size of the file to reserve for the metadata file.
+ */
 const int META_FILE_RESERVE_SIZE = 1024 * 1024;
+/**
+ * The size of the file to reserve for the gps data.
+ */
 const int GPS_FILE_RESERVE_SIZE = 10 * 1024 * 1024;
 
 class GPSPosition {
