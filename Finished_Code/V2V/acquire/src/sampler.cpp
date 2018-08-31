@@ -467,10 +467,12 @@ int main(int argc, char** argv) {
     std::cout << "sampler v1.0\n" << std::endl;
 
     std::cout << "Reserving a cpuset for acquire...";
-    system("/bin/sudo ./reserve_acquire_cpus.sh >/dev/null 2>/dev/null");
+    fflush(stdout);
+    system("/usr/bin/sudo ./reserve_acquire_cpus.sh >/dev/null 2>/dev/null");
     std::cout << " done." << std::endl;
 
     std::cout << "Initializing GUI...";
+    fflush(stdout);
 
     // Store a reference to state in the handler function. This initializes the
     // local static variable in the signal handler so that it can access it
@@ -494,13 +496,14 @@ int main(int argc, char** argv) {
 
     std::cout << " done." << std::endl;
 
-    std::cout << "\n\nRunning sampler GUI." << std::endl;
+    std::cout << "\nRunning sampler GUI." << std::endl;
 
     // Run the GUI until it's done.
     gtk_main();
 
     std::cout << "\nReseting cpusets...";
-    system("/bin/sudo ./revert_cpus.sh >/dev/null 2>/dev/null");
+    fflush(stdout);
+    system("/usr/bin/sudo ./revert_cpus.sh >/dev/null 2>/dev/null");
     std::cout << " done." << std::endl;
 
     std::cout << "Exiting..." << std::endl;
@@ -630,6 +633,8 @@ static void handler_signal_from_child(int signal, SamplerState* state_pointer) {
     gtk_widget_set_sensitive(state.gui.new_button, TRUE);
     gtk_widget_set_sensitive(state.gui.reset_button, FALSE);
 
+    gtk_label_set_text(GTK_LABEL(state.gui.label_capture_error),
+            "ERROR: Problem saving data. Is the disk full?");
     gtk_widget_show(state.gui.label_capture_error);
 }
 
@@ -662,6 +667,11 @@ static void process_acquire_output(SamplerState& state) {
             state.finished_captures.push_back(state.current_capture);
             insert_capture_into_table(state, state.current_capture);
         }
+        else if(first_word == CAPTURE_CANCELED_TAG) {
+            gtk_label_set_text(GTK_LABEL(state.gui.label_capture_error),
+                    "No data captured.");
+            gtk_widget_show(state.gui.label_capture_error);
+        }
     }
 
     if(close(state.acquire_output_fd) != 0) {
@@ -682,10 +692,8 @@ static void init_main_window(SamplerState& state) {
     gtk_window_set_default_size(GTK_WINDOW(gui.main_window),
             MAIN_WINDOW_DEFAULT_WIDTH, MAIN_WINDOW_DEFAULT_HEIGHT);
     // Set the callback for when the user closes this window:
-    std::cout << "About to connect signal" << std::endl;
     g_signal_connect(gui.main_window, "destroy", G_CALLBACK(cb_destroy),
             (gpointer)(&state));
-    std::cout << "Connected signal" << std::endl;
 
     GtkWidget* layout_box = gtk_vbox_new(FALSE, NO_PADDING);
     gtk_container_add(GTK_CONTAINER(gui.main_window), layout_box);
@@ -1383,14 +1391,14 @@ static void cb_stop_capture(GtkWidget* widget, gpointer data) {
     gtk_widget_set_sensitive(state.gui.new_button, FALSE);
     gtk_widget_set_sensitive(state.gui.reset_button, FALSE);
 
+    gtk_widget_hide(state.gui.label_capture_error);
+
     gtk_widget_hide(state.gui.current_capture_box);
     stop_acquiring(state);
 
     // The only active button when there is no current capture should be the new
     // capture button:
     gtk_widget_set_sensitive(state.gui.new_button, TRUE);
-
-    gtk_widget_hide(state.gui.label_capture_error);
 }
 
 static void cb_new_capture(GtkWidget* widget, gpointer data) {

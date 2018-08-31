@@ -163,6 +163,11 @@ void acquire_parser_printf();
 void acquire_set_session(uvAPI& pUV, AcquireEnvironment& environment);
 
 /**
+ * Convenient function to get the user environment and set up the DAQ board.
+ */
+AcquireEnvironment get_environment(int& argc, char**& argv, uvAPI& uv);
+
+/**
  * Handles the exit signal given by pressing ctrl-c.
  */
 void exit_signal_handler(int signal, boost::atomic<bool>* flag_pointer);
@@ -280,28 +285,12 @@ int main(int argc, char** argv) {
 
     std::cout << "acquire continuously v1.1" << std::endl << std::endl;
 
-    // The environment that the user defined with the command line arguments.
-    const AcquireEnvironment environment;
     // The API that wraps the DAQ card.
     uvAPI uv;
-    {
-        // Get the settings that the user passed in with the command line
-        // arguments.
-        AcquireEnvironment mutable_environment = acquire_parser(argc, argv);
+    // The environment that the user defined with the command line arguments.
+    const AcquireEnvironment environment = get_environment(argc, argv, uv);
 
-        // Initialize settings.
-        if(mutable_environment.force_calibration) {
-            // Force full setup.
-            uv.setSetupDoneBit(mutable_environment.board_num, 0);
-        }
-        uv.setupBoard(mutable_environment.board_num);
 
-        // Write user settings to the board.
-        acquire_set_session(uv, mutable_environment);
-
-        // After this point, the environment is not changing.
-        environment = mutable_environment;
-    }
 
     // Read the clock frequency.
     const unsigned int clock_frequency =
@@ -362,9 +351,19 @@ int main(int argc, char** argv) {
     // first 8 GB of captured data.
     sleep(SECONDS_TO_SLEEP); // Sleep for 3 seconds.
 
-    // TODO Don't create files if SIGINT was received by now.
-    // TODO Let the parent process know if no data was captured/let it know
-    // when we actually start capturing data.
+    // If the user already told us to stop,
+    if(!continue_reading_data.load()) {
+        // Free the memory, output a message, and quit.
+        free_memory(first_buffer, second_buffer);
+
+        std::cout << "Data capture canceled before it began." << std::endl;
+        if(environment.signal_pid != NO_SIGNAL_PROCESS) {
+            // Tell the parent process that we didn't capture any data.
+            std::cout << CAPTURE_CANCELED_TAG << std::endl;
+        }
+        return 0;
+    }
+
 
 
     //--------------------------------------------------------------------------
@@ -520,6 +519,8 @@ int main(int argc, char** argv) {
     //--------------------------------------------------------------------------
     //                             Capture the data
     //--------------------------------------------------------------------------
+
+    std::cout << "\nPreparation complete. Begin acquiring data." << std::endl;
 
     // The number of blocks in the buffer currently being written to.
     unsigned int blocks_in_current_buffer = 0;
@@ -865,10 +866,13 @@ int main(int argc, char** argv) {
     // We know that there's enough space on disk to store the metadata, even if
     // the disk filled up completely, because we reserved it earlier.
     capture_info.write_to_file();
-    // Output the name of the metadata file so that any program that knows what
-    // to look for (e.g. sampler) can know what it is.
-    std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " <<
-            capture_info.meta_filename << std::endl << std::endl;
+
+    if(environment.signal_pid != NO_SIGNAL_PROCESS) {
+        // Output the name of the metadata file so that any program that knows what
+        // to look for (e.g. sampler) can know what it is.
+        std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " <<
+                capture_info.meta_filename << std::endl << std::endl;
+    }
 
     if(environment.record_gps_data) {
         // Save the gps data to a file.
@@ -944,8 +948,8 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
 
     // A pipe to get info from acquire and read it in sampler (via acquire's
     // standard output):
-    HANDLE pipe[2];
-    if(pipe(pipe) != SUCCESS) {
+    HANDLE output_pipe[2];
+    if(pipe(output_pipe) != SUCCESS) {
         std::cerr << "ERROR: UNABLE TO OPEN PIPE FOR GPSBABEL OUTPUT" <<
                 std::endl;
         return NULL;
@@ -961,12 +965,12 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
     case CHILD_PID:
         // Set up the process interaction by replacing standard out with the
         // pipe to the parent process.
-        if(dup2(pipe[WRITE_FD], STDOUT_FILENO) == FAILURE) {
+        if(dup2(output_pipe[WRITE_FD], STDOUT_FILENO) == FAILURE) {
             std::cerr << "ERROR: UNABLE TO PIPE STDOUT FROM GPS PROCESS INTO" <<
                     " PARENT PROCESS" << std::endl;
         }
         // Close the side of the pipe we (the child process) won't use:
-        if(close(pipe[READ_FD]) != SUCCESS) {
+        if(close(output_pipe[READ_FD]) != SUCCESS) {
             std::cerr << "ERROR: UNABLE TO CLOSE UNUSED SIDE OF PIPE IN GPS " <<
                     "PROCESS" << std::endl;
         }
@@ -989,13 +993,13 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
     }
 
     // Close the side of the pipe that we won't use in the parent process.
-    if(close(pipe[WRITE_FD]) != SUCCESS) {
+    if(close(output_pipe[WRITE_FD]) != SUCCESS) {
         std::cerr << "ERROR: UNABLE TO CLOSE UNUSED SIDE OF PIPE IN ACQUIRE " <<
                 "PROCESS" << std::endl;
     }
 
     const pid_t gps_process_id = pid;
-    const HANDLE gps_output_fd = pipe[READ_FD];
+    const HANDLE gps_output_fd = output_pipe[READ_FD];
 
     // Start the gps thread and pass in the information it needs to function.
     boost::thread *gps_thread = new boost::thread(gps_thread_main_function,
@@ -1128,6 +1132,24 @@ void remove_meta_gps_files(DataCapture& capture_info) {
         remove(capture_info.gps_filename.c_str());
         capture_info.gps_filename = "";
     }
+}
+
+AcquireEnvironment get_environment(int& argc, char**& argv, uvAPI& uv) {
+    // Get the settings that the user passed in with the command line
+    // arguments.
+    AcquireEnvironment mutable_environment = acquire_parser(argc, argv);
+
+    // Initialize settings.
+    if(mutable_environment.force_calibration) {
+        // Force full setup.
+        uv.setSetupDoneBit(mutable_environment.board_num, 0);
+    }
+    uv.setupBoard(mutable_environment.board_num);
+
+    // Write user settings to the board.
+    acquire_set_session(uv, mutable_environment);
+
+    return mutable_environment;
 }
 
 AcquireEnvironment acquire_parser(int argc, char** argv) {
