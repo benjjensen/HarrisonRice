@@ -45,26 +45,68 @@ const int META_FILE_RESERVE_SIZE = 1024 * 1024;
  */
 const int GPS_FILE_RESERVE_SIZE = 10 * 1024 * 1024;
 
+/**
+ * A class to represent a single gps position in a data capture.
+ */
 class GPSPosition {
 public:
+    /**
+     * The year of the gps position.
+     */
     time_t year;
+    /**
+     * The month (1-12) of the gps position.
+     */
     time_t month;
+    /**
+     * The date (1-31) of the gps position.
+     */
     time_t date;
 
+    /**
+     * The hour (0-23) of the gps position.
+     */
     time_t hour;
+    /**
+     * The minute (0-59) of the gps position.
+     */
     time_t minute;
+    /**
+     * The second (0-59) of the gps position.
+     */
     time_t second;
 
+    /**
+     * The number of blocks captured before this position fix.
+     */
     size_t blocks_captured;
 
+    /**
+     * The latitude of this position.
+     */
     double latitude;
+    /**
+     * The longitude of this position.
+     */
     double longitude;
+    /**
+     * The altitude of this position.
+     */
     double altitude_feet;
 
 
+    /**
+     * Default constructor.
+     */
     GPSPosition();
 
+    /**
+     * Writes this gps position to a stream.
+     */
     void write_to_stream(std::ostream &out);
+    /**
+     * Reads this gps position in from a stream.
+     */
     void read_from_stream(std::istream &in);
 };
 
