@@ -16,9 +16,7 @@
  * with the -gps option.)
  *
  * The recommended command to run acquire is this:
- *     sudo nice -n -20 ./acquire -f <filename> [-gps]
- * The nice command gives acquire the highest cpu priority short of runtime
- * priority.
+ *     acquire -f <filename> [-gps] -priority -reservecpus
  */
 
 // TODO: Clean up commented-out sections, remove windows-specific sections (?)
@@ -35,6 +33,8 @@
 #include <ext/stdio_filebuf.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -106,6 +106,10 @@ struct AcquireEnvironment {
         record_gps_data = false;
         signal_pid = NO_SIGNAL_PROCESS;
         user_outputfile = NULL;
+
+        reserve_cpus = false;
+        move_cpuset = NULL;
+        priority = false;
     }
 
     unsigned short board_num;
@@ -142,6 +146,10 @@ struct AcquireEnvironment {
     bool record_gps_data;
     int signal_pid;
     char* user_outputfile;
+
+    bool reserve_cpus;
+    char* move_cpuset;
+    bool priority;
 };
 
 /**
@@ -259,15 +267,6 @@ int main(int argc, char** argv) {
     //                          Initialize the program
     //--------------------------------------------------------------------------
 
-    // Move this process to its own cpuset, assuming that one was created for it
-    // previously.
-    pid_t process_id = getpid();
-    std::stringstream command;
-    // This is a safe command to pass to system() because it contains the
-    // absolute path of echo.
-    command << "/bin/echo " << process_id << " > /cgroup/cpuset/acquire/tasks";
-    system(command.str().c_str());
-
     // This is the flag that tells whether we're still reading data or not. It
     // will remain true until either there's an error writing the data to file
     // or the exit signal handler function sets it to false.
@@ -290,14 +289,58 @@ int main(int argc, char** argv) {
     // The environment that the user defined with the command line arguments.
     const AcquireEnvironment environment = get_environment(argc, argv, uv);
 
-
-
     // Read the clock frequency.
     const unsigned int clock_frequency =
             uv.getAdcClockFreq(environment.board_num);
     std::cout << "ADC clock frequency ~= " << clock_frequency << "MHz" <<
-            std::endl;
-    fflush(stdout);
+            std::endl << std::endl;
+
+    if(environment.reserve_cpus) {
+        // Reserve a cpuset to execute on.
+        std::cout << "Reserving acquire cpus...";
+        fflush(stdout);
+        int error = system("./reserve_acquire_cpus.sh >/dev/null 2>/dev/null");
+        if(error == -1 || WEXITSTATUS(error)) {
+            std::cout << std::endl;
+            std::cerr << "ERROR: UNABLE TO RESERVE ACQUIRE CPUSET" << std::endl;
+        }
+        else {
+            std::cout << " done." << std::endl;
+        }
+    }
+
+    if(environment.move_cpuset != NULL || environment.reserve_cpus) {
+        // Move this process to its own cpuset, assuming that one was created for it
+        // previously.
+        pid_t process_id = getpid();
+        std::string cpuset = environment.move_cpuset != NULL ?
+                environment.move_cpuset : "acquire";
+        std::stringstream command;
+        // This is a safe command to pass to system() because it contains the
+        // absolute path of echo.
+        command << "/bin/echo " << process_id << " > /cgroup/cpuset/" <<
+                cpuset << "/tasks";
+        int error = system(command.str().c_str());
+        if(error == -1 || WEXITSTATUS(error)) {
+            std::cerr << "ERROR: UNABLE TO MOVE ACQUIRE TO CPUSET " <<
+                    cpuset << std::endl;
+        }
+        else {
+            std::cout << "Moved to cpuset " << cpuset << "." << std::endl;
+        }
+    }
+
+    if(environment.priority) {
+        // Set the priority of this process to the maximum priority.
+        int error = setpriority(PRIO_PROCESS, 0, -20);
+        if(error) {
+            std::cerr << "ERROR: UNABLE TO INCREASE THE PRIORITY OF ACQUIRE" <<
+                    std::endl;
+        }
+        else {
+            std::cout << "Increased process priority to maximum." << std::endl;
+        }
+    }
 
 
     // The first buffer where incoming data is stored.
@@ -322,6 +365,9 @@ int main(int argc, char** argv) {
     //--------------------------------------------------------------------------
     //                             Setup DAQ Card
     //--------------------------------------------------------------------------
+
+    std::cout << "\nPreparing to acquire...";
+    fflush(stdout);
 
     // Tell the board that we're going to acquire data.
     // After this function is called, the beginning of the data we're acquiring
@@ -520,7 +566,7 @@ int main(int argc, char** argv) {
     //                             Capture the data
     //--------------------------------------------------------------------------
 
-    std::cout << "\nPreparation complete. Begin acquiring data." << std::endl;
+    std::cout << " done.\n\nBegin acquiring data." << std::endl;
 
     // The number of blocks in the buffer currently being written to.
     unsigned int blocks_in_current_buffer = 0;
@@ -868,8 +914,8 @@ int main(int argc, char** argv) {
     capture_info.write_to_file();
 
     if(environment.signal_pid != NO_SIGNAL_PROCESS) {
-        // Output the name of the metadata file so that any program that knows what
-        // to look for (e.g. sampler) can know what it is.
+        // Output the name of the metadata file so that any program that knows
+        // what to look for (e.g. sampler) can know what it is.
         std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " <<
                 capture_info.meta_filename << std::endl << std::endl;
     }
@@ -885,6 +931,19 @@ int main(int argc, char** argv) {
             // Delete the gps file we reserved earlier.
             remove(capture_info.gps_filename.c_str());
             capture_info.gps_filename = "";
+        }
+    }
+
+    if(environment.reserve_cpus) {
+        std::cout << "Reverting cpus...";
+        fflush(stdout);
+        int error = system("./revert_cpus.sh >/dev/null 2>/dev/null");
+        if(error == -1 || WEXITSTATUS(error)) {
+            std::cout << std::endl;
+            std::cerr << "ERROR: UNABLE TO REVERT CPUSETS" << std::endl;
+        }
+        else {
+            std::cout << " done." << std::endl;
         }
     }
 
@@ -984,7 +1043,6 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
                     "PROCESS" << std::endl;
         }
 
-        // TODO change to the sys core group?
 
         // Not necessary to change directories because gpsbabel is on the path
         // and gpsbabel_xcsv_format.txt is in the current directory.
@@ -1163,266 +1221,281 @@ AcquireEnvironment get_environment(int& argc, char**& argv, uvAPI& uv) {
 
 AcquireEnvironment acquire_parser(int argc, char** argv) {
     AcquireEnvironment environment;
-    int arg_index = 0;
 
-    // check how many arguments, if run without arguements prints usage.
-    if(argc == 1) {
-        acquire_parser_printf();
-        exit(1);
-    }
-    else {
-        // starting at second argument look for options
-        for(arg_index = 1; arg_index < argc; arg_index++) {
-            if(strcmp(argv[arg_index], "-pid") == 0) {
-                // Make sure option is followed by the process id
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.signal_pid = atoi(argv[arg_index]);
-                }
-                else {
-                    std::cout << "Invalid process id with -pid option" << std::endl;
-                    exit(1);
-                }
+    // Starting at second argument, look for options.
+    for(int arg_index = 1; arg_index < argc; arg_index++) {
+        char* arg = argv[arg_index];
+
+        if(strcmp(arg, "-h") == 0 || strcmp(arg, "-help") == 0) {
+            acquire_parser_printf();
+            exit(1);
+        }
+        else if(strcmp(arg, "-pid") == 0) {
+            // Make sure option is followed by the process id
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the argument index b/c we have now taken care of the next arguement
+                environment.signal_pid = atoi(arg);
             }
-            else if(strcmp(argv[arg_index], "-gps") == 0) {
-                environment.record_gps_data = true;
+            else {
+                std::cout << "Invalid process id with -pid option" << std::endl;
+                exit(1);
             }
-            else if(strcmp(argv[arg_index], "-b") == 0) {
-                // make sure option is followed by (BoardNum)
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.board_num = atoi(argv[arg_index]);
-                }
-                else {
-                    std::cout << "Invalid board number with ""-b"" option" << std::endl;
-                    exit(1);
-                }
+        }
+        else if(strcmp(arg, "-movecpuset") == 0) {
+            // Make sure option is followed by the cpuset name
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the argument index b/c we have now taken care of the next arguement
+                environment.move_cpuset = arg;
             }
-            else if(strcmp(argv[arg_index], "-forceCal") == 0) {
-                environment.force_calibration = 1;
-                std::cout << "force calibration selected" << std::endl;
+            else {
+                std::cout << "Invalid process id with -pid option" << std::endl;
+                exit(1);
             }
-            else if(strcmp(argv[arg_index], "-ic") == 0) {
-                environment.internal_clock = CLOCK_INTERNAL;
-                std::cout << "internal clock selected" << std::endl;
+        }
+        else if(strcmp(arg, "-reservecpus") == 0) {
+            environment.reserve_cpus = true;
+        }
+        else if(strcmp(arg, "-priority") == 0) {
+            environment.priority = true;
+        }
+        else if(strcmp(arg, "-gps") == 0) {
+            environment.record_gps_data = true;
+        }
+        else if(strcmp(arg, "-b") == 0) {
+            // make sure option is followed by (BoardNum)
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taken care of the next arguement
+                environment.board_num = atoi(arg);
             }
-            else if(strcmp(argv[arg_index], "-freq") == 0) {
-                // make sure option is followed by (Chan N)user_outputfile  = argv[arg_index];
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taking care of the next arguement
-                    environment.internal_frequency = atoi(argv[arg_index]);
-                    if(environment.internal_frequency <= 2000000000 && environment.internal_frequency >= 50000000) {
-                        std::cout << "Internal clock frequency " << environment.internal_frequency << std::endl;
-                    }
-                    else {
-                        std::cout << "Frequency selected must be between 300MHz and 2GHz for AD12 and 50MHz and 250MHz for AD16" << std::endl;
-                        exit(1);
-                    }
+            else {
+                std::cout << "Invalid board number with ""-b"" option" << std::endl;
+                exit(1);
+            }
+        }
+        else if(strcmp(arg, "-forceCal") == 0) {
+            environment.force_calibration = 1;
+            std::cout << "force calibration selected" << std::endl;
+        }
+        else if(strcmp(arg, "-ic") == 0) {
+            environment.internal_clock = CLOCK_INTERNAL;
+            std::cout << "internal clock selected" << std::endl;
+        }
+        else if(strcmp(arg, "-freq") == 0) {
+            // make sure option is followed by (Chan N)user_outputfile  = argv[arg_index];
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taking care of the next arguement
+                environment.internal_frequency = atoi(arg);
+                if(environment.internal_frequency <= 2000000000 && environment.internal_frequency >= 50000000) {
+                    std::cout << "Internal clock frequency " << environment.internal_frequency << std::endl;
                 }
                 else {
                     std::cout << "Frequency selected must be between 300MHz and 2GHz for AD12 and 50MHz and 250MHz for AD16" << std::endl;
                     exit(1);
                 }
             }
+            else {
+                std::cout << "Frequency selected must be between 300MHz and 2GHz for AD12 and 50MHz and 250MHz for AD16" << std::endl;
+                exit(1);
+            }
+        }
 
-            else if(strcmp(argv[arg_index], "-f") == 0) {
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.user_outputfile = argv[arg_index];
-                }
+        else if(strcmp(arg, "-f") == 0) {
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taken care of the next arguement
+                environment.user_outputfile = arg;
             }
-            else if(strcmp(argv[arg_index], "-scm") == 0) {
-                environment.single_channel_mode = 1;
-                environment.single_channel_select = 0;
+        }
+        else if(strcmp(arg, "-scm") == 0) {
+            environment.single_channel_mode = 1;
+            environment.single_channel_select = 0;
+        }
+        else if(strcmp(arg, "-scs") == 0) {
+            // make sure option is followed by (Chan N)
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taken care of the next arguement
+                environment.single_channel_select = atoi(arg);
+                std::cout << "SingleChannelSelect " << environment.single_channel_select << std::endl;
             }
-            else if(strcmp(argv[arg_index], "-scs") == 0) {
-                // make sure option is followed by (Chan N)
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.single_channel_select = atoi(argv[arg_index]);
-                    std::cout << "SingleChannelSelect " << environment.single_channel_select << std::endl;
-                }
-                else {
-                    std::cout << "(Chan N) must be in range 0,1 for 2-channel boards and 0,1,2,3 for 4-channel boards" << std::endl;
-                    exit(1);
-                }
+            else {
+                std::cout << "(Chan N) must be in range 0,1 for 2-channel boards and 0,1,2,3 for 4-channel boards" << std::endl;
+                exit(1);
             }
-            else if(strcmp(argv[arg_index], "-desiq") == 0) {
-                environment.desiq = 1;
-                environment.single_channel_mode = 1;
-                environment.single_channel_select = 0;
+        }
+        else if(strcmp(arg, "-desiq") == 0) {
+            environment.desiq = 1;
+            environment.single_channel_mode = 1;
+            environment.single_channel_select = 0;
+        }
+        else if(strcmp(arg, "-desclkiq") == 0) {
+            environment.desclkiq = 1;
+            environment.single_channel_mode = 1;
+            environment.single_channel_select = 0;
+        }
+        else if(strcmp(arg, "-ecltrig") == 0) {
+            environment.ecl_trigger = 1;
+        }
+        else if(strcmp(arg, "-ecldelay") == 0) {
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taken care of the next arguement
+                environment.ecl_trigger_delay = atoi(arg);
             }
-            else if(strcmp(argv[arg_index], "-desclkiq") == 0) {
-                environment.desclkiq = 1;
-                environment.single_channel_mode = 1;
-                environment.single_channel_select = 0;
+            else {
+                std::cout << "ECL trigger delay must be [0,2^32]" << std::endl;
+                exit(1);
             }
-            else if(strcmp(argv[arg_index], "-ecltrig") == 0) {
-                environment.ecl_trigger = 1;
+        }
+        else if(strcmp(arg, "-dcm") == 0) {
+            environment.dual_channel_mode = 1;
+            environment.dual_channel_select = 3; // Default DualChannelSelect = channel 0 channel 1
+        }
+        else if(strcmp(arg, "-dcs") == 0) {
+            // make sure option is followed by (Chan N)
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taken care of the next arguement
+                environment.dual_channel_select = atoi(arg);
+                environment.first_channel = environment.dual_channel_select / 10;
+                environment.second_channel = environment.dual_channel_select % 10;
+                environment.channels = (1 << environment.first_channel) + (1 << environment.second_channel); //bitwise representation of channels
             }
-            else if(strcmp(argv[arg_index], "-ecldelay") == 0) {
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.ecl_trigger_delay = atoi(argv[arg_index]);
-                }
-                else {
-                    std::cout << "ECL trigger delay must be [0,2^32]" << std::endl;
-                    exit(1);
-                }
+            else {
+                std::cout << "(Chan NM) must be 01, 02, 03, 12, 13, 23" << std::endl;
+                exit(1);
             }
-            else if(strcmp(argv[arg_index], "-dcm") == 0) {
-                environment.dual_channel_mode = 1;
-                environment.dual_channel_select = 3; // Default DualChannelSelect = channel 0 channel 1
+        }
+        else if(strcmp(arg, "-capture_count") == 0) {
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taken care of the next arguement
+                environment.capture_count = atoi(arg);
             }
-            else if(strcmp(argv[arg_index], "-dcs") == 0) {
-                // make sure option is followed by (Chan N)
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.dual_channel_select = atoi(argv[arg_index]);
-                    environment.first_channel = environment.dual_channel_select / 10;
-                    environment.second_channel = environment.dual_channel_select % 10;
-                    environment.channels = (1 << environment.first_channel) + (1 << environment.second_channel); //bitwise representation of channels
-                }
-                else {
-                    std::cout << "(Chan NM) must be 01, 02, 03, 12, 13, 23" << std::endl;
-                    exit(1);
-                }
+            else {
+                printf("setCaptureDepth must be [0,2^32] \n");
+                exit(1);
             }
-            else if(strcmp(argv[arg_index], "-capture_count") == 0) {
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.capture_count = atoi(argv[arg_index]);
-                }
-                else {
-                    printf("setCaptureDepth must be [0,2^32] \n");
-                    exit(1);
-                }
+        }
+        else if(strcmp(arg, "-capture_depth") == 0) {
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taken care of the next arguement
+                environment.capture_depth = atoi(arg);
             }
-            else if(strcmp(argv[arg_index], "-capture_depth") == 0) {
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.capture_depth = atoi(argv[arg_index]);
-                }
-                else {
-                    std::cout << "capture_depth must a multiple of 8 up to 2^32. 0 = normal acquisition." << std::endl;
-                    exit(1);
-                }
-
-                if((environment.capture_depth % 8) != 0) {
-                    std::cout << "capture_depth must a multiple of 8 up to 2^32. 0 = normal acquisition." << std::endl;
-                    exit(1);
-                }
-            }
-            else if(strcmp(argv[arg_index], "-dec") == 0) {
-                // Make sure option is followed by the desired decimation amount
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.decimation = atoi(argv[arg_index]);
-                }
-                else {
-                    std::cout << "Decimation must either be 1, 2, 4, 8" << std::endl;
-                    exit(1);
-                }
-
-                if(!((environment.decimation == 1) ||
-                        (environment.decimation == 2) ||
-                        (environment.decimation == 4) ||
-                        (environment.decimation == 8))) {
-                    std::cout << "Decimation must either be 1, 2, 4, 8" << std::endl;
-                    exit(1);
-                }
-            }
-            else if(strcmp(argv[arg_index], "-pretrigger") == 0) {
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.pretrigger_memory = atoi(argv[arg_index]);
-                }
-                else {
-                    std::cout << "pretrigger must be 0 to 4096" << std::endl;
-                    exit(1);
-                }
-                if(environment.pretrigger_memory > 4096) {
-                    std::cout << "pretrigger must be 0 to 4096" << std::endl;
-                    exit(1);
-                }
-            }
-            else if(strcmp(argv[arg_index], "-ttledge") == 0) {
-                environment.trigger_mode = TTL_TRIGGER_EDGE;
-            }
-            else if(strcmp(argv[arg_index], "-ttlinv") == 0) {
-                environment.ttl_invert = 1;
-            }
-            else if(strcmp(argv[arg_index], "-hdiode") == 0) {
-                environment.trigger_mode = HETERODYNE;
-            }
-            else if(strcmp(argv[arg_index], "-syncselrecord") == 0) {
-                environment.trigger_mode = SYNC_SELECTIVE_RECORDING;
-            }
-            else if(strcmp(argv[arg_index], "-analog") == 0) {
-                environment.trigger_mode = WAVEFORM_TRIGGER;
-            }
-            else if(strcmp(argv[arg_index], "-analog_ch") == 0) {
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.trigger_channel = atoi(argv[arg_index]);
-                }
-                else {
-                    std::cout << "analog_ch must be either 0,1,2,3 (4-channel boards), or 0,1 (2-channel boards)" << std::endl;
-                    exit(1);
-                }
-                if(environment.pretrigger_memory > 2047) {
-                    std::cout << "analog_ch must be either 0,1,2,3 (4-channel boards), or 0,1 (2-channel boards)" << std::endl;
-                    exit(1);
-                }
-            }
-            else if(strcmp(argv[arg_index], "-threshold") == 0) {
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.trigger_threshold_12 = atoi(argv[arg_index]);
-                    environment.trigger_threshold_16 = environment.trigger_threshold_12; //this may need a better scheme
-                    environment.trigger_threshold_14 = environment.trigger_threshold_12; //this may need a better scheme
-                }
-                else {
-                    std::cout << "thresh_a must be 0 to 65535 (16bit)" << std::cout;
-                    std::cout << "thresh_a must be 0 to 16383 (14bit)" << std::cout;
-                    std::cout << "thresh_a must be 0 to 4095 (12bit)" << std::cout;
-                    exit(1);
-                }
+            else {
+                std::cout << "capture_depth must a multiple of 8 up to 2^32. 0 = normal acquisition." << std::endl;
+                exit(1);
             }
 
-            else if(strcmp(argv[arg_index], "-hysteresis") == 0) {
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.trigger_hysteresis = atoi(argv[arg_index]);
-                }
-                else {
-                    std::cout << "thresh_b must be 0 to 65535" << std::endl;
-                    exit(1);
-                }
+            if((environment.capture_depth % 8) != 0) {
+                std::cout << "capture_depth must a multiple of 8 up to 2^32. 0 = normal acquisition." << std::endl;
+                exit(1);
             }
-            else if(strcmp(argv[arg_index], "-avg") == 0) {
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taking care of the next arguement
-                    environment.num_averages = atoi(argv[arg_index]);
-                }
-                else {
-                    std::cout << "NumAverages must be [0,2^32]" << std::endl;
-                    exit(1);
-                }
+        }
+        else if(strcmp(arg, "-dec") == 0) {
+            // Make sure option is followed by the desired decimation amount
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taken care of the next arguement
+                environment.decimation = atoi(arg);
             }
-            else if(strcmp(argv[arg_index], "-avg_len") == 0) {
-                if(argc > (arg_index + 1)) {
-                    arg_index++; // increment the arguement index b/c we have now taken care of the next arguement
-                    environment.averager_length = atoi(argv[arg_index]);
-                }
-                else {
-                    std::cout << "AveragerLength must be [0, 2^17]" << std::endl;
-                    exit(1);
-                }
+            else {
+                std::cout << "Decimation must either be 1, 2, 4, 8" << std::endl;
+                exit(1);
             }
-            else if(strcmp(argv[arg_index], "-fiducial") == 0) {
-                environment.fiducial = 1;
+
+            if(!((environment.decimation == 1) ||
+                    (environment.decimation == 2) ||
+                    (environment.decimation == 4) ||
+                    (environment.decimation == 8))) {
+                std::cout << "Decimation must either be 1, 2, 4, 8" << std::endl;
+                exit(1);
             }
+        }
+        else if(strcmp(arg, "-pretrigger") == 0) {
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taken care of the next arguement
+                environment.pretrigger_memory = atoi(arg);
+            }
+            else {
+                std::cout << "pretrigger must be 0 to 4096" << std::endl;
+                exit(1);
+            }
+            if(environment.pretrigger_memory > 4096) {
+                std::cout << "pretrigger must be 0 to 4096" << std::endl;
+                exit(1);
+            }
+        }
+        else if(strcmp(arg, "-ttledge") == 0) {
+            environment.trigger_mode = TTL_TRIGGER_EDGE;
+        }
+        else if(strcmp(arg, "-ttlinv") == 0) {
+            environment.ttl_invert = 1;
+        }
+        else if(strcmp(arg, "-hdiode") == 0) {
+            environment.trigger_mode = HETERODYNE;
+        }
+        else if(strcmp(arg, "-syncselrecord") == 0) {
+            environment.trigger_mode = SYNC_SELECTIVE_RECORDING;
+        }
+        else if(strcmp(arg, "-analog") == 0) {
+            environment.trigger_mode = WAVEFORM_TRIGGER;
+        }
+        else if(strcmp(arg, "-analog_ch") == 0) {
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taken care of the next arguement
+                environment.trigger_channel = atoi(arg);
+            }
+            else {
+                std::cout << "analog_ch must be either 0,1,2,3 (4-channel boards), or 0,1 (2-channel boards)" << std::endl;
+                exit(1);
+            }
+            if(environment.pretrigger_memory > 2047) {
+                std::cout << "analog_ch must be either 0,1,2,3 (4-channel boards), or 0,1 (2-channel boards)" << std::endl;
+                exit(1);
+            }
+        }
+        else if(strcmp(arg, "-threshold") == 0) {
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taken care of the next arguement
+                environment.trigger_threshold_12 = atoi(arg);
+                environment.trigger_threshold_16 = environment.trigger_threshold_12; //this may need a better scheme
+                environment.trigger_threshold_14 = environment.trigger_threshold_12; //this may need a better scheme
+            }
+            else {
+                std::cout << "thresh_a must be 0 to 65535 (16bit)" << std::cout;
+                std::cout << "thresh_a must be 0 to 16383 (14bit)" << std::cout;
+                std::cout << "thresh_a must be 0 to 4095 (12bit)" << std::cout;
+                exit(1);
+            }
+        }
+
+        else if(strcmp(arg, "-hysteresis") == 0) {
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taken care of the next arguement
+                environment.trigger_hysteresis = atoi(arg);
+            }
+            else {
+                std::cout << "thresh_b must be 0 to 65535" << std::endl;
+                exit(1);
+            }
+        }
+        else if(strcmp(arg, "-avg") == 0) {
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taking care of the next arguement
+                environment.num_averages = atoi(arg);
+            }
+            else {
+                std::cout << "NumAverages must be [0,2^32]" << std::endl;
+                exit(1);
+            }
+        }
+        else if(strcmp(arg, "-avg_len") == 0) {
+            if(argc > (arg_index + 1)) {
+                arg = argv[++arg_index]; // increment the arguement index b/c we have now taken care of the next arguement
+                environment.averager_length = atoi(arg);
+            }
+            else {
+                std::cout << "AveragerLength must be [0, 2^17]" << std::endl;
+                exit(1);
+            }
+        }
+        else if(strcmp(arg, "-fiducial") == 0) {
+            environment.fiducial = 1;
         }
     }
     return environment;
@@ -1621,16 +1694,20 @@ void acquire_set_session(uvAPI& uv, AcquireEnvironment& environment) {
 
 void acquire_parser_printf() {
     printf("\n");
-    printf("acquire will setup the requested board with desired settings, initiate\nacquisition and store data to disk file. \n\nUsage:\n\n");
+    printf("acquire will setup the requested board with desired settings, initiate\nacquisition, and store data to disk file. \n\nUsage:\n\n");
     printf("acquire [OPTIONS]\n");
     printf("\t\t\tAcquires and saves blocks continuously.\n\n");
 
-    printf("The following [OPTIONS] may follow the number of blocks option in any order:\n\n");
+    printf("The following [OPTIONS] may be listed in any order:\n\n");
 
-    printf("-f (filename)\t\tUse this argument to specify the name of the file to write. Must append .dat at the end of filename\n");
+    printf("-f (name)\t\tSpecify the name of the capture.\n");
     printf("\n");
-    printf("-gps\t\t\tSave gps data from garmin USB gps device\n");
-    printf("-pid (pid)\t\tUse this argument to specify the process id to send the error signal to in case writing the data\n\t\t\tto file fails partway through.\n");
+    printf("-gps\t\t\tSave GPS data from a Garmin USB GPS device.\n");
+    printf("-pid (pid)\t\tSpecify the process id to send the error signal to in case writing the data\n\t\t\tto file fails partway through.\n");
+    printf("-reservecpus\t\tReserve a cpuset and run on that cpuset. Requires superuser.");
+    printf("-movecpuset (cpusetname)\tRun on a previously-created cpuset. Requires superuser.");
+    printf("-priority\t\tRun with the highest process priority. Requires superuser.");
+
     printf("-ic\t\t\tBoard will use the internal clock. If not specified board uses external clock.\n");
     printf("-freq\t\t\tSpecifies the internal clock frequency for boards equipped with a microsynth programmable oscillator\n");
     printf("\t\t\t300MHz-2GHz for AD12, 50MHz-250MHz for AD16\n");
