@@ -4,14 +4,14 @@ close all;
 load('pr_harrison.mat');
 load('pr_smalley.mat');
 threshold1 = .99;
-threshold2 = .999999999;
+threshold2 = .99999;
 decibel = false;
-for bl = 0:17
+for bl = 0:20
     eval(sprintf('load("mu_%d");',bl));
 end
 num_carriers = get_num_carrier(pr_harrison,threshold1);
 mus = [];
-for bl = 0:17
+for bl = 0:20
     eval(sprintf('mus(:,%d) = get_worst_case(mu_%d,threshold2);',bl+1,bl));
 end
 % ratio = mus;
@@ -19,7 +19,7 @@ end
 col_num;
 
 
-mmax = 17;
+mmax = 20;
 imax = 0;
 mmin = 0;
 for j = mmin : mmax
@@ -133,7 +133,7 @@ else
             ind = ~cellfun('isempty',outStr);
             eval(sprintf('vars%d = workspace(ind);', m));
     end
-    colors = jet(18);
+    colors = jet(21);
     counter = 0;
     j = 0;
     hold on;
