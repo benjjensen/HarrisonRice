@@ -286,7 +286,7 @@ std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, int bl)
     // {
     //   std::cout << probs[j] << " ";
     // }
-    probabilities.push_back(std::vector<double>(probs, probs + sizeof probs / sizeof probs));
+    probabilities.push_back(std::vector<double>(probs, probs+bl));
     // probabilities.push_back(get_values(begin,end,bl,4));
     // probabilities.push_back(get_values(gg[i],bl,6));
     duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
