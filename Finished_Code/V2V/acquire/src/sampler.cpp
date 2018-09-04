@@ -556,9 +556,10 @@ static bool start_acquire_in_child_process(SamplerState& state) {
 
         // Not necessary to change directories because acquire is in the same
         // directory as this.
-        execl("/usr/bin/sudo", "sudo", "/bin/nice", "-n", "-20", "./acquire",
-                "-f", state.current_capture.name.c_str(), "-pid",
-                parent_pid_stringstream.str().c_str(), "-gps", NULL);
+        execl("/usr/bin/sudo", "sudo", "./acquire", "-f",
+                state.current_capture.name.c_str(), "-pid",
+                parent_pid_stringstream.str().c_str(), "-gps", "-priority",
+                "-movecpuset", "acquire", NULL);
 
         std::cerr << "ERROR: EXEC CALL FAILURE IN ACQUIRE CHILD PROCESS" <<
                 std::endl;
