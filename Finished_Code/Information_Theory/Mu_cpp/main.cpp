@@ -337,11 +337,11 @@ std::vector< std::vector<double> > bl_distribution_avg(std::vector< std::vector<
       pr.push_back(pr_mat[i][gc[i][j]]);
       // pr[j] = pr_mat[i][gc[i][j]];
     }
-    double pr_cols = pr.size();
-    double power = floor(log2(pr_cols));
-    pr_cols = pow(2,power);
-    // std::cout << pr_cols << '\n';
-    pr.erase(pr.begin()+pr_cols,pr.end());
+    // double pr_cols = pr.size();
+    // double power = floor(log2(pr_cols));
+    // pr_cols = pow(2,power);
+    // // std::cout << pr_cols << '\n';
+    // pr.erase(pr.begin()+pr_cols,pr.end());
     // std::cout << pr.size() << '\n';
     std::vector< std::vector<double> > gg = get_groups(pr,bl);
     // std::cout << gg.size() << "\n\n";
@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
   std::vector< std::vector<int> > gc = good_carriers(pr_harrison,threshold);
   std::vector< std::vector<double> > averages;
   // #pragma omp parallel for
-  for(int i = 0; i <= 14; i++)
+  for(int i = 0; i <= 15; i++)
   {
     std::clock_t sstart = std::clock();
     averages = bl_distribution_avg(gc,pr_smalley,pow(2,i));
