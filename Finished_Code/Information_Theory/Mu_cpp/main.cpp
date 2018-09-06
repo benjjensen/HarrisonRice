@@ -24,7 +24,7 @@
 *   probability of that n and k occuring
 */
 // std::vector<double> get_values(double *start, double *end, int n, int available_cores)
-void get_values(double *start, double *end, int n, int available_cores, double pr[n+1])
+void get_values(double *start, int n, int available_cores, double pr[n+1])
 {
 
   int bl = n/2;
@@ -35,20 +35,34 @@ void get_values(double *start, double *end, int n, int available_cores, double p
     // pr.push_back(*start);
     pr[0] = 1 - *start;
     pr[1] = *start;
+    std::cout << pr[1] << '\n';
     // return pr;
-    // std::cout << *start << " ";
   }
   else
   {
     // std::vector<double> pr (n+1);
-    double *nend = start + bl - 1;
+    // double *nend = start + bl - 1;
     double *nstart = start + bl;
-    double temp_a[bl+1];
+    // double *temp_a;
+    // double *temp_b;
+    // temp_a = new double[bl+1];
     // for(int i = 0; i < bl+1; i++)
+    // temp_b = new double[bl+1];
+    double temp_a[bl+1];
     double temp_b[bl+1];
-    get_values(start,nend,bl,available_cores,temp_a);
+    get_values(start,bl,available_cores,temp_a);
     // std::cout << temp_a[0] << " ";
-    get_values(nstart,end,bl,available_cores,temp_b);
+    get_values(nstart,bl,available_cores,temp_b);
+    for(int i = 0; i < bl+1; i++)
+    {
+      std::cout << temp_a[i] << " ";
+    }
+    std::cout << '\n';
+    for(int i = 0; i < bl+1; i++)
+    {
+      std::cout << temp_b[i] << " ";
+    }
+    std::cout << '\n';
     // std::vector<double> temp_a = get_values(start,nend,bl,available_cores);
     // std::vector<double> temp_b = get_values(nstart,end,bl,available_cores);
     for(int i = 0; i <= bl; i++)
@@ -59,6 +73,9 @@ void get_values(double *start, double *end, int n, int available_cores, double p
         pr[k] = pr[k] + temp_a[i] * temp_b[j];
       }
     }
+    // delete[] temp_a;
+    // delete[] temp_b;
+
     // return pr;
   }
 
@@ -274,19 +291,35 @@ std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, int bl)
     for(int j = 0; j < bl; j++)
     {
       pr[j] = gg[i][j];
+      // std::cout << pr[j] << " ";
     }
     std::clock_t start;
     double duration;
     start = std::clock();
     double *begin = pr;
-    double *end = pr + bl - 1;
-    double probs[bl+1];
-    get_values(begin,end,bl,4,probs);
+    // double *end = pr + bl - 1;
+    // double *probs;
+    double probs [bl+1];
+    std::cout << '\n';
+    get_values(begin,bl,4,probs);
+    double s = 0;
+    for(int k = 0; k < bl + 1; k++)
+    {
+      s += probs[k];
+    }
+    std::cout << "\n\n" << s << '\n';
     // for(int j = 0; j < bl+1; j++)
     // {
     //   std::cout << probs[j] << " ";
     // }
-    probabilities.push_back(std::vector<double>(probs, probs+bl));
+    std::vector<double> pr_mat;
+    for(int j = 0; j < bl+1; j++)
+    {
+      pr_mat.push_back(probs[j]);
+    }
+    probabilities.push_back(pr_mat);
+    // probabilities.push_back(std::vector<double>(probs, probs+bl));
+    // delete[] probs;
     // probabilities.push_back(get_values(begin,end,bl,4));
     // probabilities.push_back(get_values(gg[i],bl,6));
     duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
@@ -296,13 +329,19 @@ std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, int bl)
   {
     // duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
     // std::cout << "bl_get_dist takes " << duration << " seconds\n";
-    std::vector<double> probs (probabilities.size());
+    std::vector<double> prob_arr (bl+1,0.0);
     for(int i = 0; i < probabilities.size(); i++)
     {
       for(int j = 0; j < probabilities[i].size(); j++)
-      probs[j] += probabilities[i][j]/(bl+1);
+      {
+        prob_arr[j] += probabilities[i][j];
+      }
     }
-    return probs;//sum of probabilities divided by the number of rows
+    for(int i = 0; i < bl+1; i++)
+    {
+      prob_arr[i] = prob_arr[i]/probabilities.size();
+    }
+    return prob_arr;//sum of probabilities divided by the number of rows
   }
   else
   {
@@ -331,12 +370,14 @@ std::vector< std::vector<double> > bl_distribution_avg(std::vector< std::vector<
     // double power = floor(log2(pr_cols));
     // pr_cols = pow(2,power);
     // double pr [pr_cols];
+
     for(int j = 0; j < gc[i].size(); j++)
-    // for(int j = 0; j < pr_cols; j++)
     {
+    // for(int j = 0; j < pr_cols; j++)
       pr.push_back(pr_mat[i][gc[i][j]]);
       // pr[j] = pr_mat[i][gc[i][j]];
     }
+
     // double pr_cols = pr.size();
     // double power = floor(log2(pr_cols));
     // pr_cols = pow(2,power);
@@ -358,44 +399,21 @@ std::vector< std::vector<double> > bl_distribution_avg(std::vector< std::vector<
 
 int main(int argc, char *argv[])
 {
-
-  // int p[3] = {5,2,1};
-  // int *pp = p;
-  // int *pe = pp + 3;
-  // std::cout << *pp << " ";
-  // pp[1] = 4;
-  // std::cout << pp[1] << " ";
-  // pp++;
-  // std::cout << *pp << '\n';
-  // *pp = 3;
-  // std::cout << *pe << '\n';
-  // std::cout << argv[1] << '\n';
   std::clock_t start;
   double duration;
   start = std::clock();
-  // std::string s = "2.1234";
-  // std::cout << stof(s) << '\n';
+
   double pr_harrison [71][64];
   double pr_smalley [71][64];
   // make_arr(argv[1],pr_harrison);
   // make_arr(argv[2],pr_smalley);
   make_arr("pr_harrison.txt",pr_harrison);
   make_arr("pr_smalley.txt",pr_smalley);
-  // std::cout << "\n\npr_harrison\n\n";
-  //
-  // for(int i = 0; i < 71; i++)
-  // {
-  //   for(int j = 0; j < 64; j++)
-  //   {
-  //     std::cout << pr_harrison[i][j] << ",";
-  //   }
-  //   std::cout << '\n';
-  // }
   double threshold = .99;
   std::vector< std::vector<int> > gc = good_carriers(pr_harrison,threshold);
   std::vector< std::vector<double> > averages;
   // #pragma omp parallel for
-  for(int i = 0; i <= 15; i++)
+  for(int i = 0; i <= 4; i++)
   {
     std::clock_t sstart = std::clock();
     averages = bl_distribution_avg(gc,pr_smalley,pow(2,i));
@@ -403,12 +421,11 @@ int main(int argc, char *argv[])
     std::cout << "time for base " << i << " = " << duration << " seconds\n";
     for(int j = 0; j < averages[0].size(); j++)
     {
-      std::cout << averages[0][j];
+      std::cout << averages[0][j] << " ";
     }
+    std::cout << '\n';
   }
-  // std::cout << averages.size() << '\n';
-  // std::cout << averages[0].size() << '\n';
-  // std::cout << averages[19][0].size() << '\n';
+
   duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
   std::cout << "total time = " << duration << " seconds\n";
   return 0;
