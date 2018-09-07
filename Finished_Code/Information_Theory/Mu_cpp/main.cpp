@@ -8,6 +8,7 @@
 #include <ctime>
 #include <cstdio>
 #include <omp.h>
+#include <set>
 // #include <stdlib.h>
 // #include "gmp.h"
 // #include "mat.h"
@@ -24,10 +25,10 @@
 *   probability of that n and k occuring
 */
 // std::vector<double> get_values(double *start, double *end, int n, int available_cores)
-void get_values(double *start, int n, int available_cores, double pr[n+1])
+void get_values(double *start, const int n, int available_cores, double pr[n+1])
 {
 
-  int bl = n/2;
+  const int bl = n/2;
   if (n == 1)
   {
     // std::vector<double> pr;
@@ -35,11 +36,13 @@ void get_values(double *start, int n, int available_cores, double pr[n+1])
     // pr.push_back(*start);
     pr[0] = 1 - *start;
     pr[1] = *start;
-    std::cout << pr[1] << '\n';
+    // std::cout << pr[1] << '\n';
     // return pr;
   }
   else
   {
+    std::set<int> kvals;
+    const int nk = bl + 1;
     // std::vector<double> pr (n+1);
     // double *nend = start + bl - 1;
     double *nstart = start + bl;
@@ -48,31 +51,53 @@ void get_values(double *start, int n, int available_cores, double pr[n+1])
     // temp_a = new double[bl+1];
     // for(int i = 0; i < bl+1; i++)
     // temp_b = new double[bl+1];
-    double temp_a[bl+1];
-    double temp_b[bl+1];
+    double temp_a[nk];
+    double temp_b[nk];
     get_values(start,bl,available_cores,temp_a);
     // std::cout << temp_a[0] << " ";
     get_values(nstart,bl,available_cores,temp_b);
-    for(int i = 0; i < bl+1; i++)
-    {
-      std::cout << temp_a[i] << " ";
-    }
-    std::cout << '\n';
-    for(int i = 0; i < bl+1; i++)
-    {
-      std::cout << temp_b[i] << " ";
-    }
-    std::cout << '\n';
+    // for(int i = 0; i < bl+1; i++)
+    // {
+    //   std::cout << temp_a[i] << " ";
+    // }
+    // std::cout << '\n';
+    // for(int i = 0; i < bl+1; i++)
+    // {
+    //   std::cout << temp_b[i] << " ";
+    // }
+    // std::cout << '\n';
     // std::vector<double> temp_a = get_values(start,nend,bl,available_cores);
     // std::vector<double> temp_b = get_values(nstart,end,bl,available_cores);
-    for(int i = 0; i <= bl; i++)
+    // std::cout << "Before\n";
+    for(int i = 0; i < n+1; i++)
     {
-      for(int j = 0; j <= bl; j++)
+      pr[i] = 0;
+    }
+    // std::cout << '\n';
+
+    for(int i = 0; i < bl+1; i++)
+    {
+      for(int j = 0; j < bl+1; j++)
       {
         int k = i + j;
-        pr[k] = pr[k] + temp_a[i] * temp_b[j];
+        pr[k] = temp_a[i] * temp_b[j];
+        // if(kvals.count(k) == 0)
+        // {
+        //   pr[k] = temp_a[i] * temp_b[j];
+        //   kvals.insert(k);
+        // }
+        // else
+        // {
+        //   pr[k] = pr[k] + temp_a[i] * temp_b[j];
+        // }
       }
     }
+    // std::cout << "\n";
+    // for(int i = 0; i < n+1; i++)
+    // {
+    //   std::cout << pr[i] << " ";
+    // }
+    // std:: cout << '\n';
     // delete[] temp_a;
     // delete[] temp_b;
 
@@ -80,38 +105,8 @@ void get_values(double *start, int n, int available_cores, double pr[n+1])
   }
 
 }
-// std::vector<double> get_values(std::vector<double> &pr_mat, int n, int available_cores)
-// {
-//
-//   int bl = n/2;
-//   if(n == 1)
-//   {
-//     std::vector<double> pr;
-//     pr.push_back(1 - pr_mat[0]);
-//     pr.push_back(pr_mat[0]);
-//     return pr;
-//   }
-//   else
-//   {
 //     std::vector<double> pr (n+1);
 //     // int th = omp_get_num_threads();
-//     if (available_cores > 0)
-//     {
-//       // int first_cores = (available_cores - 1)/2 + (available_cores-1)%2;
-//       // int second_cores = (available_cores - 1)/2;
-//       int first_cores = 3;
-//       int second_cores = 3;
-//       std::vector<double>::iterator first = pr.begin();
-//       std::vector<double>::iterator last = pr.begin() + bl;
-//       std::vector<double> temp_a(first,last);
-//       first = pr.begin() + bl + 1;
-//       last = pr.end();
-//       // temp_a.insert(it,pr.begin(),pr.begin()+bl);
-//       std::vector<double> temp_b(first,last);
-//       // it = temp_b.begin();
-//       // temp_b.insert(it,pr.begin()+bl+1,pr.end());
-//       std::vector<double> pr_a;
-//       std::vector<double> pr_b;
 //       #pragma omp parallel sections
 //       {
 //         #pragma omp section
@@ -123,43 +118,13 @@ void get_values(double *start, int n, int available_cores, double pr[n+1])
 //           pr_b = get_values(temp_b,bl,second_cores);
 //         }
 //       }
-//       for(int i = 0; i < bl; i++)
-//       {
 //         // #pragma omp parallel for
 //         for(int j = 0; j < bl; j++)
 //         {
 //           int k = i + j;
 //           pr[k] = pr[k] + pr_a[i]*pr_b[j];
 //         }
-//       }
-//     }
-//     else
-//     {
-//       std::vector<double>::iterator first = pr.begin();
-//       std::vector<double>::iterator last = pr.begin() + bl;
-//       std::vector<double> temp_a(first,last);
-//       first = pr.begin() + bl + 1;
-//       last = pr.end();
-//       // temp_a.insert(it,pr.begin(),pr.begin()+bl);
-//       std::vector<double> temp_b(first,last);
-//       // it = temp_b.begin();
-//       // temp_b.insert(it,pr.begin()+bl+1,pr.end());
-//       std::vector<double> pr_a = get_values(temp_a,bl,0);
-//       std::vector<double> pr_b = get_values(temp_b,bl,0);
-//
-//       for(int i = 0; i < bl; i++)
-//       {
-//         for(int j = 0; j < bl; j++)
-//         {
-//           int k = i + j;
-//           pr[k] = pr[k] + pr_a[i]*pr_b[j];
-//         }
-//       }
-//     }
-//     return pr;
-//   }
 
-// }
 
 
 // void make_arr(const char *file, double arr[71][64])
@@ -281,7 +246,7 @@ std::vector< std::vector<double> > get_groups(std::vector<double> &pr_mat, int b
 *   calculated, if there is more than one combination the probabilities are
 *   averaged which becomes the output.
 */
-std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, int bl)
+std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, const int bl)
 {
 
   std::vector< std::vector<double> > probabilities;
@@ -299,15 +264,16 @@ std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, int bl)
     double *begin = pr;
     // double *end = pr + bl - 1;
     // double *probs;
-    double probs [bl+1];
-    std::cout << '\n';
+    const int nk = bl+1;
+    double probs [nk];
+    // std::cout << '\n';
     get_values(begin,bl,4,probs);
     double s = 0;
-    for(int k = 0; k < bl + 1; k++)
-    {
-      s += probs[k];
-    }
-    std::cout << "\n\n" << s << '\n';
+    // for(int k = 0; k < bl + 1; k++)
+    // {
+    //   s += probs[k];
+    // }
+    // std::cout << "\n\n" << s << '\n';
     // for(int j = 0; j < bl+1; j++)
     // {
     //   std::cout << probs[j] << " ";
@@ -357,7 +323,7 @@ std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, int bl)
 *   Finds the average of number of revealed bits based on the carrier
 *   probabilities of the eavesdropper
 */
-std::vector< std::vector<double> > bl_distribution_avg(std::vector< std::vector<int> > &gc, double pr_mat[71][64], int bl)
+std::vector< std::vector<double> > bl_distribution_avg(std::vector< std::vector<int> > &gc, double pr_mat[71][64], const int bl)
 {
   std::clock_t start;
   double duration;
@@ -413,17 +379,18 @@ int main(int argc, char *argv[])
   std::vector< std::vector<int> > gc = good_carriers(pr_harrison,threshold);
   std::vector< std::vector<double> > averages;
   // #pragma omp parallel for
-  for(int i = 0; i <= 4; i++)
+  for(int i = 18; i <= 18; i++)
   {
     std::clock_t sstart = std::clock();
-    averages = bl_distribution_avg(gc,pr_smalley,pow(2,i));
+    const int bl = pow(2,i);
+    averages = bl_distribution_avg(gc,pr_smalley,bl);
     duration = (std::clock() - sstart) / (double) CLOCKS_PER_SEC;
     std::cout << "time for base " << i << " = " << duration << " seconds\n";
-    for(int j = 0; j < averages[0].size(); j++)
-    {
-      std::cout << averages[0][j] << " ";
-    }
-    std::cout << '\n';
+    // for(int j = 0; j < averages[0].size(); j++)
+    // {
+    //   std::cout << averages[0][j] << " ";
+    // }
+    // std::cout << '\n';
   }
 
   duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
