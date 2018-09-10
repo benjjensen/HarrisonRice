@@ -8,7 +8,7 @@ function [pr_dist] = bl_get_dist(pr_mat)
 %   averaged which becomes the output.
 [num_rows,n] = size(pr_mat);
 probabilities = zeros(num_rows,(n+1));
-for row = 1:num_rows
+parfor row = 1:num_rows
     
 %     for k = 0:n
         tic;
