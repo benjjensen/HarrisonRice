@@ -27,10 +27,11 @@ for j = mmin : mmax
 end
 for m = mmin : mmax
     for u = 1 : m
-        
         weights = RMWeightHier(u,m,false);
         
         for dB = 250 : 281
+                eval(sprintf('mu_pmf = mu_%d(%d,:);',m,dB-249));
+
                 %creates object
                 eval(sprintf('codeInfo_%d_%d_%d = codeInfo;', dB , u, m));
                 
@@ -64,11 +65,12 @@ for m = mmin : mmax
                 eval(sprintf('codeInfo_%d_%d_%d.mu = %d;', dB , u, m, mu));
                 
                 %assigns H
-                H = weights(1,mu+1);
+%                 H = weights(1,mu+1);
+                [H,percentLeaked] = getExpectedEquivocation(mu_pmf,k,weights);
                 eval(sprintf('codeInfo_%d_%d_%d.H = %d;', dB , u, m, H));
                 
                 %assigns percentLeaked
-                percentLeaked = 100*(k-H)/k;
+%                 percentLeaked = 100*(k-H)/k;
                 eval(sprintf('codeInfo_%d_%d_%d.percentLeaked = %d;', dB , u, m, percentLeaked));
                 
                 %assigns carrierRate

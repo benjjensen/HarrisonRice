@@ -34,6 +34,7 @@ void get_values(double *start, const int n, int available_cores, double pr[n+1])
     // std::vector<double> pr;
     // pr.push_back(1 - *start);
     // pr.push_back(*start);
+
     pr[0] = 1 - *start;
     pr[1] = *start;
     // std::cout << pr[1] << '\n';
@@ -51,8 +52,11 @@ void get_values(double *start, const int n, int available_cores, double pr[n+1])
     // temp_a = new double[bl+1];
     // for(int i = 0; i < bl+1; i++)
     // temp_b = new double[bl+1];
+    std::cout << bl << "\n";
+
     double temp_a[nk];
     double temp_b[nk];
+    std::cout << "foo\n";
     get_values(start,bl,available_cores,temp_a);
     // std::cout << temp_a[0] << " ";
     get_values(nstart,bl,available_cores,temp_b);
@@ -80,7 +84,9 @@ void get_values(double *start, const int n, int available_cores, double pr[n+1])
       for(int j = 0; j < bl+1; j++)
       {
         int k = i + j;
+        std::cout << k;
         pr[k] = temp_a[i] * temp_b[j];
+        std::cout << '\n';
         // if(kvals.count(k) == 0)
         // {
         //   pr[k] = temp_a[i] * temp_b[j];
@@ -268,6 +274,7 @@ std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, const in
     double probs [nk];
     // std::cout << '\n';
     get_values(begin,bl,4,probs);
+
     double s = 0;
     // for(int k = 0; k < bl + 1; k++)
     // {
@@ -343,7 +350,6 @@ std::vector< std::vector<double> > bl_distribution_avg(std::vector< std::vector<
       pr.push_back(pr_mat[i][gc[i][j]]);
       // pr[j] = pr_mat[i][gc[i][j]];
     }
-
     // double pr_cols = pr.size();
     // double power = floor(log2(pr_cols));
     // pr_cols = pow(2,power);
