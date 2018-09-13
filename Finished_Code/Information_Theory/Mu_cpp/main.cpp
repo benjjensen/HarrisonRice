@@ -334,6 +334,17 @@ std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, const in
 */
 std::vector< std::vector<double> > bl_distribution_avg(std::vector< std::vector<int> > &gc, double pr_mat[71][64], const int bl)
 {
+  if(environment.priority) {
+    // Set the priority of this process to the maximum priority.
+    int error = setpriority(PRIO_PROCESS, 0, -20);
+    if(error) {
+        std::cerr << "ERROR: UNABLE TO INCREASE THE PRIORITY OF ACQUIRE" <<
+                std::endl;
+    }
+    else {
+        std::cout << "Increased process priority to maximum." << std::endl;
+    }
+  }
   std::clock_t start;
   double duration;
   start = std::clock();
