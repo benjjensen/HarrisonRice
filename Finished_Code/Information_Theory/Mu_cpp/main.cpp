@@ -47,16 +47,16 @@ void get_values(double *start, const int n, int available_cores, double pr[n+1])
     // std::vector<double> pr (n+1);
     // double *nend = start + bl - 1;
     double *nstart = start + bl;
-    // double *temp_a;
-    // double *temp_b;
-    // temp_a = new double[bl+1];
+    double *temp_a;
+    double *temp_b;
+    temp_a = new double[bl+1];
     // for(int i = 0; i < bl+1; i++)
-    // temp_b = new double[bl+1];
-    std::cout << bl << "\n";
+    temp_b = new double[bl+1];
+    // std::cout << bl << "\n";
 
-    double temp_a[nk];
-    double temp_b[nk];
-    std::cout << "foo\n";
+    // double temp_a[nk];
+    // double temp_b[nk];
+    // std::cout << "foo\n";
     get_values(start,bl,available_cores,temp_a);
     // std::cout << temp_a[0] << " ";
     get_values(nstart,bl,available_cores,temp_b);
@@ -84,9 +84,9 @@ void get_values(double *start, const int n, int available_cores, double pr[n+1])
       for(int j = 0; j < bl+1; j++)
       {
         int k = i + j;
-        std::cout << k;
+        // std::cout << k;
         pr[k] = temp_a[i] * temp_b[j];
-        std::cout << '\n';
+        // std::cout << '\n';
         // if(kvals.count(k) == 0)
         // {
         //   pr[k] = temp_a[i] * temp_b[j];
@@ -104,8 +104,8 @@ void get_values(double *start, const int n, int available_cores, double pr[n+1])
     //   std::cout << pr[i] << " ";
     // }
     // std:: cout << '\n';
-    // delete[] temp_a;
-    // delete[] temp_b;
+    delete[] temp_a;
+    delete[] temp_b;
 
     // return pr;
   }
@@ -271,7 +271,8 @@ std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, const in
     // double *end = pr + bl - 1;
     // double *probs;
     const int nk = bl+1;
-    double probs [nk];
+    double *probs;
+    probs = new double[nk];
     // std::cout << '\n';
     get_values(begin,bl,4,probs);
 
@@ -290,6 +291,7 @@ std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, const in
     {
       pr_mat.push_back(probs[j]);
     }
+    delete[] probs;
     probabilities.push_back(pr_mat);
     // probabilities.push_back(std::vector<double>(probs, probs+bl));
     // delete[] probs;
@@ -336,7 +338,9 @@ std::vector< std::vector<double> > bl_distribution_avg(std::vector< std::vector<
   double duration;
   start = std::clock();
   std::vector< std::vector<double> > averages;
-  for(int i = 0; i < gc.size(); i++)
+  int gcs = gc.size();
+  #pragma omp parallel for
+  for(int i = 0; i < gcs; i++)
   {
     std::vector<double> pr;
     // double pr_cols = gc[i].size();
@@ -392,11 +396,19 @@ int main(int argc, char *argv[])
     averages = bl_distribution_avg(gc,pr_smalley,bl);
     duration = (std::clock() - sstart) / (double) CLOCKS_PER_SEC;
     std::cout << "time for base " << i << " = " << duration << " seconds\n";
-    // for(int j = 0; j < averages[0].size(); j++)
-    // {
-    //   std::cout << averages[0][j] << " ";
-    // }
-    // std::cout << '\n';
+    std::ofstream outFile("mu_18.txt");
+    for(int j = 0; j < averages.size(); j++)
+    {
+      for(int k = 0; k < averages[j].size(); k++)
+      {
+        if(k != averages[j].size() - 1)
+        outFile << averages[j][k] << ",";
+        else
+        outFile << averages[j][k];
+      }
+      outFile << "\n";
+    }
+    std::cout << '\n';
   }
 
   duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
