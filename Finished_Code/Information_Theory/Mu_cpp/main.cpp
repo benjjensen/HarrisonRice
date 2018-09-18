@@ -17,24 +17,20 @@
 *   through all of the n choose k combinations and calculates the
 *   probability of that n and k occuring
 */
-// std::vector<double> get_values(double *start, double *end, int n, int available_cores)
 void get_values(double *start, const int n, int available_cores, double pr[n+1])
 {
 
   const int bl = n/2;
-  if (n == 1)
+  if (n == 1) // base case, create a pmf from one independent variable
   {
     pr[0] = 1 - *start;
     pr[1] = *start;
   }
-  else
+  else // create a pmf from two different pmfs
   {
-    std::set<int> kvals;
-    double *nstart = start + bl;
-    double *temp_a;
-    double *temp_b;
-    temp_a = new double[bl+1];
-    temp_b = new double[bl+1];
+    double *nstart = start + bl; // pointer to the first starting value of temp_b
+    double *temp_a = new double[bl+1]; //temporary array
+    double *temp_b = new double[bl+1]; //temporary array
     get_values(start,bl,available_cores,temp_a);
     get_values(nstart,bl,available_cores,temp_b);
 
@@ -43,12 +39,12 @@ void get_values(double *start, const int n, int available_cores, double pr[n+1])
       pr[i] = 0;
     }
 
-    for(int i = 0; i < bl+1; i++)
+    for(long i = 0; i < bl+1; i++)
     {
-      for(int j = 0; j < bl+1; j++)
+      for(long j = 0; j < bl+1; j++)
       {
-        int k = i + j;
-        pr[k] += temp_a[i] * temp_b[j];
+        long k = i + j;
+        pr[k] += temp_a[i] * temp_b[j]; 
       }
     }
     delete[] temp_a;
@@ -58,14 +54,11 @@ void get_values(double *start, const int n, int available_cores, double pr[n+1])
 }
 
 
-
-
-// void make_arr(const char *file, double arr[71][64])
+/*
+*   Converts a .txt file into a 2D array
+*/
 void make_arr(std::string file, double arr[71][64])
 {
-  // std::clock_t start;
-  // double duration;
-  // start = std::clock();
   std::ifstream infile(file);
   int row = 0;
   int col = 0;
@@ -99,9 +92,6 @@ void make_arr(std::string file, double arr[71][64])
 **/
 std::vector< std::vector<int> > good_carriers(double arr[71][64], double pr_threshold)
 {
-  // std::clock_t start;
-  // double duration;
-  start = std::clock();
   std::vector< std::vector<int> > indices;
   for (int i = 0; i < 71; i++)
   {
@@ -119,22 +109,17 @@ std::vector< std::vector<int> > good_carriers(double arr[71][64], double pr_thre
       }
     }
   }
-  // duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
-  // std::cout << "good_carriers takes " << duration << " seconds\n";
   return indices;
 }
 
 /*
 *get_groups Gets the potential carrier groups based on blocklength
 *   Given a certain block length and a set of carriers it finds every
-*   combination of carriers to use all of the carriers and the given block
-*   length and each group consists of only adjacent carriers.
+*   combination of carriers consisting of only adjacent carriers.  Goes until
+*   the last carrier in a group is the last good carrier. The group size is bl.
 */
-std::vector< std::vector<double> > get_groups(std::vector<double> &pr_mat, int bl)
+std::vector< std::vector<double> > get_groups(std::vector<double> *pr_mat, int bl)
 {
-  // std::clock_t start;
-  // double duration;
-  // start = std::clock();
   int i = 0;
   int row = -1;
   std::vector< std::vector<double> > gg;
@@ -147,8 +132,8 @@ std::vector< std::vector<double> > get_groups(std::vector<double> &pr_mat, int b
       {
         gg.push_back(std::vector<double> ());
       }
-      gg[row].push_back(pr_mat[i]);
-      if(i == pr_mat.size() - 1)
+      gg[row].push_back(pr_mat[0][i]);
+      if(i == pr_mat->size() - 1)
       {
         i = 0;
       }
@@ -158,8 +143,6 @@ std::vector< std::vector<double> > get_groups(std::vector<double> &pr_mat, int b
       }
     }
   } while(i != 0);
-  // duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
-  // std::cout << "get_groups takes " << duration << " seconds\n";
   return gg;
 }
 
@@ -171,40 +154,39 @@ std::vector< std::vector<double> > get_groups(std::vector<double> &pr_mat, int b
 *   function where the probability for each number of revealed bits is
 *   calculated, if there is more than one combination the probabilities are
 *   averaged which becomes the output.
+*   gg is the vector of groupings
+*   bl is the block length of the code
 */
 std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, const int bl)
 {
 
   std::vector< std::vector<double> > probabilities;
-  #pragma omp parallel for num_threads(2)
+  // #pragma omp parallel for
   for(int i = 0; i < gg.size(); i++)
   {
-    double pr [bl];
+    double *pr = new double[bl];
     for(int j = 0; j < bl; j++)
     {
-      pr[j] = gg[i][j];
+      pr[j] = gg[i][j]; //copies a vector in gg to an array
     }
     std::clock_t start;
     double duration;
     start = std::clock();
     double *begin = pr;
-    const int nk = bl+1;
-    double *probs;
-    probs = new double[nk];
-    get_values(begin,bl,4,probs);
-
-    double s = 0;
+    const int nk = bl+1; // the length of the pmf which is the length of the vectors returned by this function
+    double *probs = new double[nk]; // the array that will contain the pmf
+    get_values(begin,bl,4,probs); // creates the pmf
     std::vector<double> pr_mat;
     for(int j = 0; j < bl+1; j++)
     {
-      pr_mat.push_back(probs[j]);
+      pr_mat.push_back(probs[j]); // copies the pmf into a vector
     }
     delete[] probs;
-    probabilities.push_back(pr_mat);
+    probabilities.push_back(pr_mat); // pushes the pmf into a vector of pmfs
     duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
     std::cout << "get_values takes " << duration << " seconds\n";
   }
-  if(gg.size() > 1)
+  if(gg.size() > 1) // if the size is >1 take the average else return the first vector in the vector
   {
     std::vector<double> prob_arr (bl+1,0.0);
     for(int i = 0; i < probabilities.size(); i++)
@@ -222,8 +204,6 @@ std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, const in
   }
   else
   {
-    // duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
-    // std::cout << "bl_get_dist takes " << duration << " seconds\n";
     return probabilities[0];
   }
 }
@@ -240,16 +220,18 @@ std::vector< std::vector<double> > bl_distribution_avg(std::vector< std::vector<
   // double duration;
   // start = std::clock();
   std::vector< std::vector<double> > averages;
-  int gcs = gc.size();
-  #pragma omp parallel for num_threads(2)
+  int gcs = gc.size(); // determines how many rows there will be in averages
+  // #pragma omp parallel for
   for(int i = 0; i < gcs; i++)
   {
-    std::vector<double> pr;
+    std::vector<double> *pr = new std::vector<double>;
     for(int j = 0; j < gc[i].size(); j++)
     {
-      pr.push_back(pr_mat[i][gc[i][j]]);
+      pr->push_back(pr_mat[i][gc[i][j]]); // creates a vector that contains the values in pr_mat that match with the values in gc
+      //which are the values in pr_harrison that were greater than the threshold
     }
-    std::vector< std::vector<double> > gg = get_groups(pr,bl);
+    std::vector< std::vector<double> > gg = get_groups(pr,bl); //gets the groupings of values of size bl
+    delete pr;
     averages.push_back(bl_get_dist(gg,bl));
   }
   // duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
@@ -269,33 +251,33 @@ int main(int argc, char *argv[])
 
   double pr_harrison [71][64];
   double pr_smalley [71][64];
-  // make_arr(argv[1],pr_harrison);
-  // make_arr(argv[2],pr_smalley);
-  make_arr("pr_harrison.txt",pr_harrison);
-  make_arr("pr_smalley.txt",pr_smalley);
-  double threshold = .99;
-  std::vector< std::vector<int> > gc = good_carriers(pr_harrison,threshold);
-  std::vector< std::vector<double> > averages;
+  make_arr(argv[1],pr_harrison); // convert the txt files to arrays
+  make_arr(argv[2],pr_smalley);
+  // make_arr("pr_harrison.txt",pr_harrison);
+  // make_arr("pr_smalley.txt",pr_smalley);
+  double threshold = .99; // Sets the threshold for evaluating which indices are good
+  std::vector< std::vector<int> > gc = good_carriers(pr_harrison,threshold); // Forms a vector of the indices in pr_harrison who's values are greater than .99
+  std::vector< std::vector<double> > *averages = new std::vector< std::vector<double> >;
   // #pragma omp parallel for
-  for(int i = 18; i <= 18; i++)
+  for(int i = 20; i <= 20; i++) // determines the length of the pmf so when i = 20 the length = 2^20 + 1
   {
     std::clock_t sstart = std::clock();
     const int bl = pow(2,i);
-    averages = bl_distribution_avg(gc,pr_smalley,bl);
+    *averages = bl_distribution_avg(gc,pr_smalley,bl); // averages is a vector where each row is a pmf for a different group of values
     duration = (std::clock() - sstart) / (double) CLOCKS_PER_SEC;
     std::cout << "time for base " << i << " = " << duration << " seconds\n";
     char filenm[9];
     sprintf(filenm,"mu_%d.txt",i);
     std::string filename(filenm);
-    std::ofstream outFile(filename);
-    for(int j = 0; j < averages.size(); j++)
+    std::ofstream outFile(filename); // writes averages to a file
+    for(int j = 0; j < averages->size(); j++)
     {
-      for(int k = 0; k < averages[j].size(); k++)
+      for(int k = 0; k < averages[0][j].size(); k++)
       {
-        if(k != averages[j].size() - 1)
-        outFile << averages[j][k] << ",";
+        if(k != averages[0][j].size() - 1)
+        outFile << averages[0][j][k] << ",";
         else
-        outFile << averages[j][k];
+        outFile << averages[0][j][k];
       }
       outFile << "\n";
     }

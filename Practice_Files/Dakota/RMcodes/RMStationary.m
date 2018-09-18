@@ -6,20 +6,20 @@ load('pr_smalley.mat');
 threshold1 = .99;
 threshold2 = .99999;
 decibel = false;
-for bl = 0:20
-    eval(sprintf('load("mu_%d");',bl));
+for bl = 0:17
+    eval(sprintf('load("mu_%d_2");',bl));
 end
 num_carriers = get_num_carrier(pr_harrison,threshold1);
 mus = [];
-for bl = 0:20
-    eval(sprintf('mus(:,%d) = get_worst_case(mu_%d,threshold2);',bl+1,bl));
+for bl = 0:17
+    eval(sprintf('mus(:,%d) = get_worst_case(mu_%d_2,threshold2);',bl+1,bl));
 end
 % ratio = mus;
-[col_num,~] = size(mu_2);
-% col_num;
+[col_num,~] = size(mu_2_2);
+col_num;
 
 
-mmax = 20;
+mmax = 17;
 imax = 0;
 mmin = 0;
 for j = mmin : mmax
@@ -30,52 +30,52 @@ for m = mmin : mmax
         weights = RMWeightHier(u,m,false);
         
         for dB = 250 : 281
-            eval(sprintf('mu_pmf = mu_%d(%d,:);',m,dB-249));
-            
-            %creates object
-            eval(sprintf('codeInfo_%d_%d_%d = codeInfo;', dB , u, m));
-            
-            %assigns u
-            eval(sprintf('codeInfo_%d_%d_%d.u = %d;', dB , u, m, u));
-            
-            %assigns m
-            eval(sprintf('codeInfo_%d_%d_%d.m = %d;', dB , u, m, m));
-            
-            %assigns n
-            n = 2^m;
-            eval(sprintf('codeInfo_%d_%d_%d.n = %d;', dB , u, m, n));
-            
-            %assigns k
-            k = 0;
-            for i = 0 : u
-                k = k + nchoosek(m,i);
-            end
-            eval(sprintf('codeInfo_%d_%d_%d.k = %d;', dB , u, m, k));
-            
-            %assigns rate
-            rate = k/n;
-            eval(sprintf('codeInfo_%d_%d_%d.rate = %d;', dB , u, m, rate));
-            
-            %assigns dB
-            RdB = dB/10;
-            eval(sprintf('codeInfo_%d_%d_%d.dBLevel = %d;', dB , u, m, RdB));
-            
-            %assigns mu
-            mu = mus(dB-249,m+1);
-            eval(sprintf('codeInfo_%d_%d_%d.mu = %d;', dB , u, m, mu));
-            
-            %assigns H
-            %                 H = weights(1,mu+1);
-            [H,percentLeaked] = getExpectedEquivocation(mu_pmf,k,weights);
-            eval(sprintf('codeInfo_%d_%d_%d.H = %d;', dB , u, m, H));
-            
-            %assigns percentLeaked
-            %                 percentLeaked = 100*(k-H)/k;
-            eval(sprintf('codeInfo_%d_%d_%d.percentLeaked = %d;', dB , u, m, percentLeaked));
-            
-            %assigns carrierRate
-            carrierRate = num_carriers(dB-249,1)*rate;
-            eval(sprintf('codeInfo_%d_%d_%d.carrierRate = %d;', dB , u, m, carrierRate));
+                eval(sprintf('mu_pmf = mu_%d_2(%d,:);',m,dB-249));
+
+                %creates object
+                eval(sprintf('codeInfo_%d_%d_%d = codeInfo;', dB , u, m));
+                
+                %assigns u
+                eval(sprintf('codeInfo_%d_%d_%d.u = %d;', dB , u, m, u));
+                
+                %assigns m
+                eval(sprintf('codeInfo_%d_%d_%d.m = %d;', dB , u, m, m));
+                
+                %assigns n
+                n = 2^m;
+                eval(sprintf('codeInfo_%d_%d_%d.n = %d;', dB , u, m, n));
+                
+                %assigns k
+                k = 0;
+                for i = 0 : u
+                    k = k + nchoosek(m,i);
+                end
+                eval(sprintf('codeInfo_%d_%d_%d.k = %d;', dB , u, m, k));
+                
+                %assigns rate
+                rate = k/n;
+                eval(sprintf('codeInfo_%d_%d_%d.rate = %d;', dB , u, m, rate));
+                
+                %assigns dB
+                RdB = dB/10;
+                eval(sprintf('codeInfo_%d_%d_%d.dBLevel = %d;', dB , u, m, RdB));
+                
+                %assigns mu
+                mu = mus(dB-249,m+1);
+                eval(sprintf('codeInfo_%d_%d_%d.mu = %d;', dB , u, m, mu));
+                
+                %assigns H
+%                 H = weights(1,mu+1);
+                [H,percentLeaked] = getExpectedEquivocation(mu_pmf,k,weights);
+                eval(sprintf('codeInfo_%d_%d_%d.H = %d;', dB , u, m, H));
+                
+                %assigns percentLeaked
+%                 percentLeaked = 100*(k-H)/k;
+                eval(sprintf('codeInfo_%d_%d_%d.percentLeaked = %d;', dB , u, m, percentLeaked));
+                
+                %assigns carrierRate
+                carrierRate = num_carriers(dB-249,1)*rate;
+                eval(sprintf('codeInfo_%d_%d_%d.carrierRate = %d;', dB , u, m, carrierRate));                
         end
     end
 end
@@ -135,7 +135,7 @@ else
         ind = ~cellfun('isempty',outStr);
         eval(sprintf('vars%d = workspace(ind);', m));
     end
-    colors = jet(21);
+    colors = jet(mmax+1);
     counter = 0;
     j = 0;
     hold on;
