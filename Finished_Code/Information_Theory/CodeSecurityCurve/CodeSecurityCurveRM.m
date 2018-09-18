@@ -55,7 +55,7 @@ for m = 1 : 10   %cycles through a range of m values
                 end
             end
             
-            graphPercentage = 100 * graphWeights ./ k;
+           
             
             %makes array for index of values
             graphIndexes = zeros(1,n+1);
@@ -65,12 +65,12 @@ for m = 1 : 10   %cycles through a range of m values
             
             %plots curves
             hold on;
-            plot(graphIndexes,graphPercentage,'DisplayName',['RM(' num2str(r) ...
+            plot(graphIndexes,graphWeights,'DisplayName',['RM(' num2str(r) ...
                 ',' num2str(m) '), k = ' num2str(k) ', rate = ' num2str(round(rate,2))]);
             grid on;
             title({['\fontsize{12}Security Curve for RM:  m = ' num2str(m) ''] ; ...
                 ['\fontsize{11}n = ' num2str(n)]});
-            ylabel('Equivocation (%)');
+            ylabel('Equivocation (bits)');
             xlabel ('Revealed Bits (\mu)');
             legend;
 %         end
