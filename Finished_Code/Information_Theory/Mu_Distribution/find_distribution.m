@@ -1,3 +1,6 @@
+clc;
+clear;
+
 load('pr_harrison.mat');
 load('pr_smalley.mat');
 

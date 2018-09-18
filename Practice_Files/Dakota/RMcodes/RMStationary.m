@@ -6,20 +6,20 @@ load('pr_smalley.mat');
 threshold1 = .99;
 threshold2 = .99999;
 decibel = false;
-for bl = 0:20
-    eval(sprintf('load("mu_%d");',bl));
+for bl = 0:17
+    eval(sprintf('load("mu_%d_2");',bl));
 end
 num_carriers = get_num_carrier(pr_harrison,threshold1);
 mus = [];
-for bl = 0:20
-    eval(sprintf('mus(:,%d) = get_worst_case(mu_%d,threshold2);',bl+1,bl));
+for bl = 0:17
+    eval(sprintf('mus(:,%d) = get_worst_case(mu_%d_2,threshold2);',bl+1,bl));
 end
 % ratio = mus;
-[col_num,~] = size(mu_2);
+[col_num,~] = size(mu_2_2);
 col_num;
 
 
-mmax = 20;
+mmax = 17;
 imax = 0;
 mmin = 0;
 for j = mmin : mmax
@@ -30,7 +30,7 @@ for m = mmin : mmax
         weights = RMWeightHier(u,m,false);
         
         for dB = 250 : 281
-                eval(sprintf('mu_pmf = mu_%d(%d,:);',m,dB-249));
+                eval(sprintf('mu_pmf = mu_%d_2(%d,:);',m,dB-249));
 
                 %creates object
                 eval(sprintf('codeInfo_%d_%d_%d = codeInfo;', dB , u, m));
@@ -135,7 +135,7 @@ else
             ind = ~cellfun('isempty',outStr);
             eval(sprintf('vars%d = workspace(ind);', m));
     end
-    colors = jet(21);
+    colors = jet(mmax+1);
     counter = 0;
     j = 0;
     hold on;
