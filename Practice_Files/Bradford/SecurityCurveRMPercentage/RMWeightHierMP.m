@@ -1,51 +1,37 @@
-%Created by Bradford Clark
-%This code calculates security curves for different RM codes.
 
-%closes all figure windows
-close all;
-for m = 1 : 10   %cycles through a range of m values
-    tic
-    %creates a new figure
+function [true] = RMWeightHierMP(r1,r2,m1,m2)
+%UNTITLED3 Summary of this function goes here
+%   Detailed explanation goes here
+for m = m1 : m2
     figure();
-    for r = 1 : m   %cycles through a range of r values
-%         if r < m    %RM codes are only valid if this is true.
-            n = 2^m;    %length of code words
-            k = 0;  %initialize k = 0
+    for r = r1 : r2
+        if r <= m
             
-            %computes k
+            n = 2^m;
+            k = 0; %%initialize k = 0
             for i = 0 : r
                 k = k + nchoosek(m,i);
             end
             rate = k/n;
             
             alphaValues = zeros(1,m);
-            
-            %determines a,b,c,ect. values
             for num = 1 : m
                 alphaValues(1, num) = 2^(num-1);
             end
-            
             finalValues = n;
-            
-            %calulates the weight heirarchy of RM code
             for numCombos = 1:r
-                combos = nchoosek(alphaValues(1,:), numCombos); %finds possilbe combos of matrix
-                [rows, columns] = size(combos);
-                
-                %sums up all of combinations
+                combos = nchoosek(alphaValues(1,:), numCombos);
+                [rows columns] = size(combos);
                 for index = 1 : rows
                     comboSum = sum(combos(index,:));
-                    finalValues = [finalValues 2^m-comboSum];   %merges matrix's
+                    finalValues = [finalValues 2^m-comboSum];
                 end
             end
-            
             weights = zeros(1, k);
-            weights = sort(finalValues);    %orders from high to low
+            weights = sort(finalValues);
             
             weightsIndex = 1;
             graphWeights = zeros(1,n+1);
-            
-            %create y-axis values for all indexes
             for index = 1 : n + 1
                 if index <= weights(1,weightsIndex)
                     graphWeights(1,index) = k - weightsIndex + 1;
@@ -55,28 +41,28 @@ for m = 1 : 10   %cycles through a range of m values
                 end
             end
             
-           
-            
-            %makes array for index of values
             graphIndexes = zeros(1,n+1);
             for j = 0 : n
                 graphIndexes(1, j+1) = j;
             end
             
-            %plots curves
+            graphPercentage = 100 * graphWeights ./ k;
+            
             hold on;
-            plot(graphIndexes,graphWeights,'DisplayName',['RM(' num2str(r) ...
-                ',' num2str(m) '), k = ' num2str(k) ', rate = ' num2str(round(rate,2))]);
+            plot(graphIndexes,graphPercentage,'DisplayName',['RM(' num2str(r) ',' num2str(m) '), k = ' num2str(k) ', rate = ' num2str(round(rate,2))]);
             grid on;
             title({['\fontsize{12}Security Curve for RM:  m = ' num2str(m) ''] ; ...
                 ['\fontsize{11}n = ' num2str(n)]});
-            ylabel('Equivocation (bits)');
+            ylabel('Equivocation (%)');
             xlabel ('Revealed Bits (\mu)');
             legend;
-%         end
+        end
         
     end
     hold off;
-    disp(m)
-    toc;
 end
+
+end
+
+
+
