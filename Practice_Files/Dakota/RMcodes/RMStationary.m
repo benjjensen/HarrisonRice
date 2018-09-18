@@ -5,7 +5,7 @@ load('pr_harrison.mat');
 load('pr_smalley.mat');
 threshold1 = .99;
 threshold2 = .99999;
-decibel = false;
+decibel = false; % to color code based off of decibel vs block length
 for bl = 0:17
     eval(sprintf('load("mu_%d_2");',bl));
 end
