@@ -10,8 +10,8 @@ for row = 1:num_rows
             i = i+1;
         end
     end
-    base = floor(log2(i));
-    i = 2^base;
+%     base = floor(log2(i));
+%     i = 2^base;
     num_carrier(row) = i;
 end
 end
