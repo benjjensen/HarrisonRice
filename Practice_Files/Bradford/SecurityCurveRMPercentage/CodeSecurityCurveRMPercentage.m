@@ -3,7 +3,7 @@
 
 %closes all figure windows
 close all;
-for m = 1 : 3   %cycles through a range of m values
+for m = 1 : 10   %cycles through a range of m values
     tic
     %creates a new figure
     figure();
