@@ -5,7 +5,7 @@ load('pr_harrison.mat');
 load('pr_smalley.mat');
 threshold1 = .99;
 threshold2 = .99999;
-decibel = false;
+decibel = false; % to color code based off of decibel vs block length
 for bl = 0:17
     eval(sprintf('load("mu_%d_2");',bl));
 end
@@ -154,7 +154,7 @@ else
             
             eval(sprintf('name = vars%d{%d,1};',m,i));
             eval(sprintf('plotRate = %s.carrierRate;', name));
-            eval(sprintf('plotPercentLeaked = 100 - %s.percentLeaked;', name));
+            eval(sprintf('plotPercentLeaked = floor(100 - %s.percentLeaked);', name));
             eval(sprintf('m = %s.m;', name));
             eval(sprintf('u = %s.u;', name));
             eval(sprintf('dB = %s.dBLevel;', name));
