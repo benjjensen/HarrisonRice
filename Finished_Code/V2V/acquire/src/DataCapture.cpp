@@ -105,7 +105,7 @@ void DataCapture::write_to_stream(std::ostream &out) {
     out << "duration " << duration << std::endl;
     out << "size " << size << std::endl;
     out << "datafile " << data_filename << std::endl;
-    out << "gpsfile" << gps_filename << std::endl;
+    out << "gpsfile " << gps_filename << std::endl;
     out << "notes " << notes << "`" << std::endl;
     out << "positions " << gps_positions.size() << std::endl;
     for(std::vector<GPSPosition>::iterator it = gps_positions.begin();

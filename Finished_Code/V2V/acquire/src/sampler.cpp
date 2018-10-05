@@ -736,26 +736,31 @@ static void init_main_window(SamplerState& state) {
     gtk_widget_show(label);
     gtk_table_attach_defaults(GTK_TABLE(gui.capture_table), label, COL_NAME,
             COL_NAME + 1, row, row + 1);
+
     label = gtk_label_new("Date");
     gtk_label_set_markup(GTK_LABEL(label), "<b>Date</b>");
     gtk_widget_show(label);
     gtk_table_attach_defaults(GTK_TABLE(gui.capture_table), label, COL_DATE,
             COL_DATE + 1, row, row + 1);
+
     label = gtk_label_new("Time");
     gtk_label_set_markup(GTK_LABEL(label), "<b>Time</b>");
     gtk_widget_show(label);
     gtk_table_attach_defaults(GTK_TABLE(gui.capture_table), label, COL_TIME,
             COL_TIME + 1, row, row + 1);
+
     label = gtk_label_new("Duration");
     gtk_label_set_markup(GTK_LABEL(label), "<b>Duration</b>");
     gtk_widget_show(label);
     gtk_table_attach_defaults(GTK_TABLE(gui.capture_table), label, COL_DURATION,
             COL_DURATION + 1, row, row + 1);
+
     label = gtk_label_new("Size");
     gtk_label_set_markup(GTK_LABEL(label), "<b>Size</b>");
     gtk_widget_show(label);
     gtk_table_attach_defaults(GTK_TABLE(gui.capture_table), label, COL_SIZE,
             COL_SIZE + 1, row, row + 1);
+
     label = gtk_label_new("Notes");
     gtk_label_set_markup(GTK_LABEL(label), "<b>Notes</b>");
     gtk_widget_show(label);
@@ -764,6 +769,11 @@ static void init_main_window(SamplerState& state) {
 
     gtk_widget_show(gui.capture_table);
     gtk_widget_show(gui.capture_table_scroll_window);
+
+    GtkWidget* horizontal_rule = gtk_hseparator_new();
+    gtk_widget_show(horizontal_rule);
+    gtk_box_pack_start(GTK_BOX(layout_box), horizontal_rule, false, false,
+            NO_PADDING);
 
     GtkWidget* footer_box = gtk_hbox_new(FALSE, NO_PADDING);
     gtk_box_pack_start(GTK_BOX(layout_box), footer_box, FALSE, FALSE,
@@ -1663,10 +1673,12 @@ static void cb_delete_capture(GtkWidget* widget, gpointer data) {
     int err = 0;
     err |= remove(capture.data_filename.c_str());
     err |= remove(capture.meta_filename.c_str());
-    err |= remove(capture.gps_filename.c_str());
+    if(capture.gps_filename != "") {
+        err |= remove(capture.gps_filename.c_str());
+    }
     if(err) {
         std::cerr << "ERROR: UNABLE TO DELETE " << capture.data_filename <<
-                ", " << capture.gps_filename << " and/or " <<
+                ", " << capture.gps_filename << ", and/or " <<
                 capture.meta_filename << std::endl;
     }
 
