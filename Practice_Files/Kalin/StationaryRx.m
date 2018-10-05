@@ -3,22 +3,21 @@
 %%%%%%%%%%%%%%%%%%
 % File Setup
 %%%%%%%%%%%%%%%%%%
-starttime = datetime('now') + seconds(.5);
-room = "hallway";
-NumSamples = 23;
+starttime = '07-Aug-2018 19:07:00';
+room = "camacho";
+NumSamples = 4000;
 DelayTime = .5;
 dbthreshold = 5;
 
 collectdata = false;
 graphall = false;
-graphrange = false;
+graphrange = true;
+    start = 750;
+    finish = 780;
 pwelchit = false;
 getcarriers = false;
+compare = false;
 
-% for use with
-% graph range
-start = 1;
-finish = 1;
 %%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -37,7 +36,7 @@ if collectdata == true
     curtime = datetime;
     while (string(curtime) ~= string(starttime))
         curtime = datetime;
-        %     disp(string(curtime));
+            disp(string(curtime));
     end
     
     TotalRunTime = (NumSamples * (DelayTime + .07)) / 60;
@@ -53,9 +52,7 @@ if collectdata == true
             room,runs,room,runs));
         pause(DelayTime);
     end
-    
-    save('workspace.mat');
-    
+        
 end
 
 %%%%%%%%%%%%%
@@ -83,13 +80,20 @@ if pwelchit == true
 end
 
 %%%%%%%%%%%%%
-% Separate
+% Carriers
 %%%%%%%%%%%%%
 
 if getcarriers == true
     SeparateCarriers(room,NumSamples,dbthreshold);
 end
 
+%%%%%%%%%%%%%
+% Compare
+%%%%%%%%%%%%%
+
+if compare == true
+    CompareCarriers(room,NumSamples);
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Functions
@@ -184,4 +188,10 @@ for runs = 1:NumSamples
 end
 end
 
-
+function CompareCarriers(room,NumSamples) % needs testing
+for runs = 1:NumSamples
+    eval(sprintf('load("StationaryData/%s_carriers_%d.mat");',room,runs));
+    room_history(runs) = eval(sprintf('%s_carriers_%d;',room,runs));
+end
+histogram(room_history);
+end

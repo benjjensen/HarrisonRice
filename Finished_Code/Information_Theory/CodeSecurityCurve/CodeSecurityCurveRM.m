@@ -3,8 +3,8 @@
 
 %closes all figure windows
 close all;
-
-for m = 2 : 10   %cycles through a range of m values
+for m = 1 : 10   %cycles through a range of m values
+    tic
     %creates a new figure
     figure();
     for r = 1 : m   %cycles through a range of r values
@@ -30,7 +30,7 @@ for m = 2 : 10   %cycles through a range of m values
             %calulates the weight heirarchy of RM code
             for numCombos = 1:r
                 combos = nchoosek(alphaValues(1,:), numCombos); %finds possilbe combos of matrix
-                [rows columns] = size(combos);
+                [rows, columns] = size(combos);
                 
                 %sums up all of combinations
                 for index = 1 : rows
@@ -55,6 +55,8 @@ for m = 2 : 10   %cycles through a range of m values
                 end
             end
             
+           
+            
             %makes array for index of values
             graphIndexes = zeros(1,n+1);
             for j = 0 : n
@@ -75,5 +77,6 @@ for m = 2 : 10   %cycles through a range of m values
         
     end
     hold off;
+    disp(m)
+    toc;
 end
-toc
