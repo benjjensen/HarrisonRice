@@ -15,6 +15,7 @@ function interpretBreaks(base_filename, graph_breaks)
     breaks_filename = sprintf('%s-breaks.mat', base_filename);
     breaks = [];
     load(breaks_filename, 'breaks');
+    
     break_count = size(breaks, 1);
     
     break_columns = size(breaks, 2);

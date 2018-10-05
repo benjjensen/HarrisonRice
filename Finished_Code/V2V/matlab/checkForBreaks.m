@@ -1,13 +1,13 @@
 clearvars;
 
-base_filename = 'discard_first_data_2018-08-23__12-02-19';
+base_filename = 'ExpensiveBoxTest1_2018-10-01__16-03-36';
 
 standard_deviation_multiple_threshold = 10;
 samples_per_block = 524288;
 bytes_per_sample = 2;
 data_file_precision = 'unsigned short';
 data_per_iteration = 100000000;
-graph_breaks = false;
+graph_breaks = true;
 
 COL_BREAK_INDEX = 2;
 COL_BREAK_SIZE = 1;
