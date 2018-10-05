@@ -31,6 +31,7 @@
 #include <string>
 
 #include <ext/stdio_filebuf.h>
+#include <pwd.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -156,31 +157,31 @@ struct AcquireEnvironment {
  * Reads the command sent in by the user and parses what board settings the user
  * wishes to set.
  */
-AcquireEnvironment acquire_parser(int argc, char** argv);
+static AcquireEnvironment acquire_parser(int argc, char** argv);
 
 /**
  * If "acquire" was sent with no arguments, a list of printf statements will
  * display to guide the user.
  */
-void acquire_parser_printf();
+static void acquire_parser_printf();
 
 /**
  * Takes the arguments read by acquire_parser and sets the board to run with the
  * desired settings.
  */
-void acquire_set_session(uvAPI& pUV, AcquireEnvironment& environment);
+static void acquire_set_session(uvAPI& pUV, AcquireEnvironment& environment);
 
 /**
  * Convenient function to get the user environment and set up the DAQ board.
  */
-AcquireEnvironment get_environment(int& argc, char**& argv, uvAPI& uv);
+static AcquireEnvironment get_environment(int& argc, char**& argv, uvAPI& uv);
 
 /**
  * Handles the exit signal given by pressing ctrl-c.
  */
-void exit_signal_handler(int signal, boost::atomic<bool>* flag_pointer);
+static void exit_signal_handler(int signal, boost::atomic<bool>* flag_pointer);
 
-void exit_signal_handler(int signal) {
+static void exit_signal_handler(int signal) {
     exit_signal_handler(signal, NULL);
 }
 
@@ -190,7 +191,8 @@ void exit_signal_handler(int signal) {
  * The timestamp will be of the format
  * _YYYY-mm-dd__HH-MM-SS
  */
-void timestamp_filename(std::string& selected_name, DataCapture& capture);
+static void timestamp_filename(std::string& selected_name,
+        DataCapture& capture);
 
 /**
  * The thread that writes the buffers to the file.
@@ -203,7 +205,7 @@ void timestamp_filename(std::string& selected_name, DataCapture& capture);
  * When finished_capturing becomes false, this thread finishes saving the buffer
  * it's currently saving and then exits.
  */
-void write_thread_main_function(const HANDLE disk_fd,
+static void write_thread_main_function(const HANDLE disk_fd,
         boost::atomic<bool>& finished_capturing,
         boost::atomic<bool>& ready_to_save_buffer,
         volatile bool& writing_to_first_buffer,
@@ -224,7 +226,7 @@ void write_thread_main_function(const HANDLE disk_fd,
  * When continue_recording_gps becomes false, the gps thread kills the gpsbabel
  * process and exits.
  */
-boost::thread* start_gps_thread(DataCapture& capture_info,
+static boost::thread* start_gps_thread(DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
         boost::atomic<bool>& continue_recording_gps);
 
@@ -241,7 +243,7 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
  * When continue_recording_gps becomes false, this thread kills the gpsbabel
  * process and exits.
  */
-void gps_thread_main_function(const pid_t gps_process_id,
+static void gps_thread_main_function(const pid_t gps_process_id,
         const HANDLE gps_output_fd, DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
         boost::atomic<bool>& continue_recording_gps);
@@ -249,18 +251,24 @@ void gps_thread_main_function(const pid_t gps_process_id,
 /**
  * This function sends the abort signal to the parent process, if there is one.
  */
-void send_abort_signal(const AcquireEnvironment environment);
+static void send_abort_signal(const AcquireEnvironment environment);
 
 /**
- * This function free()s the memory pointed to by its non-NULL arguments and then
- * sets those arguments to NULL.
+ * This function free()s the memory pointed to by its non-NULL arguments and
+ * then sets those arguments to NULL.
  */
-void free_memory(uint8_t*& first_buffer, uint8_t*& second_buffer);
+static void free_memory(uint8_t*& first_buffer, uint8_t*& second_buffer);
 
 /**
  * This function deletes any metadata or gps files associated with capture_info.
  */
-void remove_meta_gps_files(DataCapture& capture_info);
+static void remove_meta_gps_files(DataCapture& capture_info);
+
+/**
+ * Changes the given file to be owned by adm85 and gives it appropriate file
+ * permissions.
+ */
+static void change_file_owner_permissions(std::string filename);
 
 int main(int argc, char** argv) {
     //--------------------------------------------------------------------------
@@ -310,8 +318,8 @@ int main(int argc, char** argv) {
     }
 
     if(environment.move_cpuset != NULL || environment.reserve_cpus) {
-        // Move this process to its own cpuset, assuming that one was created for it
-        // previously.
+        // Move this process to its own cpuset, assuming that one was created
+        // for it previously.
         pid_t process_id = getpid();
         std::string cpuset = environment.move_cpuset != NULL ?
                 environment.move_cpuset : "acquire";
@@ -908,18 +916,6 @@ int main(int argc, char** argv) {
     std::cout << "--------------------------------------\n\n\n";
 
 
-    // Save the metadata to a file.
-    // We know that there's enough space on disk to store the metadata, even if
-    // the disk filled up completely, because we reserved it earlier.
-    capture_info.write_to_file();
-
-    if(environment.signal_pid != NO_SIGNAL_PROCESS) {
-        // Output the name of the metadata file so that any program that knows
-        // what to look for (e.g. sampler) can know what it is.
-        std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " <<
-                capture_info.meta_filename << std::endl << std::endl;
-    }
-
     if(environment.record_gps_data) {
         // If there's gps data,
         if(!capture_info.gps_positions.empty()) {
@@ -932,6 +928,24 @@ int main(int argc, char** argv) {
             remove(capture_info.gps_filename.c_str());
             capture_info.gps_filename = "";
         }
+    }
+
+    // Save the metadata to a file.
+    // We know that there's enough space on disk to store the metadata, even if
+    // the disk filled up completely, because we reserved it earlier.
+    capture_info.write_to_file();
+
+    change_file_owner_permissions(capture_info.data_filename);
+    change_file_owner_permissions(capture_info.meta_filename);
+    if(capture_info.gps_filename != "") {
+        change_file_owner_permissions(capture_info.gps_filename);
+    }
+
+    if(environment.signal_pid != NO_SIGNAL_PROCESS) {
+        // Output the name of the metadata file so that any program that knows
+        // what to look for (e.g. sampler) can know what it is.
+        std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " <<
+                capture_info.meta_filename << std::endl << std::endl;
     }
 
     if(environment.reserve_cpus) {
@@ -959,6 +973,14 @@ int main(int argc, char** argv) {
     free_memory(first_buffer, second_buffer);
 
     return 0;
+}
+
+void change_file_owner_permissions(std::string filename) {
+    passwd* user_info = getpwnam((char*)"adm85");
+
+    chown(filename.c_str(), user_info->pw_uid, user_info->pw_gid);
+    // Set file permissions to 644
+    chmod(filename.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 }
 
 void write_thread_main_function(const HANDLE disk_fd,
@@ -1087,7 +1109,7 @@ void gps_thread_main_function(const pid_t gps_process_id,
     GPSPosition position;
     // The flag continue_recording_gps will be set to false by another thread;
     // possibly the main thread, but more likely by the SIGINT signal handler.
-    while(continue_recording_gps.load()) {
+    while(continue_recording_gps.load() && input_from_gps) {
         // Read the input from gpsbabel into a position object.
         input_from_gps >> position;
 
@@ -1095,7 +1117,7 @@ void gps_thread_main_function(const pid_t gps_process_id,
         // the previous line blocks for about a second each time through the
         // loop, and a lot can happen in a second. Also check to be sure that we
         // didn't run out of gps fixes from gpsbabel.
-        if(!continue_recording_gps.load() || input_from_gps.eof()) {
+        if(!continue_recording_gps.load() || !input_from_gps) {
             break;
         }
 
