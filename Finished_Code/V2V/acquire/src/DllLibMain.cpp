@@ -6310,7 +6310,6 @@ EXPORTED_FUNCTION void setupAcquire(unsigned short BoardNum,unsigned int NumBloc
 	SET_CONTROL_REG(BoardNum,SOFTWARE_STOP,false);
 	#endif
 
-	// TODO figure out if this sleep is necessary
 	if (GetNumBlocksToAcquireValue(BoardNum) > 2)
 		SLEEP(50);
 
