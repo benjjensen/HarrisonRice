@@ -1,0 +1,7 @@
+*.o
+acquire
+sampler
+*.dat
+!ultra_config.dat
+*~
+*.mat
