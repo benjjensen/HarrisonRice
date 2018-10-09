@@ -1,8 +1,8 @@
 clearvars;
 
-base_filename = 'multithreaded_2018-08-14__14-01-36';
-filename = sprintf('/media/V2V/%s.dat', base_filename);
-standard_deviation_multiple_threshold = 9;
+base_filename = 'ExpensiveBoxTest1_2018-10-01__16-03-36';
+
+standard_deviation_multiple_threshold = 10;
 samples_per_block = 524288;
 
 %data = readBatched_DAQshortSamples_host(filename);
