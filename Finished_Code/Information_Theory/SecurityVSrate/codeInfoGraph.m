@@ -85,6 +85,7 @@ counter = 0;
         if (samePlot)
             figure();
             hold on;
+            grid on;
         end
         %%%%%%%%%%%%%%%%%%%%%%%%
         
@@ -208,21 +209,22 @@ for dB = 250 : 312
     end
 end
 
-
+saveas(gcf,'ThroughputGraph','epsc');
     %%%All on same Plot%%%%
         if (samePlot)
         %scatter3(plotOneRate, plotOnePercentH,plotOnedB,[],'k', '*','DisplayName', 'Rate One Codes');
 
-        title('Code Efficiency');
-        xlabel('Throughput Rate', 'FontSize', 12);
+        %title('Code Efficiency');
+        %xlabel('Throughput Rate', 'FontSize', 12);
         xt = get(gca, 'XTick');
-        set(gca, 'FontSize', 16)
-        ylabel('Equivocation (%)');
+        set(gca, 'FontSize', 14)        
+        xlabel('Throughput Rate', 'FontSize', 12);
+        ylabel('Equivocation (%)', 'FontSize', 12);
         zlabel('dB Level');
         ylim([0 100]);
         xlim([0 50]);
-        legend;
-        grid on;
+        %legend; 
+        saveas(gcf,'ThroughputGraph','epsc');
         hold off;
         end
     %%%%%%%%%%%%%%%%%%%%%%%

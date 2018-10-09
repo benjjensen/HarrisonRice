@@ -15,8 +15,8 @@
 // #include "matrix.h"
 // #include "mat.h"
 
-// using namespace std;
-
+static int count = 0;
+static int count2 = 0;
 /*
 *get_values Finds the probability of k carriers being good
 *   Receives an array of probabilities and parameters n and k, n being the
@@ -24,12 +24,11 @@
 *   through all of the n choose k combinations and calculates the
 *   probability of that n and k occuring
 */
-// std::vector<double> get_values(double *start, double *end, int n, int available_cores)
 void get_values(double *start, const int n, int available_cores, double pr[n+1])
 {
 
   const int bl = n/2;
-  if (n == 1)
+  if (n == 1) // base case, create a pmf from one independent variable
   {
     // std::vector<double> pr;
     // pr.push_back(1 - *start);
@@ -39,20 +38,11 @@ void get_values(double *start, const int n, int available_cores, double pr[n+1])
     // std::cout << pr[1] << '\n';
     // return pr;
   }
-  else
+  else // create a pmf from two different pmfs
   {
-    std::set<int> kvals;
-    const int nk = bl + 1;
-    // std::vector<double> pr (n+1);
-    // double *nend = start + bl - 1;
-    double *nstart = start + bl;
-    // double *temp_a;
-    // double *temp_b;
-    // temp_a = new double[bl+1];
-    // for(int i = 0; i < bl+1; i++)
-    // temp_b = new double[bl+1];
-    double temp_a[nk];
-    double temp_b[nk];
+    double *nstart = start + bl; // pointer to the first starting value of temp_b
+    double *temp_a = new double[bl+1]; //temporary array
+    double *temp_b = new double[bl+1]; //temporary array
     get_values(start,bl,available_cores,temp_a);
     // std::cout << temp_a[0] << " ";
     get_values(nstart,bl,available_cores,temp_b);
