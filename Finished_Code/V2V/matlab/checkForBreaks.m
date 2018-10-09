@@ -1,40 +1,50 @@
 clearvars;
 
-base_filename = 'multithreaded_2018-08-14__14-01-36';
-filename = sprintf('/media/V2V/%s.dat', base_filename);
-standard_deviation_multiple_threshold = 9;
+base_filename = 'ExpensiveBoxTest1_2018-10-01__16-03-36';
+
+standard_deviation_multiple_threshold = 10;
 samples_per_block = 524288;
-
-%data = readBatched_DAQshortSamples_host(filename);
-s = dir(filename);
-length_of_data_file = s.bytes / 2;
-clear s;
-data_file_id = fopen(filename);
-%out = fread(FID, length_of_data_file, 'unsigned short');
-
+bytes_per_sample = 2;
+data_file_precision = 'unsigned short';
 data_per_iteration = 100000000;
+graph_breaks = true;
+
+COL_BREAK_INDEX = 2;
+COL_BREAK_SIZE = 1;
+COL_BREAK_BLOCK = 3;
+COL_BREAK_SAMPLE_IN_BLOCK = 4;
+BREAK_COLS = 4;
+
+
+
+in_filename = sprintf('/media/V2V/%s.dat', base_filename);
+file_info = dir(in_filename);
+length_of_data_file = file_info.bytes / bytes_per_sample;
+
+data_file_id = fopen(in_filename);
+
 iterations = ceil(length_of_data_file / data_per_iteration);
 
-indices_first_iteration = (1:(data_per_iteration - 1))';
-indices_not_first_iteration = (1:data_per_iteration)';
-
 total_break_count = 0;
-% 10,000 breaks should be more than enough
+% Preallocating space for 10,000 breaks should be more than enough.
 all_breaks = zeros(10000, 2);
+
 for iteration = 1:iterations
-    if iteration == iterations
-        % Read all of the remaining data if there's less than data_per_iteration
-        % remaining:
-        data = fread(data_file_id, data_per_iteration, 'unsigned short');
-    elseif iteration == 1
-        data = fread(data_file_id, data_per_iteration, 'unsigned short');
+    if iteration == 1
+        data = fread(data_file_id, data_per_iteration, data_file_precision);
     else
-        data = fread(data_file_id, data_per_iteration + 1, 'unsigned short');
+        data = fread(data_file_id, data_per_iteration + 1, data_file_precision);
     end
+    % We want to read the last datum of this iteration in the next
+    % iteration so that we don't leave out the difference between the last
+    % datum of this iteration and the first datum of the next iteration.
+    fseek(data_file_id, -1 * bytes_per_sample, 'cof');
     
     absolute_differences = abs(diff(data));
     
     if iteration == 1
+        % Calculate the threshold that defines the boundary between normal
+        % differences and breaks in the data.
         % No need to recalculate this every time, but it does need to be
         % calculated.
         mean_absolute_difference = mean(absolute_differences);
@@ -45,18 +55,21 @@ for iteration = 1:iterations
     end
     
     logical_differences_above_threshold = absolute_differences >= threshold;
+    
+    % This column vector contains the indices of the differences that are
+    % above the threshold.
+    indices_differences_above_threshold = find(logical_differences_above_threshold);
+    
+    % This column vector contains the differences that are above the
+    % threshold.
     differences_above_threshold = ...
         absolute_differences(logical_differences_above_threshold);
     
-    if iteration == 1
-        indices_differences_above_threshold = ...
-            indices_first_iteration(logical_differences_above_threshold);
-    else
-        indices_differences_above_threshold = ...
-            indices_not_first_iteration(logical_differences_above_threshold);
-    end
-    
     index_offset = (iteration - 1) * data_per_iteration;
+    
+    % Subtract one from the index offset (if it isn't zero) because the
+    % first iteration only includes data_per_iteration - 1 differences,
+    % whereas all other iterations include data_per_iteration differences.
     if index_offset > 0
         index_offset = index_offset - 1;
     end
@@ -66,77 +79,31 @@ for iteration = 1:iterations
     
     break_count_this_iteration = size(indices_differences_above_threshold, 1);
     
+    % Puts the breaks into a break_count_this_iteration x 2 matrix, where
+    % the first column is the size of each break and the second column is
+    % the location of each break.
     breaks_this_iteration = cat(2, differences_above_threshold, ...
         indices_differences_above_threshold);
     
+    % Add the breaks we found to the list of breaks.
     if(break_count_this_iteration > 0)
         all_breaks((total_break_count + 1):(total_break_count + break_count_this_iteration), :) = ...
             breaks_this_iteration;
         total_break_count = total_break_count + break_count_this_iteration;
     end
-    
-    if iteration < iterations
-        % We want to read the last datum of this iteration in the next
-        % iteration so that we don't leave out the difference between the last
-        % datum of this iteration and the first datum of the next iteration.
-        fseek(data_file_id, -2, 'cof');
-    end
 end
-% all_breaks = all_breaks(1:total_break_count, :);
-% 
-% for break_number = 1:total_break_count
-%     break_size = all_breaks(break_number, 1);
-%     break_index = all_breaks(break_number, 2);
-%     
-%     break_block = floor(break_index / samples_per_block);
-%     break_sample_in_block = break_index - samples_per_block * break_block;
-%     
-%     fprintf('Break size %d at index %d (sample %d in block %d)\n', ...
-%         break_size, break_index, break_sample_in_block, break_block);
-% end
-% 
-% breaks = all_breaks;
-% out_filename = sprintf('%s-breaks.mat', base_filename)
-% save(out_filename, 'breaks');
-% 
-% data_file_id = fopen(filename);
-% 
-% for break_number = 1:min(total_break_count, 50)
-%     break_index = all_breaks(break_number, 2);
-%     
-%     starting_file_position = max((break_index - 499) * 2, 0);
-%     fseek(data_file_id, starting_file_position, 'bof');
-%     
-%     data = fread(data_file_id, 1000, 'unsigned short');
-%     
-%     figure(break_number); clf;
-%     plot(data);
-%     grid on;
-% end
-% 
-% fclose(data_file_id);
+fclose(data_file_id);
+% Trim the all_breaks matrix down to its real size (from 10000x2, which
+% is what we preallocated it to be).
+all_breaks = all_breaks(1:total_break_count, :);
 
+all_breaks(:, COL_BREAK_BLOCK) = floor(all_breaks(:, COL_BREAK_INDEX) / samples_per_block);
+all_breaks(:, COL_BREAK_SAMPLE_IN_BLOCK) = all_breaks(:, COL_BREAK_INDEX) - ...
+    samples_per_block * all_breaks(:, COL_BREAK_BLOCK);
 
-% mean_value = mean(data);
-% differences = diff(data);
-% mean_difference = mean(differences);
-% absolute_differences = abs(differences);
-% mean_absolute_difference = mean(absolute_differences);
-% standard_deviation = std(absolute_differences);
-% 
-% [max_absolute_difference, max_absolute_difference_index] = max(absolute_differences);
-% % absolute_differences(max_absolute_difference_index) = [];
-% % [max_absolute_difference, max_absolute_difference_index] = max(absolute_differences);
-% 
-% fprintf('Maximum absolute difference %d found at index %d of file %s\n', ...
-%     max_absolute_difference, max_absolute_difference_index, filename);
-% 
-% figure(1); clf
-% plot(1:2000,data(max_absolute_difference_index - 999:max_absolute_difference_index + 1000) - mean_value,'.-');
-% grid on;
-% 
-% figure(2); clf
-% histogram(differences);
-% 
-% figure(3); clf
-% histogram(absolute_differences);
+% Save the breaks to a file.
+breaks = all_breaks;
+out_filename = sprintf('%s-breaks.mat', base_filename);
+save(out_filename, 'breaks');
+
+interpretBreaks(base_filename, graph_breaks);

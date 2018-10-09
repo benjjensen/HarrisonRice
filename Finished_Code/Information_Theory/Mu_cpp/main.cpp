@@ -10,6 +10,8 @@
 #include <omp.h>
 #include <set>
 
+static int count = 0;
+static int count2 = 0;
 /*
 *get_values Finds the probability of k carriers being good
 *   Receives an array of probabilities and parameters n and k, n being the
@@ -44,7 +46,7 @@ void get_values(double *start, const int n, int available_cores, double pr[n+1])
       for(long j = 0; j < bl+1; j++)
       {
         long k = i + j;
-        pr[k] += temp_a[i] * temp_b[j]; 
+        pr[k] += temp_a[i] * temp_b[j];
       }
     }
     delete[] temp_a;
@@ -184,7 +186,9 @@ std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, const in
     delete[] probs;
     probabilities.push_back(pr_mat); // pushes the pmf into a vector of pmfs
     duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
-    std::cout << "get_values takes " << duration << " seconds\n";
+    // std::cout << "get_values takes " << duration << " seconds\n";
+    count2++;
+    count++;
   }
   if(gg.size() > 1) // if the size is >1 take the average else return the first vector in the vector
   {
@@ -224,6 +228,7 @@ std::vector< std::vector<double> > bl_distribution_avg(std::vector< std::vector<
   // #pragma omp parallel for
   for(int i = 0; i < gcs; i++)
   {
+    count2 = 0;
     std::vector<double> *pr = new std::vector<double>;
     for(int j = 0; j < gc[i].size(); j++)
     {
@@ -233,6 +238,7 @@ std::vector< std::vector<double> > bl_distribution_avg(std::vector< std::vector<
     std::vector< std::vector<double> > gg = get_groups(pr,bl); //gets the groupings of values of size bl
     delete pr;
     averages.push_back(bl_get_dist(gg,bl));
+    std::cout << count2 << '\n';
   }
   // duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
   // std::cout << "bl_distribution_avg takes " << duration << " seconds\n";
@@ -255,11 +261,12 @@ int main(int argc, char *argv[])
   make_arr(argv[2],pr_smalley);
   // make_arr("pr_harrison.txt",pr_harrison);
   // make_arr("pr_smalley.txt",pr_smalley);
-  double threshold = .99; // Sets the threshold for evaluating which indices are good
+  double threshold = .9999999; // Sets the threshold for evaluating which indices are good
   std::vector< std::vector<int> > gc = good_carriers(pr_harrison,threshold); // Forms a vector of the indices in pr_harrison who's values are greater than .99
   std::vector< std::vector<double> > *averages = new std::vector< std::vector<double> >;
+  std::cout << gc[0].size() << '\n';
   // #pragma omp parallel for
-  for(int i = 20; i <= 20; i++) // determines the length of the pmf so when i = 20 the length = 2^20 + 1
+  for(int i = 1; i <= 17; i++) // determines the length of the pmf so when i = 20 the length = 2^20 + 1
   {
     std::clock_t sstart = std::clock();
     const int bl = pow(2,i);
@@ -267,7 +274,7 @@ int main(int argc, char *argv[])
     duration = (std::clock() - sstart) / (double) CLOCKS_PER_SEC;
     std::cout << "time for base " << i << " = " << duration << " seconds\n";
     char filenm[9];
-    sprintf(filenm,"mu_%d.txt",i);
+    sprintf(filenm,"mu_%d_rel.txt",i);
     std::string filename(filenm);
     std::ofstream outFile(filename); // writes averages to a file
     for(int j = 0; j < averages->size(); j++)
@@ -285,5 +292,6 @@ int main(int argc, char *argv[])
   }
   duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
   std::cout << "total time = " << duration << " seconds\n";
+  std::cout << count << "\n";
   return 0;
 }
