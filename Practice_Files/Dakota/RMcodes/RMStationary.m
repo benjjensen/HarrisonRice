@@ -154,7 +154,7 @@ else
             
             eval(sprintf('name = vars%d{%d,1};',m,i));
             eval(sprintf('plotRate = %s.carrierRate;', name));
-            eval(sprintf('plotPercentLeaked = floor(100 - %s.percentLeaked);', name));
+            eval(sprintf('plotPercentLeaked = 100 - %s.percentLeaked;', name));
             eval(sprintf('m = %s.m;', name));
             eval(sprintf('u = %s.u;', name));
             eval(sprintf('dB = %s.dBLevel;', name));

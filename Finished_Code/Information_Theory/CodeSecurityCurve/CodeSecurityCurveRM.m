@@ -1,4 +1,4 @@
-%Created by Bradford Clark
+%Created by Bradford Clark % Used by Benjamin Jensen
 %This code calculates security curves for different RM codes.
 
 %closes all figure windows
