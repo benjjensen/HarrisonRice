@@ -11,6 +11,9 @@ end
 for row = 1:num_rows
     figure(row);
     hold on;
+%     for bl = 10:20
+%         eval(sprintf('plot(norm_mu_%d,mu_normal_%d(row,:));',bl,bl));
+%     end
     for bl = 1:20
         eval(sprintf('plot(norm_mu_%d,mu_%d_2(row,:));',bl,bl));
     end
