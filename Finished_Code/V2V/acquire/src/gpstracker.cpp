@@ -3,7 +3,9 @@
 #include <sstream>
 #include <string>
 
+#ifdef __linux__
 #include <sys/wait.h>
+#endif
 
 
 const int MIN_ARG_COUNT = 2;
@@ -33,10 +35,28 @@ int main(int argc, char** argv) {
             environment.outputFilename;
     int status = system(command.str().c_str());
 
-
-    // TODO check status variable; make this platform-independent.
-    std::cout << "WIFEXITED " << WIFEXITED(status) << std::endl;
-    std::cout << "WEXITSTATUS " << WEXITSTATUS(status) << std::endl;
+#ifdef __linux__
+    if(!WIFEXITED(status)) {
+        std::cerr << "ERROR: failed to capture gps data. Exiting." << std::endl;
+        std::exit(1);
+    }
+    else if(WEXITSTATUS(status)) {
+        int exitCode = WEXITSTATUS(status);
+        if(exitCode == 127) {
+            std::cerr << "ERROR: unable to locate gpsbabel executable. Exiting."
+                    << std::endl;
+        }
+        else {
+            std::cerr << "ERROR: gpsbabel failure. Exiting." << std::endl;
+        }
+        std::exit(1);
+    }
+#elif _WIN32
+    if(status) {
+        std::cerr << "ERROR: failed to capture gps data. Exiting." << std::endl;
+        std::exit(1);
+    }
+#endif
 
     std::cout << "\nReturned from gpsbabel. Converting output to kml... " <<
             std::flush;
