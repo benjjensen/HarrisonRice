@@ -1,8 +1,9 @@
 # Naming conventions are stored in a text file. The format of this file is as follows:
 # Each line is one of a comment, a blank line, a field entry, an option entry, or the end of file marker line.
-# 
+#
 # Comment lines start with '#' and are ignored.
 #     # This is a comment. I can write anything here.
+# Note: comment lines are not preserved when a member of this class overwrites the naming convention file.
 #
 # Field entries start with '$' and are in this format:
 #     $ [default value] [separator] [field name]
@@ -10,7 +11,7 @@
 # The default value must be a code for one of the options listed below this field.
 # The separator here cannot be empty, but if an empty separator in the name is desired use the string "`" here.
 # Field entries should appear in the order in which their codes are used for the naming convention.
-# 
+#
 # Option entries start with '-' and are in this format:
 #     - [option code] [option name]
 # Where option code is exactly one word and option name is any number of words.
@@ -25,22 +26,21 @@
 
 
 
-$ P _ Location
-- C Provo Canyon
-- I Interstate
-- L Logan
-- P Provo
-$ f ` Receiving Vehicle Position
-- f Following closely
-- g Following distantly
-- p Preceeding closely
-- q Preceeding distantly
-$ S - Maneuver
-- L Turn left
-- R Turn right
-- S Drive straight
-$ A ` Time
-- M Morning
-- A Afternoon
-- N Night
+$ PROVO - Location
+- I15 I-15
+- PROVO Provo
+- CANYON Provo Canyon
+$ LOW _ Traffic Density
+- LOW Low
+- MED Medium
+- HIGH High 
+$ follow - Receiving Vehicle Position
+- follow Following closely
+- followfar Following distantly
+- preceed Preceeding closely
+- preceedfar Preceeding distantly
+$ straight ` Maneuver
+- left Turn left
+- right Turn right
+- straight Drive straight
 ~
