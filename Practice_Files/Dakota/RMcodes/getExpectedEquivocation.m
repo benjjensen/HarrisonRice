@@ -12,9 +12,4 @@ for col = 1:num_col
 end
     exp_eqiv = equivocation;
 end
-% 
-% H = weights(1,mu+1);
-%                 
-% %assigns percentLeaked
-% percentLeaked = 100*(k-H)/k;
 
