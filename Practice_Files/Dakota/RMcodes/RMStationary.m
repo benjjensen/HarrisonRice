@@ -4,14 +4,14 @@ close all;
 load('pr_harrison.mat');
 load('pr_smalley.mat');
 threshold1 = .99;
-threshold2 = .99999;
+threshold2 = .99;
 decibel = false; % to color code based off of decibel vs block length
-for bl = 0:17
+for bl = 0:20
     eval(sprintf('load("mu_%d_2");',bl));
 end
 num_carriers = get_num_carrier(pr_harrison,threshold1);
 mus = [];
-for bl = 0:17
+for bl = 0:20
     eval(sprintf('mus(:,%d) = get_worst_case(mu_%d_2,threshold2);',bl+1,bl));
 end
 % ratio = mus;
@@ -19,7 +19,7 @@ end
 col_num;
 
 
-mmax = 17;
+mmax = 20;
 imax = 0;
 mmin = 0;
 for j = mmin : mmax
@@ -154,7 +154,7 @@ else
             
             eval(sprintf('name = vars%d{%d,1};',m,i));
             eval(sprintf('plotRate = %s.carrierRate;', name));
-            eval(sprintf('plotPercentLeaked = 100 - %s.percentLeaked;', name));
+            eval(sprintf('plotPercentLeaked = floor(100 - %s.percentLeaked);', name));
             eval(sprintf('m = %s.m;', name));
             eval(sprintf('u = %s.u;', name));
             eval(sprintf('dB = %s.dBLevel;', name));
