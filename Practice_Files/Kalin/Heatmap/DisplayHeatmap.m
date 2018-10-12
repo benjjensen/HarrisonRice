@@ -18,7 +18,7 @@ save('tx1_dblimit.mat','tx1_dblimit');
 save('tx2_dblimit.mat','tx2_dblimit');
 
 runsignals = false;
-runheatmap = false;
+runheatmap = true;
 runcapacity = true;
 
 if runsignals == true
@@ -109,8 +109,9 @@ for x = 1:64
         end
     end
 end
+tx1_noise = tx1_noise / 64;
 tx2_noise = tx2_noise / 64;
-save('tx2_noise.mat','tx2_noise');
+% save('tx2_noise.mat','tx2_noise');
 tx1_cpcty = (1/2) * log2(1 + (tx1_linear_signal ./ tx1_noise));
 tx2_cpcty = (1/2) * log2(1 + (tx2_linear_signal ./ tx2_noise));
 for y = 1:90
