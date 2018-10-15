@@ -1,4 +1,6 @@
+#include <cstdio>
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -7,26 +9,33 @@
 #include <sys/wait.h>
 #endif
 
+#include "DataCapture.h"
 
-const int MIN_ARG_COUNT = 2;
-const int ARG_POSITION_OUTPUT_FILENAME = 1;
-
+const std::string DEFAULT_OUTPUT_FILENAME = "gps.kml";
 const std::string DEFAULT_GPSBABEL_CALL = "gpsbabel";
 const std::string DEFAULT_XCSV_FORMAT_FILENAME = "gpsbabel_xcsv_format.txt";
+
+const std::string DEFAULT_OUTPUT_EXTENSION = ".kml";
 
 struct GPSTrackerEnvironment {
     std::string outputFilename;
     std::string gpsbabelCall;
     std::string xcsvFormatFilename;
+    bool timestamping;
 };
 
 static void printUsage();
 static GPSTrackerEnvironment GPSTrackerParser(int argc, char** argv);
+static std::string applyTimestamp(std::string filename,
+        GPSPosition position);
+static std::string applyDefaultFileExtension(std::string filename);
 
 int main(int argc, char** argv) {
     GPSTrackerEnvironment environment = GPSTrackerParser(argc, argv);
 
-    std::cout << "System call to gpsbabel. Press ctrl-c to finish." <<
+    std::cout << "System call to gpsbabel.\n"
+            "WARNING: IF THE COMPUTER GOES TO SLEEP, GPS DATA CAPTURE WILL STOP"
+            "\nPress ctrl-c to finish." <<
             std::endl;
 
     std::stringstream command;
@@ -58,6 +67,30 @@ int main(int argc, char** argv) {
     }
 #endif
 
+    std::ifstream GPSFile(environment.outputFilename.c_str());
+    if(!GPSFile.good()) {
+        std::cerr << "ERROR: no output file was created by gpsbabel. Exiting."
+                << std::endl;
+        std::exit(1);
+    }
+
+    GPSPosition firstPosition;
+    if(!(GPSFile >> firstPosition)) {
+        std::cerr << "ERROR: no gps data recorded. Exiting." << std::endl;
+        GPSFile.close();
+        // Delete the empty file
+        remove(environment.outputFilename.c_str());
+        std::exit(1);
+    }
+    GPSFile.close();
+
+    // At this point, we're confident that gpsbabel succeeded in capturing the
+    // gps data.
+
+    std::string newFilename = environment.timestamping ?
+            applyTimestamp(environment.outputFilename, firstPosition) :
+            applyDefaultFileExtension(environment.outputFilename);
+
     std::cout << "\nReturned from gpsbabel. Converting output to kml... " <<
             std::flush;
 
@@ -65,39 +98,75 @@ int main(int argc, char** argv) {
     command << environment.gpsbabelCall << " -i " <<
             "xcsv,style=" << environment.xcsvFormatFilename << " -f " <<
             environment.outputFilename << " -x transform,trk=w,del -o kml -F "
-            << environment.outputFilename;
+            << newFilename;
     system(command.str().c_str());
 
-    std::cout << "done." << std::endl;
+    if(environment.outputFilename != newFilename) {
+        remove(environment.outputFilename.c_str());
+    }
+
+    std::cout << "done.\nOutput stored in " << newFilename << std::endl;
 
     return 0;
 }
 
+static std::string applyTimestamp(std::string filename,
+        GPSPosition position) {
+    std::string timestamp = position.get_timestamp();
+
+    size_t extensionIndex = filename.rfind('.');
+    size_t folderIndex = filename.find_last_of("/\\");
+
+    if(extensionIndex == std::string::npos ||
+            (folderIndex != std::string::npos &&
+            folderIndex >= extensionIndex)) {
+        filename += timestamp;
+        filename += DEFAULT_OUTPUT_EXTENSION;
+    }
+    else {
+        filename.insert(extensionIndex, timestamp);
+    }
+    return filename;
+}
+
+static std::string applyDefaultFileExtension(std::string filename) {
+    size_t extensionIndex = filename.rfind('.');
+    size_t folderIndex = filename.find_last_of("/\\");
+
+    if(extensionIndex == std::string::npos ||
+            (folderIndex != std::string::npos &&
+            folderIndex >= extensionIndex)) {
+        filename += DEFAULT_OUTPUT_EXTENSION;
+    }
+
+    return filename;
+}
+
 static void printUsage() {
     std::cout <<
-            "Usage: gpstracker <filename> [-c <gpsbabel-command>] [-x <xcsv-format-file>]\n"
-            "    <filename>            The name of the output file\n"
-            "    <gpsbabel-command>    Location of the gpsbabel executable\n"
-            "                          [default: gpsbabel]\n"
-            "    <xcsv-format-file>    File to use for the intermediate xcsv format. Don't \n"
-            "                          specify this unless you know what you're doing.\n"
-            "                          [default: gpsbabel_xcsv_format.txt]"
+            "Usage: gpstracker [options] [<filename>]\n"
+            "    <filename>            The name of the output file. [default: gps.kml]\n"
+            "Options:\n"
+            "    -d                       Disable timestamping of output file.\n"
+            "    -c <gpsbabel-command>    Location of the gpsbabel executable.\n"
+            "                             [default: gpsbabel]\n"
+            "    -x <xcsv-format-file>    File to use for the intermediate xcsv format.\n"
+            "                             Don't specify this unless you know what you're\n"
+            "                             doing. [default: gpsbabel_xcsv_format.txt]\n\n"
+            "    -h, --help               Print this help message"
             << std::endl;
 }
 
 static GPSTrackerEnvironment GPSTrackerParser(int argc, char** argv) {
-    if(argc < MIN_ARG_COUNT) {
-        printUsage();
-        std::exit(1);
-    }
-
     GPSTrackerEnvironment environment;
     environment.gpsbabelCall = DEFAULT_GPSBABEL_CALL;
     environment.xcsvFormatFilename = DEFAULT_XCSV_FORMAT_FILENAME;
+    environment.outputFilename = DEFAULT_OUTPUT_FILENAME;
+    environment.timestamping = true;
 
-    environment.outputFilename = argv[ARG_POSITION_OUTPUT_FILENAME];
+    bool assignedOutputFilename = false;
 
-    for(int i = ARG_POSITION_OUTPUT_FILENAME + 1; i < argc; ++i) {
+    for(int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if(arg == "-c") {
             if(++i >= argc) {
@@ -113,9 +182,20 @@ static GPSTrackerEnvironment GPSTrackerParser(int argc, char** argv) {
             }
             environment.xcsvFormatFilename = argv[i];
         }
-        else {
+        else if(arg == "-d") {
+            environment.timestamping = false;
+        }
+        else if(arg == "-h" || arg == "--help") {
             printUsage();
             std::exit(1);
+        }
+        else {
+            if(assignedOutputFilename) {
+                printUsage();
+                std::exit(1);
+            }
+            environment.outputFilename = arg;
+            assignedOutputFilename = true;
         }
     }
 

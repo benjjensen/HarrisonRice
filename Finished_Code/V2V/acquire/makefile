@@ -25,7 +25,7 @@ src/sampler.o: src/sampler.cpp
 
 
 
-gpstracker: src/gpstracker.o
+gpstracker: src/gpstracker.o src/DataCapture.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 
