@@ -19,7 +19,9 @@
  *     acquire -f <filename> [-gps] -priority -reservecpus
  */
 
-// TODO: Clean up commented-out sections, remove windows-specific sections (?)
+// TODO test to make sure recent changes didn't break anything
+// (looking at the code, they really shouldn't change anything, but make sure)
+// TODO get start time from GPS data
 
 #include <cstdio>
 #include <cstdlib>
@@ -191,8 +193,9 @@ static void exit_signal_handler(int signal) {
  * The timestamp will be of the format
  * _YYYY-mm-dd__HH-MM-SS
  */
-static void timestamp_filename(std::string& selected_name,
-        DataCapture& capture);
+static std::string get_timestamped_filename(AcquireEnvironment environment,
+        DataCapture& capture, boost::atomic<bool>& first_gps_position_recorded,
+        GPSPosition& first_gps_position);
 
 /**
  * The thread that writes the buffers to the file.
@@ -228,7 +231,9 @@ static void write_thread_main_function(const HANDLE disk_fd,
  */
 static boost::thread* start_gps_thread(DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
-        boost::atomic<bool>& continue_recording_gps);
+        boost::atomic<bool>& continue_recording_gps,
+        boost::atomic<bool>& first_gps_position_recorded,
+        GPSPosition& first_gps_position);
 
 /**
  * The main function of the gps thread.
@@ -246,7 +251,9 @@ static boost::thread* start_gps_thread(DataCapture& capture_info,
 static void gps_thread_main_function(const pid_t gps_process_id,
         const HANDLE gps_output_fd, DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
-        boost::atomic<bool>& continue_recording_gps);
+        boost::atomic<bool>& continue_recording_gps,
+        boost::atomic<bool>& first_gps_position_recorded,
+        GPSPosition& first_gps_position);
 
 /**
  * This function sends the abort signal to the parent process, if there is one.
@@ -421,6 +428,61 @@ int main(int argc, char** argv) {
 
 
     //--------------------------------------------------------------------------
+    //                            Setup gps thread
+    //--------------------------------------------------------------------------
+
+    //----------------MULTITHREADING START----------------
+
+    // The following variables and objects must not be changed or accessed by
+    // the main thread during the multithreaded portion of the program:
+    //     capture_info.gps_positions
+    //
+    // The following variables and objects must not be changed or accessed by
+    // the main thread during the multithreaded portion of the program except
+    // when first_gps_position_recorded is true:
+    //     first_gps_position
+    //
+    // The following variables and objects must not be changed or accessed by
+    // the main thread during the multithreaded portion of the program except
+    // when ready_to_save_buffer is false:
+    //     ready_to_save_buffer (can be accessed because it's atomic)
+    //     finished_capturing (can be accessed because it's atomic)
+    //     writing_to_first_buffer
+    //     blocks_in_buffer_ready_to_save
+    //     write_thread_status
+    //
+    // Additionally, the main thread must only write to the buffer indicated by
+    // writing_to_first_buffer; that is, when writing_to_first_buffer is true,
+    // the main thread must not write to the second buffer, and when
+    // writing_to_first_buffer is false, the main thread must not write to the
+    // first buffer.
+
+    // This is the number of blocks that we've captured so far. It needs to be
+    // atomic because the gps thread accesses this value while the main thread
+    // writes to it.
+    boost::atomic_uint_fast32_t blocks_captured(0);
+
+    // An object containing information about the data we're about to capture.
+    DataCapture capture_info;
+
+    //----------------GPS THREAD START----------------
+    boost::atomic<bool> first_gps_position_recorded(false);
+    GPSPosition first_gps_position;
+
+    boost::thread* gps_thread = NULL;
+    if(environment.record_gps_data) {
+        // Start up the thread that will record the gps data.
+        gps_thread = start_gps_thread(capture_info, blocks_captured,
+                continue_reading_data, first_gps_position_recorded,
+                first_gps_position);
+        if(gps_thread == NULL) {
+            std::cerr << "ERROR: UNABLE TO START GPS THREAD" << std::endl;
+        }
+    }
+
+
+
+    //--------------------------------------------------------------------------
     //                                 Open Files
     //--------------------------------------------------------------------------
 
@@ -428,19 +490,12 @@ int main(int argc, char** argv) {
     // them a timestamp accurate to the second, and so we wait until after we've
     // slept to give the DAQ card a head start.
 
-    // An object containing information about the data we're about to capture.
-    DataCapture capture_info;
     capture_info.name = (environment.user_outputfile == NULL ?
             "Unnamed" : environment.user_outputfile);
 
-    // If the user specified a filename, use that name, else use the default
-    // name.
-    std::string filename = DATA_FOLDER + "/" +
-            (environment.user_outputfile == NULL ?
-            DEFAULT_FILENAME : environment.user_outputfile);
-
-    // Add the timestamp to the filename.
-    timestamp_filename(filename, capture_info);
+    // Get the timestamped filename.
+    std::string filename = get_timestamped_filename(environment, capture_info,
+            first_gps_position_recorded, first_gps_position);
 
     capture_info.data_filename = filename;
 
@@ -515,26 +570,6 @@ int main(int argc, char** argv) {
     // The expected status of the write thread.
     ssize_t expected_write_thread_status = 0;
 
-    //----------------MULTITHREADING START----------------
-
-    // The following variables and objects must not be changed or accessed by
-    // the main thread during the multithreaded portion of the program:
-    //     capture_info (except as an argument to start the gps thread)
-    //
-    // The following variables and objects must not be changed or accessed by
-    // the main thread during the multithreaded portion of the program except
-    // when ready_to_save_buffer is false:
-    //     ready_to_save_buffer (can be accessed because it's atomic)
-    //     finished_capturing (can be accessed because it's atomic)
-    //     writing_to_first_buffer
-    //     blocks_in_buffer_ready_to_save
-    //     write_thread_status
-    // Additionally, the main thread must only write to the buffer indicated by
-    // writing_to_first_buffer; that is, when writing_to_first_buffer is true,
-    // the main thread must not write to the second buffer, and when
-    // writing_to_first_buffer is false, the main thread must not write to the
-    // first buffer.
-
     //----------------WRITE THREAD START----------------
 
     // Start up the thread that will write to disk the data that we read in this
@@ -548,33 +583,11 @@ int main(int argc, char** argv) {
 
 
     //--------------------------------------------------------------------------
-    //                            Setup gps thread
-    //--------------------------------------------------------------------------
-
-    // This is the number of blocks that we've captured so far. It needs to be
-    // atomic because the gps thread accesses this value while the main thread
-    // writes to it.
-    boost::atomic_uint_fast32_t blocks_captured(0);
-
-    //----------------GPS THREAD START----------------
-
-    boost::thread* gps_thread = NULL;
-    if(environment.record_gps_data) {
-        // Start up the thread that will record the gps data.
-        gps_thread = start_gps_thread(capture_info, blocks_captured,
-                continue_reading_data);
-        if(gps_thread == NULL) {
-            std::cerr << "ERROR: UNABLE TO START GPS THREAD" << std::endl;
-        }
-    }
-
-
-
-    //--------------------------------------------------------------------------
     //                             Capture the data
     //--------------------------------------------------------------------------
 
-    std::cout << " done.\n\nBegin acquiring data." << std::endl;
+    std::cout << " done.\n\nBegin acquiring data. (Press ctrl-c to stop.)" <<
+            std::endl;
 
     // The number of blocks in the buffer currently being written to.
     unsigned int blocks_in_current_buffer = 0;
@@ -1027,7 +1040,9 @@ void write_thread_main_function(const HANDLE disk_fd,
 
 boost::thread* start_gps_thread(DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
-        boost::atomic<bool>& continue_recording_gps) {
+        boost::atomic<bool>& continue_recording_gps,
+        boost::atomic<bool>& first_gps_position_recorded,
+        GPSPosition& first_gps_position) {
     const int READ_FD = 0;
     const int WRITE_FD = 1;
 
@@ -1093,14 +1108,18 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
     // Start the gps thread and pass in the information it needs to function.
     boost::thread *gps_thread = new boost::thread(gps_thread_main_function,
             gps_process_id, gps_output_fd, boost::ref(capture_info),
-            boost::ref(blocks_acquired), boost::ref(continue_recording_gps));
+            boost::ref(blocks_acquired), boost::ref(continue_recording_gps),
+            boost::ref(first_gps_position_recorded),
+            boost::ref(first_gps_position));
     return gps_thread;
 }
 
 void gps_thread_main_function(const pid_t gps_process_id,
         const HANDLE gps_output_fd, DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
-        boost::atomic<bool>& continue_recording_gps) {
+        boost::atomic<bool>& continue_recording_gps,
+        boost::atomic<bool>& first_gps_position_recorded,
+        GPSPosition& first_gps_position) {
     // Get an istream from the pipe file descriptor.
     __gnu_cxx::stdio_filebuf<char> *sb =
             new __gnu_cxx::stdio_filebuf<char>(gps_output_fd, std::ios::in);
@@ -1119,6 +1138,11 @@ void gps_thread_main_function(const pid_t gps_process_id,
         // didn't run out of gps fixes from gpsbabel.
         if(!continue_recording_gps.load() || !input_from_gps) {
             break;
+        }
+
+        if(!first_gps_position_recorded.load()) {
+            first_gps_position = position;
+            first_gps_position_recorded.store(true);
         }
 
         position.blocks_captured = blocks_acquired.load();
@@ -1164,18 +1188,43 @@ std::string get_current_timestamp(DataCapture& capture) {
     return timestamp.str();
 }
 
-void timestamp_filename(std::string& selected_name, DataCapture& capture) {
-    std::string timestamp = get_current_timestamp(capture);
-
-    size_t extension_index = selected_name.rfind('.');
-
-    if(extension_index == std::string::npos) {
-        selected_name += timestamp;
-        selected_name += DEFAULT_OUTPUT_EXTENSION;
+std::string get_timestamped_filename(AcquireEnvironment environment,
+        DataCapture& capture, boost::atomic<bool>& first_gps_position_recorded,
+        GPSPosition& first_gps_position) {
+    std::string timestamp = "";
+    if(environment.record_gps_data) {
+        while(!first_gps_position_recorded.load()) {
+            SLEEP(1); // sleep for 1 millisecond
+        }
+        timestamp = first_gps_position.get_timestamp();
+        capture.year = first_gps_position.year;
+        capture.month = first_gps_position.month;
+        capture.date = first_gps_position.date;
+        capture.hour = first_gps_position.hour;
+        capture.minute = first_gps_position.minute;
+        capture.second = first_gps_position.second;
     }
     else {
-        selected_name.insert(extension_index, timestamp);
+        timestamp = get_current_timestamp(capture);
     }
+
+    std::string filename = DATA_FOLDER + "/" +
+            (environment.user_outputfile == NULL ?
+            DEFAULT_FILENAME : environment.user_outputfile);
+
+    size_t extension_index = filename.rfind('.');
+    size_t folder_index = filename.find_last_of("/\\");
+
+    if(extension_index == std::string::npos ||
+            (folder_index != std::string::npos &&
+            folder_index >= extension_index)) {
+        filename += timestamp;
+        filename += DEFAULT_OUTPUT_EXTENSION;
+    }
+    else {
+        filename.insert(extension_index, timestamp);
+    }
+    return filename;
 }
 
 void exit_signal_handler(int signal, boost::atomic<bool>* flag_pointer) {
