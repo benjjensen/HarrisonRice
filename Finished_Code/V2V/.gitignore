@@ -1,7 +1,10 @@
 *.o
-acquire
+acquire/acquire
+*/nbproject
 sampler
+gpstracker
 *.dat
 !ultra_config.dat
 *~
 *.mat
+*.kml
