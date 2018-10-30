@@ -106,8 +106,15 @@ public:
     void write_to_stream(std::ostream &out);
     /**
      * Reads this gps position in from a stream.
+     *
+     * Returns true if successful, false otherwise.
      */
-    void read_from_stream(std::istream &in);
+    bool read_from_stream(std::istream &in);
+
+    /**
+     * Forms a timestamp from the date in this GPSPosition.
+     */
+    std::string get_timestamp();
 };
 
 /**
