@@ -12,7 +12,7 @@
 % Change these limits to set the thresholds for the heatmap
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 tx1_dblimit = 12;
-tx2_dblimit = 25;
+tx2_dblimit = 27;
 
 save('tx1_dblimit.mat','tx1_dblimit');
 save('tx2_dblimit.mat','tx2_dblimit');
