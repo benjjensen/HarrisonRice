@@ -218,7 +218,7 @@ saveas(gcf,'ThroughputGraph','epsc');
         %xlabel('Throughput Rate', 'FontSize', 12);
         xt = get(gca, 'XTick');
         set(gca, 'FontSize', 14)        
-        xlabel('Throughput Rate', 'FontSize', 12);
+        xlabel('bits per channel use', 'FontSize', 12);
         ylabel('Equivocation H(M|Z^n) (%)', 'FontSize', 12);
         zlabel('dB Level');
         ylim([0 100]);
