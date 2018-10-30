@@ -25,7 +25,7 @@ tx2threshold = 28;
 [~,tx2Floor] = find_num_carriers(tx2xx,tx2threshold);
 
 % figure(1);
-% I = imread('floor_plan.png');
+I = imread('floor_plan.png');
 % imshow(I);
 % hold on;
 % floormap = imagesc(Floor);
