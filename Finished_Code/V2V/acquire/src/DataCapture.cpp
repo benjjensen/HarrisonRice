@@ -414,7 +414,21 @@ void GPSPosition::write_to_stream(std::ostream &out) {
     out << altitude_feet;
 }
 
-void GPSPosition::read_from_stream(std::istream &in) {
+bool GPSPosition::read_from_stream(std::istream &in) {
+    time_t year = 2018;
+    time_t month = 8;
+    time_t date = 27;
+    time_t hour = 12;
+    time_t minute = 0;
+    time_t second = 0;
+
+    size_t blocks_captured = 0;
+
+    double latitude = 4500;
+    double longitude = 11100;
+    double altitude_feet = 4500;
+
+
     in >> year;
     // Ignore the '-' character.
     in.ignore();
@@ -452,6 +466,38 @@ void GPSPosition::read_from_stream(std::istream &in) {
     in.ignore();
 
     in >> altitude_feet;
+
+    if(in) {
+        this->year = year;
+        this->month = month;
+        this->date = date;
+        this->hour = hour;
+        this->minute = minute;
+        this->second = second;
+
+        this->blocks_captured = blocks_captured;
+
+        this->latitude = latitude;
+        this->longitude = longitude;
+        this->altitude_feet = altitude_feet;
+
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+std::string GPSPosition::get_timestamp() {
+    std::stringstream timestamp;
+
+    timestamp << std::setfill('0');
+    timestamp << "_" << year << "-" << std::setw(2) << month <<
+            "-" << std::setw(2) << date;
+    timestamp << "__" << std::setw(2) << hour << "-" << std::setw(2) <<
+            minute << "-" << std::setw(2) << second;
+
+    return timestamp.str();
 }
 
 std::istream & operator>>(std::istream &in, GPSPosition &position) {

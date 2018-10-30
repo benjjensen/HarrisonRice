@@ -32,10 +32,10 @@
 // These are all uncessary as Linux now uses the API
 #define ATTACH_TO_DEVICE                pAPI->ApiInitialize
 #define GET_NUMDEVICES                  pAPI->ApiGetNumDevices
-#define GET_SERIALNUMBER				pAPI->ApiGetSerialNumber
+#define GET_SERIALNUMBER    pAPI->ApiGetSerialNumber
 //TEMPORARY TILL LABVIEW UPDATED
 #define SET_CURRENTDEVICE               pAPI->ApiSetCurrentDevice
-#define GET_CURRENTDEVICEHANDLE			pAPI->GetCurrentDeviceHandle
+#define GET_CURRENTDEVICEHANDLE   pAPI->GetCurrentDeviceHandle
 #define SET_PREVENT_UNDEROVERRUNS       pAPI->ApiSetPreventUnderOverRuns
 #define GET_DEVICE_STATUS               pAPI->ApiGetDeviceStatus
 #define SET_PIO_REG                     pAPI->ApiSetPioRegister
@@ -43,12 +43,12 @@
 #define SET_SHADOW_REG                  pAPI->ApiSetShadowRegister
 #define GET_SHADOW_REG                  pAPI->ApiGetShadowRegister
 #define GET_OVERRUNS                    pAPI->ApiGetOverruns
-#define GET_DRIVER_VERSION				pAPI->ApiGetDriverVersion
-#define SET_CONTROL_REG                 pAPI->SetAD83000xReg  
+#define GET_DRIVER_VERSION    pAPI->ApiGetDriverVersion
+#define SET_CONTROL_REG                 pAPI->SetAD83000xReg
 #define RUNBOARD                        pAPI->RunBoard
-#define SET_DA_DMA_BLOCKS_PER_BOARD     pAPI->SetNumBlocksPerBoard	
+#define SET_DA_DMA_BLOCKS_PER_BOARD     pAPI->SetNumBlocksPerBoard
 #define GET_BLOCKS_SYNTHESIZED          pAPI->GetBlocksSynthesized
-#define SET_ARMED                       pAPI->SetArmed    
+#define SET_ARMED                       pAPI->SetArmed
 
 
 // This should be called DRIVER_API_HANDLE
@@ -68,55 +68,55 @@
 
 #else
 // Under Linux DLLEXP is not needed, define this to be whitespace
-#define DLLEXP 
-#endif	// End platform specific mappings
+#define DLLEXP
+#endif // End platform specific mappings
 
 //ADC12D2000 SPI ADRESSES
-#define CONFIGURATION_REGISTER_1	0x0
-#define Adc12d2000_CAL				15
-#define Adc12d2000_DPS				14
-#define Adc12d2000_OVS				13
-#define Adc12d2000_TPM				12
-#define Adc12d2000_PDI				11
-#define Adc12d2000_PDQ				10
-#define Adc12d2000_LFS				8
-#define Adc12d2000_DES				7
-#define Adc12d2000_DEQ				6
-#define Adc12d2000_DIQ				5
-#define Adc12d2000_2SC				4
-#define Adc12d2000_TSE				3
-#define Adc12d2000_SDR				2
-#define	RESERVED_1					0x1
-#define	I_CHANNEL_OFFSET			0x2
-#define Adc12d2000_OM				0
-#define Adc12d2000_OS				12
-#define	I_CHANNEL_FSR				0x3
-#define Adc12d2000_FM				0
-#define	CALIBRATION_ADJUST			0x4
-#define	CALIBRATION_VALUES			0x5
-#define	Adc12d2000_SS				14
-#define	BIAS_ADJUST					0x6
-#define Adc12d2000_MPA				0
-#define	DES_TIMING_ADJUST			0x7
-#define Adc12d2000_DTA				9
-#define	RESERVED_8					0x8
-#define	RESERVED_9					0x9
-#define	Q_CHANNEL_OFFSET			0xA
+#define CONFIGURATION_REGISTER_1 0x0
+#define Adc12d2000_CAL    15
+#define Adc12d2000_DPS    14
+#define Adc12d2000_OVS    13
+#define Adc12d2000_TPM    12
+#define Adc12d2000_PDI    11
+#define Adc12d2000_PDQ    10
+#define Adc12d2000_LFS    8
+#define Adc12d2000_DES    7
+#define Adc12d2000_DEQ    6
+#define Adc12d2000_DIQ    5
+#define Adc12d2000_2SC    4
+#define Adc12d2000_TSE    3
+#define Adc12d2000_SDR    2
+#define RESERVED_1     0x1
+#define I_CHANNEL_OFFSET   0x2
+#define Adc12d2000_OM    0
+#define Adc12d2000_OS    12
+#define I_CHANNEL_FSR    0x3
+#define Adc12d2000_FM    0
+#define CALIBRATION_ADJUST   0x4
+#define CALIBRATION_VALUES   0x5
+#define Adc12d2000_SS    14
+#define BIAS_ADJUST     0x6
+#define Adc12d2000_MPA    0
+#define DES_TIMING_ADJUST   0x7
+#define Adc12d2000_DTA    9
+#define RESERVED_8     0x8
+#define RESERVED_9     0x9
+#define Q_CHANNEL_OFFSET   0xA
 //#define Adc12d2000_OM				0
 //#define Adc12d2000_OS				12
-#define	Q_CHANNEL_FSR				0xB
+#define Q_CHANNEL_FSR    0xB
 //#define Adc12d2000_FM				0
-#define	APERTURE_DELAY_COARSE		0xC
-#define Adc12d2000_CAM				4
-#define Adc12d2000_STA				3
-#define Adc12d2000_DCC				2
-#define	APERTURE_DELAY_FINE			0XD
-#define Adc12d2000_FAM				10
-#define Adc12d2000_SA				8
-#define	CONFIGURATION_REGISTER_2	0xE
-#define Adc12d2000_DCK					6
-#define Adc12d2000_DR					0
-#define	RESERVED_F					0xF
+#define APERTURE_DELAY_COARSE  0xC
+#define Adc12d2000_CAM    4
+#define Adc12d2000_STA    3
+#define Adc12d2000_DCC    2
+#define APERTURE_DELAY_FINE   0XD
+#define Adc12d2000_FAM    10
+#define Adc12d2000_SA    8
+#define CONFIGURATION_REGISTER_2 0xE
+#define Adc12d2000_DCK     6
+#define Adc12d2000_DR     0
+#define RESERVED_F     0xF
 
 ///** @brief Defines __Chan_mode__ values for AD12D2000 */
 //#define TWO_CH_MODE	2
@@ -136,16 +136,16 @@
 //#define CLOCK_EXTERNAL 0
 
 // Read and Write defines for makeADC12D2000
-#define ADC12D2000_READ				1
-#define	ADC12D2000_WRITE			0
+#define ADC12D2000_READ    1
+#define ADC12D2000_WRITE   0
 
 // Bit Positions defines for makeADC12D2000
-#define ADC12D2000_SPI_READWRITE_BIT_POS	23
-#define ADC12D2000_SPI_RESERVED_23_BIT_POS	22
-#define ADC12D2000_SPI_RESERVED_22_BIT_POS	21
-#define ADC12D2000_SPI_ADDRESS_BIT_POS		17
-#define ADC12D2000_SPI_RESERVED_16_BIT_POS	16
-#define ADC12D2000_SPI_DATA_BIT_POS			0
+#define ADC12D2000_SPI_READWRITE_BIT_POS 23
+#define ADC12D2000_SPI_RESERVED_23_BIT_POS 22
+#define ADC12D2000_SPI_RESERVED_22_BIT_POS 21
+#define ADC12D2000_SPI_ADDRESS_BIT_POS  17
+#define ADC12D2000_SPI_RESERVED_16_BIT_POS 16
+#define ADC12D2000_SPI_DATA_BIT_POS   0
 
 
 // ISLA FIRMWARE OpCode
@@ -168,32 +168,32 @@
 
 //ISLA216P  SPI ADDRESSES
 #define CHIP_PORT_CONFIG        0X00
-#define SDO_Active				7
-#define LSB_First				6
-#define Soft_Reset				5
-#define ReservedBit4			4
-#define Mirror_ReservedBit4		3
-#define Mirror_Soft_Reset		2
-#define Mirror_LSB_First		1
-#define Mirror_SDO_Active		0
+#define SDO_Active    7
+#define LSB_First    6
+#define Soft_Reset    5
+#define ReservedBit4   4
+#define Mirror_ReservedBit4  3
+#define Mirror_Soft_Reset  2
+#define Mirror_LSB_First  1
+#define Mirror_SDO_Active  0
 #define CHIP_ID                 0x08
 #define CHIP_VERSION            0x09
 #define OFFSET_COARSE_ADC0      0x20
-#define Offset_Coarse		0
+#define Offset_Coarse  0
 #define OFFSET_FINE_ADC0        0x21
-#define Offset_Fine			0
+#define Offset_Fine   0
 #define GAIN_COARSE_ADC0        0x22
-#define Gain_Coarse			0
+#define Gain_Coarse   0
 #define GAIN_MEDIUM_ADC0        0x23
-#define Gain_Medium			0
+#define Gain_Medium   0
 #define GAIN_FINE_ADC0          0x24
-#define Gain_Fine			0
-#define MODES_ADC0				0x25
-#define Mode_BitPos			0
-#define PinControl_Mode		0
-#define Normal_Mode			1
-#define Nap_Mode			2
-#define Sleep_Mode			4
+#define Gain_Fine   0
+#define MODES_ADC0    0x25
+#define Mode_BitPos   0
+#define PinControl_Mode  0
+#define Normal_Mode   1
+#define Nap_Mode   2
+#define Sleep_Mode   4
 #define OFFSET_COARSE_ADC1      0x26
 //#define Offset_Coarse		0
 #define OFFSET_FINE_ADC1        0x27
@@ -204,37 +204,37 @@
 //#define Gain_Medium		0
 #define GAIN_FINE_ADC1          0x2a
 //#define Gain_Fine			0
-#define MODES_ADC1				0x2b
+#define MODES_ADC1    0x2b
 //#define PinControl_Mode	0
 //#define Normal_Mode		1
 //#define Nap_Mode			2
 //#define Sleep_Mode		4
-#define RESERVED31_REG			0x31
-#define RESERVED53_REG			0x53
-#define RESERVED55_REG			0x55
-#define SKEW_DIFF_REG			0x70
-#define Differential_Skew	0
-#define PHASE_SLIP_REG			0x71
-#define NextClockEdge		0
+#define RESERVED31_REG   0x31
+#define RESERVED53_REG   0x53
+#define RESERVED55_REG   0x55
+#define SKEW_DIFF_REG   0x70
+#define Differential_Skew 0
+#define PHASE_SLIP_REG   0x71
+#define NextClockEdge  0
 #define CLOCK_DIVIDE_REG        0x72
-#define PinControl			0
-#define DivideByOne			1
-#define DivideByTwo			2
-#define DivideByFour		4
-#define OUTPUT_MODE_B	        0x74
-#define DLL_Range			6
-#define DLL_Fast		0
-#define DLL_Slow		1
-#define CAL_STATUS				0xB6
-#define TEST_IO					0xC0
-#define TestMode_BitPos			4
-#define TestMode_Off		0
-#define MidscaleShort		1
-#define Positive_FullScale	2
-#define Negative_FullScale	3
-#define Ramp				10
+#define PinControl   0
+#define DivideByOne   1
+#define DivideByTwo   2
+#define DivideByFour  4
+#define OUTPUT_MODE_B         0x74
+#define DLL_Range   6
+#define DLL_Fast  0
+#define DLL_Slow  1
+#define CAL_STATUS    0xB6
+#define TEST_IO     0xC0
+#define TestMode_BitPos   4
+#define TestMode_Off  0
+#define MidscaleShort  1
+#define Positive_FullScale 2
+#define Negative_FullScale 3
+#define Ramp    10
 #define OFFSET_GAIN_ADJUST_ENABLE_REG 0xFE
-#define GainAdjustEnable	0
+#define GainAdjustEnable 0
 
 // ISLA OpCode
 #define CLK_DIV_RST  0
@@ -247,17 +247,17 @@
 #define SOFT_RESET_WORD 0x22
 
 // Trigger Types
-#define NO_TRIGGER					0
-#define WAVEFORM_TRIGGER			1
-#define SYNC_SELECTIVE_RECORDING	2
-#define HETERODYNE					3
-#define TTL_TRIGGER_EDGE			4
+#define NO_TRIGGER   0
+#define WAVEFORM_TRIGGER  1
+#define SYNC_SELECTIVE_RECORDING 2
+#define HETERODYNE   3
+#define TTL_TRIGGER_EDGE  4
 
 //Channels
-#define IN0		1
-#define IN1		2
-#define IN2		4
-#define IN3		8
+#define IN0  1
+#define IN1  2
+#define IN2  4
+#define IN3  8
 
 // Implemented in DllLibCheckMem.cpp
 void CheckMem(unsigned short BoardNum, int num_blocks, FILE_HANDLE_TYPE pFile, void *pBuffer);
@@ -275,10 +275,10 @@ void CheckMemWindows(unsigned short BoardNum, int num_blocks, const char * filen
  * ECL trigger: 0 (off)
  * Capture count: 0
  * Capture depth: 0
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
- * 
- * @returns true if __BoardNum__ is installed, false otherwise 
+ *
+ * @returns true if __BoardNum__ is installed, false otherwise
  *
  * Example Usage:
  * @code
@@ -287,11 +287,11 @@ void CheckMemWindows(unsigned short BoardNum, int num_blocks, const char * filen
  * x_Load(dll);
  * bool success = dll.hDllSetupBoard(BoardNum);
  * @endcode
- */	
+ */
 EXPORTED_FUNCTION bool SetupBoard(unsigned short BoardNum);
-EXPORTED_FUNCTION unsigned int getAllChannels( unsigned short BoardNum);
+EXPORTED_FUNCTION unsigned int getAllChannels(unsigned short BoardNum);
 
-unsigned  readRegTen();
+unsigned readRegTen();
 
 // Setup routines applicable to all boards
 /**
@@ -386,7 +386,7 @@ void CheckDeviceStatus(unsigned short BoardNum);
  *
  * @returns 1 if data was found, 0 if data was not found.
  */
-unsigned short SearchConfigData(char * search_term, int term_length, int value_length, int value_radix, unsigned int * config_data, int start_index, char *config_array, unsigned long FileSize);
+unsigned short SearchConfigData(const char * search_term, int term_length, int value_length, int value_radix, unsigned int * config_data, int start_index, char *config_array, unsigned long FileSize);
 
 /**
  * __void ECLTriggerEnable__(unsigned short __BoardNum__, unsigned int __Enable__) enables or disables ECL triggering at the start of acquisition.
@@ -417,12 +417,12 @@ EXPORTED_FUNCTION void ECLTriggerEnable(unsigned short BoardNum, unsigned int En
  *
  * @returns ADC12D2000 SPI word.
  */
-unsigned int makeADC12D2000_SPI(unsigned int  ReadWrite,unsigned int spiAddress,unsigned int spiData);
+unsigned int makeADC12D2000_SPI(unsigned int ReadWrite, unsigned int spiAddress, unsigned int spiData);
 
 /**
  * __void ADC12D2000_Channel_Mode_Select__(unsigned short __BoardNum__, unsigned int __Chan_mode__, unsigned int __Chan_select__, unsigned int __Calibrate__) selects whether to operate the
  * board in dual channel mode or single channel mode, when in single channel mode, what type of single channel to select, and whether to calibrate the ADC. __ADC12D2000_Set_Offsets__ is called
- * to properly adjust offsets for different modes. 
+ * to properly adjust offsets for different modes.
  * DES = dual edge sampling. When in DES mode, the ADC interleaves both cores and samples the same signal at twice the clock frequency.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
@@ -443,19 +443,19 @@ EXPORTED_FUNCTION void ADC12D2000_Channel_Mode_Select(unsigned short BoardNum, u
 
 /**
  * __void ADC12D2000_Set_Offsets__(unsigned short __BoardNum__, unsigned int __Chan_mode__, unsigned int __Chan_select__, unsigned int __Calibrate__) sets the SPI
- * offsets for the proper channel mode. Offset values are taken from ultra_config.dat. 
+ * offsets for the proper channel mode. Offset values are taken from ultra_config.dat.
  * DES = dual edge sampling. When in DES mode, the ADC interleaves both cores and samples the same signal at twice the clock frequency.
  *
  * The user does not need to call this function. Set by __void ADC12D2000_Channel_Mode_Select__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Chan_mode = 2 for dual channel mode (non-DES). Chan_mode  = 1 for single channel mode (DES).
  * @param Chan_select = 0 for DESI (Ch.1), Chan_select = 1 for DESQ (Ch.0), Chan_select = 2 for DESIQ, Chan_select = 3 for DESCLKIQ.
  * @param Calibrate = 1 to calibrate the ADC after changing modes. Calibrate = 0 to skip calibration.
  */
-void ADC12D2000_Set_Offsets (unsigned short BoardNum, unsigned int Chan_mode, unsigned int Chan_select);
+void ADC12D2000_Set_Offsets(unsigned short BoardNum, unsigned int Chan_mode, unsigned int Chan_select);
 
-void ADC12D2000_Set_Gains (unsigned short BoardNum, unsigned int Chan_mode, unsigned int Chan_select);
+void ADC12D2000_Set_Gains(unsigned short BoardNum, unsigned int Chan_mode, unsigned int Chan_select);
 
 /**
  * __void CONFIGURE_CONTROL_REGISTER__(unsigned short __BoardNum__) sets the control register on the mainboard.
@@ -467,7 +467,7 @@ void ADC12D2000_Set_Gains (unsigned short BoardNum, unsigned int Chan_mode, unsi
  *			  WriteWholeRow = 1
  *
  * The user does not need to call this function. Set by __SetupBoard__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
 void CONFIGURE_CONTROL_REGISTER(unsigned short BoardNum);
@@ -477,15 +477,15 @@ void CONFIGURE_CONTROL_REGISTER(unsigned short BoardNum);
  * Inititation of acquistion is caused by sending a 0 followed by a 1. Stopping the board s followed by 0.
  *
  * The user does not need to call this function. Set by __CONFIGURE_CONTROL_REGISTER__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable = 0->1 starts acquisition. Enable = 0 stops acquisition
  */
-void SetSoftwareRunBit (unsigned short BoardNum, unsigned int Enable);
+void SetSoftwareRunBit(unsigned short BoardNum, unsigned int Enable);
 
-/** 
+/**
  * __void SetSoftwareStopBit__(unsigned short __BoardNum__, unsigned int __Enable__)__
- * If true the driver stops the acquiring, this is required for continuous streaming applications. 
+ * If true the driver stops the acquiring, this is required for continuous streaming applications.
  * In this usage the board may acquire a few extra blocks due to the software latency.
  * When false the firmware will stop the board after acquiring an exact number of blocks (16-bits -> max. value is (2^16)-1 = 65535)
  * Leave false unless acquiring more than 65535MB of data
@@ -498,7 +498,7 @@ void SetSoftwareRunBit (unsigned short BoardNum, unsigned int Enable);
  * Currently untested feature. Leave false.
  *
  */
-void SetSoftwareStopBit (unsigned short BoardNum, unsigned int Enable);
+void SetSoftwareStopBit(unsigned short BoardNum, unsigned int Enable);
 
 /**
  * __void SetInterleavedReadWrite__(unsigned short __BoardNum__, unsigned int __Enable__) sets the board to read from the board
@@ -506,11 +506,11 @@ void SetSoftwareStopBit (unsigned short BoardNum, unsigned int Enable);
  * By default, SetInterleavedReadWrite = 1
  *
  * The user does not need to call this function. Set by __CONFIGURE_CONTROL_REGISTER__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable = 1 interleaves read during acquisition. Enable = 0 reads after acquisition is complete.
  */
-void SetInterleavedReadWrite (unsigned short BoardNum, unsigned int Enable);
+void SetInterleavedReadWrite(unsigned short BoardNum, unsigned int Enable);
 
 /**
  * __void SetReadWholeRow__(unsigned short __BoardNum__, unsigned int __Enable__)
@@ -518,17 +518,17 @@ void SetInterleavedReadWrite (unsigned short BoardNum, unsigned int Enable);
  * By default, SetReadWholeRow = 0
  *
  * The user does not need to call this function. Set by __CONFIGURE_CONTROL_REGISTER__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable = 1 reads whole row at a time.
  */
-void SetReadWholeRow (unsigned short BoardNum, unsigned int Enable);
+void SetReadWholeRow(unsigned short BoardNum, unsigned int Enable);
 
 /**
  * __void SetInternalClockEnable__(unsigned short __BoardNum__, unsigned int __Enable__) sets the board the drive
  * the ADC with the supplied internal clock.
  * By default, SetInternalClockEnable = 1
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable = 1 enables the internal clock. Enable = 0 disables the internal clock, and allows an external clock to be driven.
  *
@@ -541,10 +541,10 @@ void SetReadWholeRow (unsigned short BoardNum, unsigned int Enable);
  * dll.hDllSetInternalClockEnable(BoardNum, InternalClock);	Sets the ADC to use the internal clock.
  * @endcode
  */
-EXPORTED_FUNCTION void SetInternalClockEnable (unsigned short BoardNum, unsigned int Enable);
+EXPORTED_FUNCTION void SetInternalClockEnable(unsigned short BoardNum, unsigned int Enable);
 
-EXPORTED_FUNCTION bool SetupMicrosynth (unsigned short BoardNum);
-EXPORTED_FUNCTION void FreqMicrosynth (unsigned short BoardNum, double Frequency);
+EXPORTED_FUNCTION bool SetupMicrosynth(unsigned short BoardNum);
+EXPORTED_FUNCTION void FreqMicrosynth(unsigned short BoardNum, double Frequency);
 
 EXPORTED_FUNCTION void SetSetupDoneBit(unsigned short BoardNum, unsigned int Enable);
 
@@ -553,23 +553,23 @@ unsigned int GetSetupDoneBitValue(unsigned short BoardNum);
 /**
  * __void SetWriteWholeRow__(unsigned short __BoardNum__, unsigned int __Enable__)
  * During PCIe D/A we read a PAGE of data across the bus at a time. These FIFOs
- * are not as deep as the A/D FIFOs and do not store a whole DRAM of data (16KB). 
+ * are not as deep as the A/D FIFOs and do not store a whole DRAM of data (16KB).
  * By default, SetWriteWholeRow = 1
- * 
+ *
  * The user does not need to call this function. Set by __CONFIGURE_CONTROL_REGISTER__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable = 1 reads a page at a time.
  *
  */
-EXPORTED_FUNCTION void SetWriteWholeRow (unsigned short BoardNum, unsigned int Enable);
+EXPORTED_FUNCTION void SetWriteWholeRow(unsigned short BoardNum, unsigned int Enable);
 
 /**
  * __void SET_NUMBLOCKS_TO_ACQUIRE__(unsigned short __BoardNum__, unsigned int __NumBlocks__) sets the board to acquire
  * a specified number of 1MB blocks of data.
  *
  * The user does not need to call this function. Set by __setupAcquire__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param NumBlocks = (1-8192) 1MB blocks.
  *
@@ -582,14 +582,14 @@ EXPORTED_FUNCTION void SetWriteWholeRow (unsigned short BoardNum, unsigned int E
  * dll.hDllSET_NUMBLOCKS_TO_ACQUIRE(BoardNum, NumBlocks);	Sets the board to acquire 1 1MB block.
  * @endcode
  */
-void SET_NUMBLOCKS_TO_ACQUIRE (unsigned short BoardNum, unsigned int NumBlocks);
+void SET_NUMBLOCKS_TO_ACQUIRE(unsigned short BoardNum, unsigned int NumBlocks);
 
 /**
  * __void SET_BLOCKSIZE__(unsigned short __BoardNum__, unsigned int __Blocksize__) sets the blocksize to a known value
  * By default, Blocksize = 1048576 (1MB). Cannot be changed.
  *
  * The user does not need to call this function. Set by __SetupBoard__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Blocksize must be 1048576.
  */
@@ -601,40 +601,40 @@ EXPORTED_FUNCTION void SET_BLOCKSIZE(unsigned short BoardNum, unsigned int Block
  * acquisition, this function can be used to read any PCIe DRAM address on the board.
  *
  * The user does not need to call this function. Set by __setupAcquire__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Offset = (1-8192) 1MB blocks.
  */
-EXPORTED_FUNCTION void SET_PCIE_RD_START_BLOCK (unsigned short BoardNum, unsigned int Offset);
+EXPORTED_FUNCTION void SET_PCIE_RD_START_BLOCK(unsigned short BoardNum, unsigned int Offset);
 
 /**
  * __void SET_PCIE_RD_END_BLOCK__(unsigned short __BoardNum__, unsigned int __Offset__) sets the end block PCIe DRAM address
  * Set to (total MB blocks on installed Ultraview Data Acquisition board) - 1.
- * 
+ *
  *
  * The user does not need to call this function. Set by __SetupBoard__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Offset = 8191 for 8GB boards. Offset = 4095 for 4GB boards.
  */
 EXPORTED_FUNCTION void SET_PCIE_RD_END_BLOCK(unsigned short BoardNum, unsigned int Offset);
-EXPORTED_FUNCTION void SET_DAC_RD_START_BLOCK (unsigned short BoardNum, unsigned int Offset);
-EXPORTED_FUNCTION void SET_DAC_RD_END_BLOCK (unsigned short BoardNum, unsigned int Offset);
-EXPORTED_FUNCTION void SET_DAC_WR_START_BLOCK (unsigned short BoardNum, unsigned int Offset);
-EXPORTED_FUNCTION void SET_DAC_WR_END_BLOCK (unsigned short BoardNum, unsigned int Offset);
+EXPORTED_FUNCTION void SET_DAC_RD_START_BLOCK(unsigned short BoardNum, unsigned int Offset);
+EXPORTED_FUNCTION void SET_DAC_RD_END_BLOCK(unsigned short BoardNum, unsigned int Offset);
+EXPORTED_FUNCTION void SET_DAC_WR_START_BLOCK(unsigned short BoardNum, unsigned int Offset);
+EXPORTED_FUNCTION void SET_DAC_WR_END_BLOCK(unsigned short BoardNum, unsigned int Offset);
 
 /**
  * __void CONFIGURE_PRETRIGGER__(unsigned short BoardNum) initializes the pretrigger count
  * Sends Value 511, then 0 to reset the pretrigger trigger counter.
  *
  * The user does not need to call this function. Set by __SetupBoard__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
 void CONFIGURE_PRETRIGGER(unsigned short BoardNum);
 
 
-EXPORTED_FUNCTION void SetPreTriggerMemory (unsigned short BoardNum, unsigned int Value);
+EXPORTED_FUNCTION void SetPreTriggerMemory(unsigned short BoardNum, unsigned int Value);
 EXPORTED_FUNCTION void SelectTrigger(unsigned short BoardNum, unsigned int TriggerType, unsigned int TriggerSlope, unsigned int TriggerCh);
 EXPORTED_FUNCTION unsigned int IsTriggerEnabled(unsigned short BoardNum);
 
@@ -650,8 +650,8 @@ EXPORTED_FUNCTION unsigned int GetCaptureDepthValue(unsigned short BoardNum);
 EXPORTED_FUNCTION unsigned int GetCaptureCountValue(unsigned short BoardNum);
 
 void SetSegmentedCapture_NonShadow(unsigned short BoardNum, unsigned int CaptureCount, unsigned int CaptureDepth);
-void SetCaptureDepth_NonShadow (unsigned short BoardNum, unsigned int size);
-void SetCaptureCount_NonShadow (unsigned short BoardNum, unsigned int count);
+void SetCaptureDepth_NonShadow(unsigned short BoardNum, unsigned int size);
+void SetCaptureCount_NonShadow(unsigned short BoardNum, unsigned int count);
 
 EXPORTED_FUNCTION unsigned int ConfigureAverager(unsigned short BoardNum, unsigned int NumAverages, unsigned int AveragerLength, unsigned int ClearSegmentedCapture);
 EXPORTED_FUNCTION unsigned int ConvertSegmentedCaptureLengthValue(unsigned short BoardNum, unsigned int AveragerLength);
@@ -660,8 +660,8 @@ EXPORTED_FUNCTION unsigned int UnconvertSegmentedCaptureLengthValue(unsigned sho
 void SET_NUM_AVERAGES(unsigned short BoardNum, unsigned int NumAverages);
 unsigned int SET_AVERAGER_LENGTH(unsigned short BoardNum, unsigned int AveragerLength);
 void SetAverager_NonShadow(unsigned short BoardNum, unsigned int NumAverages, unsigned int AveragerLength);
-void SetNumAverages_NonShadow (unsigned short BoardNum, unsigned int NumAverages);
-void SetAveragerLength_NonShadow (unsigned short BoardNum, unsigned int AveragerLength);
+void SetNumAverages_NonShadow(unsigned short BoardNum, unsigned int NumAverages);
+void SetAveragerLength_NonShadow(unsigned short BoardNum, unsigned int AveragerLength);
 EXPORTED_FUNCTION void SetFiducialMarks(unsigned short BoardNum, unsigned int Enable);
 EXPORTED_FUNCTION unsigned int AdcClockGetFreq(unsigned short BoardNum);
 
@@ -720,7 +720,7 @@ EXPORTED_FUNCTION unsigned int AdcClockGetFreq(unsigned short BoardNum);
  * dll.hDllSetPreTrigger(BoardNum, PretriggerValue);
  * @endcode
  */
-EXPORTED_FUNCTION void SetPreTrigger (unsigned short BoardNum, unsigned int Value);
+EXPORTED_FUNCTION void SetPreTrigger(unsigned short BoardNum, unsigned int Value);
 
 /**
  * __void SET_ECL_TRIGGER_DELAY__(unsigned short __BoardNum__, unsigned int __Value__) sets the amount of delay
@@ -739,7 +739,7 @@ EXPORTED_FUNCTION void SetPreTrigger (unsigned short BoardNum, unsigned int Valu
  * dll.hDllSET_ECL_TRIGGER_DELAY(BoardNum, ECLTriggerVal);
  * @endcode
  */
-EXPORTED_FUNCTION void SET_ECL_TRIGGER_DELAY (unsigned short BoardNum, unsigned int Value);
+EXPORTED_FUNCTION void SET_ECL_TRIGGER_DELAY(unsigned short BoardNum, unsigned int Value);
 
 /**
  * __void SET_CAPTURE_DEPTH__(unsigned short __BoardNum__, unsigned int __size__) sets size of each segmented
@@ -747,7 +747,7 @@ EXPORTED_FUNCTION void SET_ECL_TRIGGER_DELAY (unsigned short BoardNum, unsigned 
  * the system with fill the remaining block with data to complete the minimum 1MB DMA transfer.
  *
  * Typically used when capturing multiple ECL trigger events while desiring a fixed number of samples to acquire after each trigger.
- * 
+ *
  * By default, Value = 0.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
@@ -763,15 +763,15 @@ EXPORTED_FUNCTION void SET_ECL_TRIGGER_DELAY (unsigned short BoardNum, unsigned 
  * dll.hDllSET_CAPTURE_COUNT (BoardNum, count);
  * @endcode
  */
-EXPORTED_FUNCTION void SET_CAPTURE_DEPTH (unsigned short BoardNum, unsigned int size);
+EXPORTED_FUNCTION void SET_CAPTURE_DEPTH(unsigned short BoardNum, unsigned int size);
 
 /**
  * __void SET_CAPTURE_COUNT__(unsigned short __BoardNum__, unsigned int __count__) sets the number of trigger events to capture data from
- * After each trigger event, the board will capture a specified number of samples determined by function __void SET_CAPTURE_DEPTH__. 
+ * After each trigger event, the board will capture a specified number of samples determined by function __void SET_CAPTURE_DEPTH__.
  * After the number of capture counts has been satisfied, the system with fill the remaining block with data to complete the minimum 1MB DMA transfer.
  *
  * Typically used when capturing multiple ECL trigger events while desiring a fixed number of samples to acquire after each trigger.
- * 
+ *
  * By default, Value = 0.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
@@ -787,7 +787,7 @@ EXPORTED_FUNCTION void SET_CAPTURE_DEPTH (unsigned short BoardNum, unsigned int 
  * dll.hDllSET_CAPTURE_COUNT (BoardNum, count);
  * @endcode
  */
-EXPORTED_FUNCTION void SET_CAPTURE_COUNT (unsigned short BoardNum, unsigned int count);
+EXPORTED_FUNCTION void SET_CAPTURE_COUNT(unsigned short BoardNum, unsigned int count);
 
 /**
  * __void CONFIGURE_ADCDATASETUP_REGISTER__(unsigned short __BoardNum__) programs the board's firmware to configure the board's resolution type, number of
@@ -797,17 +797,17 @@ EXPORTED_FUNCTION void SET_CAPTURE_COUNT (unsigned short BoardNum, unsigned int 
  *			  AdcDecimation = 1 (no decimation);
  *
  * The user does not need to call this function. Set by __SetupBoard__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
-void CONFIGURE_ADCDATASETUP_REGISTER (unsigned short BoardNum);
+void CONFIGURE_ADCDATASETUP_REGISTER(unsigned short BoardNum);
 
 /**
  * __void SetAdcResolution__(unsigned short __BoardNum__, unsigned int __adc_res__) programs the board's firmware to configure the board's resolution type
  * By default, ADC resolution = 12 (fixed).
  *
  * The user does not need to call this function. Set by __CONFIGURE_ADCDATASETUP_REGISTER__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
 void SetAdcResolution(unsigned short BoardNum, unsigned int adc_res);
@@ -817,7 +817,7 @@ void SetAdcResolution(unsigned short BoardNum, unsigned int adc_res);
  * By default, NumAdcChannel = 2 (fixed, firmware acts as AD83000x2).
  *
  * The user does not need to call this function. Set by __CONFIGURE_ADCDATASETUP_REGISTER__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
 void SetNumAdcChannel(unsigned short BoardNum, unsigned int adc_chan_used);
@@ -828,7 +828,7 @@ void SetNumAdcChannel(unsigned short BoardNum, unsigned int adc_chan_used);
  * If ADC decimation is set to 4, every 4th sample will be collected.
  *
  * Typically used when wanting to sample at a rate lower than the ADC specification.
- * 
+ *
  * By default, adc_deci_offset = 1.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
@@ -847,14 +847,14 @@ EXPORTED_FUNCTION void SetAdcDecimation(unsigned short BoardNum, unsigned int ad
 
 /**
  * __void SetAdcUser__(unsigned short __BoardNum__, unsigned int __user_val__) customer requested function. (unsupported)
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param user_val.
  */
-void SetAdcUser(unsigned short BoardNum, unsigned int user_val);				//
+void SetAdcUser(unsigned short BoardNum, unsigned int user_val); //
 
 /**
- * __void SetADC12D2000ECEBAR__(unsigned short __BoardNum__, unsigned int __Enable__) must be set to 0 for ADC's 
+ * __void SetADC12D2000ECEBAR__(unsigned short __BoardNum__, unsigned int __Enable__) must be set to 0 for ADC's
  * extended control mode.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
@@ -862,10 +862,10 @@ void SetAdcUser(unsigned short BoardNum, unsigned int user_val);				//
  *
  * The user does not need to call this function. Set by __SetupBoard__.
  */
-void SetADC12D2000ECEBAR(unsigned short BoardNum, unsigned int Enable);			//
+void SetADC12D2000ECEBAR(unsigned short BoardNum, unsigned int Enable); //
 
 /**
- * __void SetADC12D2000NDM__(unsigned short __BoardNum__, unsigned int __Enable__) must be set to 0 for ADC's 
+ * __void SetADC12D2000NDM__(unsigned short __BoardNum__, unsigned int __Enable__) must be set to 0 for ADC's
  * non-demux mode.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
@@ -873,65 +873,65 @@ void SetADC12D2000ECEBAR(unsigned short BoardNum, unsigned int Enable);			//
  *
  * The user does not need to call this function. Set by __SetupBoard__.
  */
-void SetADC12D2000NDM(unsigned short BoardNum, unsigned int Enable);			//
+void SetADC12D2000NDM(unsigned short BoardNum, unsigned int Enable); //
 
 /**
  * __void CONFIGURE_DRAMADJ_REGISTER__(unsigned short __BoardNum__) calibrates the board's DRAM memory.
  *
  * The user does not need to call this function. Set by __SetupBoard__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
-void CONFIGURE_DRAMADJ_REGISTER (unsigned short BoardNum);
+void CONFIGURE_DRAMADJ_REGISTER(unsigned short BoardNum);
 
 /**
  * __void SetDRAMIDelay_DQ_CE_INC__(unsigned short __BoardNum__, unsigned int __High__) low-level function used to calibrate the board's DRAM memory.
  *
  * The user does not need to call this function. Used in __CONFIGURE_DRAMADJ_REGISTER__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param High
  */
-void SetDRAMIDelay_DQ_CE_INC(unsigned short BoardNum, unsigned int High);		//
+void SetDRAMIDelay_DQ_CE_INC(unsigned short BoardNum, unsigned int High); //
 
 /**
  * __void SetDRAMIDelay_DQS_CE_INC__(unsigned short __BoardNum__, unsigned int __High__) low-level function used to calibrate the board's DRAM memory.
  *
  * The user does not need to call this function. Used in __CONFIGURE_DRAMADJ_REGISTER__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param High
  */
-void SetDRAMIDelay_DQS_CE_INC(unsigned short BoardNum, unsigned int High);		//
+void SetDRAMIDelay_DQS_CE_INC(unsigned short BoardNum, unsigned int High); //
 
 /**
  * __void SetDRAMIDelay_DQS_DQ_RST__(unsigned short __BoardNum__, unsigned int __High__) low-level function used to calibrate the board's DRAM memory.
  *
  * The user does not need to call this function. Used in __CONFIGURE_DRAMADJ_REGISTER__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param High
  */
-void SetDRAMIDelay_DQS_DQ_RST(unsigned short BoardNum, unsigned int High);		//
+void SetDRAMIDelay_DQS_DQ_RST(unsigned short BoardNum, unsigned int High); //
 
 /**
  * __void SetDRAMReadTime(unsigned short __BoardNum__, unsigned int __Value__) low-level function used to calibrate the board's DRAM memory.
  *
  * The user does not need to call this function. Used in __CONFIGURE_DRAMADJ_REGISTER__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Value
  */
-void SetDRAMReadTime(unsigned short BoardNum, unsigned int Value);				//
+void SetDRAMReadTime(unsigned short BoardNum, unsigned int Value); //
 
 /**
  * __void CONFIGURE_DRAMADJ_REGISTER__(unsigned short __BoardNum__) calibrates the board's DRAM memory.
  *
  * The user does not need to call this function. Set by __SetupBoard__.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
-void CONFIGURE_CAPTUREADJ_REGISTER (unsigned short BoardNum);
+void CONFIGURE_CAPTUREADJ_REGISTER(unsigned short BoardNum);
 
 /**
  * __void AdcReset__(unsigned short __BoardNum) puts the board in reset.
@@ -994,7 +994,7 @@ EXPORTED_FUNCTION void AdcTristate(unsigned short BoardNum);
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
  */
-void SetIdelayReset(unsigned short BoardNum, unsigned int Enable);				//
+void SetIdelayReset(unsigned short BoardNum, unsigned int Enable); //
 
 /**
  * __void SetIdelayCE__(unsigned short __BoardNum__, unsigned int __Enable__)
@@ -1004,7 +1004,7 @@ void SetIdelayReset(unsigned short BoardNum, unsigned int Enable);				//
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
  */
-void SetIdelayCE(unsigned short BoardNum, unsigned int Enable);					//
+void SetIdelayCE(unsigned short BoardNum, unsigned int Enable); //
 
 /**
  * __void SetIdelayInc__(unsigned short __BoardNum__, unsigned int __Enable__)
@@ -1014,7 +1014,7 @@ void SetIdelayCE(unsigned short BoardNum, unsigned int Enable);					//
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
  */
-void SetIdelayInc(unsigned short BoardNum, unsigned int Enable);				//
+void SetIdelayInc(unsigned short BoardNum, unsigned int Enable); //
 
 /**
  * __void SetIdelayCtrlReset__(unsigned short __BoardNum__, unsigned int __Enable__)
@@ -1024,7 +1024,7 @@ void SetIdelayInc(unsigned short BoardNum, unsigned int Enable);				//
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
  */
-void SetIdelayCtrlReset(unsigned short BoardNum, unsigned int Enable);			//
+void SetIdelayCtrlReset(unsigned short BoardNum, unsigned int Enable); //
 
 /**
  * __void SetIdelayResetCtrlReset__(unsigned short __BoardNum__, unsigned int __Enable__)
@@ -1034,7 +1034,7 @@ void SetIdelayCtrlReset(unsigned short BoardNum, unsigned int Enable);			//
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
  */
-void SetIdelayResetCtrlReset(unsigned short BoardNum, unsigned int Enable);		//
+void SetIdelayResetCtrlReset(unsigned short BoardNum, unsigned int Enable); //
 
 /**
  * __void SetAcquireDisableEdge__(unsigned short __BoardNum__, unsigned int __Enable__)
@@ -1097,7 +1097,7 @@ EXPORTED_FUNCTION void SetContinuousAutoRefresh(unsigned short BoardNum, unsigne
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
  */
-void SetADCDebugSync(unsigned short BoardNum, unsigned int Enable);				//
+void SetADCDebugSync(unsigned short BoardNum, unsigned int Enable); //
 
 /**
  * __void SetADCSingleChannelSelect__(unsigned short __BoardNum__, unsigned int __CH1__)
@@ -1107,7 +1107,7 @@ void SetADCDebugSync(unsigned short BoardNum, unsigned int Enable);				//
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param CH1
  */
-void SetADCSingleChannelSelect(unsigned short BoardNum, unsigned int CH1);		//
+void SetADCSingleChannelSelect(unsigned short BoardNum, unsigned int CH1); //
 
 /**
  * __void SetMezzPowerDown__(unsigned short __BoardNum__, unsigned int __Enable__)
@@ -1117,7 +1117,7 @@ void SetADCSingleChannelSelect(unsigned short BoardNum, unsigned int CH1);		//
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
  */
-void SetMezzPowerDown(unsigned short BoardNum, unsigned int Enable);			//
+void SetMezzPowerDown(unsigned short BoardNum, unsigned int Enable); //
 
 
 /**
@@ -1128,7 +1128,7 @@ void SetMezzPowerDown(unsigned short BoardNum, unsigned int Enable);			//
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Value
  */
-void SetADCCLKDiv(unsigned short BoardNum, unsigned int Value);					//
+void SetADCCLKDiv(unsigned short BoardNum, unsigned int Value); //
 
 /**
  * __void SetDualADCSingleChannel__(unsigned short __BoardNum__, unsigned int __Enable__)
@@ -1138,7 +1138,7 @@ void SetADCCLKDiv(unsigned short BoardNum, unsigned int Value);					//
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Value
  */
-void SetDualADCSingleChannel(unsigned short BoardNum, unsigned int Enable);		//
+void SetDualADCSingleChannel(unsigned short BoardNum, unsigned int Enable); //
 
 /**
  * __void Write_ADC12D2000__(unsigned short __BoardNum__, unsigned int __spiAddress__, unsigned int __spiData__)
@@ -1209,7 +1209,7 @@ void ADC12D2000_Calibrate_ADC(unsigned short BoardNum);
  * __void ADC12D2000_SetDCLKPhaseSelect__(unsigned short __BoardNum__, unsigned int __Enable__).
  * Must be set to 0.
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
@@ -1220,7 +1220,7 @@ void ADC12D2000_SetDCLKPhaseSelect(unsigned short BoardNum, unsigned int Enable)
  * __void ADC12D2000_SetOutputVoltageSelect__(unsigned short __BoardNum__, unsigned int __Enable__).
  * Must be set to 1.
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
@@ -1231,7 +1231,7 @@ void ADC12D2000_SetOutputVoltageSelect(unsigned short BoardNum, unsigned int Ena
  * __void ADC12D2000_SetTestPatternMode__(unsigned short __BoardNum__, unsigned int __Enable__).
  * By default, Enable = 0.
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable = 0 normal data mode. Enable = 1 test pattern mode.
@@ -1250,7 +1250,7 @@ void ADC12D2000_SetTestPatternMode(unsigned short BoardNum, unsigned int Enable)
 /**
  * __void ADC12D2000_SetPowerDownIChannel__(unsigned short __BoardNum__, unsigned int __Enable__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
@@ -1260,7 +1260,7 @@ void ADC12D2000_SetPowerDownIChannel(unsigned short BoardNum, unsigned int Enabl
 /**
  * __void ADC12D2000_SetPowerDownQChannel__(unsigned short __BoardNum__, unsigned int __Enable__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
@@ -1270,7 +1270,7 @@ void ADC12D2000_SetPowerDownQChannel(unsigned short BoardNum, unsigned int Enabl
 /**
  * __void ADC12D2000_SetLowFrequencySelect__(unsigned short __BoardNum__, unsigned int __Enable__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_Channel_Mode_Select__. 
+ * Does not need to be called by user. Set by __ADC12D2000_Channel_Mode_Select__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
@@ -1280,7 +1280,7 @@ void ADC12D2000_SetLowFrequencySelect(unsigned short BoardNum, unsigned int Enab
 /**
  * __void ADC12D2000_SetDualEdgeSamplingMode(unsigned short __BoardNum__, unsigned int __Enable__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_Channel_Mode_Select__. 
+ * Does not need to be called by user. Set by __ADC12D2000_Channel_Mode_Select__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
@@ -1292,7 +1292,7 @@ EXPORTED_FUNCTION unsigned int ADC12D2000_GetDualEdgeSamplingMode(unsigned short
 /**
  * __void ADC12D2000_SetDESQInputSelect__(unsigned short __BoardNum__, unsigned int __Q_Input__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_Channel_Mode_Select__. 
+ * Does not need to be called by user. Set by __ADC12D2000_Channel_Mode_Select__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
@@ -1302,7 +1302,7 @@ void ADC12D2000_SetDESQInputSelect(unsigned short BoardNum, unsigned int Q_Input
 /**
  * __void ADC12D2000_SetDESIQInputSelect__(unsigned short __BoardNum__, unsigned int __Enable__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_Channel_Mode_Select__. 
+ * Does not need to be called by user. Set by __ADC12D2000_Channel_Mode_Select__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
@@ -1312,31 +1312,31 @@ void ADC12D2000_SetDESIQInputSelect(unsigned short BoardNum, unsigned int Enable
 /**
  * __void ADC12D2000_SetTwosComplimentOutput__(unsigned short __BoardNum__, unsigned int __Enable__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
  */
-void ADC12D2000_SetTwosComplimentOutput(unsigned short BoardNum, unsigned int Enable);					//
+void ADC12D2000_SetTwosComplimentOutput(unsigned short BoardNum, unsigned int Enable); //
 
 /**
  * __void ADC12D2000_SetSingleDataRate__(unsigned short __BoardNum__, unsigned int __Enable__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_1__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
  */
-void ADC12D2000_SetSingleDataRate(unsigned short BoardNum, unsigned int Enable);						//
+void ADC12D2000_SetSingleDataRate(unsigned short BoardNum, unsigned int Enable); //
 
 /**
  * __void ADC12D2000_SET_RESERVED_ADDR_0x1__(unsigned short __BoardNum__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__. 
+ * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
-void ADC12D2000_SET_RESERVED_ADDR_0x1(unsigned short BoardNum);											//
+void ADC12D2000_SET_RESERVED_ADDR_0x1(unsigned short BoardNum); //
 
 /**
  * __void ADC12D2000_SET_I_CHANNEL_OFFSET_ADJUST__(unsigned short __BoardNum__, unsigned int __Sign__, unsigned int __Offset__).
@@ -1388,7 +1388,7 @@ void ADC12D2000_SET_CALIBRATION_VALUES(unsigned short BoardNum, unsigned int Val
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Value.
  */
-void ADC12D2000_SET_BIAS_ADJUST(unsigned short BoardNum, unsigned int Value);							//
+void ADC12D2000_SET_BIAS_ADJUST(unsigned short BoardNum, unsigned int Value); //
 
 /**
  * __void ADC12D2000_SET_DES_TIMING_ADJUST__(unsigned short __BoardNum__, unsigned int __Value__).
@@ -1398,25 +1398,25 @@ void ADC12D2000_SET_BIAS_ADJUST(unsigned short BoardNum, unsigned int Value);			
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Value.
  */
-void ADC12D2000_SET_DES_TIMING_ADJUST(unsigned short BoardNum, unsigned int Value);						//
+void ADC12D2000_SET_DES_TIMING_ADJUST(unsigned short BoardNum, unsigned int Value); //
 
 /**
  * __void ADC12D2000_SET_RESERVED_ADDR_8__(unsigned short __BoardNum__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__. 
+ * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
-void ADC12D2000_SET_RESERVED_ADDR_0x8(unsigned short BoardNum);											//
+void ADC12D2000_SET_RESERVED_ADDR_0x8(unsigned short BoardNum); //
 
 /**
  * __void ADC12D2000_SET_RESERVED_ADDR_9__(unsigned short __BoardNum__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__. 
+ * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
-void ADC12D2000_SET_RESERVED_ADDR_0x9(unsigned short BoardNum);											//
+void ADC12D2000_SET_RESERVED_ADDR_0x9(unsigned short BoardNum); //
 
 /**
  * __void ADC12D2000_SET_Q_CHANNEL_OFFSET_ADJUST__(unsigned short __BoardNum__, unsigned int __Sign__, unsigned int __Offset__).
@@ -1444,75 +1444,75 @@ EXPORTED_FUNCTION void ADC12D2000_SET_Q_CHANNEL_FULL_SCALE_RANGE_ADJUST(unsigned
 /**
  * __void ADC12D2000_SET_APERTURE_DELAY_COURSE_ADJUST(unsigned short __BoardNum__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__. 
+ * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
-void ADC12D2000_SET_APERTURE_DELAY_COURSE_ADJUST(unsigned short BoardNum);								//
+void ADC12D2000_SET_APERTURE_DELAY_COURSE_ADJUST(unsigned short BoardNum); //
 
 /**
  * __void ADC12D2000_SetApertureDelayCoarseAdjust__(unsigned short __BoardNum__, unsigned int __Value__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_APERTURE_DELAY_COURSE_ADJUST__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_APERTURE_DELAY_COURSE_ADJUST__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Value.
  */
-void ADC12D2000_SetApertureDelayCoarseAdjust(unsigned short BoardNum, unsigned int Value);				//
+void ADC12D2000_SetApertureDelayCoarseAdjust(unsigned short BoardNum, unsigned int Value); //
 
 /**
  * __void ADC12D2000_SetApertureDelayCoarseAdjustEnable__(unsigned short __BoardNum__, unsigned int __Enable__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_APERTURE_DELAY_COURSE_ADJUST__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_APERTURE_DELAY_COURSE_ADJUST__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
  */
-void ADC12D2000_SetApertureDelayCoarseAdjustEnable(unsigned short BoardNum, unsigned int Enable);		//
+void ADC12D2000_SetApertureDelayCoarseAdjustEnable(unsigned short BoardNum, unsigned int Enable); //
 
 /**
  * __void ADC12D2000_SetDutyCycleCorrect__(unsigned short __BoardNum__, unsigned int __Enable__).
  *
- * Does not need to be called by user. Set by ADC12D2000_SET_APERTURE_DELAY_COURSE_ADJUST. 
+ * Does not need to be called by user. Set by ADC12D2000_SET_APERTURE_DELAY_COURSE_ADJUST.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
  */
-void ADC12D2000_SetDutyCycleCorrect(unsigned short BoardNum, unsigned int Enable);						//
+void ADC12D2000_SetDutyCycleCorrect(unsigned short BoardNum, unsigned int Enable); //
 
 /**
  * __void ADC12D2000_SET_APERTURE_DELAY_FINE_ADJUST__(unsigned short __BoardNum__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__. 
+ * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
-void ADC12D2000_SET_APERTURE_DELAY_FINE_ADJUST(unsigned short BoardNum);								//
+void ADC12D2000_SET_APERTURE_DELAY_FINE_ADJUST(unsigned short BoardNum); //
 
 /**
  * __void ADC12D2000_SetApertureDelayFineAdjust__(unsigned short __BoardNum__, unsigned int __Value__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_APERTURE_DELAY_FINE_ADJUST__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_APERTURE_DELAY_FINE_ADJUST__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Value
  */
-void ADC12D2000_SetApertureDelayFineAdjust(unsigned short BoardNum, unsigned int Value);				//
+void ADC12D2000_SetApertureDelayFineAdjust(unsigned short BoardNum, unsigned int Value); //
 
 /**
  * __void ADC12D2000_SetApertureDelayFineAdjustEnable__(unsigned short __BoardNum__, unsigned int __Enable__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_APERTURE_DELAY_FINE_ADJUST__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_APERTURE_DELAY_FINE_ADJUST__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
  */
-void ADC12D2000_SetApertureDelayFineAdjustEnable(unsigned short BoardNum, unsigned int Enable);			//
+void ADC12D2000_SetApertureDelayFineAdjustEnable(unsigned short BoardNum, unsigned int Enable); //
 
 /**
  * __void ADC12D2000_SET_CONFIGURATION_REGISTER_2__(unsigned short __BoardNum__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__. 
+ * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
@@ -1521,8 +1521,8 @@ void ADC12D2000_SET_CONFIGURATION_REGISTER_2(unsigned short BoardNum);
 /**
  * __void ADC12D2000_SetDESIQCLKMode__(unsigned short __BoardNum__, unsigned int __Enable__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_2__ by default. 
- * Set by __ADC12D2000_Channel_Mode_Select__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_2__ by default.
+ * Set by __ADC12D2000_Channel_Mode_Select__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param Enable
@@ -1532,7 +1532,7 @@ void ADC12D2000_SetDESIQCLKMode(unsigned short BoardNum, unsigned int Enable);
 /**
  * __void ADC12D2000_SetDisableReset__(unsigned short __BoardNum__, unsigned int __Enable__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_2__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_2__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
@@ -1541,16 +1541,16 @@ void ADC12D2000_SetDisableReset(unsigned short BoardNum, unsigned int Enable);
 /**
  * __void ADC12D2000_SetDisableReset__(unsigned short __BoardNum__, unsigned int __Enable__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_2__. 
+ * Does not need to be called by user. Set by __ADC12D2000_SET_CONFIGURATION_REGISTER_2__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
-void ADC12D2000_Set_CFR2_Constants(unsigned short BoardNum);											//
+void ADC12D2000_Set_CFR2_Constants(unsigned short BoardNum); //
 
 /**
  * __void ADC12D2000_SET_RESERVED_ADDR_0xF__(unsigned short __BoardNum__).
  *
- * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__. 
+ * Does not need to be called by user. Set by __ADC12D2000_INITIALIZE__.
  *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  */
@@ -1558,10 +1558,10 @@ void ADC12D2000_SET_RESERVED_ADDR_0xF(unsigned short BoardNum);
 
 /**
  * __void setupAcquire__(unsigned short __BoardNum__,unsigned int __NumBlocks__)  Sets up the board referred to by __BoardNum__ to acquire __NumBlocks__.  The function returns immediately.
- * 
+ *
  * @param BoardNum is the index (0-4) for an installed Ultraview Data Acquisition board.
  * @param NumBlocks is the is the number of 1Mbyte blocks (1-8192) to acquire into on-board memory.
- * 
+ *
  * Example Usage:
  * @code
  * dllstruct dll;
@@ -1570,8 +1570,8 @@ void ADC12D2000_SET_RESERVED_ADDR_0xF(unsigned short BoardNum);
  * unsigned int numBlocksToAcquire=8192;
  * dll.hDllsetupAcquire(BoardNum,numBlocksToAcquire);  // acquire 8192 blocks into onboard memory
  * @endcode
- */	
-EXPORTED_FUNCTION void setupAcquire(unsigned short BoardNum,unsigned int NumBlocks );
+ */
+EXPORTED_FUNCTION void setupAcquire(unsigned short BoardNum, unsigned int NumBlocks);
 
 /**
  * __unsigned int getNumChannels__(unsigned short __BoardNum__) returns the number of channels the board is set to use.
@@ -1781,7 +1781,7 @@ EXPORTED_FUNCTION unsigned int GetDRAMDQValue(unsigned short BoardNum);
 EXPORTED_FUNCTION unsigned int GetNumBlocksToAcquireValue(unsigned short BoardNum);
 EXPORTED_FUNCTION unsigned int GetOnBoardMemorySize(unsigned short BoardNum);
 
-long makeISLA_SPI(unsigned action,unsigned channels,unsigned spiAddress,unsigned spiData );
+long makeISLA_SPI(unsigned action, unsigned channels, unsigned spiAddress, unsigned spiData);
 void WriteISLA_SPI(unsigned short BoardNum, unsigned int adcNum, unsigned int spiAddress, unsigned int spiData);
 unsigned int ReadISLA_SPI(unsigned short BoardNum, unsigned int adcNum, unsigned int spiAddress);
 unsigned char ReadISLA_REG(unsigned short BoardNum, unsigned int adcNum, unsigned int spiAddress);
@@ -1822,8 +1822,8 @@ void ADC_CLKDIVRST(unsigned short BoardNum, unsigned int adcNum);
 void ADC_SETCALBITS(unsigned short BoardNum, unsigned int Value);
 void readISLA_Gain_Offset(unsigned short BoardNum, unsigned char *regVal[]);
 void printISLA_Gain_Offset(unsigned char **regVal);
-void ISLA_GainAdjust (unsigned short BoardNum);
-void AdcIDelayManual(unsigned short BoardNum, unsigned int  adcNum, unsigned int dclk, unsigned int data);
+void ISLA_GainAdjust(unsigned short BoardNum);
+void AdcIDelayManual(unsigned short BoardNum, unsigned int adcNum, unsigned int dclk, unsigned int data);
 void AdcIDelayAuto(unsigned short BoardNum, unsigned int adcNum);
 int ISLA_AdcIdelayCalibrate(unsigned short BoardNum);
 void ISLA_AdcDacSerialSetup(unsigned short BoardNum);
@@ -1876,7 +1876,7 @@ void AdcDcmPrelimSetup(unsigned short BoardNum);
 void AdcDcmSetup(unsigned short BoardNum);
 void AdcDcmSetPs(unsigned short BoardNum, int num_ps_shift, int ps_positive);
 void AdcDcmPsCal(unsigned short BoardNum);
-void set_adc_data_setup_reg (unsigned short BoardNum);
+void set_adc_data_setup_reg(unsigned short BoardNum);
 bool SetDualSingleMode(unsigned short BoardNum);
 
 
@@ -1893,7 +1893,7 @@ long GetTickCount();
 #endif
 
 
-#endif 
+#endif
 
 
 
