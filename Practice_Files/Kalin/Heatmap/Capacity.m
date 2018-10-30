@@ -1,4 +1,4 @@
-clear;
+% clear;
 close all;
 
 genarrays = false;
@@ -49,8 +49,8 @@ if (plotarrays)
     load('tx1_capacity.mat');
     load('tx2_capacity.mat');
     load('tx2_secrecy_capacity.mat');
-    
-    I = imread('ClydeGIMP.png');
+    load tx2_temp.mat;
+    I = imread('ClydeGIMPnoRX.png');
     
     if (includetx1)
         figure();
@@ -79,6 +79,7 @@ if (plotarrays)
     % title({'Channel Capacity'});
     set(hm,'AlphaData',~isnan(tx2_capacity));
     q = colorbar;
+    q.Position = [.855 .2695 .016 .566];
     colormap(jet);
     ylabel(q, 'bits per channel use');
     hm.XData = [36; 380];
@@ -86,15 +87,22 @@ if (plotarrays)
     hold off
     
     %%%%%%%%%%%%%%%% Secrecy Capacity
+    I = imread('ClydeGIMP.png');
     figure();
     imshow(I);
     hold on
     % text(114, 172, '*', 'Color', 'red', 'FontSize', 16);
     text(142, 157, 'tx', 'Color', 'black', 'FontSize', 8);
-    hm = imagesc(tx2_secrecy_capacity);
+    %     hm = imagesc(tx2_secrecy_capacity);
+    hm = imagesc(tx2_temp);
     % title({'Channel Secrecy Capacity'});
-    set(hm,'AlphaData',~isnan(tx2_secrecy_capacity));
+    %     set(hm,'AlphaData',~isnan(tx2_secrecy_capacity));
+    set(hm,'AlphaData',~isnan(tx2_temp));
+%     set(hm,'AlphaData',tx2_temp(41,77));
+%%%%% Harrison's best location is at (41,77) in the array
+    text(105, 73, 'rx', 'Color', 'black', 'FontSize', 8);
     q = colorbar;
+    q.Position = [.855 .2695 .016 .566];
     colormap(jet);
     ylabel(q, 'bits per channel use');
     hm.XData = [36; 380];
