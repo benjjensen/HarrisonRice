@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <boost/algorithm/string.hpp>
+
 DataCapture::DataCapture() {
     // Set some reasonable defaults for the member fields:
     name = "";
@@ -397,6 +399,8 @@ GPSPosition::GPSPosition() {
     longitude = 11100;
 
     altitude_feet = 4500;
+
+    fix_type = "None";
 }
 
 void GPSPosition::write_to_stream(std::ostream &out) {
@@ -408,10 +412,12 @@ void GPSPosition::write_to_stream(std::ostream &out) {
 
     out << blocks_captured << " blocks" << FIELD_DELIMITER;
 
-    out << latitude << FIELD_DELIMITER;
-    out << longitude << FIELD_DELIMITER;
+    out << std::setprecision(12) << latitude << FIELD_DELIMITER;
+    out << std::setprecision(13) << longitude << FIELD_DELIMITER;
 
-    out << altitude_feet;
+    out << altitude_feet << FIELD_DELIMITER;
+
+    out << fix_type;
 }
 
 bool GPSPosition::read_from_stream(std::istream &in) {
@@ -428,6 +434,7 @@ bool GPSPosition::read_from_stream(std::istream &in) {
     double longitude = 11100;
     double altitude_feet = 4500;
 
+    std::string fix_type = "None";
 
     in >> year;
     // Ignore the '-' character.
@@ -467,6 +474,11 @@ bool GPSPosition::read_from_stream(std::istream &in) {
 
     in >> altitude_feet;
 
+    // Ignore the field delimiter and the space before the fix type.
+    in.ignore();
+    in.ignore();
+    in >> fix_type;
+
     if(in) {
         this->year = year;
         this->month = month;
@@ -480,6 +492,8 @@ bool GPSPosition::read_from_stream(std::istream &in) {
         this->latitude = latitude;
         this->longitude = longitude;
         this->altitude_feet = altitude_feet;
+
+        this->fix_type = fix_type;
 
         return true;
     }
@@ -498,6 +512,10 @@ std::string GPSPosition::get_timestamp() {
             minute << "-" << std::setw(2) << second;
 
     return timestamp.str();
+}
+
+bool GPSPosition::is_valid_fix() {
+    return boost::algorithm::to_lower_copy(fix_type) != "none";
 }
 
 std::istream & operator>>(std::istream &in, GPSPosition &position) {
