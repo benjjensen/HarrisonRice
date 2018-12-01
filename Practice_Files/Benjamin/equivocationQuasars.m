@@ -5,7 +5,7 @@ clear all;
 a = [1+j -1+j -1-j 1-j];
 %sigmaSquared = .3;
 
-for sigmaSquared = 1:1
+for sigmaSquared = 0:.1:1
     for re = -50:50
         for im = -50:50
             x(re+51,im+51) = (re/25) + (im/25)*j;
