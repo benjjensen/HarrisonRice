@@ -16,7 +16,7 @@ load('tx2conference_pwelch.mat');
 load('tx2harrison_pwelch.mat');
 load('tx2smalley_pwelch.mat');
 
-%%% SET DBLIMIT 
+%% SET DBLIMIT 
 dblimit = 25.8;
 
             %Different scales are used to allow us to see each on the graph 
@@ -26,7 +26,7 @@ dblimit = 25.8;
     [cam_specific_carriers_above, cacount] = specCarriers(tx2camacho_pwelch, 3, dblimit);
     [con_specific_carriers_above, cocount] = specCarriers(tx2conference_pwelch, 1, dblimit);
 
-            %%%%% OPTIONAL - COMPARE ARRAYS TO HARRISONS
+            %% OPTIONAL - COMPARE ARRAYS TO HARRISONS
     for car = 1:64
         if ((har_specific_carriers_above(car, 2) == 0) && (sma_specific_carriers_above(car,2) ~= 0))
             sma_specific_carriers_above(car,2) = 0;
@@ -47,7 +47,7 @@ dblimit = 25.8;
     end
           
 
-%%%%% PART III - GRAPHS
+%% PART III - GRAPHS
 figure()
 hold on
 title(['\fontsize{12} Tx_2 @' num2str(dblimit) ' dB']);
@@ -85,7 +85,7 @@ end
    
     
 function [specific_carriers_above, count] = specCarriers(file, scale, dblimit)
- %%%%% PART 1 - DETERMINES THE BEST LOCATION %%%%%
+ %% PART 1 - DETERMINES THE BEST LOCATION %%%%%
 
         %%% INITIALIZES VALUES 
     [~,r,c] = size(file);                         
@@ -127,7 +127,7 @@ function [specific_carriers_above, count] = specCarriers(file, scale, dblimit)
 
 
 
-    %%%%% PART II - DETERMINES WHICH CARRIERS ARE ABOVE LIMIT @BEST POINT
+    %% PART II - DETERMINES WHICH CARRIERS ARE ABOVE LIMIT @BEST POINT
 
     specific_carriers_above = zeros(64,2);
 
