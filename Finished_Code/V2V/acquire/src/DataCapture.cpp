@@ -527,3 +527,75 @@ std::ostream & operator<<(std::ostream &out, GPSPosition &position) {
     position.write_to_stream(out);
     return out;
 }
+
+int days_in_month(int month, int year) {
+    switch(month) {
+    case 2:
+        if(year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
+            return 29;
+        }
+        else {
+            return 28;
+        }
+    case 4:
+    case 6:
+    case 9:
+    case 11:
+        return 30;
+    default:
+        return 31;
+    }
+}
+
+void set_gps_position_time(GPSPosition& position,
+        GPSPosition one_second_previous, bool previous_valid,
+        std::tm* time) {
+    if(previous_valid) {
+        position.year = one_second_previous.year;
+        position.month = one_second_previous.month;
+        position.date = one_second_previous.date;
+
+        position.hour = one_second_previous.hour;
+        position.minute = one_second_previous.minute;
+        position.second = one_second_previous.second + 1;
+
+        if(position.second >= 60) {
+            position.minute += 1;
+            position.second %= 60;
+
+            position.hour += position.minute / 60;
+            position.minute %= 60;
+
+            position.date += position.hour / 24;
+            position.hour %= 24;
+
+            int month_length = days_in_month(position.month, position.year);
+            if(position.date > month_length) {
+                ++position.month;
+                position.date = 1;
+
+                if(position.month > 12) {
+                    ++position.year;
+                    position.month = 1;
+                }
+            }
+        }
+    }
+    else {
+        if(time == NULL) {
+            std::time_t t = std::time(0);
+            time = std::localtime(&t);
+        }
+
+        if(position.year != time->tm_year + 1900 ||
+                position.month != time->tm_mon + 1 ||
+                position.date != time->tm_mday) {
+            position.year = time->tm_year + 1900;
+            position.month = time->tm_mon + 1;
+            position.date = time->tm_mday;
+            position.hour = time->tm_hour;
+            position.minute = time->tm_min;
+            position.second = time->tm_sec;
+        }
+    }
+}
