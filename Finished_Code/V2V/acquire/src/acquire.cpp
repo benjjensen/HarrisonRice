@@ -1127,7 +1127,7 @@ void gps_thread_main_function(const pid_t gps_process_id,
             new __gnu_cxx::stdio_filebuf<char>(gps_output_fd, std::ios::in);
     std::istream input_from_gps(sb);
 
-    GPSPosition position;
+    GPSPosition position, lastPosition;
     // The flag continue_recording_gps will be set to false by another thread;
     // possibly the main thread, but more likely by the SIGINT signal handler.
     while(continue_recording_gps.load() && input_from_gps) {
@@ -1143,9 +1143,15 @@ void gps_thread_main_function(const pid_t gps_process_id,
         }
 
         if(!first_gps_position_recorded.load()) {
+            set_gps_position_time(position, lastPosition, false);
             first_gps_position = position;
             first_gps_position_recorded.store(true);
         }
+        else {
+            set_gps_position_time(position, lastPosition, true);
+        }
+
+        lastPosition = position;
 
         position.blocks_captured = blocks_acquired.load();
         capture_info.gps_positions.push_back(position);
