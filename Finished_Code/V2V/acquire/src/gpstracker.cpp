@@ -157,7 +157,7 @@ int main(int argc, char** argv) {
 
     // Remove the xcsv gpsbabel output (if it wasn't overwritten already).
     if(environment.outputFilename != newFilename) {
-        // remove(environment.outputFilename.c_str());
+        remove(environment.outputFilename.c_str());
     }
 
     std::cout << "done.\nOutput stored in " << newFilename << std::endl;
