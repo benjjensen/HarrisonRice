@@ -1,12 +1,12 @@
-%%%%% tempLiklihood
-close all;
-clear all;
+%%%%% EQUIVOCATION QUASARS %%%%%
+close all; clear all;
 
+    % Creates the QPSK symbol locations 
 a = [1+j -1+j -1-j 1-j];
-%sigmaSquared = .3;
 
-for sigmaSquared = .1:.1:1.1
-    for re = -50:50
+%sigmaSquared = .3;
+for sigmaSquared = .1:.2:.7        
+    for re = -50:50         % -50:50 creates a 101 x 101 grid 
         for im = -50:50
             x(re+51,im+51) = (re/25) + (im/25)*j;
         end
@@ -38,14 +38,27 @@ for sigmaSquared = .1:.1:1.1
         end
     end
 
+%     figure();
+%     hold on
+%     plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+%     surface(real_x, imag_x, H);
+%     title("\sigma^2 = " + string(sigmaSquared));
+%     xlabel('real');
+%     ylabel('imaginary');
+%     zlabel('Equivocation');
+%     view(45, 60);
+%     colormap(jet);
+%     hold off
+    
     figure();
     hold on
-    plot(a,'o'); % Need to fix where this plots on the z axis
-    surface(real_x, imag_x, H);
+    plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+    I = 2 - H;
+    surface(real_x, imag_x, I);
     title("\sigma^2 = " + string(sigmaSquared));
     xlabel('real');
     ylabel('imaginary');
-    zlabel('Equivocation');
+    zlabel('Mutual Information');
     view(45, 60);
     colormap(jet);
     hold off
