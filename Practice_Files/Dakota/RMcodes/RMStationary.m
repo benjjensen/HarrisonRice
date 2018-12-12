@@ -155,7 +155,6 @@ else
         rate_matched = zeros(1,col_num);
         percentLeaked_matched = zeros(1,col_num);
         for i = 1:32*m
-            
             eval(sprintf('name = vars%d{%d,1};',m,i));
             eval(sprintf('plotRate = %s.carrierRate;', name));
             eval(sprintf('plotPercentLeaked = (100 - %s.percentLeaked);', name));
