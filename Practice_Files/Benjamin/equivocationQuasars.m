@@ -4,7 +4,7 @@ close all; clear all;
     % Creates the QPSK symbol locations 
 a = [1+j -1+j -1-j 1-j];
 
-epsilon = .1;
+epsilon = .2067;
 %sigmaSquared = .3;
 for sigmaSquared = .1:.2:.3       
     for re = -50:50         % -50:50 creates a 101 x 101 grid 
@@ -41,17 +41,17 @@ for sigmaSquared = .1:.2:.3
 
     
             %%%%% Plot Equivocation 
-%     figure();
-%     hold on
-%     plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-%     surface(real_x, imag_x, H);
-%     title("\sigma^2 = " + string(sigmaSquared));
-%     xlabel('real');
-%     ylabel('imaginary');
-%     zlabel('Equivocation');
-%     view(45, 60);
-%     colormap(jet);
-%     hold off
+    figure();
+    hold on
+    plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+    surface(real_x, imag_x, H);
+    title("\sigma^2 = " + string(sigmaSquared));
+    xlabel('real');
+    ylabel('imaginary');
+    zlabel('Equivocation');
+    view(45, 60);
+    colormap(jet);
+    hold off
     
             %%%%% Plot Mutual Information
     figure();
