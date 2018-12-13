@@ -55,5 +55,5 @@ text(105, 165, 'tx', 'Color', 'red', 'FontSize', 7);
 colormap('jet');
 tx2floormap.AlphaData = .6; % makes the heatmap slightly transparent so the floor plan can be seen
 set(tx2floormap,'AlphaData',~isnan(tx2Floor));
-saveas(gcf,'Heatmap','pdf');
+% saveas(gcf,'Heatmap','pdf');
 hold off;
