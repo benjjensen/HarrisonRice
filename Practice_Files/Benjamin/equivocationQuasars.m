@@ -4,9 +4,9 @@ close all; clear all;
     % Creates the QPSK symbol locations 
 a = [1+j -1+j -1-j 1-j];
 
-epsilon = .2067;
-%sigmaSquared = .3;
-for sigmaSquared = .1:.2:.3       
+epsilon = .000001;
+sigmaSquared = .3;
+% for sigmaSquared = .9:.1:1      
     for re = -50:50         % -50:50 creates a 101 x 101 grid 
         for im = -50:50
             x(re+51,im+51) = (re/25) + (im/25)*j;
@@ -93,4 +93,4 @@ for sigmaSquared = .1:.2:.3
     zlabel('Bits');
     view(45, 60);
     colormap(jet);
-end
+% end
