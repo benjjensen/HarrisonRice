@@ -1,7 +1,7 @@
 close all
 clear
 
-for bl = 1:2:19
+for bl = 1:20
     eval(sprintf('load("mu_%d_2");',bl));
     eval(sprintf('norm_mu_%d = normalizedMus(mu_%d_2);',bl,bl));
     eval(sprintf('norm_sum_mu_%d = normalizedMuSum(mu_%d_2);',bl,bl));
@@ -16,7 +16,7 @@ for row = 1:num_rows
 %     for bl = 10:20
 %         eval(sprintf('plot(norm_mu_%d,mu_normal_%d(row,:));',bl,bl));
 %     end
-    for bl = 1:2:19
+    for bl = 1:20
         eval(sprintf('plot(norm_mu_%d,norm_sum_mu_%d(row,:));',bl,bl));
     end
     xlabel('Revealed Bits (%)');

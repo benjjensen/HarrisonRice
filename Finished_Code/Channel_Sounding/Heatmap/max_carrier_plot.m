@@ -1,3 +1,5 @@
+%% Plots the number of good carriers at each DB threshold
+
 close all;
 
 load('camacho.mat');
@@ -28,6 +30,7 @@ for threshold = 0:.1:35
     harrison2 = find_num_carriers(tx2harrison,threshold);
     smalley2 = find_num_carriers(tx2smalley,threshold);
     
+    % uncomment to find the carriers from the first transmitter location
 %     camacho_best_carrier = find_best_carriers(cam1,camacho,3,threshold);
     camacho_best_carrier2 = find_best_carriers(cam2,tx2camacho,3,threshold);
 %     chambers_best_carrier = find_best_carriers(chambers1,chambers,2,threshold);
