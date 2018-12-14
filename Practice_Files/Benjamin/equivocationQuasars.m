@@ -4,9 +4,9 @@ close all; clear all;
     % Creates the QPSK symbol locations 
 a = [1+j -1+j -1-j 1-j];
 
-epsilon = .1;
-%sigmaSquared = .3;
-for sigmaSquared = .1:.2:.3       
+epsilon = .000001;
+sigmaSquared = 2.2444e-4;
+% for sigmaSquared = .9:.1:1      
     for re = -50:50         % -50:50 creates a 101 x 101 grid 
         for im = -50:50
             x(re+51,im+51) = (re/25) + (im/25)*j;
@@ -18,7 +18,7 @@ for sigmaSquared = .1:.2:.3
     fx = zeros(4, 101, 101);
     fxSum = zeros(1, 101, 101);
     for loop = 1:4
-        fx(loop,:,:) = (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((x-a(loop)).^2));
+        fx(loop,:,:) = (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((x-.1415*a(loop)).^2));
         fxSum(1, :,:) = fxSum(1, :,:) + fx(loop,:,:);
     end
 
@@ -41,17 +41,17 @@ for sigmaSquared = .1:.2:.3
 
     
             %%%%% Plot Equivocation 
-%     figure();
-%     hold on
-%     plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-%     surface(real_x, imag_x, H);
-%     title("\sigma^2 = " + string(sigmaSquared));
-%     xlabel('real');
-%     ylabel('imaginary');
-%     zlabel('Equivocation');
-%     view(45, 60);
-%     colormap(jet);
-%     hold off
+    figure();
+    hold on
+    plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+    surface(real_x, imag_x, H);
+    title("\sigma^2 = " + string(sigmaSquared));
+    xlabel('real');
+    ylabel('imaginary');
+    zlabel('Equivocation');
+    view(45, 60);
+    colormap(jet);
+    hold off
     
             %%%%% Plot Mutual Information
     figure();
@@ -93,4 +93,4 @@ for sigmaSquared = .1:.2:.3
     zlabel('Bits');
     view(45, 60);
     colormap(jet);
-end
+% end
