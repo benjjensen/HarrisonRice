@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 close all; clear;
 
 a = [1+j -1+j -1-j 1-j];
@@ -76,3 +77,16 @@ fx = squeeze(Sum_fx_a) * .25;
     P2 = fx .* Two;
     PP = integral2(P1,real_x(1),real_x(101),imag_x(1),imag_x(101));
     
+=======
+<<<<<<< HEAD
+=======
+load('harrison.mat');
+for row = 1:29
+    for run = 1:33
+        for loc = 19:2:110
+            noise_floor = noise_floor + harrison(row,run,loc+1);
+        end
+    end
+end
+>>>>>>> f8a973624ae353295a7ca016b8e3cfa02b2bc36b
+>>>>>>> 3de1c250ef4769254ac31f768c306340d83899ca
