@@ -2,8 +2,10 @@
 close all; clear all;
 
 %%% Load stuff
-load('C:\Users\benjj\Work\EcEnResearchAssistant\HarrisonRice\Practice_Files\Kalin\QPSK\linear_noisefloor.mat');
-load('C:\Users\benjj\Work\EcEnResearchAssistant\HarrisonRice\Practice_Files\Kalin\QPSK\linear_signal.mat');
+% load('C:\Users\benjj\Work\EcEnResearchAssistant\HarrisonRice\Practice_Files\Kalin\QPSK\linear_noisefloor.mat');
+% load('C:\Users\benjj\Work\EcEnResearchAssistant\HarrisonRice\Practice_Files\Kalin\QPSK\linear_signal.mat');
+load('linear_noisefloor.mat');
+load('linear_signal.mat');
 
 % Creates the QPSK symbol locations
 a = [1+j -1+j -1-j 1-j];
