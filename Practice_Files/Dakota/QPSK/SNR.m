@@ -5,56 +5,17 @@ a = [1+j -1+j -1-j 1-j];
 epsilon = .01;
 sigmaSquared = .3;
 
-for re = -50:50         % -50:50 creates a 101 x 101 grid
-    for im = -50:50
-        x(re+51,im+51) = (re/25) + (im/25)*1i;
-    end
-end
-real_x = real(x);
-imag_x = imag(x);
-
-[fx,fx_a, Sum_fx_a] = fz(1,sigmaSquared,x);
-
-figure();
-hold on
-%     plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-surface(real_x, imag_x, fx);
-title("\sigma^2 = " + string(sigmaSquared));
-xlabel('real');
-ylabel('imaginary');
-zlabel('Pr(x)');
-view(45, 60);
-colormap(jet);
-hold off
 
 G = 1;
+
+%% Functions
 
 fun_x = @(x,y) ((1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((complex(x,y)-(G*a(1))).^2))+...
             (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((complex(x,y)-(G*a(2))).^2))+...
             (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((complex(x,y)-(G*a(3))).^2))+...
             (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((complex(x,y)-(G*a(4))).^2)))...
             *.25;
-for xcor = -50:50
-    for ycor = -50:50
-        myfx(xcor+51,ycor+51) = fun_x(xcor/25,ycor/25);
-    end
-end
 
-figure();
-hold on
-%     plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-surface(real_x, imag_x, myfx);
-title("\sigma^2 = " + string(sigmaSquared));
-xlabel('real');
-ylabel('imaginary');
-zlabel('Pr(x)');
-view(45, 60);
-colormap(jet);
-hold off
-% q1 = integral2(fun_x, 0,inf,0,inf);
-% q2 = integral2(fun_x,-inf,0,0,inf);
-% q3 = integral2(fun_x,-inf,0,-inf,0);
-% q4 = integral2(fun_x,0,inf,-inf,0);
 
 % %     I have f(x) now find mutual info reg. where 1? and 2? and integrate
 % over f(x) over those regions
@@ -77,10 +38,34 @@ p_e = integral2(p_e1,-inf,inf,-inf,inf)*.5 + integral2(p_e2,-inf,inf,-inf,inf);
 
 p1 = integral2(p_e1,-inf,inf,-inf,inf);
 p2 = integral2(p_e2,-inf,inf,-inf,inf);
-% 
-p_a = zeros(4, 101, 101);
+%% matrices 
+
+
+for re = -50:50         % -50:50 creates a 101 x 101 grid
+    for im = -50:50
+        x(re+51,im+51) = (re/25) + (im/25)*1i;
+    end
+end
+real_x = real(x);
+imag_x = imag(x);
+
+[fx,fx_a, Sum_fx_a] = fz(1,sigmaSquared,x);
+
+figure();
+hold on
+%     plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+surface(real_x, imag_x, fx);
+title("\sigma^2 = " + string(sigmaSquared));
+xlabel('real');
+ylabel('imaginary');
+zlabel('Pr(x)');
+view(45, 60);
+colormap(jet);
+hold off
+
+mp_a = zeros(4, 101, 101);
 for loop = 1:4
-    p_a(loop,:,:) = fx_a(loop,:,:) ./ Sum_fx_a;
+    mp_a(loop,:,:) = fx_a(loop,:,:) ./ Sum_fx_a;
 end
 
 II = zeros(101, 101);
@@ -91,7 +76,7 @@ for xCoord = -50:50
     for yCoord = -50:50
         II(xCoord+51,yCoord+51) = I(xCoord/25,yCoord/25);
         for loop = 1:4
-            sumOfProb(xCoord+51,yCoord+51) = sumOfProb(xCoord+51,yCoord+51) + p_a(loop,xCoord+51,yCoord+51)*log2(p_a(loop,xCoord+51,yCoord+51));
+            sumOfProb(xCoord+51,yCoord+51) = sumOfProb(xCoord+51,yCoord+51) + mp_a(loop,xCoord+51,yCoord+51)*log2(mp_a(loop,xCoord+51,yCoord+51));
         end
         HH((xCoord+51), (yCoord+51)) = -(sumOfProb(xCoord+51, yCoord+51));
     end
