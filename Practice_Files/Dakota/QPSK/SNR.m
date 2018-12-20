@@ -6,7 +6,7 @@ epsilon = .01;
 sigmaSquared = .3;
 
 
-G = 1;
+G = 1; % This is the channel gain (H), but G is used because H is taken for equivocation
 
 %% Functions
 
@@ -20,11 +20,11 @@ fun_x = @(x,y) ((1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((complex(x
 % %     I have f(x) now find mutual info reg. where 1? and 2? and integrate
 % over f(x) over those regions
 
-p_a = @(n,x,y) (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((complex(x,y)-(G*a(n))).^2))...
+p_a = @(x,y,n) (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((complex(x,y)-(G*a(n))).^2))...
     /(4*fun_x(x,y));
 
-H = @(x,y) -p_a(1,x,y)*log2(p_a(1,x,y)) - p_a(2,x,y)*log2(p_a(2,x,y))...
-    - p_a(3,x,y)*log2(p_a(3,x,y)) - p_a(4,x,y)*log2(p_a(4,x,y));
+H = @(x,y) -p_a(x,y,1)*log2(p_a(x,y,1)) - p_a(x,y,2)*log2(p_a(x,y,2))...
+    - p_a(x,y,3)*log2(p_a(x,y,3)) - p_a(x,y,4)*log2(p_a(x,y,4));
 
 I = @(x,y) 2-H(x,y);
 
@@ -68,10 +68,10 @@ for loop = 1:4
     mp_a(loop,:,:) = fx_a(loop,:,:) ./ Sum_fx_a;
 end
 
-II = zeros(101, 101);
+II = zeros(101,101);
 HH = zeros(101,101);
 probOfX = 1 / (101*101);
-sumOfProb = zeros(101, 101);
+sumOfProb = zeros(101,101);
 for xCoord = -50:50
     for yCoord = -50:50
         II(xCoord+51,yCoord+51) = I(xCoord/25,yCoord/25);
@@ -100,8 +100,8 @@ end
 One = bits == 1;
 Two = bits == 2;
 Two = Two/2;
-P1 = P_e(fx,One);
-P2 = P_e(fx,Two);
+P1 = fx.*One;
+P2 = fx.*Two;
 
 figure();
 hold on
