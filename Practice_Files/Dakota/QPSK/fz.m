@@ -8,6 +8,6 @@ for loop = 1:4
     fx_a(loop,:,:) = (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((x-(H*a(loop))).^2));
     Sum_fx_a(1,:,:) = Sum_fx_a(1,:,:) + fx_a(loop,:,:);
 end
-fx = squeeze(Sum_fx_a);
+fx = squeeze(Sum_fx_a) * .25;
 end
 
