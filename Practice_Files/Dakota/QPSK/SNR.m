@@ -38,6 +38,7 @@ p_e = integral2(p_e1,-inf,inf,-inf,inf)*.5 + integral2(p_e2,-inf,inf,-inf,inf);
 
 p1 = integral2(p_e1,-inf,inf,-inf,inf);
 p2 = integral2(p_e2,-inf,inf,-inf,inf);
+
 %% matrices 
 
 
@@ -134,5 +135,47 @@ G = 1;
 
 % fun = @pdf_z; 
 
+%% Plots to test functions
+% for xCoord = -50:50
+%     for yCoord = -50:50
+%         p_e1test(xCoord+51,yCoord+51) = p_e1(xCoord/25,yCoord/25);
+%     end
+% end
+% figure();
+% hold on
+% %     plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+% surface(real_x, imag_x, p_e1test);
+% title("Test of p_e1 with \sigma^2 = " + string(sigmaSquared));
+% xlabel('real');
+% ylabel('imaginary');
+% zlabel('Pr(x)');
+% view(45, 60);
+% colormap(jet);
+% hold off
+% 
+% figure();
+% hold on
+% %     plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+% surface(real_x, imag_x, P1);
+% title("Test of P1 with \sigma^2 = " + string(sigmaSquared));
+% xlabel('real');
+% ylabel('imaginary');
+% zlabel('Pr(x)');
+% view(45, 60);
+% colormap(jet);
+% hold off
+% 
+% figure();
+% hold on
+% %     plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+% surface(real_x, imag_x, fx);
+% title("Test of fx with \sigma^2 = " + string(sigmaSquared));
+% xlabel('real');
+% ylabel('imaginary');
+% zlabel('Pr(x)');
+% zlim([0 0.06]);
+% view(45, 60);
+% colormap(jet);
+% hold off
 
 
