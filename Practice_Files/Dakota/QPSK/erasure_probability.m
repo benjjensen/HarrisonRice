@@ -1,12 +1,12 @@
-close all; clear;
+function[p_e] = erasure_probability(sigmaSquared,G,epsilon)
 
 a = [1+j -1+j -1-j 1-j];
 
-epsilon = .01;
-sigmaSquared = .3;
+% epsilon = .01;
+% sigmaSquared = .3;
 
 
-G = 1; % This is the channel gain (H), but G is used because H is taken for equivocation
+% G = .4; % This is the channel gain (H), but G is used because H is taken for equivocation
 
 %% Functions
 
@@ -46,11 +46,11 @@ p_e1 = @(x,y) e_1(x,y) .* fun_x(x,y);
 p_e2 = @(x,y) e_2(x,y) .* fun_x(x,y);
 
 % p_e = integral2(p_e1,-inf,inf,-inf,inf)*.5 + integral2(p_e2,-inf,inf,-inf,inf);
-
+tic;
 % p0 = integral2(p_e0,-inf,inf,-inf,inf);
 p1 = integral2(fun_x,-inf,inf,ymin1,ymax1);
 p2 = integral2(fun_x,-inf,inf,ymin2,ymax2);
-
+toc;
 p_e = (p1-p2)*.5 + p2;
 
 % p2 = integral2(p_ymin(e2,-10,10,-10,10);
