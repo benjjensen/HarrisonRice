@@ -33,10 +33,10 @@ e_1 = @(x,y) (I(x,y) < 1+epsilon) && (I(x,y) > epsilon);
 e_2 = @(x,y) (I(x,y) < epsilon);
 e_3 = @(x,y) (I(x,y) < 1+epsilon);
 
-ymin1 = @(x) fzz2(e_3,x,G);
-ymax1 = @(x) fzz(e_3,x,G);
-ymin2 = @(x) fzz2(e_2,x,G);
-ymax2 = @(x) fzz(e_2,x,G);
+% ymin1 = @(x) fzz2(e_3,x,G);
+% ymax1 = @(x) fzz(e_3,x,G);
+% ymin2 = @(x) fzz2(e_2,x,G);
+% ymax2 = @(x) fzz(e_2,x,G);
 
 % ymin1 = @(x) -1./abs(x.^10);
 % ymax1 = @(x) 1./abs(x.^10);
@@ -45,14 +45,15 @@ p_e0 = @(x,y) e_0(x,y) .* fun_x(x,y);
 p_e1 = @(x,y) e_1(x,y) .* fun_x(x,y);
 p_e2 = @(x,y) e_2(x,y) .* fun_x(x,y);
 
-% p_e = integral2(p_e1,-inf,inf,-inf,inf)*.5 + integral2(p_e2,-inf,inf,-inf,inf);
-tic;
-% p0 = integral2(p_e0,-inf,inf,-inf,inf);
-p1 = integral2(fun_x,-inf,inf,ymin1,ymax1);
-p2 = integral2(fun_x,-inf,inf,ymin2,ymax2);
-toc;
-p_e = (p1-p2)*.5 + p2;
+q = integral2(fun_x,-inf,inf,-inf,inf)
 
+% p_e = integral2(p_e1,-inf,inf,-inf,inf)*.5 + integral2(p_e2,-inf,inf,-inf,inf);
+% tic;
+% % p0 = integral2(p_e0,-inf,inf,-inf,inf);
+% p1 = integral2(fun_x,-inf,inf,ymin1,ymax1);
+% p2 = integral2(fun_x,-inf,inf,ymin2,ymax2);
+% toc;
+% p_e = (p1-p2)*.5 + p2;
 % p2 = integral2(p_ymin(e2,-10,10,-10,10);
 
 %% matrices 
@@ -154,13 +155,16 @@ G = 1;
 %% Plots to test functions
 for xCoord = -50:50
     for yCoord = -50:50
-        p_e0test(xCoord+51,yCoord+51) = p_e0(xCoord/25,yCoord/25);
+        x(xCoord+51,yCoord+51) = G*xCoord/25 + (G*yCoord/25)*1j;
+        fxtest(xCoord+51,yCoord+51) = fun_x(G*xCoord/25,G*yCoord/25);
     end
 end
+real_x = real(x);
+imag_x = imag(x);
 figure();
 hold on
 %     plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-surface(real_x, imag_x, p_e0test);
+surface(real_x, imag_x, fxtest);
 title("Test of p_e1 with \sigma^2 = " + string(sigmaSquared));
 xlabel('real');
 ylabel('imaginary');
