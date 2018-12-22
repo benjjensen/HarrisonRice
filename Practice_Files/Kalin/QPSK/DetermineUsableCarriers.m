@@ -53,7 +53,7 @@ bar(carrierModified); % Plot of carriers that were kept (compare to original
 ylim([-9e5 0]);
 title("Modified Sum of Individual Carrier 'Strengths' in dB");
 
-linearSignalReducedCarriers = linear_signal(11:55,:,:);
+linearSignalReducedCarriers = linear_signal(11:55,:,:)
 linearNoiseReducedCarriers = linear_noisefloor(10:54,:,:);
 avgSignal(45) = zeros();
 for x = 1:45
