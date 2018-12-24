@@ -2,20 +2,23 @@ load('linearSignalReducedCarriers.mat');
 num_carriers = 45;
 num_rows = 90;
 num_cols = 345;
-sigmaSquared = .03;
+sigmaSquared = .3;
 epsilon = .01;
 map_p_e = zeros(num_carriers,num_rows,num_cols);
-for carrier = 1:num_carriers
-   for row = 1:num_rows
-      for col = 1:num_cols
+for row = 1:num_rows
+    tic;
+   for col = 1:num_cols
+      for carrier = 1:num_carriers
             if(isnan(linearSignalReducedCarriers(carrier,row,col)))
-                map_p_e(carrier,row,col) = nan;
+                map_p_e(:,row,col) = nan;
+                break;
             else
                 map_p_e(carrier,row,col) = probability_erasure(sigmaSquared,...
                     linearSignalReducedCarriers(carrier,row,col),epsilon);
             end
       end
    end
+   toc;
 end
 
 mean_map_p_e = zeros(num_rows,num_cols);
@@ -29,18 +32,18 @@ end
 
 capacity = num_carriers - (num_carriers * mean_map_p_e);
 harrison_cap = capacity(36:65,65:98);
-[Y,I] = max(harrison_cap);
-[Y,J] = max(Y);
+[harrison_max,I] = max(harrison_cap);
+[harrison_max,J] = max(harrison_max);
 
 secrecy_capacity = capacity;
 
 for row = 1:num_rows
     for col = 1:num_cols
         if isnan(capacity(row,col))
-        elseif capacity(row,col) > Y
+        elseif capacity(row,col) > harrison_max
             secrecy_capacity(row,col) = 0;
         else
-            secrecy_capacity(row,col) = Y - secrecy_capacity(row,col);
+            secrecy_capacity(row,col) = harrison_max - secrecy_capacity(row,col);
         end
     end
 end
