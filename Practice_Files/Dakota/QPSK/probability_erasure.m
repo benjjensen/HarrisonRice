@@ -23,16 +23,17 @@ I = @(x) 1-H(x);
 e_1 = @(x) (I(x) < epsilon);
 
 p_e1 = @(x) e_1(x) .* fun_x(x);
-% q = integral(fun_x,-inf,inf);
+% q = integral(fun_x,-inf,inf)
 p_e = integral(p_e1,-inf,inf);
 
 end
 
 %% graphs
-
+% 
 % figure()
 % fplot(fun_x);
 % figure()
 % fplot(p_e1);
 % figure();
 % fplot(e_1);
+% end
