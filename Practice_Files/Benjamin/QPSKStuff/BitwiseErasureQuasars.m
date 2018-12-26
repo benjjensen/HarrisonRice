@@ -1,15 +1,13 @@
 close all, clear all;
-sigmaSquared = 16;
+sigmaSquared = .8;
 G = 1;
-epsilon = .01;
+epsilon = .5;
 b = [1 -1];
 
 %%%%%%%%%%%%%%%%%%%
 % Creates the QPSK symbol locations
 a = [1+j -1+j -1-j 1-j];
 
-epsilon = .001;
-sigmaSquared = .3;
 for re = -50:50         % -50:50 creates a 101 x 101 grid
     for im = -50:50
         x(re+51,im+51) = (re/25) + (im/25)*j;
@@ -17,7 +15,7 @@ for re = -50:50         % -50:50 creates a 101 x 101 grid
 end
 real_x = real(x);
 imag_x = imag(x);
-          
+
 fx = zeros(2, 101, 101);
 fxSum = zeros(1, 101, 101);
 for loop = 1:2
@@ -37,8 +35,8 @@ sumOfProb = zeros(101, 101);
 for xCoord = -50:50
     for yCoord = -50:50
         for loop = 1:2
-        sumOfProb(xCoord+51,yCoord+51) = sumOfProb(xCoord+51,yCoord+51) + ...
-                  p_b(loop,xCoord+51,yCoord+51)*log2(p_b(loop,xCoord+51,yCoord+51));
+            sumOfProb(xCoord+51,yCoord+51) = sumOfProb(xCoord+51,yCoord+51) + ...
+                p_b(loop,xCoord+51,yCoord+51)*log2(p_b(loop,xCoord+51,yCoord+51));
         end
         H((xCoord+51), (yCoord+51)) = -(sumOfProb(xCoord+51, yCoord+51));
     end
@@ -52,8 +50,8 @@ for c = 1:101
     for d = 1:101
         if (I(c,d) < epsilon)
             bits(c,d) = 1;
-            else
-                bits (c,d) = 0;
+        else
+            bits (c,d) = 0;
         end
     end
 end
