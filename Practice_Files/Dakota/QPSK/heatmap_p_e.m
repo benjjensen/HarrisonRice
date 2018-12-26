@@ -1,9 +1,12 @@
+clear;
+close all;
+
 load('linearSignalReducedCarriers.mat');
 num_carriers = 45;
 num_rows = 90;
 num_cols = 345;
-sigmaSquared = .3;
-epsilon = .01;
+sigmaSquared = .5;
+epsilon = .000005;
 map_p_e = zeros(num_carriers,num_rows,num_cols);
 for row = 1:num_rows
     tic;
@@ -34,7 +37,7 @@ capacity = num_carriers - (num_carriers * mean_map_p_e);
 harrison_cap = capacity(36:65,65:98);
 [harrison_max,I] = max(harrison_cap);
 [harrison_max,J] = max(harrison_max);
-
+harrison_carrier_p_e
 secrecy_capacity = capacity;
 
 for row = 1:num_rows
