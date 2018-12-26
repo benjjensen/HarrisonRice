@@ -4,8 +4,8 @@ close all; clear all;
 % Creates the QPSK symbol locations
 a = [1+j -1+j -1-j 1-j];
 
-epsilon = .000001;
-sigmaSquared = 2.2444e-4;
+epsilon = .001;
+sigmaSquared = .3;
 % for sigmaSquared = .9:.1:1
 for re = -50:50         % -50:50 creates a 101 x 101 grid
     for im = -50:50
@@ -18,9 +18,10 @@ imag_x = imag(x);
 fx = zeros(4, 101, 101);
 fxSum = zeros(1, 101, 101);
 for loop = 1:4
-    fx(loop,:,:) = (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((x-.1415*a(loop)).^2));
+    fx(loop,:,:) = (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((x-1*a(loop)).^2));
     fxSum(1, :,:) = fxSum(1, :,:) + fx(loop,:,:);
 end
+%fxSum = fxSum/4;
 
 p_a = zeros(4, 101, 101);
 for loop = 1:4

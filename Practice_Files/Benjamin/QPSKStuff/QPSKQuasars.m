@@ -11,7 +11,8 @@ load('linear_signal.mat');
 a = [1+j -1+j -1-j 1-j];
 
 sigmaSquared = zeros(64, 90, 345);
-H2 = zeros(64, 90, 345);
+%H2 = zeros(64, 90, 345);
+    H2 = ones(64, 90, 345);
 
 % for heatmapX = 1:345
 %     for heatmapY = 1:90
@@ -21,7 +22,7 @@ carrier = 45;
 
         %for carrier = 45:45
             sigmaSquared(carrier, heatmapY, heatmapX) = linear_noisefloor(carrier, heatmapY, heatmapX)/2;
-            H2(carrier,heatmapY,heatmapX) = sqrt(linear_signal(carrier,heatmapY,heatmapX));
+            % H2(carrier,heatmapY,heatmapX) = sqrt(linear_signal(carrier,heatmapY,heatmapX));
             
             for re = -50:50         % -50:50 creates a 101 x 101 grid
                 for im = -50:50
