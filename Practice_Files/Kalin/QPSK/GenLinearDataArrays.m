@@ -336,3 +336,37 @@ for i = 1:1
     linear_noisefloor_avg = linear_noisefloor_avg / 64;
     save('linear_noisefloor_avg.mat','linear_noisefloor_avg');
 end
+
+%% Truncate arrays
+load linear_signal.mat;
+load linear_noisefloor.mat;
+truncated_linear_signal = linear_signal(11:55,:,:);
+truncated_linear_noise = linear_noisefloor(10:54,:,:);
+
+save('truncated_linear_signal.mat','truncated_linear_signal');
+save('truncated_linear_noise.mat','truncated_linear_noise');
+
+for x = 1:45
+    for y = 1:90
+        for z = 1:345
+            truncated_linear_noise_avg(x,y,z) = sum(truncated_linear_noise(:,y,z));
+        end
+    end
+end
+truncated_linear_noise_avg = truncated_linear_noise_avg / 45;
+save('truncated_linear_noise_avg.mat','truncated_linear_noise_avg');
+
+count = 0;
+avg = 0;
+for x = 1:1
+    for y = 1:90
+        for z = 1:345
+            if isnan(truncated_linear_noise_avg(x,y,z))
+            else
+                count = count + 1;
+                avg = avg + truncated_linear_noise_avg(x,y,z);
+            end
+        end
+    end
+end
+avg = avg / count;
