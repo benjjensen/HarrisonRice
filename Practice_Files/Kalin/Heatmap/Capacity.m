@@ -62,7 +62,7 @@ if (plotarrays)
     load('tx2_adjusted_capacity.mat');
     load('tx2_secrecy_capacity.mat');
     load('tx2_adjusted_secrecy_capacity.mat');
-    load tx2_temp.mat;
+%     load tx2_temp.mat;
     I = imread('ClydeGIMPnoRX.png');
     
     if (includetx1)
