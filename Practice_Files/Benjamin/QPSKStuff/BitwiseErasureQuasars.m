@@ -1,9 +1,10 @@
 close all, clear all;
-sigmaSquared = .8;
-G = 1;
-epsilon = .1;
-b = [1 -1];
-c = [j -j];
+
+sigmaSquared = .0045;
+G = 1;          % H in the likelihood equation, but we are using H for equivocation
+epsilon = .1;   % Threshold used to determine whether or not a bit was erased
+b = [1 -1];     % Real bit
+c = [j -j];     % Imaginary bit
 
 %%%%%%%%%%%%%%%%%%%
 % Creates the QPSK symbol locations
@@ -17,6 +18,11 @@ end
 real_x = real(x);
 imag_x = imag(x);
 
+
+
+
+%% Equivocation
+    % Likelihood function for the real bit
 fx_real = zeros(2, 101, 101);
 fxSum_real = zeros(1, 101, 101);
 for loop = 1:2
@@ -25,24 +31,28 @@ for loop = 1:2
 end
 fxSum_real = fxSum_real .* .5;
 
-    fx_imag = zeros(2, 101, 101);
-    fxSum_imag = zeros(1, 101, 101);
-    for loop = 1:2
-        fx_imag(loop,:,:) = (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((x-1*c(loop)).^2));
-        fxSum_imag(1, :,:) = fxSum_imag(1, :,:) + fx_imag(loop,:,:);
-    end
-    fxSum_imag = fxSum_imag .* .5;
+    % Likelihood function for the imaginary bit
+fx_imag = zeros(2, 101, 101);
+fxSum_imag = zeros(1, 101, 101);
+for loop = 1:2
+    fx_imag(loop,:,:) = (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((x-1*c(loop)).^2));
+    fxSum_imag(1, :,:) = fxSum_imag(1, :,:) + fx_imag(loop,:,:);
+end
+fxSum_imag = fxSum_imag .* .5;
 
+   % Probability for real bit 
 p_b= zeros(2, 101, 101);
 for n = 1:2
     p_b(n,:,:) = fx_real(n,:,:) ./ (2*fxSum_real(1,:,:));
 end
 
-    p_c= zeros(2, 101, 101);
-    for n = 1:2
-        p_c(n,:,:) = fx_imag(n,:,:) ./ (2*fxSum_imag(1,:,:));
-    end
+    % Probability for imaginary bit
+p_c= zeros(2, 101, 101);
+for n = 1:2
+    p_c(n,:,:) = fx_imag(n,:,:) ./ (2*fxSum_imag(1,:,:));
+end
 
+    % Equivocation for real part
 H_real = zeros(101, 101);
 sumOfProb_real = zeros(101, 101);
 for xCoord = -50:50
@@ -55,52 +65,22 @@ for xCoord = -50:50
     end
 end
 
-    H_imag = zeros(101, 101);
-    sumOfProb_imag = zeros(101, 101);
-    for xCoord = -50:50
-        for yCoord = -50:50
-            for loop = 1:2
-                sumOfProb_imag(xCoord+51,yCoord+51) = sumOfProb_imag(xCoord+51,yCoord+51) + ...
-                    p_c(loop,xCoord+51,yCoord+51)*log2(p_c(loop,xCoord+51,yCoord+51));
-            end
-            H_imag((xCoord+51), (yCoord+51)) = -(sumOfProb_imag(xCoord+51, yCoord+51));
+    % Equivocation for imaginary part
+H_imag = zeros(101, 101);
+sumOfProb_imag = zeros(101, 101);
+for xCoord = -50:50
+    for yCoord = -50:50
+        for loop = 1:2
+            sumOfProb_imag(xCoord+51,yCoord+51) = sumOfProb_imag(xCoord+51,yCoord+51) + ...
+                p_c(loop,xCoord+51,yCoord+51)*log2(p_c(loop,xCoord+51,yCoord+51));
         end
-    end
-    
-H = H_real + H_imag;
-
-    
-I_real = 1 - H_real;
-    I_imag = 1 - H_imag;
-    
-    I = I_real + I_imag;
-
-bits_real = zeros(101,101);
-for c = 1:101
-    for d = 1:101
-        if (I_real(c,d) < epsilon)
-            bits_real(c,d) = 1;
-        else
-            bits_real (c,d) = 0;
-        end
+        H_imag((xCoord+51), (yCoord+51)) = -(sumOfProb_imag(xCoord+51, yCoord+51));
     end
 end
 
+   % Combined Equivocation
+H = H_real + H_imag;
 
-    bits_imag = zeros(101,101);
-    for c = 1:101
-        for d = 1:101
-            if (I_imag(c,d) < epsilon)
-                bits_imag(c,d) = 1;
-            else
-                bits_imag (c,d) = 0;
-            end
-        end
-    end
-
-bits = bits_imag + bits_real;
-
-%% Graphs
 
 %%%%% Plot Equivocation
 figure();
@@ -117,6 +97,16 @@ view(45, 60);
 colormap(jet);
 hold off
 
+
+
+
+%% Mutual Information 
+
+I_real = 1 - H_real;
+I_imag = 1 - H_imag;
+
+I = I_real + I_imag;
+
 %%%%% Plot Mutual Information
 figure();
 hold on
@@ -132,6 +122,35 @@ view(45, 60);
 colormap(jet);
 hold off
 
+
+
+
+%% Bits 
+
+bits_real = zeros(101,101);
+for c = 1:101
+    for d = 1:101
+        if (I_real(c,d) < epsilon)  % Compares to a threshold 
+            bits_real(c,d) = 1;
+        else
+            bits_real (c,d) = 0;
+        end
+    end
+end
+
+
+bits_imag = zeros(101,101);
+for c = 1:101
+    for d = 1:101
+        if (I_imag(c,d) < epsilon)
+            bits_imag(c,d) = 1;
+        else
+            bits_imag (c,d) = 0;
+        end
+    end
+end
+
+bits = bits_imag + bits_real;
 
 %%%%% Bits lost
 figure();
