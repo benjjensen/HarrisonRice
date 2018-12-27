@@ -1,12 +1,13 @@
 clear;
 close all;
 
-load truncated_linear_signal.mat;
+load linear_signal.mat;
+signal = linear_signal;
 
 %% Capacity
 noise = .01;
 
-cpacity = (1/2) * log2(1 + (truncated_linear_signal / noise));
+cpacity = (1/2) * log2(1 + (signal / noise));
 
 for y = 1:90
     for z = 1:345
