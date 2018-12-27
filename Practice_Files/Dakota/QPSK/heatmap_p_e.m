@@ -7,11 +7,13 @@ num_rows = 65; % for ignoring hallway
 num_cols = 240; % for ignoring hallway
 % num_rows = 90; % to include hallway
 % num_cols = 345; % to include hallway
-sigmaSquared = .01;
+sigmaSquared = .004477;
 epsilon = .01;
+threshold = .1;
 map_p_e = zeros(num_carriers,num_rows,num_cols);
+good_map_p_e = [];
+tic;
 for row = 1:num_rows
-    tic;
    for col = 1:num_cols
       for carrier = 1:num_carriers
             if(isnan(linearSignalReducedCarriers(carrier,row,col)))
@@ -23,9 +25,8 @@ for row = 1:num_rows
             end
       end
    end
-   toc;
 end
-
+toc;
 mean_map_p_e = zeros(num_rows,num_cols);
 for row = 1:num_rows
   for col = 1:num_cols
@@ -39,7 +40,8 @@ capacity = num_carriers - (num_carriers * mean_map_p_e);
 harrison_cap = capacity(36:65,65:98);
 [harrison_max,I] = max(harrison_cap);
 [harrison_max,J] = max(harrison_max);
-% harrison_carrier_p_e
+index = [I(J) J];
+
 secrecy_capacity = capacity;
 
 for row = 1:num_rows
@@ -52,6 +54,48 @@ for row = 1:num_rows
         end
     end
 end
+
+% bad_carriers = [];
+% i = 1;
+% harrison_carrier_p_e = map_p_e(:,36:65,65:98);
+% for carrier = 1:num_carriers
+%     if harrison_carrier_p_e(carrier,index(1),index(2)) > threshold
+%         bad_carriers(i) = carrier;
+%         i = i + 1;
+%     end
+% end
+% harrison_carrier_p_e(bad_carriers,:,:) = [];
+% map_p_e(bad_carriers,:,:) = [];
+% 
+% [num_carriers,~,~] = size(map_p_e);
+% map_cap = zeros(num_rows,num_cols);
+% for row = 1:num_rows
+%     for col = 1:num_cols
+%         for carrier = 1:num_carriers
+%             if isnan(map_p_e(carrier,row,col))
+%                 map_cap(row,col) = nan;
+%                 break;
+%             else
+%                 map_cap(row,col) = map_cap(row,col) + (1 - map_p_e(carrier,row,col));
+%             end
+%         end
+%     end
+% end
+% 
+% harrison_good_cap = map_cap(36:65,65:98);
+% [harrison_good_max,I] = max(harrison_good_cap);
+% [harrison_good_max,J] = max(harrison_good_max);
+% 
+% good_cap = map_cap;
+% for row = 1:num_rows
+%     for col = 1:num_cols
+%         if isnan(map_cap(row,col))
+%             good_cap(row,col) = nan;
+%         else
+%             good_cap(row,col) = harrison_good_max - map_cap(row,col);
+%         end
+%     end
+% end
 %% HEATMAP
 I = imread('floor_plan.png');
 figure()
