@@ -2,12 +2,13 @@ clear;
 close all;
 
 load linear_signal.mat;
+load linear_noisefloor.mat;
 signal = linear_signal;
+noise = linear_noisefloor;
 
 %% Capacity
-noise = .01;
 
-cpacity = (1/2) * log2(1 + (signal / noise));
+cpacity = (1/2) * log2(1 + (signal ./ noise));
 
 for y = 1:90
     for z = 1:345
