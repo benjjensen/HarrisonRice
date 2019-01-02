@@ -1139,6 +1139,9 @@ void gps_thread_main_function(const pid_t gps_process_id,
         // loop, and a lot can happen in a second. Also check to be sure that we
         // didn't run out of gps fixes from gpsbabel.
         if(!continue_recording_gps.load() || !input_from_gps) {
+            if(!first_gps_position_recorded.load()) {
+                first_gps_position_recorded.store(true);
+            }
             break;
         }
 

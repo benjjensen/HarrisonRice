@@ -466,6 +466,11 @@ int main(int argc, char** argv) {
 
     std::cout << "sampler v1.0\n" << std::endl;
 
+    if(getuid() != 0) {
+        std::cerr << "ERROR: ROOT PRIVELEDGES REQUIRED" << std::endl;
+        exit(1);
+    }
+
     std::cout << "Reserving a cpuset for acquire...";
     fflush(stdout);
     system("/usr/bin/sudo ./reserve_acquire_cpus.sh >/dev/null 2>/dev/null");
