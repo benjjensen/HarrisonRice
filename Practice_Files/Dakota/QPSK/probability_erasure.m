@@ -3,7 +3,7 @@ function [p_e] = probability_erasure(sigmaSquared,G,epsilon)
 %   Detailed explanation goes here
 b = [1 -1];
 
-% close all;
+close all;
 % sigmaSquared = 16;
 % G = 1;
 % epsilon = .01;
@@ -26,14 +26,23 @@ p_e1 = @(x) e_1(x) .* fun_x(x);
 % q = integral(fun_x,-inf,inf)
 p_e = integral(p_e1,-inf,inf);
 
-end
+% end
 
 %% graphs
 % 
 % figure()
 % fplot(fun_x);
+% xlim([-20*G,20*G]);
 % figure()
 % fplot(p_e1);
+% xlim([-10*G,10*G]);
 % figure();
 % fplot(e_1);
-% end
+% xlim([-10*G,10*G]);
+% figure();
+% fplot(H);
+% xlim([-50*G,50*G]);
+% figure();
+% fplot(I);
+% xlim([-50*G,50*G]);
+end
