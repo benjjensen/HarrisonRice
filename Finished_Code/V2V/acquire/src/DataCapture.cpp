@@ -556,15 +556,9 @@ void set_gps_position_time(GPSPosition& position,
         position.date = one_second_previous.date;
 
         position.hour = one_second_previous.hour;
-        position.minute = one_second_previous.minute;
-        position.second = one_second_previous.second + 1;
 
-        if(position.second >= 60) {
-            position.minute += 1;
-            position.second %= 60;
-
-            position.hour += position.minute / 60;
-            position.minute %= 60;
+        if(position.minute < one_second_previous.minute) {
+            position.hour += 1;
 
             position.date += position.hour / 24;
             position.hour %= 24;
@@ -590,12 +584,29 @@ void set_gps_position_time(GPSPosition& position,
         if(position.year != time->tm_year + 1900 ||
                 position.month != time->tm_mon + 1 ||
                 position.date != time->tm_mday) {
+            // GPS Satellites use a week counter that resets every 19.6 years,
+            // and so the GPS unit sometimes returns a date that is 19.6 years
+            // off. This isn't a problem if we already know the current date.
+
             position.year = time->tm_year + 1900;
             position.month = time->tm_mon + 1;
             position.date = time->tm_mday;
+
+            // The hour might be incorrect if the original (incorrect) date was
+            // during daylight savings time and the correct date is not or
+            // vice-versa.
             position.hour = time->tm_hour;
-            position.minute = time->tm_min;
-            position.second = time->tm_sec;
+            if(time->tm_min != position.minute) {
+                if(position.minute >= 50 && time->tm_min <= 10) {
+                    ++position.hour;
+                }
+                else if(position.minute <= 10 &&
+                        time->tm_min >= 50) {
+                    --position.hour;
+                }
+            }
+            // No need to update the minute or hour because those are always
+            // accurate in the given GPS Position.
         }
     }
 }
