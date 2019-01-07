@@ -2,26 +2,30 @@ clear;
 close all;
 
 load('tx2_linear_signal.mat');
+load('linear_signal.mat');
+load('linear_noisefloor.mat');
 num_carriers = 64;
 num_rows = 65; % for ignoring hallway
 num_cols = 240; % for ignoring hallway
 % num_rows = 90; % to include hallway
 % num_cols = 345; % to include hallway
-sigmaSquared = .004477;
+sigmaSquared = 501.187;
 epsilon = .01;
 threshold = .1;
 map_p_e = zeros(num_carriers,num_rows,num_cols);
 good_map_p_e = [];
 tic;
 for row = 1:num_rows
+    row
    for col = 1:num_cols
       for carrier = 1:num_carriers
-            if(isnan(tx2_linear_signal(carrier,row,col)))
+            if(isnan(linear_signal(carrier,row,col)))
                 map_p_e(:,row,col) = nan;
                 break;
             else
-                map_p_e(carrier,row,col) = probability_erasure(sigmaSquared,...
-                    tx2_linear_signal(carrier,row,col),epsilon);
+                map_p_e(carrier,row,col) = probability_erasure(...
+                    linear_noisefloor(carrier,row,col)*sigmaSquared,...
+                    linear_signal(carrier,row,col),epsilon);
             end
       end
    end
