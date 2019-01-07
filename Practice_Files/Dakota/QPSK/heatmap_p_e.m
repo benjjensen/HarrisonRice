@@ -19,13 +19,13 @@ for row = 1:num_rows
     row
    for col = 1:num_cols
       for carrier = 1:num_carriers
-            if(isnan(tx2_linear_signal(carrier,row,col)))
+            if(isnan(linear_signal(carrier,row,col)))
                 map_p_e(:,row,col) = nan;
                 break;
             else
                 map_p_e(carrier,row,col) = probability_erasure(...
                     linear_noisefloor(carrier,row,col)*sigmaSquared,...
-                    tx2_linear_signal(carrier,row,col),epsilon);
+                    linear_signal(carrier,row,col),epsilon);
             end
       end
    end
