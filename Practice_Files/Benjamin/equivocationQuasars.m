@@ -62,9 +62,11 @@ C((I>=epsilon) & (I < (1+epsilon))) = 2;
 C(I>=(1+epsilon)) = 3;
 C = reshape(C,size(I));
 
+a_heights = [I(76,76) I(26,76) I(26,26) I(76,26)];
+
 figure();
 hold on
-plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+plot3(real(a), imag(a), a_heights, 'o', 'MarkerFaceColor', 'black', 'Color', 'black');
 surface(real_x, imag_x, I, C);
 title("Symbol Threshold");
 xlabel('In-Phase');

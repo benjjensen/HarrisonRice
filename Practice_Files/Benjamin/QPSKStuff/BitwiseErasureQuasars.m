@@ -119,10 +119,13 @@ C2 = reshape(C2,size(I_imag));
 % C = reshape(C, size(I));
 C = C1 + C2;
 
+a_heights = [I(76,76) I(26,76) I(26,26) I(76,26)];
+
+
 %%%%% Plot Mutual Information
 figure();
 hold on
-plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+plot3(real(a), imag(a), a_heights, 'o', 'MarkerFaceColor', 'black', 'Color', 'black');
 %surface(real_x, imag_x, I_real,C1);
 %surface(real_x, imag_x, I_imag,C2);
 surface(real_x, imag_x, I,C);
