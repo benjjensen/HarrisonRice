@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <boost/algorithm/string.hpp>
+
 DataCapture::DataCapture() {
     // Set some reasonable defaults for the member fields:
     name = "";
@@ -397,6 +399,8 @@ GPSPosition::GPSPosition() {
     longitude = 11100;
 
     altitude_feet = 4500;
+
+    fix_type = "None";
 }
 
 void GPSPosition::write_to_stream(std::ostream &out) {
@@ -408,10 +412,12 @@ void GPSPosition::write_to_stream(std::ostream &out) {
 
     out << blocks_captured << " blocks" << FIELD_DELIMITER;
 
-    out << latitude << FIELD_DELIMITER;
-    out << longitude << FIELD_DELIMITER;
+    out << std::setprecision(12) << latitude << FIELD_DELIMITER;
+    out << std::setprecision(13) << longitude << FIELD_DELIMITER;
 
-    out << altitude_feet;
+    out << altitude_feet << FIELD_DELIMITER;
+
+    out << fix_type;
 }
 
 bool GPSPosition::read_from_stream(std::istream &in) {
@@ -428,6 +434,7 @@ bool GPSPosition::read_from_stream(std::istream &in) {
     double longitude = 11100;
     double altitude_feet = 4500;
 
+    std::string fix_type = "None";
 
     in >> year;
     // Ignore the '-' character.
@@ -467,6 +474,11 @@ bool GPSPosition::read_from_stream(std::istream &in) {
 
     in >> altitude_feet;
 
+    // Ignore the field delimiter and the space before the fix type.
+    in.ignore();
+    in.ignore();
+    in >> fix_type;
+
     if(in) {
         this->year = year;
         this->month = month;
@@ -480,6 +492,8 @@ bool GPSPosition::read_from_stream(std::istream &in) {
         this->latitude = latitude;
         this->longitude = longitude;
         this->altitude_feet = altitude_feet;
+
+        this->fix_type = fix_type;
 
         return true;
     }
@@ -500,6 +514,10 @@ std::string GPSPosition::get_timestamp() {
     return timestamp.str();
 }
 
+bool GPSPosition::is_valid_fix() {
+    return boost::algorithm::to_lower_copy(fix_type) != "none";
+}
+
 std::istream & operator>>(std::istream &in, GPSPosition &position) {
     position.read_from_stream(in);
     return in;
@@ -508,4 +526,87 @@ std::istream & operator>>(std::istream &in, GPSPosition &position) {
 std::ostream & operator<<(std::ostream &out, GPSPosition &position) {
     position.write_to_stream(out);
     return out;
+}
+
+int days_in_month(int month, int year) {
+    switch(month) {
+    case 2:
+        if(year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
+            return 29;
+        }
+        else {
+            return 28;
+        }
+    case 4:
+    case 6:
+    case 9:
+    case 11:
+        return 30;
+    default:
+        return 31;
+    }
+}
+
+void set_gps_position_time(GPSPosition& position,
+        GPSPosition one_second_previous, bool previous_valid,
+        std::tm* time) {
+    if(previous_valid) {
+        position.year = one_second_previous.year;
+        position.month = one_second_previous.month;
+        position.date = one_second_previous.date;
+
+        position.hour = one_second_previous.hour;
+
+        if(position.minute < one_second_previous.minute) {
+            position.hour += 1;
+
+            position.date += position.hour / 24;
+            position.hour %= 24;
+
+            int month_length = days_in_month(position.month, position.year);
+            if(position.date > month_length) {
+                ++position.month;
+                position.date = 1;
+
+                if(position.month > 12) {
+                    ++position.year;
+                    position.month = 1;
+                }
+            }
+        }
+    }
+    else {
+        if(time == NULL) {
+            std::time_t t = std::time(0);
+            time = std::localtime(&t);
+        }
+
+        if(position.year != time->tm_year + 1900 ||
+                position.month != time->tm_mon + 1 ||
+                position.date != time->tm_mday) {
+            // GPS Satellites use a week counter that resets every 19.6 years,
+            // and so the GPS unit sometimes returns a date that is 19.6 years
+            // off. This isn't a problem if we already know the current date.
+
+            position.year = time->tm_year + 1900;
+            position.month = time->tm_mon + 1;
+            position.date = time->tm_mday;
+
+            // The hour might be incorrect if the original (incorrect) date was
+            // during daylight savings time and the correct date is not or
+            // vice-versa.
+            position.hour = time->tm_hour;
+            if(time->tm_min != position.minute) {
+                if(position.minute >= 50 && time->tm_min <= 10) {
+                    ++position.hour;
+                }
+                else if(position.minute <= 10 &&
+                        time->tm_min >= 50) {
+                    --position.hour;
+                }
+            }
+            // No need to update the minute or hour because those are always
+            // accurate in the given GPS Position.
+        }
+    }
 }

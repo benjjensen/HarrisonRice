@@ -63,6 +63,10 @@ int main(int argc, char** argv) {
     command << environment.gpsbabelCall << " -T -i garmin -f usb: -o" <<
             " xcsv,style=" << environment.xcsvFormatFilename << " -F " <<
             environment.outputFilename;
+
+    std::time_t t = std::time(0);
+    std::tm* start_time = std::localtime(&t);
+
     int status = system(command.str().c_str());
 
     // Check the return status for errors.
@@ -110,7 +114,25 @@ int main(int argc, char** argv) {
         remove(environment.outputFilename.c_str());
         std::exit(1);
     }
+
+    std::vector<GPSPosition> positions;
+
+    set_gps_position_time(firstPosition, firstPosition, false, start_time);
+    positions.push_back(firstPosition);
+    GPSPosition position, previousPosition = firstPosition;
+    while(GPSFile >> position) {
+        set_gps_position_time(position, previousPosition, true);
+        positions.push_back(position);
+        previousPosition = position;
+    }
+
     GPSFile.close();
+
+    std::ofstream GPSFileRetimed(environment.outputFilename.c_str());
+    for(int i = 0; i < positions.size(); ++i) {
+        GPSFileRetimed << positions.at(i) << std::endl;
+    }
+    GPSFileRetimed.close();
 
     // At this point, we're confident that gpsbabel succeeded in capturing the
     // gps data.
