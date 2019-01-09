@@ -1,8 +1,8 @@
 close all, clear all;
 
-sigmaSquared = .0045;
+sigmaSquared = .5;
 G = 1;          % H in the likelihood equation, but we are using H for equivocation
-epsilon = .1;   % Threshold used to determine whether or not a bit was erased
+epsilon = .5;   % Threshold used to determine whether or not a bit was erased
 b = [1 -1];     % Real bit
 c = [j -j];     % Imaginary bit
 
@@ -19,14 +19,12 @@ real_x = real(x);
 imag_x = imag(x);
 
 
-
-
 %% Equivocation
     % Likelihood function for the real bit
 fx_real = zeros(2, 101, 101);
 fxSum_real = zeros(1, 101, 101);
 for loop = 1:2
-    fx_real(loop,:,:) = (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((x-1*b(loop)).^2));
+    fx_real(loop,:,:) = (1/(sqrt(2*pi*sigmaSquared)))*exp((-1/(2*sigmaSquared))*abs((x-G*b(loop)).^2));
     fxSum_real(1, :,:) = fxSum_real(1, :,:) + fx_real(loop,:,:);
 end
 fxSum_real = fxSum_real .* .5;
@@ -35,7 +33,7 @@ fxSum_real = fxSum_real .* .5;
 fx_imag = zeros(2, 101, 101);
 fxSum_imag = zeros(1, 101, 101);
 for loop = 1:2
-    fx_imag(loop,:,:) = (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((x-1*c(loop)).^2));
+    fx_imag(loop,:,:) = (1/(sqrt(2*pi*sigmaSquared)))*exp((-1/(2*sigmaSquared))*abs((x-G*c(loop)).^2));
     fxSum_imag(1, :,:) = fxSum_imag(1, :,:) + fx_imag(loop,:,:);
 end
 fxSum_imag = fxSum_imag .* .5;
@@ -83,19 +81,19 @@ H = H_real + H_imag;
 
 
 %%%%% Plot Equivocation
-figure();
-hold on
-plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-% surface(real_x, imag_x, H_real);
-% surface(real_x, imag_x, H_imag);
-surface(real_x, imag_x, H);
-title("\sigma^2 = " + string(sigmaSquared));
-xlabel('real');
-ylabel('imaginary');
-zlabel('Equivocation');
-view(45, 60);
-colormap(jet);
-hold off
+% figure();
+% hold on
+% plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+% % surface(real_x, imag_x, H_real);
+% % surface(real_x, imag_x, H_imag);
+% surface(real_x, imag_x, H);
+% title("\sigma^2 = " + string(sigmaSquared));
+% xlabel('real');
+% ylabel('imaginary');
+% zlabel('Equivocation');
+% view(45, 60);
+% colormap(jet);
+% hold off
 
 
 
@@ -107,19 +105,38 @@ I_imag = 1 - H_imag;
 
 I = I_real + I_imag;
 
+
+C1(I_real<epsilon) = 1;
+C1((I_real>=epsilon)) = 2;
+C1 = reshape(C1,size(I_real));
+
+C2(I_imag<epsilon) = 1;
+C2((I_imag>=epsilon)) = 2;
+C2 = reshape(C2,size(I_imag));
+
+% C(I<(2*epsilon)) = 1;
+% C(I>=(2*epsilon)) = 2;
+% C = reshape(C, size(I));
+C = C1 + C2;
+
+a_heights = [I(76,76) I(26,76) I(26,26) I(76,26)];
+
+
 %%%%% Plot Mutual Information
 figure();
 hold on
-plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-% surface(real_x, imag_x, I_real);
-% surface(real_x, imag_x, I_imag);
-surface(real_x, imag_x, I);
-title("\sigma^2 = " + string(sigmaSquared));
-xlabel('real');
-ylabel('imaginary');
+plot3(real(a), imag(a), a_heights, 'o', 'MarkerFaceColor', 'black', 'Color', 'black');
+%surface(real_x, imag_x, I_real,C1);
+%surface(real_x, imag_x, I_imag,C2);
+surface(real_x, imag_x, I,C);
+title("Bitwise Threshold");
+% title("\sigma^2 = " + string(sigmaSquared));
+xlabel('In-Phase');
+ylabel('Quadrature');
 zlabel('Mutual Information');
 view(45, 60);
-colormap(jet);
+colormap([0,1,0;1,0,0;0,0,1]);
+saveas(gcf,'BitInformationGraph','epsc');
 hold off
 
 
@@ -152,16 +169,16 @@ end
 
 bits = bits_imag + bits_real;
 
-%%%%% Bits lost
-figure();
-hold on
-plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-% surface(real_x, imag_x, bits_real);
-% surface(real_x, imag_x, bits_imag);
-surface(real_x, imag_x, bits);
-title("\sigma^2 = " + string(sigmaSquared));
-xlabel('real');
-ylabel('imaginary');
-zlabel('Bits');
-view(45, 60);
-colormap(jet);
+% %%%%% Bits lost
+% figure();
+% hold on
+% plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+% % surface(real_x, imag_x, bits_real);
+% % surface(real_x, imag_x, bits_imag);
+% surface(real_x, imag_x, bits);
+% title("\sigma^2 = " + string(sigmaSquared));
+% xlabel('real');
+% ylabel('imaginary');
+% zlabel('Bits');
+% view(45, 60);
+% colormap(jet);

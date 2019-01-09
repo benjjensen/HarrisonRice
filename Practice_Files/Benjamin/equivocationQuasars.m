@@ -4,8 +4,8 @@ close all; clear all;
 % Creates the QPSK symbol locations
 a = [1+j -1+j -1-j 1-j];
 
-epsilon = .001;
-sigmaSquared = .3;
+epsilon = .5;
+sigmaSquared = .5;
 % for sigmaSquared = .9:.1:1
 for re = -50:50         % -50:50 creates a 101 x 101 grid
     for im = -50:50
@@ -42,30 +42,39 @@ end
 
 
 %%%%% Plot Equivocation
-figure();
-hold on
-plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-surface(real_x, imag_x, H);
-title("\sigma^2 = " + string(sigmaSquared));
-xlabel('real');
-ylabel('imaginary');
-zlabel('Equivocation');
-view(45, 60);
-colormap(jet);
-hold off
+% figure();
+% hold on
+% plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+% surface(real_x, imag_x, H);
+% title("\sigma^2 = " + string(sigmaSquared));
+% xlabel('real');
+% ylabel('imaginary');
+% zlabel('Equivocation');
+% view(45, 60);
+% colormap(jet);
+% hold off
 
 %%%%% Plot Mutual Information
+
+I = 2 - H;
+C(I<epsilon) = 1;
+C((I>=epsilon) & (I < (1+epsilon))) = 2;
+C(I>=(1+epsilon)) = 3;
+C = reshape(C,size(I));
+
+a_heights = [I(76,76) I(26,76) I(26,26) I(76,26)];
+
 figure();
 hold on
-plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-I = 2 - H;
-surface(real_x, imag_x, I);
-title("\sigma^2 = " + string(sigmaSquared));
-xlabel('real');
-ylabel('imaginary');
+plot3(real(a), imag(a), a_heights, 'o', 'MarkerFaceColor', 'black', 'Color', 'black');
+surface(real_x, imag_x, I, C);
+title("Symbol Threshold");
+xlabel('In-Phase');
+ylabel('Quadrature');
 zlabel('Mutual Information');
 view(45, 60);
-colormap(jet);
+colormap([0,1,0;1,0,0;0,0,1]);
+saveas(gcf,'SymbolInformationGraph','epsc');
 hold off
 
 bits = zeros(101,101);
@@ -84,14 +93,13 @@ for c = 1:101
 end
 %%%%% Bits lost
 
-figure();
-hold on
-plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-surface(real_x, imag_x, bits);
-title("\sigma^2 = " + string(sigmaSquared));
-xlabel('real');
-ylabel('imaginary');
-zlabel('Bits');
-view(45, 60);
-colormap(jet);
-% end
+% figure();
+% hold on
+% plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+% surface(real_x, imag_x, bits);
+% title("\sigma^2 = " + string(sigmaSquared));
+% xlabel('real');
+% ylabel('imaginary');
+% zlabel('Bits');
+% view(45, 60);
+% colormap(jet);
