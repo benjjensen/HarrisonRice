@@ -12,9 +12,13 @@ camacho_cap = zeros(1,num_loops);
 sec_cap_cam = zeros(1,num_loops);
 sec_cap_sma = zeros(1,num_loops);
 index = 0;
-for sigma2 = logspace(-2,4,num_loops)
+q = logspace(-2,4,num_loops);
+% for sigma2 = logspace(-2,4,num_loops)
+tic;
+parfor index = 1:num_loops
     %% Capacity
-    index = index + 1;
+%     index = index + 1;
+    sigma2 = q(index);
     cpacity = (1/2) * log2(1 + (signal ./ (noise*sigma2)));
     capacity = zeros(90,345);
     for y = 1:90
@@ -52,21 +56,23 @@ for sigma2 = logspace(-2,4,num_loops)
     %         end
     %     end
 end
-
+toc;
 %%
 figure()
 hold on;
-plot(logspace(-2,4,num_loops),harrison_cap,'b');
-plot(logspace(-2,4,num_loops),camacho_cap,'g');
-plot(logspace(-2,4,num_loops),smalley_cap,'r');
+yyaxis right
+plot(logspace(-2,4,num_loops),harrison_cap,'-');
+plot(logspace(-2,4,num_loops),camacho_cap,'-');
+plot(logspace(-2,4,num_loops),smalley_cap,'-');
 ylabel('Bits per channel use')
 xlabel('Power attenuation');
 set(gca,'XScale','log');
-hold off;
+% hold off;
 
-figure()
-hold on;
-plot(logspace(-2,4,num_loops),min(sec_cap_cam,sec_cap_sma),'g');
+% figure()
+% hold on;
+yyaxis left
+plot(logspace(-2,4,num_loops),min(sec_cap_cam,sec_cap_sma));
 % plot(logspace(-3,10,num_loops),sec_cap_sma,'r');
 ylabel('Secure bits per channel use');
 xlabel('Power attenuation');
