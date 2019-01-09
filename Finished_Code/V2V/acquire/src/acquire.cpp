@@ -2,11 +2,11 @@
  * @file acquire.cpp This program acquires data continuously from the DAQ card
  * and saves it to disk.
  *
- * For best results, give acquire access to it's own exclusive cpu cores;
+ * For best results, give acquire access to its own exclusive cpu cores;
  * running reserve_acquire_cpus.sh will move all other (movable) processes to
  * a separate cpuset called sys and prepare a cpuset called acquire, which is
- * reserved for just this program. If there is such a cpuset, acquire
- * moves itself into that cpuset in order to take advantage of the reserved
+ * reserved for just this program. If there is such a cpuset, acquire can
+ * move itself into that cpuset in order to take advantage of the reserved
  * cpus.
  *
  * The acquire program must be run in the folder that contains get_usercode.svf,
@@ -18,10 +18,6 @@
  * The recommended command to run acquire is this:
  *     acquire -f <filename> [-gps] -priority -reservecpus
  */
-
-// TODO test to make sure recent changes didn't break anything
-// (looking at the code, they really shouldn't change anything, but make sure)
-// TODO get start time from GPS data
 
 #include <cstdio>
 #include <cstdlib>
@@ -529,7 +525,7 @@ int main(int argc, char** argv) {
 
     // Open the data disk file.
     HANDLE outfile_fd = uv.X_CreateFile((char*)filename.c_str());
-    // disk_fd will be less than zero if the open operation failed.
+    // outfile_fd will be less than zero if the open operation failed.
     if(outfile_fd < 0) {
         std::cerr << "ERROR: UNABLE TO OPEN OUTPUT FILE " << filename <<
                 std::endl;
@@ -548,8 +544,8 @@ int main(int argc, char** argv) {
     //--------------------------------------------------------------------------
 
     // We must wait until now to setup the write thread so that the output file
-    // descriptor in disk_fd is already initialized. (disk_fd is initialized
-    // just above here.)
+    // descriptor in outfile_fd is already initialized. (outfile_fd is
+    // initialized just above here.)
 
     // The flag that indicates whether we're done capturing new data or not.
     boost::atomic<bool> finished_capturing(false);
@@ -922,6 +918,12 @@ int main(int argc, char** argv) {
     // 1024 * 1024 bytes.
     const double EXPECTED_RATE = clock_frequency * 1000000.0 * 2 / 1024 / 1024;
 
+    // This prints out the proportion of data points gathered compared to how
+    // many were expected. Because we paused for three seconds before starting
+    // to gather data and those three seconds were not included in our
+    // calculation of elapsed time, any data from those three seconds that was
+    // gathered will skew this proportion upward. Thus, if everything is working
+    // correctly, expect a value greater than 100% to be printed here.
     std::cout << "--------------------------------------\n";
     printf("Proportion of data points gathered:\n%.5f%%\n",
             blocks_captured.load() / elapsed_time_seconds / EXPECTED_RATE
@@ -1125,7 +1127,7 @@ void gps_thread_main_function(const pid_t gps_process_id,
             new __gnu_cxx::stdio_filebuf<char>(gps_output_fd, std::ios::in);
     std::istream input_from_gps(sb);
 
-    GPSPosition position;
+    GPSPosition position, lastPosition;
     // The flag continue_recording_gps will be set to false by another thread;
     // possibly the main thread, but more likely by the SIGINT signal handler.
     while(continue_recording_gps.load() && input_from_gps) {
@@ -1137,13 +1139,22 @@ void gps_thread_main_function(const pid_t gps_process_id,
         // loop, and a lot can happen in a second. Also check to be sure that we
         // didn't run out of gps fixes from gpsbabel.
         if(!continue_recording_gps.load() || !input_from_gps) {
+            if(!first_gps_position_recorded.load()) {
+                first_gps_position_recorded.store(true);
+            }
             break;
         }
 
         if(!first_gps_position_recorded.load()) {
+            set_gps_position_time(position, lastPosition, false);
             first_gps_position = position;
             first_gps_position_recorded.store(true);
         }
+        else {
+            set_gps_position_time(position, lastPosition, true);
+        }
+
+        lastPosition = position;
 
         position.blocks_captured = blocks_acquired.load();
         capture_info.gps_positions.push_back(position);
@@ -1196,13 +1207,18 @@ std::string get_timestamped_filename(AcquireEnvironment environment,
         while(!first_gps_position_recorded.load()) {
             SLEEP(1); // sleep for 1 millisecond
         }
-        timestamp = first_gps_position.get_timestamp();
-        capture.year = first_gps_position.year;
-        capture.month = first_gps_position.month;
-        capture.date = first_gps_position.date;
-        capture.hour = first_gps_position.hour;
-        capture.minute = first_gps_position.minute;
-        capture.second = first_gps_position.second;
+        if(first_gps_position.is_valid_fix()) {
+            timestamp = first_gps_position.get_timestamp();
+            capture.year = first_gps_position.year;
+            capture.month = first_gps_position.month;
+            capture.date = first_gps_position.date;
+            capture.hour = first_gps_position.hour;
+            capture.minute = first_gps_position.minute;
+            capture.second = first_gps_position.second;
+        }
+        else {
+            timestamp = get_current_timestamp(capture);
+        }
     }
     else {
         timestamp = get_current_timestamp(capture);
@@ -1239,6 +1255,7 @@ void exit_signal_handler(int signal, boost::atomic<bool>* flag_pointer) {
     else {
         std::cout << "----Exit signal received outside of loop----" <<
                 std::endl;
+        // Do nothing; the program will exit shortly on its own.
     }
 }
 
