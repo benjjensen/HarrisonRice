@@ -5,11 +5,11 @@ load('tx2_linear_signal.mat');
 load('linear_signal.mat');
 load('linear_noisefloor.mat');
 num_carriers = 64;
-num_rows = 65; % for ignoring hallway
-num_cols = 240; % for ignoring hallway
-% num_rows = 90; % to include hallway
-% num_cols = 345; % to include hallway
-sigmaSquared = 501.187;
+% num_rows = 65; % for ignoring hallway
+% num_cols = 240; % for ignoring hallway
+num_rows = 90; % to include hallway
+num_cols = 345; % to include hallway
+sigmaSquared = 289.4;
 epsilon = .01;
 threshold = .1;
 map_p_e = zeros(num_carriers,num_rows,num_cols);
