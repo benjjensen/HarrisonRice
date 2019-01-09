@@ -9,14 +9,8 @@
 #include <cstdio>
 #include <omp.h>
 #include <set>
-// #include <stdlib.h>
-// #include "gmp.h"
-// #include "mat.h"
-// #include "matrix.h"
-// #include "mat.h"
 
-static int count = 0;
-static int count2 = 0;
+
 /*
 *get_values Finds the probability of k carriers being good
 *   Receives an array of probabilities and parameters n and k, n being the
@@ -27,97 +21,34 @@ static int count2 = 0;
 void get_values(double *start, const int n, int available_cores, double pr[n+1])
 {
 
-  const int bl = n/2;
+  const int bl = n/2; // size of arrays for this level
   if (n == 1) // base case, create a pmf from one independent variable
   {
-    // std::vector<double> pr;
-    // pr.push_back(1 - *start);
-    // pr.push_back(*start);
     pr[0] = 1 - *start;
     pr[1] = *start;
-    // std::cout << pr[1] << '\n';
-    // return pr;
   }
   else // create a pmf from two different pmfs
   {
     double *nstart = start + bl; // pointer to the first starting value of temp_b
     double *temp_a = new double[bl+1]; //temporary array
     double *temp_b = new double[bl+1]; //temporary array
-    get_values(start,bl,available_cores,temp_a);
-    // std::cout << temp_a[0] << " ";
-    get_values(nstart,bl,available_cores,temp_b);
-    // for(int i = 0; i < bl+1; i++)
-    // {
-    //   std::cout << temp_a[i] << " ";
-    // }
-    // std::cout << '\n';
-    // for(int i = 0; i < bl+1; i++)
-    // {
-    //   std::cout << temp_b[i] << " ";
-    // }
-    // std::cout << '\n';
-    // std::vector<double> temp_a = get_values(start,nend,bl,available_cores);
-    // std::vector<double> temp_b = get_values(nstart,end,bl,available_cores);
-    // std::cout << "Before\n";
+    get_values(start,bl,available_cores,temp_a); // find the pmf of the first half of the data
+    get_values(nstart,bl,available_cores,temp_b); // find the pmf of the second half of the data
     for(int i = 0; i < n+1; i++)
     {
-      pr[i] = 0;
+      pr[i] = 0; // initialize the array to 0
     }
-    // std::cout << '\n';
-
     for(int i = 0; i < bl+1; i++)
     {
       for(int j = 0; j < bl+1; j++)
       {
         int k = i + j;
-        pr[k] = temp_a[i] * temp_b[j];
-        // if(kvals.count(k) == 0)
-        // {
-        //   pr[k] = temp_a[i] * temp_b[j];
-        //   kvals.insert(k);
-        // }
-        // else
-        // {
-        //   pr[k] = pr[k] + temp_a[i] * temp_b[j];
-        // }
+        pr[k] += temp_a[i] * temp_b[j]; // adds the probability of all the combinations of i and j that equal k
       }
     }
-    // std::cout << "\n";
-    // for(int i = 0; i < n+1; i++)
-    // {
-    //   std::cout << pr[i] << " ";
-    // }
-    // std:: cout << '\n';
-    // delete[] temp_a;
-    // delete[] temp_b;
-
-    // return pr;
   }
-
 }
-//     std::vector<double> pr (n+1);
-//     // int th = omp_get_num_threads();
-//       #pragma omp parallel sections
-//       {
-//         #pragma omp section
-//         {
-//           pr_a = get_values(temp_a,bl,first_cores);
-//         }
-//         #pragma omp section
-//         {
-//           pr_b = get_values(temp_b,bl,second_cores);
-//         }
-//       }
-//         // #pragma omp parallel for
-//         for(int j = 0; j < bl; j++)
-//         {
-//           int k = i + j;
-//           pr[k] = pr[k] + pr_a[i]*pr_b[j];
-//         }
 
-
-
-// void make_arr(const char *file, double arr[71][64])
 void make_arr(std::string file, double arr[71][64])
 {
   std::clock_t start;
@@ -133,9 +64,7 @@ void make_arr(std::string file, double arr[71][64])
     {
       break;
     }
-    // std::cout << '\n';
     std::istringstream ss(s);
-    // std::cout << ss.str() << '\n';
     while(ss)
     {
       std::string st;
@@ -143,16 +72,13 @@ void make_arr(std::string file, double arr[71][64])
       {
         break;
       }
-      // std::cout << st << '\n';
       arr[row][col] = stof(st);
-      // std::cout << stof(st) << '\n';
       col++;
     }
     row++;
     col = 0;
   }
   duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
-  // std::cout << "make_arr takes " << duration << " seconds\n";
 }
 /**
 *good_carriers
@@ -167,7 +93,6 @@ std::vector< std::vector<int> > good_carriers(double arr[71][64], double pr_thre
   for (int i = 0; i < 71; i++)
   {
     int index = 0;
-    // std::cout << i << '\n';
     for(int j = 0; j < 64; j++)
     {
       if(arr[i][j] >= pr_threshold)
@@ -176,14 +101,12 @@ std::vector< std::vector<int> > good_carriers(double arr[71][64], double pr_thre
         {
           indices.push_back(std::vector<int> ());
         }
-        // std::cout << j << '\n';
         indices[i].push_back (j);
         index++;
       }
     }
   }
   duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
-  // std::cout << "good_carriers takes " << duration << " seconds\n";
   return indices;
 }
 
@@ -203,7 +126,6 @@ std::vector< std::vector<double> > get_groups(std::vector<double> &pr_mat, int b
   std::vector< std::vector<double> > gg;
   do
   {
-    // std::cout<< i << '\n';
     row++;
     for(int j = 0; j < bl; j++)
     {
@@ -223,7 +145,6 @@ std::vector< std::vector<double> > get_groups(std::vector<double> &pr_mat, int b
     }
   } while(i != 0);
   duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
-  // std::cout << "get_groups takes " << duration << " seconds\n";
   return gg;
 }
 
@@ -246,45 +167,26 @@ std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, const in
     for(int j = 0; j < bl; j++)
     {
       pr[j] = gg[i][j];
-      // std::cout << pr[j] << " ";
     }
     std::clock_t start;
     double duration;
     start = std::clock();
     double *begin = pr;
-    // double *end = pr + bl - 1;
-    // double *probs;
     const int nk = bl+1;
     double probs [nk];
-    // std::cout << '\n';
     get_values(begin,bl,4,probs);
     double s = 0;
-    // for(int k = 0; k < bl + 1; k++)
-    // {
-    //   s += probs[k];
-    // }
-    // std::cout << "\n\n" << s << '\n';
-    // for(int j = 0; j < bl+1; j++)
-    // {
-    //   std::cout << probs[j] << " ";
-    // }
     std::vector<double> pr_mat;
     for(int j = 0; j < bl+1; j++)
     {
       pr_mat.push_back(probs[j]);
     }
     probabilities.push_back(pr_mat);
-    // probabilities.push_back(std::vector<double>(probs, probs+bl));
-    // delete[] probs;
-    // probabilities.push_back(get_values(begin,end,bl,4));
-    // probabilities.push_back(get_values(gg[i],bl,6));
     duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
     std::cout << "get_values takes " << duration << " seconds\n";
   }
   if(gg.size() > 1)
   {
-    // duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
-    // std::cout << "bl_get_dist takes " << duration << " seconds\n";
     std::vector<double> prob_arr (bl+1,0.0);
     for(int i = 0; i < probabilities.size(); i++)
     {
@@ -297,12 +199,10 @@ std::vector<double> bl_get_dist(std::vector< std::vector<double> > &gg, const in
     {
       prob_arr[i] = prob_arr[i]/probabilities.size();
     }
-    return prob_arr;//sum of probabilities divided by the number of rows
+    return prob_arr;
   }
   else
   {
-    // duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
-    // std::cout << "bl_get_dist takes " << duration << " seconds\n";
     return probabilities[0];
   }
 }
@@ -322,30 +222,14 @@ std::vector< std::vector<double> > bl_distribution_avg(std::vector< std::vector<
   for(int i = 0; i < gc.size(); i++)
   {
     std::vector<double> pr;
-    // double pr_cols = gc[i].size();
-    // double power = floor(log2(pr_cols));
-    // pr_cols = pow(2,power);
-    // double pr [pr_cols];
-
     for(int j = 0; j < gc[i].size(); j++)
     {
-    // for(int j = 0; j < pr_cols; j++)
       pr.push_back(pr_mat[i][gc[i][j]]);
-      // pr[j] = pr_mat[i][gc[i][j]];
     }
-
-    // double pr_cols = pr.size();
-    // double power = floor(log2(pr_cols));
-    // pr_cols = pow(2,power);
-    // // std::cout << pr_cols << '\n';
-    // pr.erase(pr.begin()+pr_cols,pr.end());
-    // std::cout << pr.size() << '\n';
     std::vector< std::vector<double> > gg = get_groups(pr,bl);
-    // std::cout << gg.size() << "\n\n";
     averages.push_back(bl_get_dist(gg,bl));
   }
   duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
-  // std::cout << "bl_distribution_avg takes " << duration << " seconds\n";
   return averages;
 }
 
@@ -361,8 +245,6 @@ int main(int argc, char *argv[])
 
   double pr_harrison [71][64];
   double pr_smalley [71][64];
-  // make_arr(argv[1],pr_harrison);
-  // make_arr(argv[2],pr_smalley);
   make_arr("pr_harrison.txt",pr_harrison);
   make_arr("pr_smalley.txt",pr_smalley);
   double threshold = .99;
@@ -376,11 +258,6 @@ int main(int argc, char *argv[])
     averages = bl_distribution_avg(gc,pr_smalley,bl);
     duration = (std::clock() - sstart) / (double) CLOCKS_PER_SEC;
     std::cout << "time for base " << i << " = " << duration << " seconds\n";
-    // for(int j = 0; j < averages[0].size(); j++)
-    // {
-    //   std::cout << averages[0][j] << " ";
-    // }
-    // std::cout << '\n';
   }
 
   duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;

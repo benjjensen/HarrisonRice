@@ -280,3 +280,4 @@ int days_in_month(int month, int year);
 void set_gps_position_time(GPSPosition& position,
         GPSPosition one_second_previous, bool previous_valid,
         std::tm* time = NULL);
+

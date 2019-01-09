@@ -22,3 +22,4 @@ function [norm_mu] = normalizedMus(mu_pmf)
 for col = 1:num_cols
     norm_mu(col) = (col-1)/(num_cols-1);
 end
+end

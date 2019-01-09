@@ -5,27 +5,30 @@ load('pr_harrison.mat');
 load('pr_smalley.mat');
 threshold1 = .99;
 threshold2 = .99;
+bl_max = 16; % log_2 of the largest block length 
 decibel = false; % to color code based off of decibel vs block length
-for bl = 0:20
-    eval(sprintf('load("mu_%d_2");',bl));
+for bl = 0:bl_max
+    eval(sprintf('load("mu_%d_2");',bl)); % load all of the relevant pmfs
 end
-num_carriers = get_num_carrier(pr_harrison,threshold1);
+num_carriers = get_num_carrier(pr_harrison,threshold1); % gets the number of carriers per db level
 mus = [];
-for bl = 0:20
-    eval(sprintf('mus(:,%d) = get_worst_case(mu_%d_2,threshold2);',bl+1,bl));
+for bl = 0:bl_max
+    eval(sprintf('mus(:,%d) = get_worst_case(mu_%d_2,threshold2);',bl+1,bl)); 
+    % finds the worst case number of revealed bits
 end
 % ratio = mus;
 [col_num,~] = size(mu_2_2);
 col_num;
 
 
-mmax = 20;
+mmax = bl_max;
 imax = 0;
 mmin = 0;
 for j = mmin : mmax
     imax = imax + j;
 end
-for m = mmin : mmax
+%% Generate RM weight heirarchy and objectss
+for m = mmin : mmax % generate the RM weight hierarchy 
     for u = 1 : m
         weights = RMWeightHier(u,m,false);
         
@@ -79,7 +82,8 @@ for m = mmin : mmax
         end
     end
 end
-if decibel == true
+%% Plot where the colors correspond to the dB threshold
+if decibel == true 
     for dB = 250 : 281
         workspace = who;
         eval(sprintf('outStr = regexpi(workspace, "codeInfo_%d_");', dB));
@@ -101,7 +105,6 @@ if decibel == true
         rate_matched = zeros(1,mmax);
         percentLeaked_matched = zeros(1,mmax);
         for i = 1:imax
-            
             eval(sprintf('name = vars%d{%d,1};',dB,i));
             eval(sprintf('plotRate = %s.carrierRate;', name));
             eval(sprintf('plotPercentLeaked = 100 - %s.percentLeaked;', name));
@@ -127,7 +130,8 @@ if decibel == true
         scatter3(rate,percentLeaked,ss,[],colors(col_num+1-counter,:),'o');
         hold off;
     end
-else
+else 
+    %% Plot color based on RM code
     for m = 1:mmax
         workspace = who;
         str = sprintf("%scodeInfo_%s_%s_%d%s","\w*","\d*","\d*",m,"\>");
@@ -151,10 +155,9 @@ else
         rate_matched = zeros(1,col_num);
         percentLeaked_matched = zeros(1,col_num);
         for i = 1:32*m
-            
             eval(sprintf('name = vars%d{%d,1};',m,i));
             eval(sprintf('plotRate = %s.carrierRate;', name));
-            eval(sprintf('plotPercentLeaked = floor(100 - %s.percentLeaked);', name));
+            eval(sprintf('plotPercentLeaked = (100 - %s.percentLeaked);', name));
             eval(sprintf('m = %s.m;', name));
             eval(sprintf('u = %s.u;', name));
             eval(sprintf('dB = %s.dBLevel;', name));

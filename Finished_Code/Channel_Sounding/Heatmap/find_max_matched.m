@@ -1,6 +1,7 @@
 function [max_cam,max_cham,max_conf,max_harrison,max_smalley,max_unmatched] = find_max_matched(camacho,chambers,conference,harrison,smalley)
 % Created by Dakota Flanary
-%UNTITLED5 Summary of this function goes here
+%UNTITLED5 Finds the number of carriers that are good for Harrison and the
+%others also finds the number of carriers that are only good for Harrison
 %   Detailed explanation goes here
 cam = 0;
 cham = 0;
