@@ -22,7 +22,7 @@ ax = gca;
 ax.XLim = [-25 25];
 ax.YLim = [-10 90];
 
-for idx = 2:floor((length(data)-Nfft)/Nfft)
+for idx = 2:3 %floor((length(data)-Nfft)/Nfft)
     x1 = fft(y2((idx-1)*Nfft+1:idx*Nfft),Nfft);
     ax.Children.YData = 20*log10(abs(fftshift(x1)));
     drawnow
