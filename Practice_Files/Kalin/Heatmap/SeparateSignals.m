@@ -64,6 +64,7 @@ clear difference;
 tx2_signal = nan(64,90,345);
 tx2_noisefloor = nan(64,90,345);
 difference = nan(64,90,345);
+tx2_snr_db = nan(64,90,345);
 tx2_carriers_above = nan(90,345);
 
 for temp = 1:90
@@ -77,6 +78,12 @@ for temp = 1:90
         end
         count = 0;
         for carriers = 1:64
+            tx2_noise_avg(carriers,temp,loops) = sum(tx2_noisefloor(:,temp,loops));
+            tx2_noise_avg(carriers,temp,loops) = (tx2_noise_avg(carriers,temp,loops) / 64) + tx2_dblimit;
+            if isnan(tx2_signal(carriers,temp,loops))
+            else
+                tx2_snr_db(carriers,temp,loops) = tx2_signal(carriers,temp,loops) - tx2_noise_avg(carriers,temp,loops);
+            end
             if difference(carriers,temp,loops) >= tx2_dblimit
                 count = count + 1;
             end
@@ -92,6 +99,7 @@ end
 save('tx2_carriers_above.mat','tx2_carriers_above');
 save('tx2_signal.mat','tx2_signal');
 save('tx2_noisefloor.mat','tx2_noisefloor');
+save('tx2_snr_db.mat','tx2_snr_db');
 
 
 

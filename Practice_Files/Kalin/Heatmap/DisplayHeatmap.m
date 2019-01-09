@@ -8,23 +8,20 @@
 % floor. Both transmitter locations are shown.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-close all;
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Change these limits to set the thresholds for the heatmap
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 tx1_dblimit = 12;
-tx2_dblimit = 25;
+tx2_dblimit = 27;
 
 save('tx1_dblimit.mat','tx1_dblimit');
 save('tx2_dblimit.mat','tx2_dblimit');
 
-runsignals = false;
+runsignals = true;
 
 if runsignals == true
     SeparateSignals;
 end
-
 
 % Check for the variables that are needed in the workspace
 if exist('complete_carriers_above','var') == 0
@@ -75,9 +72,9 @@ hold on
 text(114, 172, '*', 'Color', 'red', 'FontSize', 16);
 text(110, 178, 'tx', 'Color', 'red', 'FontSize', 7);
 hm = imagesc(tx2_carriers_above);
-title({'\fontsize{12}Second Transmitter Location'; ...
-    '\fontsize{7}# of carriers ' + string(tx2_dblimit) + ...
-    ' dB above noise floor'});
+% title({'\fontsize{12}Second Transmitter Location'; ...
+%     '\fontsize{7}# of carriers ' + string(tx2_dblimit) + ...
+%     ' dB above noise floor'});
 set(hm,'AlphaData',~isnan(tx2_carriers_above));
 q = colorbar;
 colormap(jet);
@@ -85,4 +82,5 @@ ylabel(q, '# of carriers above noise floor');
 hm.XData = [16; 333];
 hm.YData = [68; 151];
 hold off
+
 
