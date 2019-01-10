@@ -49,12 +49,15 @@ text(142, 157, 'tx', 'Color', 'black', 'FontSize', 8);
 hm = imagesc(capacity);
 set(hm,'AlphaData',~isnan(capacity));
 q = colorbar;
-q.Position = [.855 .2695 .016 .566];
+q.Position = [.855 .4 .016 .3];
 colormap(jet);
 ylabel(q, 'bits per channel use');
 hm.XData = [36; 380];
 hm.YData = [49; 139];
 hold off
+cf = gcf;
+cf.PaperSize = [5 4];
+cf.PaperPosition = [-.05521 0.2240 -0.5521+5 0.2240+4];
 
 %% Heatmap of Secrecy Capacity
 I = imread('ClydeGIMPnoRX.png');
@@ -65,9 +68,12 @@ text(142, 157, 'tx', 'Color', 'black', 'FontSize', 8);
 hm = imagesc(secrecy_capacity);
 set(hm,'AlphaData',~isnan(secrecy_capacity));
 q = colorbar;
-q.Position = [.855 .2695 .016 .566];
+q.Position = [.855 .4 .016 .3];
 colormap(jet);
 ylabel(q, 'bits per channel use');
 hm.XData = [36; 380];
 hm.YData = [49; 139];
 hold off
+cf = gcf;
+cf.PaperSize = [5 4];
+cf.PaperPosition = [-.05521 0.2240 -0.5521+5 0.2240+4];
