@@ -31,6 +31,7 @@ q = logspace(-2,4,num_loops);
 parfor index = 1:num_loops
     tic;
 %     index = index + 1
+    disp(index);
     sigma2 = q(index);
     har = zeros(30,34);
     smal = zeros(32,25);
@@ -39,8 +40,8 @@ parfor index = 1:num_loops
     for row = 1:30
         for col = 1:34
             for carrier = 1:64
-                har(index,row,col) = har(index,row,col) + 1 - probability_erasure(sigma2...
-                    * harrison_noisecarrier,row,col),...
+                har(row,col) = har(row,col) + 1 - probability_erasure(sigma2...
+                    * harrison_noise(carrier,row,col),...
                     harrison(carrier,row,col),.01);
             end
         end
@@ -49,12 +50,12 @@ parfor index = 1:num_loops
     for row = 1:32
         for col = 1:25
             for carrier = 1:64
-                smal(index,row,col) = smal(index,row,col) + 1 - probability_erasure(sigma2...
+                smal(row,col) = smal(row,col) + 1 - probability_erasure(sigma2...
                     *smalley_noise(carrier,row,col),smalley(carrier,row,col),.01);
-                cam(index,row,col) = cam(index,row,col) + 1 - probability_erasure(sigma2...
+                cam(row,col) = cam(row,col) + 1 - probability_erasure(sigma2...
                     *camacho_noise(carrier,row,col),camacho(carrier,row,col),.01);
                 if col == 25
-                    cam(index,row,col+1) = cam(index,row,col+1) + 1 - probability_erasure(sigma2...
+                    cam(row,col+1) = cam(row,col+1) + 1 - probability_erasure(sigma2...
                     *camacho_noise(carrier,row,col+1),camacho(carrier,row,col+1),.01);
                 end
             end
@@ -83,6 +84,7 @@ parfor index = 1:num_loops
     
     toc;
 end
+save('test1_workspace');
 
 %     for carrier = 1:64
 %     har_cap(index) = har_cap(index) + 1 - probability_erasure(sigma2,harrison(carrier,21,1),.01);

@@ -57,6 +57,7 @@ parfor index = 1:num_loops
     %     end
 end
 toc;
+save('test2_workspace');
 %%
 figure()
 hold on;
