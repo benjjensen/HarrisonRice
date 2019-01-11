@@ -119,17 +119,18 @@ C2 = reshape(C2,size(I_imag));
 % C = reshape(C, size(I));
 C = C1 + C2;
 
-a_heights = [I(76,76) I(26,76) I(26,26) I(76,26)];
+
+a_heights = [(I(76,76)+.01) (I(26,76)+.01) (I(26,26)+.01) (I(76,26)+.01)];
 
 
 %%%%% Plot Mutual Information
 figure();
 hold on
-plot3(real(a), imag(a), a_heights, 'o', 'MarkerFaceColor', 'black', 'Color', 'black');
+plot3(real(a), imag(a), a_heights, 'o', 'MarkerFaceColor', 'white', 'Color', 'black');
 %surface(real_x, imag_x, I_real,C1);
 %surface(real_x, imag_x, I_imag,C2);
 surface(real_x, imag_x, I,C);
-title("Bitwise Threshold");
+% title("Bitwise Threshold");
 % title("\sigma^2 = " + string(sigmaSquared));
 xlabel('In-Phase');
 ylabel('Quadrature');
