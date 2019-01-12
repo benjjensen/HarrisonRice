@@ -34,12 +34,14 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 #include <boost/atomic.hpp>
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 #include <boost/core/ref.hpp>
 
 #include "DataCapture.h"
@@ -109,6 +111,8 @@ struct AcquireEnvironment {
         reserve_cpus = false;
         move_cpuset = NULL;
         priority = false;
+
+        stdin_commands = false;
     }
 
     unsigned short board_num;
@@ -149,6 +153,8 @@ struct AcquireEnvironment {
     bool reserve_cpus;
     char* move_cpuset;
     bool priority;
+
+    bool stdin_commands;
 };
 
 /**
@@ -204,7 +210,7 @@ static std::string get_timestamped_filename(AcquireEnvironment environment,
  * When finished_capturing becomes false, this thread finishes saving the buffer
  * it's currently saving and then exits.
  */
-static void write_thread_main_function(const HANDLE disk_fd,
+static void write_thread_main_function(volatile HANDLE& disk_fd,
         boost::atomic<bool>& finished_capturing,
         boost::atomic<bool>& ready_to_save_buffer,
         volatile bool& writing_to_first_buffer,
@@ -228,6 +234,7 @@ static void write_thread_main_function(const HANDLE disk_fd,
 static boost::thread* start_gps_thread(DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
         boost::atomic<bool>& continue_recording_gps,
+        boost::atomic<bool>& currently_saving_data,
         boost::atomic<bool>& first_gps_position_recorded,
         GPSPosition& first_gps_position);
 
@@ -248,6 +255,8 @@ static void gps_thread_main_function(const pid_t gps_process_id,
         const HANDLE gps_output_fd, DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
         boost::atomic<bool>& continue_recording_gps,
+        boost::mutex& gps_mutex,
+        boost::atomic<bool>& currently_saving_data,
         boost::atomic<bool>& first_gps_position_recorded,
         GPSPosition& first_gps_position);
 
@@ -273,6 +282,133 @@ static void remove_meta_gps_files(DataCapture& capture_info);
  */
 static void change_file_owner_permissions(std::string filename);
 
+static void stdin_command_listener_thread_main_function(
+        const AcquireEnvironment environment,
+        boost::atomic<bool>& continue_reading_data,
+        boost::atomic<bool>& currently_saving_data,
+        boost::atomic<bool>& ready_to_save_buffer,
+        boost::mutex& writing_mutex, boost::mutex& gps_mutex,
+        DataCapture& capture_info, volatile HANDLE& outfile_fd,
+        boost::atomic_uint_fast32_t& blocks_captured,
+        boost::atomic<bool>& first_gps_position_recorded,
+        GPSPosition& first_gps_position) {
+
+    unsigned int starting_blocks_captured_value = blocks_captured.load();
+    timespec start_time;
+
+    while(continue_reading_data.load()) {
+        std::string input;
+        std::cin >> input;
+        if(!std::cin) {
+            // TODO end program?
+        }
+
+        if(input == "--resume") {
+            // TODO start new capture
+            std::cin >> capture_info.name();
+
+            capture_info.data_filename = get_timestamped_filename(environment,
+                    capture_info, first_gps_position_recorded,
+                    first_gps_position);
+            // TODO update first_gps_position every time through the gps loop
+
+            if(outfile_fd != INVALID_HANDLE_VALUE) {
+                close(outfile_fd);
+                outfile_fd = INVALID_HANDLE_VALUE;
+            }
+            outfile_fd = open(capture_info.data_filename,
+                    O_CREAT | O_WRONLY | O_TRUNC, 0666);
+            // TODO check/handle error
+
+            clock_gettime(CLOCK_REALTIME, &start_time);
+            starting_blocks_captured_value = blocks_captured.load();
+
+            currently_saving_data.store(true);
+        }
+        else if(input == "--pause") {
+            currently_saving_data.store(false);
+            boost::lock_guard<boost::mutex> writing_guard(writing_mutex);
+            boost::lock_guard<boost::mutex> gps_guard(gps_mutex);
+
+            timespec end_time;
+
+            clock_gettime(CLOCK_REALTIME, &end_time);
+
+            while(ready_to_save_buffer.load()) {
+                SLEEP(50); // Sleep for 50 milliseconds.
+            }
+
+            // TODO check for errors saving to file
+
+            close(outfile_fd); // TODO check/handle error
+            outfile_fd = INVALID_HANDLE_VALUE;
+
+            struct stat outfile_stats;
+
+            if(stat(capture_info.data_filename.c_str(), &outfile_stats)) {
+                // TODO handle error
+            }
+            capture_info.size = outfile_stats.st_size / (1024 * 1024);
+            capture_info.duration = (end_time.tv_sec - start_time.tv_sec) +
+                    (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+            for(int i = 0; i < capture_info.gps_positions.size(); ++i) {
+                capture_info.gps_positions.at(i).blocks_captured -=
+                        starting_blocks_captured_value;
+            }
+            while((!capture_info.gps_positions.empty() &&
+                    capture_info.gps_positions.back().blocks_captured >
+                    capture_info.size) ||
+                    capture_info.gps_positions.size() > capture_info.duration) {
+                capture_info.gps_positions.pop_back();
+            }
+
+            // If there's gps data,
+            if(!capture_info.gps_positions.empty()) {
+                // Save the gps data to a file.
+                capture_info.save_gps_to_google_earth_file();
+            }
+                // If there's no gps data,
+            else if(capture_info.gps_filename != "") {
+                // Delete the gps file we reserved earlier.
+                remove(capture_info.gps_filename.c_str());
+                capture_info.gps_filename = "";
+            }
+
+            // Save the metadata to a file.
+            // We know that there's enough space on disk to store the metadata,
+            // even if the disk filled up completely, because we reserved it
+            // earlier.
+            capture_info.write_to_file();
+
+            change_file_owner_permissions(capture_info.data_filename);
+            change_file_owner_permissions(capture_info.meta_filename);
+            if(capture_info.gps_filename != "") {
+                change_file_owner_permissions(capture_info.gps_filename);
+            }
+
+            // Output the name of the metadata file so that any program that
+            // knows what to look for (e.g. sampler) can know what it is.
+            std::cout << CAPTURE_META_FILENAME_HANDOFF_TAG << " " <<
+                    capture_info.meta_filename << std::endl << std::endl;
+
+            // Clear the capture info state for the next capture.
+            capture_info.duration = 0;
+            capture_info.size = 0;
+            capture_info.meta_filename = "";
+            capture_info.data_filename = "";
+            capture_info.gps_filename = "";
+            capture_info.gps_positions.clear();
+        }
+        else if(input == "--stop") {
+            // TODO break out of loop/end program
+        }
+        else {
+            // TODO handle this case
+        }
+    }
+}
+
 int main(int argc, char** argv) {
     //--------------------------------------------------------------------------
     //                          Initialize the program
@@ -282,6 +418,11 @@ int main(int argc, char** argv) {
     // will remain true until either there's an error writing the data to file
     // or the exit signal handler function sets it to false.
     boost::atomic<bool> continue_reading_data(true);
+
+    boost::atomic<bool> currently_saving_data(false);
+    boost::mutex gps_mutex;
+    boost::mutex writing_mutex;
+
 
     // Give continue_reading_data to exit_signal_handler() so that the function
     // can store the flag in its local static variable. This assignment only
@@ -299,6 +440,10 @@ int main(int argc, char** argv) {
     uvAPI uv;
     // The environment that the user defined with the command line arguments.
     const AcquireEnvironment environment = get_environment(argc, argv, uv);
+
+    if(!environment.stdin_commands) {
+        currently_saving_data.store(true);
+    }
 
     // Read the clock frequency.
     const unsigned int clock_frequency =
@@ -469,8 +614,8 @@ int main(int argc, char** argv) {
     if(environment.record_gps_data) {
         // Start up the thread that will record the gps data.
         gps_thread = start_gps_thread(capture_info, blocks_captured,
-                continue_reading_data, first_gps_position_recorded,
-                first_gps_position);
+                continue_reading_data, gps_mutex, currently_saving_data,
+                first_gps_position_recorded, first_gps_position);
         if(gps_thread == NULL) {
             std::cerr << "ERROR: UNABLE TO START GPS THREAD" << std::endl;
         }
@@ -630,6 +775,16 @@ int main(int argc, char** argv) {
                 // Change which buffer we're writing to.
                 current_buffer = (writing_to_first_buffer ?
                         second_buffer : first_buffer);
+
+                if(!currently_saving_data.load()) {
+                    continue;
+                }
+
+                boost::lock_guard<boost::mutex> writing_guard(writing_mutex);
+
+                if(!currently_saving_data.load()) {
+                    continue;
+                }
 
                 // If ready_to_save_buffer is still true, it means that the
                 // write thread hasn't finished saving the last buffer we filled
@@ -998,7 +1153,7 @@ void change_file_owner_permissions(std::string filename) {
     chmod(filename.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 }
 
-void write_thread_main_function(const HANDLE disk_fd,
+void write_thread_main_function(volatile HANDLE& disk_fd,
         boost::atomic<bool>& finished_capturing,
         boost::atomic<bool>& ready_to_save_buffer,
         volatile bool& writing_to_first_buffer,
@@ -1043,6 +1198,8 @@ void write_thread_main_function(const HANDLE disk_fd,
 boost::thread* start_gps_thread(DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
         boost::atomic<bool>& continue_recording_gps,
+        boost::mutex& gps_mutex,
+        boost::atomic<bool>& currently_saving_data,
         boost::atomic<bool>& first_gps_position_recorded,
         GPSPosition& first_gps_position) {
     const int READ_FD = 0;
@@ -1111,6 +1268,8 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
     boost::thread *gps_thread = new boost::thread(gps_thread_main_function,
             gps_process_id, gps_output_fd, boost::ref(capture_info),
             boost::ref(blocks_acquired), boost::ref(continue_recording_gps),
+            boost::ref(gps_mutex),
+            boost::ref(currently_saving_data),
             boost::ref(first_gps_position_recorded),
             boost::ref(first_gps_position));
     return gps_thread;
@@ -1120,6 +1279,8 @@ void gps_thread_main_function(const pid_t gps_process_id,
         const HANDLE gps_output_fd, DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
         boost::atomic<bool>& continue_recording_gps,
+        boost::mutex& gps_mutex,
+        boost::atomic<bool>& currently_saving_data,
         boost::atomic<bool>& first_gps_position_recorded,
         GPSPosition& first_gps_position) {
     // Get an istream from the pipe file descriptor.
@@ -1156,8 +1317,13 @@ void gps_thread_main_function(const pid_t gps_process_id,
 
         lastPosition = position;
 
-        position.blocks_captured = blocks_acquired.load();
-        capture_info.gps_positions.push_back(position);
+        if(currently_saving_data.load()) {
+            boost::lock_guard<boost::mutex> gps_guard(gps_mutex);
+            if(currently_saving_data.load()) {
+                position.blocks_captured = blocks_acquired.load();
+                capture_info.gps_positions.push_back(position);
+            }
+        }
     }
 
     // Stop the gpsbabel process, as if by pressing ctrl-c.
