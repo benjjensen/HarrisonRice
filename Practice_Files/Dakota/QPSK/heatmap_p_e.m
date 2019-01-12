@@ -101,25 +101,23 @@ end
 %     end
 % end
 %% HEATMAP
-I = imread('floor_plan.png');
-figure()
-imshow(I); % Displays the picture of the floor plan
-hold on;
-tx2floormap = imagesc(secrecy_capacity); % heatmap of the good carriers 
-tx2floormap.XData = [13; 315]; % get it so the heatmap overlays correctly onto the floor plan
-tx2floormap.YData = [61; 137]; % get it so the heatmap overlays correctly
-myColor = colormap(flipud(colormap('hot'))); % the colormap for the heatmap
-c = colorbar; 
-c.Position = [.89 .155 .016 .775];
-ylabel(c, {'\fontsize{9}Number of sub-carriers such that SNR\geq \tau'});
-text(100, 160, '*', 'Color', 'red', 'FontSize', 16);
-text(105, 165, 'tx', 'Color', 'red', 'FontSize', 7);
-%.Label.String = '# of sub-carriers such that SNR'; % \geq \tau';
-colormap('jet');
-tx2floormap.AlphaData = .6; % makes the heatmap slightly transparent so the floor plan can be seen
-set(tx2floormap,'AlphaData',~isnan(secrecy_capacity));
-% saveas(gcf,'Heatmap','pdf');
-hold off;
+I = imread('ClydeGIMPnoRX.png');
+figure();
+imshow(I);
+hold on
+text(142, 157, 'tx', 'Color', 'black', 'FontSize', 8);
+hm = imagesc(secrecy_capacity);
+set(hm,'AlphaData',~isnan(secrecy_capacity));
+q = colorbar;
+q.Position = [.855 .4 .016 .3];
+colormap(jet);
+ylabel(q, 'bits per channel use');
+hm.XData = [36; 380];
+hm.YData = [49; 139];
+hold off
+cf = gcf;
+cf.PaperSize = [5 4];
+cf.PaperPosition = [-.05521 0.2240 -0.5521+5 0.2240+4];
 
 conference_sec_cap = secrecy_capacity(1:33,1:98);
 [conf,K] = min(conference_sec_cap);
