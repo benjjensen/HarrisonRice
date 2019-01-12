@@ -4,7 +4,7 @@ load('tx2_linear_signal');
 load('linear_noisefloor.mat');
 close all
 
-num_loops = 40;
+num_loops = 1000;
 
 harrison = tx2_linear_signal(:,36:65,65:98);
 smalley = tx2_linear_signal(:,34:65,123:147);
@@ -31,6 +31,7 @@ q = logspace(-2,4,num_loops);
 parfor index = 1:num_loops
     tic;
 %     index = index + 1
+    disp(index);
     sigma2 = q(index);
     har = zeros(30,34);
     smal = zeros(32,25);
@@ -39,8 +40,8 @@ parfor index = 1:num_loops
     for row = 1:30
         for col = 1:34
             for carrier = 1:64
-                har(index,row,col) = har(index,row,col) + 1 - probability_erasure(sigma2...
-                    * harrison_noisecarrier,row,col),...
+                har(row,col) = har(row,col) + 1 - probability_erasure(sigma2...
+                    * harrison_noise(carrier,row,col),...
                     harrison(carrier,row,col),.01);
             end
         end
@@ -49,12 +50,12 @@ parfor index = 1:num_loops
     for row = 1:32
         for col = 1:25
             for carrier = 1:64
-                smal(index,row,col) = smal(index,row,col) + 1 - probability_erasure(sigma2...
+                smal(row,col) = smal(row,col) + 1 - probability_erasure(sigma2...
                     *smalley_noise(carrier,row,col),smalley(carrier,row,col),.01);
-                cam(index,row,col) = cam(index,row,col) + 1 - probability_erasure(sigma2...
+                cam(row,col) = cam(row,col) + 1 - probability_erasure(sigma2...
                     *camacho_noise(carrier,row,col),camacho(carrier,row,col),.01);
                 if col == 25
-                    cam(index,row,col+1) = cam(index,row,col+1) + 1 - probability_erasure(sigma2...
+                    cam(row,col+1) = cam(row,col+1) + 1 - probability_erasure(sigma2...
                     *camacho_noise(carrier,row,col+1),camacho(carrier,row,col+1),.01);
                 end
             end
@@ -83,7 +84,29 @@ parfor index = 1:num_loops
     
     toc;
 end
-
+save('test1_workspace');
+har_best = [har_best_x' har_best_y'];
+cam_best = [cam_best_x' cam_best_y'];
+smal_best = [smal_best_x' smal_best_y'];
+q_har_cap = zeros(1,num_loops);
+q_smal_cap = zeros(1,num_loops);
+q_cam_cap = zeros(1,num_loops);
+parfor index = 1:num_loops
+    sigma2 = q(index);
+    for carrier = 1:64
+        q_har_cap(index) = q_har_cap(index) + 1 - erasure_probability(sigma2...
+        * harrison_noise(carrier,har_best(index,1),har_best(index,2)),...
+        harrison(carrier,har_best(index,1),har_best(index,2)),.01);
+    
+        q_cam_cap(index) = q_cam_cap(index) + 1 - erasure_probability(sigma2...
+        * camacho_noise(carrier,cam_best(index,1),cam_best(index,2)),...
+        camacho(carrier,cam_best(index,1),cam_best(index,2)),.01);
+    
+        q_smal_cap(index) = q_smal_cap(index) + 1 - erasure_probability(sigma2...
+        * smalley_noise(carrier,smal_best(index,1),smal_best(index,2)),...
+        smalley(carrier,smal_best(index,1),smal_best(index,2)),.01);
+    end
+end
 %     for carrier = 1:64
 %     har_cap(index) = har_cap(index) + 1 - probability_erasure(sigma2,harrison(carrier,21,1),.01);
 %     smal_cap(index) = smal_cap(index) + 1 - probability_erasure(sigma2,smalley(carrier,31,22),.01);

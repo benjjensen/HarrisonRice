@@ -2,8 +2,7 @@ function [p_e] = probability_erasure(sigmaSquared,G,epsilon)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 b = [1 -1];
-
-close all;
+% tic;
 % sigmaSquared = 16;
 % G = 1;
 % epsilon = .01;
@@ -25,7 +24,7 @@ e_1 = @(x) (I(x) < epsilon);
 p_e1 = @(x) e_1(x) .* fun_x(x);
 % q = integral(fun_x,-inf,inf)
 p_e = integral(p_e1,-inf,inf);
-
+% toc;
 % end
 
 %% graphs
