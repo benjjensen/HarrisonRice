@@ -3,8 +3,12 @@ close all;
 
 load linear_signal.mat;
 load linear_noisefloor.mat;
+load truncated_linear_signal.mat;
+load truncated_linear_noise.mat
 signal = linear_signal;
+% signal = truncated_linear_signal;
 noise = linear_noisefloor;
+% noise = truncated_linear_noise;
 num_loops = 1000;
 harrison_cap = zeros(1,num_loops);
 smalley_cap = zeros(1,num_loops);
