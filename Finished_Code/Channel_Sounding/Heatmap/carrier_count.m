@@ -35,7 +35,7 @@ smalley2 = find_num_carriers(tx2smalley,tx2threshold);
 
 % Makes a histogram of the rooms and the distribution of the number of
 % carriers in throughout the rooms
-figure(2);
+figure();
 histogram(cam2)
 title('Camacho');
 figure(1);
@@ -61,7 +61,7 @@ conference_best_carrier2 = find_best_carriers(conference2,tx2conference,1,tx2thr
 
 % Makes the bar graph comparing the carriers from the best spot from each
 % room and plots them on the same graph.
-figure(5);
+figure();
 hold on;
 title(['\fontsize{12} Tx_2 @' num2str(tx2threshold) ' dB']);
 bar(harrison_best_carrier2,'DisplayName',['Harrison - ' num2str(sum(harrison_best_carrier2)/5)]);

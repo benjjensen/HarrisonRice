@@ -84,7 +84,8 @@ parfor index = 1:num_loops
     
     toc;
 end
-save('test1_workspace');
+save('test1_workspace_new');
+%%
 har_best = [har_best_x' har_best_y'];
 cam_best = [cam_best_x' cam_best_y'];
 smal_best = [smal_best_x' smal_best_y'];
