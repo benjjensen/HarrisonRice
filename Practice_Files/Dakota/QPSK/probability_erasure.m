@@ -31,10 +31,12 @@ p_e = integral(p_e1,-inf,inf);
 % 
 % figure()
 % fplot(fun_x);
-% xlim([-20*G,20*G]);
+% xlim([-.02,.02]);
+% ylim([-1,1]);
 % figure()
 % fplot(p_e1);
-% xlim([-10*G,10*G]);
+% xlim([-.02,.02]);
+% ylim([-1,1]);
 % figure();
 % fplot(e_1);
 % xlim([-10*G,10*G]);

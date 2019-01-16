@@ -12,15 +12,17 @@ har_max = zeros(1,num_loops);
 cam_max = zeros(1,num_loops);
 sma_max = zeros(1,num_loops);
 sec_cap = zeros(1,num_loops);
-
+conf = zeros(1,64);
+cham = zeros(1,64);
+[num_rows,num_cols,~] = size
 % q = -19.95:.05:30;
 q = linspace(1,30,1000);
 for index = 1:1000
     tx2threshold = q(index);
     % Finds the max number of carriers in each room with the given threshold
-    cam2 = find_num_carriers(tx2camacho,tx2threshold);
-    harrison2 = find_num_carriers(tx2harrison,tx2threshold);
-    smalley2 = find_num_carriers(tx2smalley,tx2threshold);
+    [cam2,cam_floor] = find_num_carriers(tx2camacho,tx2threshold);
+    [harrison2, harrison_floor] = find_num_carriers(tx2harrison,tx2threshold);
+    [smalley2, smalley_floor] = find_num_carriers(tx2smalley,tx2threshold);
     
     har_max(index) = max(harrison2);
     cam_max(index) = max(cam2);
