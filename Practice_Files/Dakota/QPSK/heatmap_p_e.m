@@ -108,7 +108,7 @@ hold on
 text(142, 157, 'tx', 'Color', 'black', 'FontSize', 8);
 hm = imagesc(secrecy_capacity);
 set(hm,'AlphaData',~isnan(secrecy_capacity));
-colormap(flipud(gray));
+colormap(jet);
 q = colorbar;
 q.Position = [.855 .4 .016 .3];
 ylabel(q, 'bits per channel use');
