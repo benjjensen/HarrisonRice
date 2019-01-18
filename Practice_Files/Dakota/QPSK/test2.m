@@ -3,9 +3,11 @@ close all;
 
 load linear_signal.mat;
 load linear_noisefloor.mat;
-load truncated_linear_signal.mat;
-load truncated_linear_noise.mat
-signal = linear_signal;
+signal = sqrt(linear_signal);
+harrison = signal(:,36:65,65:98);
+r_max = max(max(max(harrison)));
+signal = signal/r_max;
+signal = signal.^2;
 % signal = truncated_linear_signal;
 noise = linear_noisefloor;
 % noise = truncated_linear_noise;
@@ -16,14 +18,14 @@ camacho_cap = zeros(1,num_loops);
 sec_cap_cam = zeros(1,num_loops);
 sec_cap_sma = zeros(1,num_loops);
 index = 0;
-q = logspace(-2,4,num_loops);
+snr = logspace(-3,7,num_loops);
 % for sigma2 = logspace(-2,4,num_loops)
 tic;
 parfor index = 1:num_loops
     %% Capacity
 %     index = index + 1;
-    sigma2 = q(index);
-    cpacity = (1/2) * log2(1 + (signal ./ (noise*sigma2)));
+    sigma2 = snr(index);
+    cpacity = (1/2) * log2(1 + (signal * sigma2));
     capacity = zeros(90,345);
     for y = 1:90
         for z = 1:345
