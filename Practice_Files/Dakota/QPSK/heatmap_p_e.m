@@ -101,16 +101,16 @@ end
 %     end
 % end
 %% HEATMAP
-I = imread('ClydeGIMPnoRX.png');
+I = imread('ClydeGIMPnoRXshowRooms.png');
 figure();
 imshow(I);
 hold on
 text(142, 157, 'tx', 'Color', 'black', 'FontSize', 8);
 hm = imagesc(secrecy_capacity);
 set(hm,'AlphaData',~isnan(secrecy_capacity));
+colormap(flipud(gray));
 q = colorbar;
 q.Position = [.855 .4 .016 .3];
-colormap(jet);
 ylabel(q, 'bits per channel use');
 hm.XData = [36; 380];
 hm.YData = [49; 139];
