@@ -4,11 +4,13 @@ load('tx2_linear_signal');
 load('linear_noisefloor.mat');
 close all
 
-num_loops = 1000;
+num_loops = 500;
 tx2_linear_signal = sqrt(tx2_linear_signal);
 harrison = tx2_linear_signal(:,36:65,65:98);
-smalley = tx2_linear_signal(:,34:65,123:147);
-camacho = tx2_linear_signal(:,34:65,154:179);
+r_max = max(max(max(harrison)));
+harrison = harrison/r_max;
+smalley = tx2_linear_signal(:,34:65,123:147)/r_max;
+camacho = tx2_linear_signal(:,34:65,154:179)/r_max;
 % harrison_noise = linear_noisefloor(:,36:65,65:98);
 % smalley_noise = linear_noisefloor(:,34:65,123:147);
 % camacho_noise = linear_noisefloor(:,34:65,154:179);
@@ -92,7 +94,7 @@ q_smal_cap = zeros(1,num_loops);
 q_cam_cap = zeros(1,num_loops);
 parfor index = 1:num_loops
     sigma2 = snr(index);
-    for carrier = 1:64
+    for carrier = 11:55
         q_har_cap(index) = q_har_cap(index) + 1 - erasure_probability(snr(index)...
         * harrison_noise(carrier,har_best(index,1),har_best(index,2)),...
         harrison(carrier,har_best(index,1),har_best(index,2)),.01);
