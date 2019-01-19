@@ -103,7 +103,7 @@ save('test2_workspace_new');
 snr = 10*log10(snr);
 figure()
 hold on;
-% yyaxis right
+yyaxis right
 plot(snr,harrison_cap,'-');
 plot(snr,camacho_cap,'-');
 plot(snr,smalley_cap,'-');
@@ -112,9 +112,9 @@ xlabel('SNR (dB)');
 % set(gca,'XScale','log');
 % hold off;
 
-figure()
-hold on;
-% yyaxis left
+% figure()
+% hold on;
+yyaxis left
 plot(snr,sec_cap);
 % plot(logspace(-3,10,num_loops),sec_cap_sma,'r');
 ylabel('Secure bits per channel use');

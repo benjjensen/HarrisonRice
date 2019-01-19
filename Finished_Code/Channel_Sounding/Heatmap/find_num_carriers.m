@@ -1,4 +1,4 @@
-function [carrier_list,floor] = find_num_carriers(data,threshold)
+function [carrier_list,floor] = find_num_carriers(data,snr,threshold)
 %find_num_carriers Finds the number of carriers above the specified
 %                   threshold
 %   Compares each carrier with the noise on the carrier and if the
@@ -38,9 +38,20 @@ for row = 1:num_rows
 %         end
         if data(row,run,1) == 0
             num_carriers = nan;
+%         else
+%             for loc = 1:2:127
+%                 if data(row,run,loc) - data(row,run,loc+1) > threshold
+%                     num_carriers = num_carriers + 1;
+%                 end
+%             end
+%             num_carrier_list(spot,1) = num_carriers;
+%             if(num_carriers == 64)
+%                 j = 1;
+%             end
+%         end
         else
             for loc = 1:2:127
-                if data(row,run,loc) - data(row,run,loc+1) > threshold
+                if data(row,run,loc) * snr >= threshold
                     num_carriers = num_carriers + 1;
                 end
             end
