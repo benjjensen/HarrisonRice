@@ -1,12 +1,13 @@
-%%%%% EQUIVOCATION QUASARS %%%%%
-close all; clear all;
+%% EQUIVOCATION QUASARS 
+    %%%% Data generation
+%close all; 
+clear all;
 
 % Creates the QPSK symbol locations
 a = [1+j -1+j -1-j 1-j];
 
 epsilon = .5;
 sigmaSquared = .5;
-% for sigmaSquared = .9:.1:1
 for re = -50:50         % -50:50 creates a 101 x 101 grid
     for im = -50:50
         x(re+51,im+51) = (re/25) + (im/25)*j;
@@ -21,7 +22,6 @@ for loop = 1:4
     fx(loop,:,:) = (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((x-1*a(loop)).^2));
     fxSum(1, :,:) = fxSum(1, :,:) + fx(loop,:,:);
 end
-%fxSum = fxSum/4;
 
 p_a = zeros(4, 101, 101);
 for loop = 1:4
@@ -41,21 +41,22 @@ for xCoord = -50:50
 end
 
 
-%%%%% Plot Equivocation
-% figure();
-% hold on
-% plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-% surface(real_x, imag_x, H);
-% title("\sigma^2 = " + string(sigmaSquared));
-% xlabel('real');
-% ylabel('imaginary');
-% zlabel('Equivocation');
-% view(45, 60);
-% colormap(jet);
-% hold off
+%% Plot Equivocation
+figure();
+hold on
+plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+surface(real_x, imag_x, H);
+title("\sigma^2 = " + string(sigmaSquared));
+xlabel('real');
+ylabel('imaginary');
+zlabel('Equivocation');
+view(45, 60);
+colormap(jet);
+hold off
 
-%%%%% Plot Mutual Information
 
+
+%% Plot Mutual Information
 I = 2 - H;
 C(I<epsilon) = 1;
 C((I>=epsilon) & (I < (1+epsilon))) = 2;
@@ -68,17 +69,20 @@ figure();
 hold on
 plot3(real(a), imag(a), a_heights, 'o', 'MarkerFaceColor', 'white', 'Color', 'black');
 surface(real_x, imag_x, I, C);
-% title("Symbol Threshold");
 xlabel('In-Phase');
 ylabel('Quadrature');
-zlabel('Mutual Information');
+zlabel('I(X^n;Z^n)');
 view(45, 60);
 colormap([0,1,0;1,0,0;0,0,1]);
-saveas(gcf,'SymbolInformationGraph','epsc');
+% saveas(gcf,'SymbolInformationGraph','epsc');
 hold off
 
-bits = zeros(101,101);
+figure()
+contour(I);
 
+
+%%  Bits lost 
+bits = zeros(101,101);
 for c = 1:101
     for d = 1:101
         if (I(c,d) < epsilon)
@@ -90,16 +94,15 @@ for c = 1:101
             end
         end
     end
-end
-%%%%% Bits lost
+end 
 
-% figure();
-% hold on
-% plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-% surface(real_x, imag_x, bits);
-% title("\sigma^2 = " + string(sigmaSquared));
-% xlabel('real');
-% ylabel('imaginary');
-% zlabel('Bits');
-% view(45, 60);
-% colormap(jet);
+figure();
+hold on
+plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+surface(real_x, imag_x, bits);
+title("\sigma^2 = " + string(sigmaSquared));
+xlabel('real');
+ylabel('imaginary');
+zlabel('Bits');
+view(45, 60);
+colormap(jet);
