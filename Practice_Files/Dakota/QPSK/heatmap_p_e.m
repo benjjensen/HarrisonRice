@@ -3,13 +3,17 @@ close all;
 
 load('tx2_linear_signal.mat');
 load('linear_signal.mat');
-load('linear_noisefloor.mat');
+% load('linear_noisefloor.mat');
+
+harrison = tx2_linear_signal(:,36:65,65:98);
+r_max = max(max(max(harrison)));
+tx2_linear_signal = tx2_linear_signal/r_max;
 num_carriers = 64;
 % num_rows = 65; % for ignoring hallway
 % num_cols = 240; % for ignoring hallway
 num_rows = 90; % to include hallway
 num_cols = 345; % to include hallway
-sigmaSquared = 289.4;
+snr = 289.4;
 epsilon = .01;
 threshold = .1;
 map_p_e = zeros(num_carriers,num_rows,num_cols);
@@ -23,8 +27,7 @@ for row = 1:num_rows
                 map_p_e(:,row,col) = nan;
                 break;
             else
-                map_p_e(carrier,row,col) = probability_erasure(...
-                    linear_noisefloor(carrier,row,col)*sigmaSquared,...
+                map_p_e(carrier,row,col) = probability_erasure(snr,...
                     linear_signal(carrier,row,col),epsilon);
             end
       end
@@ -101,16 +104,16 @@ end
 %     end
 % end
 %% HEATMAP
-I = imread('ClydeGIMPnoRX.png');
+I = imread('ClydeGIMPnoRXshowRooms.png');
 figure();
 imshow(I);
 hold on
 text(142, 157, 'tx', 'Color', 'black', 'FontSize', 8);
 hm = imagesc(secrecy_capacity);
 set(hm,'AlphaData',~isnan(secrecy_capacity));
+colormap(jet);
 q = colorbar;
 q.Position = [.855 .4 .016 .3];
-colormap(jet);
 ylabel(q, 'bits per channel use');
 hm.XData = [36; 380];
 hm.YData = [49; 139];
