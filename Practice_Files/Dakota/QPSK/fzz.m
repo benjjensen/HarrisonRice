@@ -6,7 +6,7 @@ for i = 1:l
     if x(i) ==  0
         y(i) = inf;
     else
-        for j = 0:G/100:10*G
+        for j = 0:G/100:G
             if eps(x(i),j) == 0
                 y(i) = j;
                 break
