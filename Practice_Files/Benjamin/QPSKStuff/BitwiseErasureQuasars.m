@@ -1,3 +1,4 @@
+%% Set Up
 close all, clear all;
 
 sigmaSquared = .5;
@@ -6,7 +7,6 @@ epsilon = .5;   % Threshold used to determine whether or not a bit was erased
 b = [1 -1];     % Real bit
 c = [j -j];     % Imaginary bit
 
-%%%%%%%%%%%%%%%%%%%
 % Creates the QPSK symbol locations
 a = [1+j -1+j -1-j 1-j];
 
@@ -19,7 +19,6 @@ real_x = real(x);
 imag_x = imag(x);
 
 
-%% Equivocation
     % Likelihood function for the real bit
 fx_real = zeros(2, 101, 101);
 fxSum_real = zeros(1, 101, 101);
@@ -38,6 +37,7 @@ for loop = 1:2
 end
 fxSum_imag = fxSum_imag .* .5;
 
+
    % Probability for real bit 
 p_b= zeros(2, 101, 101);
 for n = 1:2
@@ -49,6 +49,7 @@ p_c= zeros(2, 101, 101);
 for n = 1:2
     p_c(n,:,:) = fx_imag(n,:,:) ./ (2*fxSum_imag(1,:,:));
 end
+
 
     % Equivocation for real part
 H_real = zeros(101, 101);
@@ -80,48 +81,41 @@ end
 H = H_real + H_imag;
 
 
-%%%%% Plot Equivocation
-% figure();
-% hold on
-% plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-% % surface(real_x, imag_x, H_real);
-% % surface(real_x, imag_x, H_imag);
-% surface(real_x, imag_x, H);
-% title("\sigma^2 = " + string(sigmaSquared));
-% xlabel('real');
-% ylabel('imaginary');
-% zlabel('Equivocation');
-% view(45, 60);
-% colormap(jet);
-% hold off
-
-
+%% Plot Equivocation
+figure();
+hold on
+plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+% surface(real_x, imag_x, H_real);
+% surface(real_x, imag_x, H_imag);
+surface(real_x, imag_x, H);
+title("\sigma^2 = " + string(sigmaSquared));
+xlabel('real');
+ylabel('imaginary');
+zlabel('Equivocation');
+view(45, 60);
+colormap(jet);
+hold off
 
 
 %% Mutual Information 
 
+close all;
+
 I_real = 1 - H_real;
 I_imag = 1 - H_imag;
-
 I = I_real + I_imag;
 
-
-C1(I_real<epsilon) = 1;
-C1((I_real>=epsilon)) = 2;
+C1(I_real<epsilon) = 0;
+C1((I_real>=epsilon)) = 1;
 C1 = reshape(C1,size(I_real));
 
-C2(I_imag<epsilon) = 1;
-C2((I_imag>=epsilon)) = 2;
+C2(I_imag<epsilon) = 0;
+C2((I_imag>=epsilon)) = 1;
 C2 = reshape(C2,size(I_imag));
 
-% C(I<(2*epsilon)) = 1;
-% C(I>=(2*epsilon)) = 2;
-% C = reshape(C, size(I));
 C = C1 + C2;
 
-
 a_heights = [(I(76,76)+.01) (I(26,76)+.01) (I(26,26)+.01) (I(76,26)+.01)];
-
 
 %%%%% Plot Mutual Information
 figure();
@@ -130,20 +124,36 @@ plot3(real(a), imag(a), a_heights, 'o', 'MarkerFaceColor', 'white', 'Color', 'bl
 %surface(real_x, imag_x, I_real,C1);
 %surface(real_x, imag_x, I_imag,C2);
 surface(real_x, imag_x, I,C);
-% title("Bitwise Threshold");
-% title("\sigma^2 = " + string(sigmaSquared));
 xlabel('In-Phase');
 ylabel('Quadrature');
-zlabel('Mutual Information');
+zlabel('I(X^n;Z^n)');
 view(45, 60);
 colormap([0,1,0;1,0,0;0,0,1]);
-saveas(gcf,'BitInformationGraph','epsc');
+% saveas(gcf,'BitInformationGraph','epsc');
 hold off
 
 
+IMax = zeros(101, 101);
+IMax = max(I_imag, I_real);
+
+figure()
+contour(IMax)
+title("Max(Bit1, Bit2)");
+
+figure()
+IMin = min(I_imag, I_real);
+contour(IMin);
+title("Min(Bit1, Bit2)");
+
+figure()
+hold on 
+contour(IMin)
+contour(IMax, '--')
+title("Overlayed Max/Min Graph");
+hold off
 
 
-%% Bits 
+%% Bits Lost
 
 bits_real = zeros(101,101);
 for c = 1:101
@@ -170,16 +180,15 @@ end
 
 bits = bits_imag + bits_real;
 
-% %%%%% Bits lost
-% figure();
-% hold on
-% plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-% % surface(real_x, imag_x, bits_real);
-% % surface(real_x, imag_x, bits_imag);
-% surface(real_x, imag_x, bits);
-% title("\sigma^2 = " + string(sigmaSquared));
-% xlabel('real');
-% ylabel('imaginary');
-% zlabel('Bits');
-% view(45, 60);
-% colormap(jet);
+figure();
+hold on
+plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
+% surface(real_x, imag_x, bits_real);
+% surface(real_x, imag_x, bits_imag);
+surface(real_x, imag_x, bits);
+title("\sigma^2 = " + string(sigmaSquared));
+xlabel('real');
+ylabel('imaginary');
+zlabel('Bits');
+view(45, 60);
+colormap(jet);
