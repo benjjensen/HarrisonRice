@@ -23,7 +23,7 @@ index = 0;
 snr = logspace(-3,7,num_loops);
 % for sigma2 = logspace(-2,4,num_loops)
 tic;
-parfor index = 1:num_loops
+for index = 1:num_loops
     %% Capacity
 %     index = index + 1;
     sigma2 = snr(index);
