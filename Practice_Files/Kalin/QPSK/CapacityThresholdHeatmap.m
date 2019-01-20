@@ -1,4 +1,4 @@
-load Cs_threshold.mat;
+% load Cs_threshold.mat;
 I = imread('ClydeGIMPnoRXshowRooms.png');
 figure();
 imshow(I);
