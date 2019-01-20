@@ -11,12 +11,20 @@ end
 signal = sqrt(tx2_linear_signal);
 harrison = signal(:,36:65,65:98);
 r_max = max(max(max(harrison)));
-signal = signal/r_max;
+signal = signal./r_max;
 signal = signal.^2;
+signal = signal(11:55,1:65,1:240);
 % signal = truncated_linear_signal;
 noise = linear_noisefloor;
+noise = noise(10:54,1:65,1:240);
+for y = 1:65
+    for z = 1:240
+        noise(:,y,z) = sum(noise(:,y,z)) / 45;
+    end
+end
+signal = signal ./ noise;
 % noise = truncated_linear_noise;
-num_loops = 300;
+num_loops = 1000;
 harrison_cap = zeros(1,num_loops);
 smalley_cap = zeros(1,num_loops);
 camacho_cap = zeros(1,num_loops);
@@ -24,18 +32,19 @@ sec_cap_cam = zeros(1,num_loops);
 sec_cap_sma = zeros(1,num_loops);
 sec_cap = zeros(1,num_loops);
 index = 0;
-snr = logspace(-4,5,num_loops);
+snr = logspace(-8,2,num_loops);
 % for sigma2 = logspace(-2,4,num_loops)
 tic;
 for index = 1:num_loops
     %% Capacity
 %     index = index + 1;
-    sigma2 = snr(index);
-    cpacity = (1/2) * log2(1 + (signal * sigma2));
-    capacity = zeros(90,345);
-    for y = 1:90
-        for z = 1:345
-            capacity(y,z) = sum(cpacity(11:55,y,z));
+    cpacity = (1/2) .* log2(1 + (signal .* snr(index)));
+    capacity = nan(90,345);
+    for y = 1:65
+        for z = 1:240
+            if ~isnan(cpacity(1,y,z))
+                capacity(y,z) = sum(cpacity(:,y,z));
+            end
         end
     end
     
@@ -47,11 +56,11 @@ for index = 1:num_loops
     
     %% Secrecy Capacity
     % harrison = tx2_linear_signal(:,36:65,65:98);
-    harrison = cpacity(11:55,36:65,65:98);
-    smalley = cpacity(11:55,34:65,123:147);
-    camacho = cpacity(11:55,34:65,154:179);
+    harrison = cpacity(:,36:65,65:98);
+    smalley = cpacity(:,34:65,123:147);
+    camacho = cpacity(:,34:65,154:179);
     
-    eve_cp = cpacity(11:55,:,:);
+    eve_cp = cpacity;
     eve_cp(:,36:65,65:98) = 0;
     
     har_temp = capacity(36:65,65:98);
