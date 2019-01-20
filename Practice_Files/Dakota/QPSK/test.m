@@ -2,11 +2,20 @@ clear;
 load('linearSignalReducedCarriers.mat');
 load('tx2_linear_signal');
 load('linear_noisefloor.mat');
-load('har_best.mat');
-load('sma_best.mat');
+% load('har_best.mat');
+% load('sma_best.mat');
 close all
 
-num_loops = 500;
+num_loops = 1000;
+
+for y = 1:90
+    for z= 1:345
+        tx2_linear_signal(:,y,z) = fftshift(tx2_linear_signal(:,y,z));
+    end
+end
+
+%tx2_linear_signal = fftshift(tx2_linear_signal);
+
 tx2_linear_signal = sqrt(tx2_linear_signal);
 harrison = tx2_linear_signal(:,36:65,65:98);
 r_max = max(max(max(harrison)));
@@ -30,61 +39,61 @@ cam_best_y = zeros(1,num_loops);
 har_car = zeros(45,num_loops);
 sma_car = zeros(45,num_loops);
 % sigma2 = 1e-5;
-snr = logspace(-3,7,num_loops);
+snr = logspace(-30000,2.5,num_loops);
 % parfor sigma2 = logspace(-2,4,num_loops)
 % for sigma2 = linspace(200,450,num_loops)
-
+epsilon = 0.1;
 parfor index = 1:num_loops
     tic;
 %     index = index + 1
     disp(index);
-%     har = zeros(30,34);
-%     smal = zeros(32,25);
-%     cam = zeros(32,36);
-
-    for carrier = 11:55
-        har = 2 * (1 - probability_erasure(snr(index),harrison(carrier,har_best(index,1),har_best(index,2)),.01));
-        sma = 2 * (1 - probability_erasure(snr(index),smalley(carrier,sma_best(index,1),sma_best(index,2)),.01));
-        sec_cap(index) = sec_cap(index) + secrecy_capacity(har,sma);
-        har_cap(index) = har_cap(index) + har;
-        smal_cap(index) = smal_cap(index) + sma;
+    har = zeros(30,34);
+    smal = zeros(32,25);
+    cam = zeros(32,36);
+% 
+%     for carrier = 11:55
+%         har = 2 * (1 - probability_erasure(snr(index),harrison(carrier,har_best(index,1),har_best(index,2)),epsilon));
+%         sma = 2 * (1 - probability_erasure(snr(index),smalley(carrier,sma_best(index,1),sma_best(index,2)),epsilon));
+%         sec_cap(index) = sec_cap(index) + secrecy_capacity(har,sma);
+%         har_cap(index) = har_cap(index) + har;
+%         smal_cap(index) = smal_cap(index) + sma;
+%     end
+    for row = 1:30
+        for col = 1:34
+            for carrier = 11:55
+                har(row,col) = har(row,col) + 1 - probability_erasure(snr(index),...
+                    harrison(carrier,row,col),epsilon);
+            end
+        end
     end
-%     for row = 1:30
-%         for col = 1:34
-%             for carrier = 11:55
-%                 har(row,col) = har(row,col) + 1 - probability_erasure(snr(index),...
-%                     harrison(carrier,row,col),.01);
-%             end
-%         end
-%     end
-%     
-%     for row = 1:32
-%         for col = 1:25
-%             for carrier = 11:55
-%                 smal(row,col) = smal(row,col) + 1 - probability_erasure(snr(index)...
-%                     ,smalley(carrier,row,col),.01);
-% %                 cam(row,col) = cam(row,col) + 1 - probability_erasure(snr(index)...
-% %                     ,camacho(carrier,row,col),.01);
-% %                 if col == 25
-% %                     cam(row,col+1) = cam(row,col+1) + 1 - probability_erasure(snr(index)...
-% %                     ,camacho(carrier,row,col+1),.01);
-% %                 end
-%             end
-%         end
-%     end
+    
+    for row = 1:32
+        for col = 1:25
+            for carrier = 11:55
+                smal(row,col) = smal(row,col) + 1 - probability_erasure(snr(index)...
+                    ,smalley(carrier,row,col),epsilon);
+%                 cam(row,col) = cam(row,col) + 1 - probability_erasure(snr(index)...
+%                     ,camacho(carrier,row,col),epsilon);
+%                 if col == 25
+%                     cam(row,col+1) = cam(row,col+1) + 1 - probability_erasure(snr(index)...
+%                     ,camacho(carrier,row,col+1),epsilon);
+%                 end
+            end
+        end
+    end
 %     
 %     
-%     [harrison_max,I] = max(har);
-%     [harrison_max,J] = max(harrison_max);
+    [harrison_max,I] = max(har);
+    [harrison_max,J] = max(harrison_max);
 %     har_cap(index) = harrison_max;
-%     har_best_x(index) = I(J);
-%     har_best_y(index) = J;
-%     
-%     [smalley_max,I] = max(smal);
-%     [smalley_max,J] = max(smalley_max);
+    har_best_x(index) = I(J);
+    har_best_y(index) = J;
+    
+    [smalley_max,I] = max(smal);
+    [smalley_max,J] = max(smalley_max);
 %     smal_cap(index) = smalley_max;
-%     smal_best_x(index) = I(J);
-%     smal_best_y(index) = J;
+    smal_best_x(index) = I(J);
+    smal_best_y(index) = J;
     
 %     [camacho_max,I] = max(cam);
 %     [camacho_max,J] = max(camacho_max);
@@ -92,6 +101,15 @@ parfor index = 1:num_loops
 %     cam_best_x(index) = I(J);
 %     cam_best_y(index) = J;
     % = [I(J) J];
+    
+    for carrier = 11:55
+        har = 2 * (1 - probability_erasure(snr(index),harrison(carrier,har_best_x(index),har_best_y(index)),epsilon));
+        sma = 2 * (1 - probability_erasure(snr(index),smalley(carrier,smal_best_x(index),smal_best_y(index)),epsilon));
+        sec_cap(index) = sec_cap(index) + secrecy_capacity(har,sma);
+        har_cap(index) = har_cap(index) + har;
+        smal_cap(index) = smal_cap(index) + sma;
+    end
+
     
     toc;
 end
@@ -108,21 +126,21 @@ save('test1_workspace_12');
 %     for carrier = 11:55
 %         q_har_cap(index) = q_har_cap(index) + 1 - erasure_probability(snr(index)...
 %         * harrison_noise(carrier,har_best(index,1),har_best(index,2)),...
-%         harrison(carrier,har_best(index,1),har_best(index,2)),.01);
+%         harrison(carrier,har_best(index,1),har_best(index,2)),epsilon);
 %     
 %         q_cam_cap(index) = q_cam_cap(index) + 1 - erasure_probability(snr(index)...
 %         * camacho_noise(carrier,cam_best(index,1),cam_best(index,2)),...
-%         camacho(carrier,cam_best(index,1),cam_best(index,2)),.01);
+%         camacho(carrier,cam_best(index,1),cam_best(index,2)),epsilon);
 %     
 %         q_smal_cap(index) = q_smal_cap(index) + 1 - erasure_probability(snr(index)...
 %         * smalley_noise(carrier,smal_best(index,1),smal_best(index,2)),...
-%         smalley(carrier,smal_best(index,1),smal_best(index,2)),.01);
+%         smalley(carrier,smal_best(index,1),smal_best(index,2)),epsilon);
 %     end
 % end
 %     for carrier = 1:64
-%     har_cap(index) = har_cap(index) + 1 - probability_erasure(sigma2,harrison(carrier,21,1),.01);
-%     smal_cap(index) = smal_cap(index) + 1 - probability_erasure(sigma2,smalley(carrier,31,22),.01);
-%     cam_cap(index) = cam_cap(index) + 1 - probability_erasure(sigma2,camacho(carrier,26,1),.01);
+%     har_cap(index) = har_cap(index) + 1 - probability_erasure(sigma2,harrison(carrier,21,1),epsilon);
+%     smal_cap(index) = smal_cap(index) + 1 - probability_erasure(sigma2,smalley(carrier,31,22),epsilon);
+%     cam_cap(index) = cam_cap(index) + 1 - probability_erasure(sigma2,camacho(carrier,26,1),epsilon);
 %     end
 
 %%
