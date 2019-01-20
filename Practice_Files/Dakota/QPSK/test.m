@@ -14,14 +14,23 @@ for y = 1:90
     end
 end
 
+noise = linear_noisefloor(10:54,:,:);
+for y = 1:90
+    for z = 1:345
+        noise(:,y,z) = sum(noise(:,y,z)) ./ 45;
+    end
+end
+
+signal = tx2_linear_signal(11:55,:,:);
+signal = signal ./ noise;
+signal = sqrt(signal);
+signal = signal ./ max(max(max(signal(:,36:65,65:98))));
+
 %tx2_linear_signal = fftshift(tx2_linear_signal);
 
-tx2_linear_signal = sqrt(tx2_linear_signal);
-harrison = tx2_linear_signal(:,36:65,65:98);
-r_max = max(max(max(harrison)));
-harrison = harrison/r_max;
-smalley = tx2_linear_signal(:,34:65,123:147)/r_max;
-camacho = tx2_linear_signal(:,34:65,154:179)/r_max;
+harrison = signal(:,36:65,65:98);
+smalley = signal(:,34:65,123:147);
+camacho = signal(:,34:65,154:179);
 % harrison_noise = linear_noisefloor(:,36:65,65:98);
 % smalley_noise = linear_noisefloor(:,34:65,123:147);
 % camacho_noise = linear_noisefloor(:,34:65,154:179);
