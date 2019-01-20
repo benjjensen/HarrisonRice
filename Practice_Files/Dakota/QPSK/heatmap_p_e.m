@@ -3,16 +3,23 @@ close all;
 
 load('tx2_linear_signal.mat');
 load('linear_signal.mat');
-% load('linear_noisefloor.mat');
+load('linear_noisefloor.mat');
 for y = 1:90
     for z = 1:345
         tx2_linear_signal(:,y,z) = fftshift(tx2_linear_signal(:,y,z)); % correct way to fftshift
     end
 end
-harrison = sqrt(tx2_linear_signal(:,36:65,65:98)); % find g for harrisons room
+noise = linear_noisefloor(10:54,:,:);
+for y = 1:90
+    for z = 1:345
+        noise(:,y,z) = sum(noise(:,y,z)) ./ 45;
+    end
+end
+signal = tx2_linear_signal(11:55,:,:);
+harrison = sqrt(signal(:,36:65,65:98)); % find g for harrisons room
 r_max = max(max(max(harrison))); % find his max
-tx2_linear_signal = sqrt(tx2_linear_signal)/r_max; % normalize all of the gs
-num_carriers = 64;
+signal = sqrt(signal)/r_max; % normalize all of the gs
+num_carriers = 45;
 % num_rows = 65; % for ignoring hallway
 % num_cols = 240; % for ignoring hallway
 num_rows = 90; % to include hallway
@@ -26,13 +33,13 @@ tic;
 for row = 1:num_rows % for each row on the floor
     row
     for col = 1:num_cols % for each column
-        for carrier = 11:55 % for each of the good carriers
-            if(isnan(tx2_linear_signal(carrier,row,col)))
+        for carrier = 1:45 % for each of the good carriers
+            if(isnan(signal(carrier,row,col)))
                 map_p_e(:,row,col) = nan; % if the spot is nan it stays nan
                 break;
             else
                 map_p_e(carrier,row,col) = probability_erasure(snr,...
-                    tx2_linear_signal(carrier,row,col),epsilon); % calculate the probability
+                    signal(carrier,row,col),epsilon); % calculate the probability
                 % of erasure for each carrier in each location
             end
         end
