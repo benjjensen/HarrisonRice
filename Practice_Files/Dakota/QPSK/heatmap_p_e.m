@@ -27,12 +27,12 @@ for row = 1:num_rows % for each row on the floor
     row
     for col = 1:num_cols % for each column
         for carrier = 11:55 % for each of the good carriers
-            if(isnan(linear_signal(carrier,row,col)))
+            if(isnan(tx2_linear_signal(carrier,row,col)))
                 map_p_e(:,row,col) = nan; % if the spot is nan it stays nan
                 break;
             else
                 map_p_e(carrier,row,col) = probability_erasure(snr,...
-                    linear_signal(carrier,row,col),epsilon); % calculate the probability
+                    tx2_linear_signal(carrier,row,col),epsilon); % calculate the probability
                 % of erasure for each carrier in each location
             end
         end
