@@ -3,16 +3,22 @@ clear;
 tic;
 
 load linear_signal.mat;
+load linear_noisefloor.mat;
 for y = 1:90
     for z = 1:345
         linear_signal(:,y,z) = fftshift(linear_signal(:,y,z));
     end
 end
 
-temp(:,:) = linear_signal(1,:,:);
+noise = linear_noisefloor(10:54,:,:);
+for y = 1:90
+    for z = 1:345
+        noise(:,y,z) = sum(noise(:,y,z)) ./ 45;
+    end
+end
 
 gc_signal = linear_signal(11:55,:,:);
-
+gc_signal = gc_signal ./ noise;
 g = sqrt(gc_signal);
 for y = 1:90
     for z = 1:345
