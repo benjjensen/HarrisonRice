@@ -8,23 +8,26 @@ for y = 1:90
         tx2_linear_signal(:,y,z) = fftshift(tx2_linear_signal(:,y,z));
     end
 end
-signal = sqrt(tx2_linear_signal);
+noise = linear_noisefloor;
+noise = noise(10:54,:,:);
+for y = 1:90
+    for z = 1:345
+        noise(:,y,z) = sum(noise(:,y,z)) / 45;
+    end
+end
+signal = tx2_linear_signal(11:55,:,:);
+signal = signal ./ noise;
+signal = sqrt(signal);
 harrison = signal(:,36:65,65:98);
 r_max = max(max(max(harrison)));
 signal = signal./r_max;
 signal = signal.^2;
-signal = signal(11:55,1:65,1:240);
+signal = signal(:,1:65,1:240);
 % signal = truncated_linear_signal;
-noise = linear_noisefloor;
-noise = noise(10:54,1:65,1:240);
-for y = 1:65
-    for z = 1:240
-        noise(:,y,z) = sum(noise(:,y,z)) / 45;
-    end
-end
-signal = signal ./ noise;
+
+
 % noise = truncated_linear_noise;
-num_loops = 1000;
+num_loops = 200;
 harrison_cap = zeros(1,num_loops);
 smalley_cap = zeros(1,num_loops);
 camacho_cap = zeros(1,num_loops);
@@ -32,7 +35,7 @@ sec_cap_cam = zeros(1,num_loops);
 sec_cap_sma = zeros(1,num_loops);
 sec_cap = zeros(1,num_loops);
 index = 0;
-snr = logspace(-8,2,num_loops);
+snr = logspace(-3,5,num_loops);
 % for sigma2 = logspace(-2,4,num_loops)
 tic;
 for index = 1:num_loops
@@ -148,4 +151,4 @@ xlabel('SNR (dB)');
 % set(gca,'XScale','log');
 hold off
 
-gaussian_capacity = [snr;harrison_cap;smalley_cap;sec_cap];
+gaussian_capacity_data = [snr;harrison_cap;smalley_cap;sec_cap];
