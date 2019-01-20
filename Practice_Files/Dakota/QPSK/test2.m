@@ -3,7 +3,11 @@ close all;
 
 load tx2_linear_signal.mat;
 load linear_noisefloor.mat;
-tx2_linear_signal = fftshift(tx2_linear_signal);
+for y = 1:90
+    for z = 1:345
+        tx2_linear_signal(:,y,z) = fftshift(tx2_linear_signal(:,y,z));
+    end
+end
 signal = sqrt(tx2_linear_signal);
 harrison = signal(:,36:65,65:98);
 r_max = max(max(max(harrison)));
@@ -12,7 +16,7 @@ signal = signal.^2;
 % signal = truncated_linear_signal;
 noise = linear_noisefloor;
 % noise = truncated_linear_noise;
-num_loops = 1000;
+num_loops = 300;
 harrison_cap = zeros(1,num_loops);
 smalley_cap = zeros(1,num_loops);
 camacho_cap = zeros(1,num_loops);
@@ -20,7 +24,7 @@ sec_cap_cam = zeros(1,num_loops);
 sec_cap_sma = zeros(1,num_loops);
 sec_cap = zeros(1,num_loops);
 index = 0;
-snr = logspace(-3,7,num_loops);
+snr = logspace(-4,5,num_loops);
 % for sigma2 = logspace(-2,4,num_loops)
 tic;
 for index = 1:num_loops
@@ -47,31 +51,43 @@ for index = 1:num_loops
     smalley = cpacity(11:55,34:65,123:147);
     camacho = cpacity(11:55,34:65,154:179);
     
+    eve_cp = cpacity(11:55,:,:);
+    eve_cp(:,36:65,65:98) = 0;
+    
     har_temp = capacity(36:65,65:98);
     sma_temp = capacity(34:65,123:147);
     cam_temp = capacity(34:65,154:179);
     
+    eve_temp = capacity;
+    eve_temp(36:65,65:98) = 0;
+    
     [temp,I] = max(har_temp);
     [temp,J] = max(temp);
 %     har_cap(index) = harrison_max;
-    har_best_x(index) = I(J);
-    har_best_y(index) = J;
+    har_best_x(index) = J;
+    har_best_y(index) = I(J);
 %     
-    [temp,I] = max(sma_temp);
+    [temp,I] = max(eve_temp);
     [temp,J] = max(temp);
-%     smal_cap(index) = smalley_max;
-    smal_best_x(index) = I(J);
-    smal_best_y(index) = J;
-    
-    [temp,I] = max(cam_temp);
-    [temp,J] = max(temp);
-%     cam_cap(index) = camacho_max;
-    cam_best_x(index) = I(J);
-    cam_best_y(index) = J;
+    eve_cap(index) = temp;
+    eve_best_x(index) = J;
+    eve_best_y(index) = I(J);
+
+%     [temp,I] = max(sma_temp);
+%     [temp,J] = max(temp);
+%     smalley_cap(index) = temp;
+%     smal_best_x(index) = J;
+%     smal_best_y(index) = I(J);
+%     
+%     [temp,I] = max(cam_temp);
+%     [temp,J] = max(temp);
+% %     cam_cap(index) = camacho_max;
+%     cam_best_x(index) = J;
+%     cam_best_y(index) = I(J);
     
     for carrier = 1:45
-        sec = harrison(carrier,har_best_x(index),har_best_y(index)) - ...
-            smalley(carrier,smal_best_x(index),smal_best_y(index));
+        sec = harrison(carrier,har_best_y(index),har_best_x(index)) - ...
+            eve_cp(carrier,eve_best_y(index),eve_best_x(index));
         if sec < 0
             sec = 0;
         end
@@ -99,14 +115,15 @@ for index = 1:num_loops
 end
 toc;
 save('test2_workspace_new');
-%%
+
 snr = 10*log10(snr);
+%%
 figure()
 hold on;
 yyaxis right
-plot(snr,harrison_cap,'-');
-plot(snr,camacho_cap,'-');
-plot(snr,smalley_cap,'-');
+plot(snr,harrison_cap,'--');
+% plot(snr,camacho_cap,'-');
+plot(snr,eve_cap,'-');
 ylabel('Bits per channel use')
 xlabel('SNR (dB)');
 % set(gca,'XScale','log');
@@ -121,3 +138,5 @@ ylabel('Secure bits per channel use');
 xlabel('SNR (dB)');
 % set(gca,'XScale','log');
 hold off
+
+gaussian_capacity = [snr;harrison_cap;smalley_cap;sec_cap];
