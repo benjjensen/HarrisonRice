@@ -1,4 +1,4 @@
-clear; close all;
+clear; 
 
 tic;
 
@@ -16,7 +16,7 @@ gc_signal = linear_signal(11:55,:,:);
 g = sqrt(gc_signal);
 for y = 1:90
     for z = 1:345
-        g_norm(:,y,z) = g(:,y,z) .* max(g(:,y,z));
+        g_norm(:,y,z) = g(:,y,z) ./ max(g(:,y,z));
         g_squared(:,y,z) = g_norm(:,y,z) .^ 2;
     end
 end
@@ -24,13 +24,13 @@ end
 % SNRdB = linspace(-20, 20, 1000);
 % SNR = 10 .^ (SNRdB / 10);
 numSNRpoints = 300;
-SNR_lin = logspace(2, 5, numSNRpoints);
+SNR_lin = logspace(-4, 7, numSNRpoints);
 SNR = 10*log10(SNR_lin);
 
 tau = 10^(5/10); % This should be between -10 and 10 dB, the value chosen here is 5 dB
 parfor sweep = 1:numSNRpoints
     % Bobs room is found at g_squared(:,36:65,65:98)
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' g*snr array');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' g*snr array');
     for y = 1:90
         for z = 1:345
             for x = 1:45
@@ -43,6 +43,7 @@ parfor sweep = 1:numSNRpoints
         end
     end
 end
+disp('done with g_times_snr');
 
 result_eve1 = g_times_snr(:,:,1:65,1:61);
 result_eve2 = g_times_snr(:,:,1:65,123:148);
@@ -52,7 +53,7 @@ result_bob = g_times_snr(:,:,1:65,65:98);
 result_hall = g_times_snr(:,:,66:90,:);
 
 parfor sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' separate into rooms and see if above threshold part 1/4');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' separate into rooms and see if above threshold part 1/4');
     for x = 1:45
         for y = 1:65
             for z = 1:61
@@ -69,7 +70,7 @@ parfor sweep = 1:numSNRpoints
 end
 
 parfor sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' separate into rooms and see if above threshold part 2/4');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' separate into rooms and see if above threshold part 2/4');
     for x = 1:45
         for y = 1:65
             for z = 1:26
@@ -93,7 +94,7 @@ parfor sweep = 1:numSNRpoints
 end
 
 parfor sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' separate into rooms and see if above threshold part 3/4');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' separate into rooms and see if above threshold part 3/4');
     for x = 1:45
         for y = 1:65
             for z = 1:28
@@ -110,7 +111,7 @@ parfor sweep = 1:numSNRpoints
 end
 
 parfor sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' separate into rooms and see if above threshold part 4/4');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' separate into rooms and see if above threshold part 4/4');
     for x = 1:45
         for y = 1:65
             for z = 1:34
@@ -127,7 +128,7 @@ parfor sweep = 1:numSNRpoints
 end
 
 parfor sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' separate into rooms and see if above threshold part 5/4');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' separate into rooms and see if above threshold part 5/4');
     for x = 1:45
         for y = 1:25
             for z = 1:345
@@ -147,7 +148,7 @@ bobcount(numSNRpoints) = zeros();
 bobbest(numSNRpoints) = zeros();
 
 for sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' get best carrier count for bob for each snr');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' get best carrier count for bob for each snr');
     for y = 1:65
         for z = 1:34
             if ~isnan(gc_bob(sweep,1,y,z))
@@ -169,7 +170,7 @@ eve2best(numSNRpoints) = zeros();
 eve3best(numSNRpoints) = zeros();
 eve4best(numSNRpoints) = zeros();
 for sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' get best carrier count for eve for each snr');    
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' get best carrier count for eve for each snr');    
     for y = 1:65
         for z = 1:61
             if ~isnan(gc_eve1(sweep,1,y,z))
@@ -209,7 +210,7 @@ for sweep = 1:numSNRpoints
 end
 
 for sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' find carriers eve shares with bob');    
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' find carriers eve shares with bob');    
     for carrier = 1:45
         if (bob_carriers(sweep, carrier) == 1) && (eve1_carriers(sweep, carrier) == 1)
             eve1_carriers_shared(sweep,carrier) = 1;
@@ -247,39 +248,41 @@ plot(SNR,evebest);
 hold off
 legend({'bob', 'eve'});
 
-% Find Location of Eve's best advantage
-maxdiff = 0;
-eveAtDiff = 0;
-indexAtDiff = 0;
-for sweep = 1:numSNRpoints
-    diff = evebest(sweep) - bobbest(sweep);
-    if diff > maxdiff
-        maxdiff = diff;
-        eveAtDiff = evebest(sweep);
-        indexAtDiff = sweep;
-    end
-end
+disp('done with capacity plot');
 
-if eve1best(indexAtDiff) == eveAtDiff
-    maxDiffIsEve1 = true;
-else
-    maxDiffisEve1 = false;
-end
-if eve2best(indexAtDiff) == eveAtDiff
-    maxDiffIsEve2 = true;
-else
-    maxDiffisEve2 = false;
-end
-if eve3best(indexAtDiff) == eveAtDiff
-    maxDiffIsEve3 = true; % It happens at y: 59, z: 1 and bobs y:57, z:28
-else
-    maxDiffisEve3 = false;
-end
-if eve4best(indexAtDiff) == eveAtDiff
-    maxDiffIsEve4 = true;
-else
-    maxDiffisEve4 = false;
-end
+% Find Location of Eve's best advantage
+% maxdiff = 0;
+% eveAtDiff = 0;
+% indexAtDiff = 0;
+% for sweep = 1:numSNRpoints
+%     diff = evebest(sweep) - bobbest(sweep);
+%     if diff > maxdiff
+%         maxdiff = diff;
+%         eveAtDiff = evebest(sweep);
+%         indexAtDiff = sweep;
+%     end
+% end
+% 
+% if eve1best(indexAtDiff) == eveAtDiff
+%     maxDiffIsEve1 = true;
+% else
+%     maxDiffisEve1 = false;
+% end
+% if eve2best(indexAtDiff) == eveAtDiff
+%     maxDiffIsEve2 = true;
+% else
+%     maxDiffisEve2 = false;
+% end
+% if eve3best(indexAtDiff) == eveAtDiff
+%     maxDiffIsEve3 = true; % It happens at y: 59, z: 1 and bobs y:57, z:28
+% else
+%     maxDiffisEve3 = false;
+% end
+% if eve4best(indexAtDiff) == eveAtDiff
+%     maxDiffIsEve4 = true;
+% else
+%     maxDiffisEve4 = false;
+% end
 
 % Begin Secrecy Capacity calculations
 Cs_eve1 = nan(numSNRpoints, 45, 65, 61);
@@ -290,7 +293,7 @@ Cs_bob = nan(numSNRpoints, 45, 65, 34);
 Cs_hall = nan(numSNRpoints, 45, 25, 345);
 
 parfor sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs array eve1');    
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs array eve1');    
     for y = 1:65
         for z = 1:61
             for carrier = 1:45
@@ -307,7 +310,7 @@ parfor sweep = 1:numSNRpoints
 end
 
 parfor sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs array eve2&3');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs array eve2&3');
     for y = 1:65
         for z = 1:26
             for carrier = 1:45
@@ -331,7 +334,7 @@ parfor sweep = 1:numSNRpoints
 end
 
 parfor sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs array eve4');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs array eve4');
     for y = 1:65
         for z = 1:28
             for carrier = 1:45
@@ -348,7 +351,7 @@ parfor sweep = 1:numSNRpoints
 end
 
 parfor sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs array bob');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs array bob');
     for y = 1:65
         for z = 1:34
             for carrier = 1:45
@@ -365,7 +368,7 @@ parfor sweep = 1:numSNRpoints
 end
 
 parfor sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs array bob');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs array bob');
     for y = 1:25
         for z = 1:345
             for carrier = 1:45
@@ -390,7 +393,7 @@ Cs_eve3_min(:) = 45;
 Cs_eve4_min(numSNRpoints) = zeros();
 Cs_eve4_min(:) = 45;
 parfor sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs min eve1');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs min eve1');
     for y = 1:65
         for z = 1:61
             if sum(Cs_eve1(sweep,:,y,z)) < Cs_eve1_min(sweep)
@@ -401,7 +404,7 @@ parfor sweep = 1:numSNRpoints
 end
     
 parfor sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs min eve2&3');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs min eve2&3');
     for y = 1:65
         for z = 1:26
             if sum(Cs_eve2(sweep,:,y,z)) < Cs_eve2_min(sweep)
@@ -415,7 +418,7 @@ parfor sweep = 1:numSNRpoints
 end
 
 parfor sweep = 1:numSNRpoints
-    disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs min eve4');
+%     disp(string(sweep) + ' / ' + string(numSNRpoints) + ' Cs min eve4');
     for y = 1:65
         for z = 1:28
             if sum(Cs_eve4(sweep,:,y,z)) < Cs_eve4_min(sweep)
@@ -444,7 +447,7 @@ threshold_capacity_data(4,:) = Cs_evemin;
 % Organize into proper format for a heatmap
 for sweep = 1:numSNRpoints
     if (Cs_evemin(sweep) == max(Cs_evemin))
-        disp('index of best secrecy capacity is ' + string(sweep));
+        disp('index of best secrecy capacity is ' + char(sweep));
     end
 end
 
