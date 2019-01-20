@@ -59,6 +59,7 @@ for index = 1:num_loops
     har = zeros(30,34);
     smal = zeros(32,25);
     cam = zeros(32,36);
+    har_c = zeros(45);
 % 
 %     for carrier = 11:55
 %         har = 2 * (1 - probability_erasure(snr(index),harrison(carrier,har_best(index,1),har_best(index,2)),epsilon));
@@ -85,16 +86,16 @@ for index = 1:num_loops
     sec_cap_sma = zeros(32,25);
     
     for carrier = 1:45
-        har(carrier) = 2 * (1 - probability_erasure(snr(index),harrison(carrier,har_best_x(index),har_best_y(index)),epsilon));       
+        har_c(carrier) = 2 * (1 - probability_erasure(snr(index),harrison(carrier,har_best_x(index),har_best_y(index)),epsilon));       
     end
-    har_cap(index) = sum(har);
+    har_cap(index) = sum(har_c);
     
     for row = 1:32
         for col = 1:25
             for carrier = 1:45
                 sma = 2 * (1 - probability_erasure(snr(index),smalley(carrier,row,col),epsilon));
                 smal(row,col) = smal(row,col) + sma;
-                sec_cap_sma(row,col) = sec_cap_sma(row,col) + secrecy_capacity(har(carrier),smal);
+                sec_cap_sma(row,col) = sec_cap_sma(row,col) + secrecy_capacity(har_c(carrier),smal);
 %                 cam(row,col) = cam(row,col) + 1 - probability_erasure(snr(index)...
 %                     ,camacho(carrier,row,col),epsilon);
 %                 if col == 25
