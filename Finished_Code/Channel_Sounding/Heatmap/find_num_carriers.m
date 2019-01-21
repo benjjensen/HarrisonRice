@@ -7,7 +7,7 @@ function [carrier_list,floor] = find_num_carriers(data,snr,threshold)
 %   carriers.  Alternate method of finding the average noise floor is done
 %   by uncommenting the commented code and commenting out the current for
 %   loop where the variable is loc.
-[num_rows,num_runs,~] = size(data);
+[~,num_rows,num_runs] = size(data);
 num_carrier_list = zeros(num_rows*num_runs,1);
 spot = 0;
 row_carriers = zeros(num_runs,1);
@@ -36,7 +36,7 @@ for row = 1:num_rows
 %                 end
 %             end
 %         end
-        if data(row,run,1) == 0
+        if data(1,row,run) == 0
             num_carriers = nan;
 %         else
 %             for loc = 1:2:127
@@ -50,13 +50,13 @@ for row = 1:num_rows
 %             end
 %         end
         else
-            for loc = 1:2:127
-                if data(row,run,loc) * snr >= threshold
+            for loc = 1:45
+                if data(loc,row,run) * snr >= threshold
                     num_carriers = num_carriers + 1;
                 end
             end
             num_carrier_list(spot,1) = num_carriers;
-            if(num_carriers == 64)
+            if(num_carriers == 45)
                 j = 1;
             end
         end
