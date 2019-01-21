@@ -6,7 +6,7 @@ load('linear_noisefloor.mat');
 % load('sma_best.mat');
 close all
 tic;
-num_loops = 20;
+num_loops = 200;
 
 for y = 1:90
     for z= 1:345
@@ -48,18 +48,18 @@ cam_best_y = zeros(1,num_loops);
 har_car = zeros(45,num_loops);
 sma_car = zeros(45,num_loops);
 % sigma2 = 1e-5;
-snr = logspace(-3,2.5,num_loops);
+snr = logspace(-3,4,num_loops);
 % parfor sigma2 = logspace(-2,4,num_loops)
 % for sigma2 = linspace(200,450,num_loops)
-epsilon = 0.1;
-for index = 1:num_loops
+epsilon = 0.5;
+parfor index = 1:num_loops
     tic;
 %     index = index + 1
     disp(index);
     har = zeros(30,34);
     smal = zeros(32,25);
     cam = zeros(32,36);
-    har_c = zeros(45);
+    har_c = zeros(1,45);
 % 
 %     for carrier = 11:55
 %         har = 2 * (1 - probability_erasure(snr(index),harrison(carrier,har_best(index,1),har_best(index,2)),epsilon));
@@ -95,7 +95,7 @@ for index = 1:num_loops
             for carrier = 1:45
                 sma = 2 * (1 - probability_erasure(snr(index),smalley(carrier,row,col),epsilon));
                 smal(row,col) = smal(row,col) + sma;
-                sec_cap_sma(row,col) = sec_cap_sma(row,col) + secrecy_capacity(har_c(carrier),smal);
+                sec_cap_sma(row,col) = sec_cap_sma(row,col) + secrecy_capacity(har_c(carrier),sma);
 %                 cam(row,col) = cam(row,col) + 1 - probability_erasure(snr(index)...
 %                     ,camacho(carrier,row,col),epsilon);
 %                 if col == 25
@@ -108,7 +108,7 @@ for index = 1:num_loops
 %     
 %     
 
-    sec_cap = max(max(sec_cap_sma));
+    sec_cap(index) = min(min(sec_cap_sma));
     
     [smalley_max,I] = max(smal);
     [smalley_max,J] = max(smalley_max);
@@ -135,6 +135,8 @@ for index = 1:num_loops
     toc;
 end
 save('test1_workspace_12');
+
+beep
 %%
 % har_best = [har_best_x' har_best_y'];
 % % cam_best = [cam_best_x' cam_best_y'];
@@ -169,21 +171,19 @@ clear
 load test1_workspace_12;
 snr = 10*log10(snr);
 
-figure()
-hold on;
-plot(har_cap);
-plot(smal_cap);
-% plot(cam_cap);
-hold off
-
-
-
-figure()
-hold on
-plot(sec_cap);
-% plot(har_cap - cam_cap);
-hold off
-
+% figure()
+% hold on;
+% plot(har_cap);
+% plot(smal_cap);
+% % plot(cam_cap);
+% hold off
+% 
+% 
+% figure()
+% hold on
+% plot(sec_cap);
+% % plot(har_cap - cam_cap);
+% hold off
 
 
 figure()
@@ -204,6 +204,9 @@ ylabel('Secure bits per channel use')
 xlabel('SNR (dB)');
 % set(gca,'XScale','log');
 hold off
+
+
+
 % conference = linearSignalReducedCarriers(:,1:33,1:98);
 % conf = squeeze(mean(conference));
 % index = 1;
