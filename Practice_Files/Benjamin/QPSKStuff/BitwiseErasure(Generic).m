@@ -1,11 +1,25 @@
+% Determines the equivocation and mutual information on a transmission as a
+% function of location
+
+%   Works bit-by-bit rather than symbol-by-symbol
+%   Treats each axis separately, but then they can be combined together
+%   Results in cross-like shapes
+
+% Process:
+%    Generates four QPSK locations, then calculates the likelihood, then
+%    probability, then equivocation, and finally the mutual information in
+%    that order. Works bit-by-bit 
+
+% See GUI_Bitwise.mlapp for examples
+
 %% Set Up
 close all, clear all;
 
-sigmaSquared = .5;
-G = 1;          % H in the likelihood equation, but we are using H for equivocation
-epsilon = .5;   % Threshold used to determine whether or not a bit was erased
-b = [1 -1];     % Real bit
-c = [j -j];     % Imaginary bit
+sigmaSquared = .5;  % Sigma Squared ( = No/2)
+G = 1;              % Channel Gain (H in the likelihood equation, but we are using H for equivocation)
+epsilon = .5;       % Threshold used to determine whether or not a bit was erased
+b = [1 -1];         % Real bit
+c = [j -j];         % Imaginary bit
 
 % Creates the QPSK symbol locations
 a = [1+j -1+j -1-j 1-j];
@@ -85,13 +99,13 @@ H = H_real + H_imag;
 figure();
 hold on
 plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
-% surface(real_x, imag_x, H_real);
+% surface(real_x, imag_x, H_real);  % These two are used to leave as bits
 % surface(real_x, imag_x, H_imag);
-surface(real_x, imag_x, H);
+surface(real_x, imag_x, H);         % Used if summing the two together
 title("\sigma^2 = " + string(sigmaSquared));
-xlabel('real');
-ylabel('imaginary');
-zlabel('Equivocation');
+xlabel('In-Phase');
+ylabel('Quadrature');
+zlabel('H(X|z)');
 view(45, 60);
 colormap(jet);
 hold off
@@ -99,12 +113,11 @@ hold off
 
 %% Mutual Information 
 
-close all;
-
 I_real = 1 - H_real;
 I_imag = 1 - H_imag;
 I = I_real + I_imag;
 
+% Assigns colors to show which areas would result in one erasure, two, etc.
 C1(I_real<epsilon) = 0;
 C1((I_real>=epsilon)) = 1;
 C1 = reshape(C1,size(I_real));
@@ -115,6 +128,7 @@ C2 = reshape(C2,size(I_imag));
 
 C = C1 + C2;
 
+        % Raises QPSK points to the surface 
 a_heights = [(I(76,76)+.01) (I(26,76)+.01) (I(26,26)+.01) (I(76,26)+.01)];
 
 %%%%% Plot Mutual Information
@@ -132,7 +146,7 @@ colormap([0,1,0;1,0,0;0,0,1]);
 % saveas(gcf,'BitInformationGraph','epsc');
 hold off
 
-
+%% Mutual Information - Contours
 IMax = zeros(101, 101);
 IMax = max(I_imag, I_real);
 
@@ -187,8 +201,8 @@ plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where t
 % surface(real_x, imag_x, bits_imag);
 surface(real_x, imag_x, bits);
 title("\sigma^2 = " + string(sigmaSquared));
-xlabel('real');
-ylabel('imaginary');
+xlabel('In-Phase');
+ylabel('Quadrature');
 zlabel('Bits');
 view(45, 60);
 colormap(jet);

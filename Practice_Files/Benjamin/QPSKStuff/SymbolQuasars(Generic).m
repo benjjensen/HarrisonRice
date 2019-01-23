@@ -1,13 +1,25 @@
-%% EQUIVOCATION QUASARS 
-    %%%% Data generation
-%close all; 
-clear all;
+% Determines the equivocation and mutual information on a transmission as a
+% function of location
+
+%   Works on each symbol, both bits at a time, resulting in 
+%       a hyperbolic square
+
+% Process:
+%    Generates four QPSK locations, then calculates the likelihood, then
+%    probability, then equivocation, and finally the mutual information in
+%    that order
+
+% See GUI_SymbolErasure.mlapp for examples
+
+%% Data generation
+clear; close all;
 
 % Creates the QPSK symbol locations
 a = [1+j -1+j -1-j 1-j];
 
-epsilon = .5;
-sigmaSquared = .5;
+epsilon = .5;           % Threshold for determining erasures
+sigmaSquared = .5;      % Proportional to noise floor ( = No/2)
+G = 1;                  % Channel Gain (*G is used rather than H)
 for re = -50:50         % -50:50 creates a 101 x 101 grid
     for im = -50:50
         x(re+51,im+51) = (re/25) + (im/25)*j;
@@ -16,18 +28,21 @@ end
 real_x = real(x);
 imag_x = imag(x);
 
+    % Calculates the likelihood
 fx = zeros(4, 101, 101);
 fxSum = zeros(1, 101, 101);
 for loop = 1:4
-    fx(loop,:,:) = (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((x-1*a(loop)).^2));
+    fx(loop,:,:) = (1/(2*pi*sigmaSquared))*exp((-1/(2*sigmaSquared))*abs((x-G*a(loop)).^2));
     fxSum(1, :,:) = fxSum(1, :,:) + fx(loop,:,:);
 end
 
+    % Calculates the probability
 p_a = zeros(4, 101, 101);
 for loop = 1:4
     p_a(loop,:,:) = fx(loop,:,:) ./ fxSum;
 end
 
+    % Calculates the Equivocation
 H = zeros(101, 101);
 % probOfX = 1 / (101*101);
 sumOfProb = zeros(101, 101);
@@ -47,9 +62,9 @@ hold on
 plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
 surface(real_x, imag_x, H);
 title("\sigma^2 = " + string(sigmaSquared));
-xlabel('real');
-ylabel('imaginary');
-zlabel('Equivocation');
+xlabel('In-Phase');
+ylabel('Quadrature');
+zlabel('H(X|z)');
 view(45, 60);
 colormap(jet);
 hold off
@@ -58,11 +73,14 @@ hold off
 
 %% Plot Mutual Information
 I = 2 - H;
+
+    % Coloring scheme used to identify erasure regions
 C(I<epsilon) = 1;
 C((I>=epsilon) & (I < (1+epsilon))) = 2;
 C(I>=(1+epsilon)) = 3;
 C = reshape(C,size(I));
 
+    % Elevates the four QPSK dots to the surface
 a_heights = [(I(76,76)+.01) (I(26,76)+.01) (I(26,26)+.01) (I(76,26)+.01)];
 
 figure();
@@ -82,6 +100,9 @@ contour(I);
 
 
 %%  Bits lost 
+
+    % Similar to the color scheme applied in the Mutual Information section
+       % except this affects the values, not just the color 
 bits = zeros(101,101);
 for c = 1:101
     for d = 1:101
@@ -101,8 +122,8 @@ hold on
 plot(a,'o', 'MarkerFaceColor', 'white', 'Color', 'black'); % Need to fix where this plots on the z axis
 surface(real_x, imag_x, bits);
 title("\sigma^2 = " + string(sigmaSquared));
-xlabel('real');
-ylabel('imaginary');
+xlabel('In-Phase');
+ylabel('Quadrature');
 zlabel('Bits');
 view(45, 60);
 colormap(jet);
