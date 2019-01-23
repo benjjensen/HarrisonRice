@@ -23,16 +23,17 @@ harrison = signal(:,36:65,65:98); % separate the data for harrison's room
 r_max = max(max(max(harrison))); % find the max g value in harrison's room
 signal = signal./r_max; % normalize the g's with respect to harrison's max
 signal = signal(:,1:65,1:240); % remove the hallway data
-
-num_loops = 200;
-harrison_cap = zeros(1,num_loops);
-smalley_cap = zeros(1,num_loops);
+signal = signal.^2; 
+num_loops = 200; % number of data points to test
+harrison_cap = zeros(1,num_loops); % vector for harrison's capacity
+smalley_cap = zeros(1,num_loops); % vector for sma
 camacho_cap = zeros(1,num_loops);
 sec_cap_cam = zeros(1,num_loops);
 sec_cap_sma = zeros(1,num_loops);
 sec_cap = zeros(1,num_loops);
+eve_cap = zeros(1,num_loops);
 index = 0;
-snr = logspace(-3,5,num_loops);
+snr = logspace(-3,5,num_loops); % snr values to test(in linear)
 % for sigma2 = logspace(-2,4,num_loops)
 tic;
 for index = 1:num_loops
