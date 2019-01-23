@@ -16,6 +16,7 @@ for y = 1:90
     end
 end
 signal = tx2_linear_signal(11:55,:,:);
+signal = signal ./ noise;
 harrison = sqrt(signal(:,36:65,65:98)); % find g for harrisons room
 g_max = max(max(max(harrison))); % find his max
 signal = (sqrt(signal)/g_max); % normalize all of the gs
@@ -24,8 +25,8 @@ num_carriers = 45;
 % num_cols = 240; % for ignoring hallway
 num_rows = 90; % to include hallway
 num_cols = 345; % to include hallway
-snr = 10^(-6.6666/10); % chosen snr value
-epsilon = 0.1; % chosen epsilon value
+snr = 10^(6/10); % chosen snr value
+epsilon = 0.5; % chosen epsilon value
 
 map_p_e = zeros(num_carriers,num_rows,num_cols);
 
