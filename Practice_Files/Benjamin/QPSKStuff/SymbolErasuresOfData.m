@@ -1,28 +1,33 @@
-%%%%% Practice - Quasars from our data
+% Takes the quasar information and applies our data to it
+% NOT FINISHED!
+
+%%
 close all; clear all;
 
 %%% Load stuff
 % load('C:\Users\benjj\Work\EcEnResearchAssistant\HarrisonRice\Practice_Files\Kalin\QPSK\linear_noisefloor.mat');
 % load('C:\Users\benjj\Work\EcEnResearchAssistant\HarrisonRice\Practice_Files\Kalin\QPSK\linear_signal.mat');
-load('linear_noisefloor.mat');
-load('linear_signal.mat');
+load('..HarrisonRice\Practice_files\Kalin\QPSK\linear_noisefloor.mat');
+load('..\Practice_files\Kalin\QPSK\linear_signal.mat');
+
+x_coord_start = 10;
+x_coord_end = 10;
+y_coord_start = 10;
+y_coord_end = 10;
+carrier_start = 11;
+carrier_end = 55;
 
 % Creates the QPSK symbol locations
 a = [1+j -1+j -1-j 1-j];
 
 sigmaSquared = zeros(64, 90, 345);
-%H2 = zeros(64, 90, 345);
-    H2 = ones(64, 90, 345);
+H2 = ones(64, 90, 345);
 
-% for heatmapX = 1:345
-%     for heatmapY = 1:90
-heatmapX = 10;
-heatmapY = 10;
-carrier = 45;
-
-        %for carrier = 45:45
+for heatmapX = x_coord_start:x_coord_end
+    for heatmapY = y_coord_start:y_coord_end
+        for carrier = carrier_start:carrier_end
             sigmaSquared(carrier, heatmapY, heatmapX) = linear_noisefloor(carrier, heatmapY, heatmapX)/2;
-            % H2(carrier,heatmapY,heatmapX) = sqrt(linear_signal(carrier,heatmapY,heatmapX));
+            H2(carrier,heatmapY,heatmapX) = sqrt(linear_signal(carrier,heatmapY,heatmapX));
             
             for re = -50:50         % -50:50 creates a 101 x 101 grid
                 for im = -50:50
@@ -63,13 +68,12 @@ carrier = 45;
             surface(real_x, imag_x, H);
             title("\sigma^2 = " + string(sigmaSquared(carrier, heatmapY, heatmapX)) ...
                 + "    H= " + string(H2(carrier, heatmapY, heatmapX)));
-            xlabel('real');
-            ylabel('imaginary');
-            zlabel('Equivocation');
+            xlabel('In-Phase');
+            ylabel('Quadrature');
+            zlabel('H(X|z)');
             view(45, 60);
             colormap(jet);
             hold off ;            
-        %end
-        
-%     end
-% end
+        end       
+    end
+end
