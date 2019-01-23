@@ -2,7 +2,6 @@ clear;
 close all;
 
 load('tx2_linear_signal.mat');
-load('linear_signal.mat');
 load('linear_noisefloor.mat');
 for y = 1:90
     for z = 1:345
@@ -16,6 +15,7 @@ for y = 1:90
     end
 end
 signal = tx2_linear_signal(11:55,:,:);
+signal = signal ./ noise;
 harrison = sqrt(signal(:,36:65,65:98)); % find g for harrisons room
 g_max = max(max(max(harrison))); % find his max
 signal = (sqrt(signal)/g_max); % normalize all of the gs
