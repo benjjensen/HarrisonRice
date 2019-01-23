@@ -93,14 +93,14 @@ tx2chambers = signal(:,34:65,213:240);
 
 
 i = 0;
-num_loops = 300;
+num_loops = 200;
 mm_cam = zeros(num_loops,1);
 mm_cham = zeros(num_loops,1);
 mm_conf = zeros(num_loops,1);
 mm_har = zeros(num_loops,1);
 mm_smal = zeros(num_loops,1);
 mum_har = zeros(num_loops,1);
-snr = logspace(-3,8,num_loops);
+snr = logspace(-3,5,num_loops);
 threshold = 10^(0/10);
 % for threshold = 0:.1:35
 for index = 1:num_loops
@@ -146,7 +146,7 @@ for index = 1:num_loops
 end
 %%
 snr = 10*log10(snr);
-figure(1)
+figure()
 hold on;
 % plot(snr,mm_cam,'DisplayName','Camacho');
 % plot(snr,mm_cham,'DisplayName','Chambers');

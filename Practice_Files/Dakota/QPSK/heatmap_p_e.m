@@ -24,8 +24,8 @@ num_carriers = 45;
 % num_cols = 240; % for ignoring hallway
 num_rows = 90; % to include hallway
 num_cols = 345; % to include hallway
-snr = 10^(-6.6666/10); % chosen snr value
-epsilon = 0.1; % chosen epsilon value
+snr = 10^(6/10); % chosen snr value
+epsilon = 0.5; % chosen epsilon value
 
 map_p_e = zeros(num_carriers,num_rows,num_cols);
 
