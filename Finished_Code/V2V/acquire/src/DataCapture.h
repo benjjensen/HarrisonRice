@@ -94,6 +94,11 @@ public:
      */
     double altitude_feet;
 
+    /**
+     * The type of GPS fix that gave us this info.
+     */
+    std::string fix_type;
+
 
     /**
      * Default constructor.
@@ -115,6 +120,11 @@ public:
      * Forms a timestamp from the date in this GPSPosition.
      */
     std::string get_timestamp();
+
+    /**
+     * Returns true if the fix that provided this GPS information was valid.
+     */
+    bool is_valid_fix();
 };
 
 /**
@@ -265,3 +275,9 @@ public:
 
 std::istream & operator>>(std::istream &in, GPSPosition &position);
 std::ostream & operator<<(std::ostream &out, GPSPosition &position);
+
+int days_in_month(int month, int year);
+void set_gps_position_time(GPSPosition& position,
+        GPSPosition one_second_previous, bool previous_valid,
+        std::tm* time = NULL);
+
