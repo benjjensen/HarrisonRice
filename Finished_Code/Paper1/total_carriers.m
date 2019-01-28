@@ -1,17 +1,26 @@
 close all;
-tic
 
 % Loads the data needed into the workspace
-load("StationaryData/pwelch_harrison_array.mat");
-load("StationaryData/pwelch_smalley_array.mat");
-load("StationaryData/pwelch_camacho_array.mat");
-load("StationaryData/pwelch_conference_array.mat");
-load("StationaryData/pwelch_chambers_array.mat");
+%     load("CollectedData/pwelch_harrison_array.mat");
+%     load("CollectedData/pwelch_smalley_array.mat");
+%     load("CollectedData/pwelch_camacho_array.mat");
+%     load("CollectedData/pwelch_conference_array.mat");
+%     load("CollectedData/pwelch_chambers_array.mat");
+
+load("CollectedData/tx2harrison_pwelch.mat");
+load("CollectedData/tx2smalley_pwelch.mat");
+load("CollectedData/tx2camacho_pwelch.mat");
+load("CollectedData/tx2conference_pwelch.mat");
+load("CollectedData/tx2chambers_pwelch.mat");
 
 total = 71;
-% this number is based off of the length of the thresholds we're looking at
-% so starting at 25 and incrementing every .1 up to 32 there are 71 steps
-% so our vectors need to that many indices in the first dimension
+dBMin = 25;
+dBMax = 32;
+dBStep = .1;
+%This number is based off of the length of the thresholds we're looking at:
+    % starting at 25 and incrementing every .1 up to 32 there are 71 steps
+    % so our vectors need to that many indices in the first dimension
+
 % Initializes the vectors to save time 
 harrison_carriers = zeros(total,4000,1);
 smalley_carriers = zeros(total,4000,1);
@@ -22,16 +31,16 @@ spot = 0;
 
 % Finds the number of carriers above the threshold for every threshold and
 % all 4000 samples
-for threshold = 25:.1:32
+for threshold = dBMin:dBStep:dBMax
     spot = spot + 1;
-    harrison_carriers(spot,:,:) = find_num_carriers(pwelch_harrison_array,threshold);
-    smalley_carriers(spot,:,:) = find_num_carriers(pwelch_smalley_array,threshold);
-    camacho_carriers(spot,:,:) = find_num_carriers(pwelch_camacho_array,threshold);
-    conference_carriers(spot,:,:) = find_num_carriers(pwelch_conference_array,threshold);
-    chambers_carriers(spot,:,:) = find_num_carriers(pwelch_chambers_array,threshold);
+    harrison_carriers(spot,:,:) = find_num_carriers(tx2harrison_pwelch,threshold);
+    smalley_carriers(spot,:,:) = find_num_carriers(tx2smalley_pwelch,threshold);
+    camacho_carriers(spot,:,:) = find_num_carriers(tx2camacho_pwelch,threshold);
+    conference_carriers(spot,:,:) = find_num_carriers(tx2conference_pwelch,threshold);
+    chambers_carriers(spot,:,:) = find_num_carriers(tx2chambers_pwelch,threshold);
 end
 
-% intializes
+% Intializes
 average_harrison = zeros(total,1);
 average_smalley = zeros(total,1);
 average_camacho = zeros(total,1);
@@ -44,7 +53,6 @@ std_conference = zeros(total,1);
 std_chambers = zeros(total,1);
 
 for spot = 1:total
-    
     average_harrison(spot,:) = mean(harrison_carriers(spot,:));
     average_smalley(spot,:) = mean(smalley_carriers(spot,:));
     average_camacho(spot,:) = mean(camacho_carriers(spot,:));
@@ -57,17 +65,18 @@ for spot = 1:total
     std_chambers(spot,:) = std(chambers_carriers(spot,:));
 end
 
-% figure(1)
-% hold on;
-% histogram(average_harrison);
-% histogram(average_smalley);
-% histogram(average_camacho);
-% histogram(average_conference);
-% histogram(average_chambers);
-% legend;
-% hold off
+figure()
+hold on;
+histogram(average_harrison);
+histogram(average_smalley);
+histogram(average_camacho);
+histogram(average_conference);
+histogram(average_chambers);
+legend;
+hold off
+
 x = 25:.1:32;
-figure(1)
+figure()
 hold on;
 plot(x,average_harrison);
 plot(x,average_smalley);
@@ -78,6 +87,7 @@ xlabel('Thresholds (dB)');
 ylabel('Average number of carriers');
 legend('Harrison','Smalley','Camacho','Conference','Chambers');
 hold off
+
 % x = 0:64;
 % for spot = 1:total
 %     figure(spot+1)
@@ -95,7 +105,5 @@ hold off
 %     xlabel('Average number of carriers');
 %     ylabel('Probability');
 %     ylim([0,.25]);
-%     legend('Harrison','Smalley','Camacho','Conference','Chambers');
-% 
+%     legend('Harrison','Smalley','Camacho','Conference','Chambers'); 
 % end
-toc
