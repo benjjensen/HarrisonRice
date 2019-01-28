@@ -1,8 +1,66 @@
 % Created by Dakota Flanary
-% Adds the data from the second location to the whole array
+% Adds the data from the tx2 to the whole array
 
 Nfft = 2*64;
 tx2xx = zeros(90,345,Nfft);
+
+% Adds the data from the conference room to the whole array
+num_rows = 65;
+num_runs = 61;
+for row = 1:num_rows
+    for run = 1:num_runs
+        tx2xx(row,run,:) = tx2conference(row,run,:);
+    end
+end
+
+% Adds the data from hallway to the whole array
+num_rows = 23;
+num_runs = 300;
+for row = 1:num_rows
+    for run = 1:num_runs
+        tx2xx(row+67,run+40,:) = tx2hallway(row,run,:);
+    end
+end
+
+% Adds the data from the from Dr. Harrison's office to the whole array
+num_rows = 30;
+num_runs = 34;
+for row = 1:num_rows
+    for run = 1:num_runs
+        tx2xx(35+row,63+run,:) = tx2harrison(row,run,:);
+    end
+end
+
+% Adds the data from Dr. Smalley's office to the whole array
+num_rows = 32;
+num_runs = 26;
+for row = 1:num_rows
+    for run = 1:num_runs
+        tx2xx(33+row,119+run,:) = tx2smalley(row,run,:);
+    end
+end
+
+% Adds the data from Dr. Camacho's office to the whole array
+num_rows = 32;
+num_runs = 26;
+for row = 1:num_rows
+    for run = 1:num_runs
+        tx2xx(33+row,149+run,:) = tx2camacho(row,run,:);
+    end
+end
+
+% Adds the data from Michael Chambers office to the whole array
+num_rows = 32;
+num_runs = 28;
+for row = 1:num_rows
+    for run = 1:num_runs
+        tx2xx(33+row, 207+run,:) = tx2chambers(row,run,:);
+    end
+end
+
+
+
+
 
 % num_rows = 26;
 % num_runs = 32;
@@ -104,52 +162,3 @@ tx2xx = zeros(90,345,Nfft);
 %         end 
 %     end
 % end
-
-% Adds the data from the conference room to the whole array
-num_rows = 65;
-num_runs = 61;
-for row = 1:num_rows
-    for run = 1:num_runs
-        tx2xx(row,run,:) = tx2conference(row,run,:);
-    end
-end
-% Adds the data from hallway to the whole array
-num_rows = 23;
-num_runs = 300;
-for row = 1:num_rows
-    for run = 1:num_runs
-        tx2xx(row+67,run+40,:) = tx2hallway(row,run,:);
-    end
-end
-% Adds the data from the from Dr. Harrison's office to the whole array
-num_rows = 30;
-num_runs = 34;
-for row = 1:num_rows
-    for run = 1:num_runs
-        tx2xx(35+row,63+run,:) = tx2harrison(row,run,:);
-    end
-end
-% Adds the data from Dr. Smalley's office to the whole array
-num_rows = 32;
-num_runs = 26;
-for row = 1:num_rows
-    for run = 1:num_runs
-        tx2xx(33+row,119+run,:) = tx2smalley(row,run,:);
-    end
-end
-% Adds the data from Dr. Camacho's office to the whole array
-num_rows = 32;
-num_runs = 26;
-for row = 1:num_rows
-    for run = 1:num_runs
-        tx2xx(33+row,149+run,:) = tx2camacho(row,run,:);
-    end
-end
-% Adds the data from Michael Chambers office to the whole array
-num_rows = 32;
-num_runs = 28;
-for row = 1:num_rows
-    for run = 1:num_runs
-        tx2xx(33+row, 207+run,:) = tx2chambers(row,run,:);
-    end
-end
