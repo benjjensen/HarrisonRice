@@ -30,6 +30,8 @@ signal = signal ./ max(max(max(signal(:,36:65,65:98)))); % find the best g in ha
 harrison = signal(:,36:65,65:98); % get harrison's room
 smalley = signal(:,34:65,123:147); % get smalley's room
 camacho = signal(:,34:65,154:179); % get camcho's room
+tx2conference = signal(:,1:65,1:61);
+
 
 har_cap = zeros(1,num_loops); % vector of harrison's capacities
 smal_cap = zeros(1,num_loops); % vector of smalley's capacities
