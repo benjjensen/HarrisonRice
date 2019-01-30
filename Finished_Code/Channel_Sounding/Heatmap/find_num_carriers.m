@@ -56,6 +56,8 @@ for row = 1:num_rows
                 end
             end
             num_carrier_list(spot,1) = num_carriers;
+            
+            %What does this do?
             if(num_carriers == 45)
                 j = 1;
             end
