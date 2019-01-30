@@ -1,34 +1,41 @@
 function [graphWeights] = RMWeightHier(r,m, graph)
-%UNTITLED3 Summary of this function goes here
-%   Detailed explanation goes here
-
-if r <= m
-    
+%This function returns and graphs the weights of the RMHierachy
+if r <= m %RM codes are only valid if this is true.
     n = 2^m;
     k = 0; %%initialize k = 0
+    
+    %computes k
     for i = 0 : r
         k = k + nchoosek(m,i);
     end
-    rate = k/n;
+    rate = k/n; %rate of the code
     
     alphaValues = zeros(1,m);
+    
+    %determines a,b,c,ect. values
     for num = 1 : m
         alphaValues(1, num) = 2^(num-1);
     end
+    
     finalValues = n;
+    
+    %calulates the weight heirarchy of RM code
     for numCombos = 1:r
         combos = nchoosek(alphaValues(1,:), numCombos);
         [rows columns] = size(combos);
+        
+        %sums up all of combinations
         for index = 1 : rows
             comboSum = sum(combos(index,:));
             finalValues = [finalValues 2^m-comboSum];
         end
     end
-    weights = zeros(1, k);
-    weights = sort(finalValues);
-    
+    %initialize variables
     weightsIndex = 1;
     graphWeights = zeros(1,n+1);
+    
+    %orders from max to min
+    weights = sort(finalValues);
     for index = 1 : n + 1
         if index <= weights(1,weightsIndex)
             graphWeights(1,index) = k - weightsIndex + 1;
@@ -38,11 +45,13 @@ if r <= m
         end
     end
     
+    %makes array for index of values
     graphIndexes = zeros(1,n+1);
     for j = 0 : n
         graphIndexes(1, j+1) = j;
     end
     
+    %plots curves
     if graph == true
         figure();
         plot(graphIndexes,graphWeights,'DisplayName',['RM(' num2str(r) ',' num2str(m) '), rate = ' num2str(round(rate,2))]);
@@ -53,6 +62,7 @@ if r <= m
         xlabel ('Revealed Bits (\mu)');
         legend;
     end
+else
+    disp('ERROR: Invalid code values');
 end
-
 end

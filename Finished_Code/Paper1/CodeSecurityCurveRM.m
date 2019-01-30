@@ -1,14 +1,12 @@
 %Created by Bradford Clark % Used by Benjamin Jensen
 %This code calculates security curves for different RM codes.
-
 %closes all figure windows
 close all;
-for m = 1 : 10   %cycles through a range of m values
-    tic
+for m = 2 : 10   %cycles through a range of m values
     %creates a new figure
     figure();
     for r = 1 : m   %cycles through a range of r values
-%         if r < m    %RM codes are only valid if this is true.
+        if r < m    %RM codes are only valid if this is true.
             n = 2^m;    %length of code words
             k = 0;  %initialize k = 0
             
@@ -16,7 +14,7 @@ for m = 1 : 10   %cycles through a range of m values
             for i = 0 : r
                 k = k + nchoosek(m,i);
             end
-            rate = k/n;
+            rate = k/n; %rate of the code
             
             alphaValues = zeros(1,m);
             
@@ -39,11 +37,11 @@ for m = 1 : 10   %cycles through a range of m values
                 end
             end
             
-            weights = zeros(1, k);
-            weights = sort(finalValues);    %orders from high to low
-            
+            %initialize variables
             weightsIndex = 1;
             graphWeights = zeros(1,n+1);
+            
+            weights = sort(finalValues);    %orders numbers from high to low
             
             %create y-axis values for all indexes
             for index = 1 : n + 1
@@ -54,8 +52,6 @@ for m = 1 : 10   %cycles through a range of m values
                     graphWeights(1,index) = k - weightsIndex + 1;
                 end
             end
-            
-           
             
             %makes array for index of values
             graphIndexes = zeros(1,n+1);
@@ -73,10 +69,8 @@ for m = 1 : 10   %cycles through a range of m values
             ylabel('Equivocation (bits)');
             xlabel ('Revealed Bits (\mu)');
             legend;
-%         end
+        end
         
     end
     hold off;
-    disp(m)
-    toc;
 end
