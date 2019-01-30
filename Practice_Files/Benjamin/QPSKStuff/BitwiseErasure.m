@@ -156,12 +156,12 @@ title("Max(Bit1, Bit2)");
 
 figure()
 IMin = min(I_imag, I_real);
-contour(IMin);
+contourf(IMin);
 title("Min(Bit1, Bit2)");
 
 figure()
 hold on 
-contour(IMin)
+contourf(IMin)
 contour(IMax, '--')
 title("Overlayed Max/Min Graph");
 hold off

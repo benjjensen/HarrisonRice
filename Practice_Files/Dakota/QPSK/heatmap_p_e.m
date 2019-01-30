@@ -2,7 +2,6 @@ clear;
 close all;
 
 load('tx2_linear_signal.mat');
-load('linear_signal.mat');
 load('linear_noisefloor.mat');
 for y = 1:90
     for z = 1:345

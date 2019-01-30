@@ -2,7 +2,7 @@
 % function of location
 
 %   Works on each symbol, both bits at a time, resulting in 
-%       a hyperbolic square
+    % a hyperbolic square
 
 % Process:
 %    Generates four QPSK locations, then calculates the likelihood, then
