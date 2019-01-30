@@ -10,6 +10,7 @@ load linear_signal.mat;
 for y = 1:90
     for z = 1:345
         linear_signal(:,y,z) = fftshift(linear_signal(:,y,z));
+        linear_noisefloor(:,y,z) = fftshift(linear_noisefloor(:,y,z));
     end
 end
 noise = linear_noisefloor(10:54,:,:);
@@ -50,7 +51,7 @@ harrison_max = max(max(capacity(36:65,65:98)));
 
 for x = 1:90
     for y = 1:345
-        secrecy_capacity(x,y) = harrison_max - capacity(x,y);
+        secrecy_capacity(x,y) = harrison_max - capacity(x,y); % fix it to calculate carrier by carrier
         if (secrecy_capacity(x,y) < 0)
             secrecy_capacity(x,y) = 0;
         end
@@ -82,7 +83,22 @@ MinChambers = min(min(secrecy_capacity(34:65,213:240)));
 MinHarrison = min(min(secrecy_capacity(36:65,65:98)));
 
 
-
+figure();
+imshow(I);
+hold on
+text(142, 157, 'tx', 'Color', 'black', 'FontSize', 8);
+hm = imagesc(capacity);
+set(hm,'AlphaData',~isnan(capacity));
+colormap(jet);
+q = colorbar;
+q.Position = [.855 .4 .016 .3];
+ylabel(q, 'bits per channel use');
+hm.XData = [36; 380];
+hm.YData = [49; 139];
+hold off
+cf = gcf;
+cf.PaperSize = [5 4];
+cf.PaperPosition = [-.05521 0.2240 -0.5521+5 0.2240+4];
 
 % figure();
 % plot(multiplier, SmalleyMin);
