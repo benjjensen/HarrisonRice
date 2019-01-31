@@ -3,39 +3,37 @@ close all;
 
 load tx2_linear_signal.mat;
 load linear_noisefloor.mat;
+
 for y = 1:90
     for z = 1:345
-        tx2_linear_signal(:,y,z) = fftshift(tx2_linear_signal(:,y,z));
+        tx2_linear_signal(:,y,z) = fftshift(tx2_linear_signal(:,y,z)); % shift the data so the bad carriers are on the edges
+        linear_noisefloor(:,y,z) = fftshift(linear_noisefloor(:,y,z)); % shift the data so the bad carriers are on the edges
     end
 end
-noise = linear_noisefloor;
-noise = noise(10:54,:,:);
+noise = linear_noisefloor(10:54,:,:);
 for y = 1:90
     for z = 1:345
-        noise(:,y,z) = sum(noise(:,y,z)) / 45;
+        noise(:,y,z) = sum(noise(:,y,z)) / 45; % average the noise floor
     end
 end
-signal = tx2_linear_signal(11:55,:,:);
-signal = signal ./ noise;
-signal = sqrt(signal);
-harrison = signal(:,36:65,65:98);
-r_max = max(max(max(harrison)));
-signal = signal./r_max;
-signal = signal.^2;
-signal = signal(:,1:65,1:240);
-% signal = truncated_linear_signal;
-
-
-% noise = truncated_linear_noise;
-num_loops = 200;
-harrison_cap = zeros(1,num_loops);
-smalley_cap = zeros(1,num_loops);
+signal = tx2_linear_signal(11:55,:,:); % remove the bad carriers
+signal = signal ./ noise; % remove the noise from the data
+signal = sqrt(signal); % find the g's 
+harrison = signal(:,36:65,65:98); % separate the data for harrison's room
+r_max = max(max(max(harrison))); % find the max g value in harrison's room
+signal = signal./r_max; % normalize the g's with respect to harrison's max
+signal = signal(:,1:65,1:240); % remove the hallway data
+signal = signal.^2; 
+num_loops = 200; % number of data points to test
+harrison_cap = zeros(1,num_loops); % vector for harrison's capacity
+smalley_cap = zeros(1,num_loops); % vector for sma
 camacho_cap = zeros(1,num_loops);
 sec_cap_cam = zeros(1,num_loops);
 sec_cap_sma = zeros(1,num_loops);
 sec_cap = zeros(1,num_loops);
+eve_cap = zeros(1,num_loops);
 index = 0;
-snr = logspace(-3,5,num_loops);
+snr = logspace(-3,5,num_loops); % snr values to test(in linear)
 % for sigma2 = logspace(-2,4,num_loops)
 tic;
 for index = 1:num_loops

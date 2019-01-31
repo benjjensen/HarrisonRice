@@ -2,7 +2,6 @@ clear;
 close all;
 
 load('tx2_linear_signal.mat');
-load('linear_signal.mat');
 load('linear_noisefloor.mat');
 for y = 1:90
     for z = 1:345
@@ -16,19 +15,20 @@ for y = 1:90
     end
 end
 signal = tx2_linear_signal(11:55,:,:);
+signal = signal ./ noise;
 harrison = sqrt(signal(:,36:65,65:98)); % find g for harrisons room
-r_max = max(max(max(harrison))); % find his max
-signal = sqrt(signal)/r_max; % normalize all of the gs
+g_max = max(max(max(harrison))); % find his max
+signal = (sqrt(signal)/g_max); % normalize all of the gs
 num_carriers = 45;
 % num_rows = 65; % for ignoring hallway
 % num_cols = 240; % for ignoring hallway
 num_rows = 90; % to include hallway
 num_cols = 345; % to include hallway
-snr = .636; % chosen snr value
-epsilon = 0.1; % chosen epsilon value
+snr = 10^(6/10); % chosen snr value
+epsilon = 0.5; % chosen epsilon value
 
 map_p_e = zeros(num_carriers,num_rows,num_cols);
-good_map_p_e = [];
+
 tic;
 for row = 1:num_rows % for each row on the floor
     row
@@ -50,7 +50,7 @@ map_capacity_e = 2 * (1 - map_p_e); % a map of the capacity at each location for
 
 %% Generate Capacity and secrecy capacity
 
-capacity = sum(map_capacity_e); % harrison's capacity
+capacity = squeeze(sum(map_capacity_e)); % harrison's capacity
 harrison_cap = capacity(36:65,65:98);
 harrison_p_e = map_p_e(:,36:65,65:98); % harrison's probability of erasures
 [harrison_max,I] = max(harrison_cap); % step to find harrison's best location
@@ -64,9 +64,9 @@ for row = 1:num_rows % for each row again
         if isnan(capacity(row,col)) % if it's nan then set sec_cap to nan at that spot
             sec_cap(row,col) = nan;
         else
-            for carrier = 11:55 % calculate the secrecy capacity for each carrier
+            for carrier = 1:45 % calculate the secrecy capacity for each carrier
                 sec_cap(row,col) = sec_cap(row,col) + secrecy_capacity(...
-                    harrison_p_e(carrier,index(2),index(1)),map_p_e(capacity,row,col));
+                    1-harrison_p_e(carrier,index(2),index(1)),1-map_p_e(carrier,row,col));
             end
         end
     end
