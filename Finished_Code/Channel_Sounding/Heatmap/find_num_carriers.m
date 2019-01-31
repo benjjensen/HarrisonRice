@@ -16,27 +16,27 @@ for row = 1:num_rows
     for run = 1:num_runs
         num_carriers = 0;
         spot = spot + 1;
-% %         If you want to find it based on the average noise floor
-% %         uncomment this code.
-%         noise_floor = 0;
-%         count = 0;
-%         for loc = 19:2:110
-% 
-%             noise_floor = noise_floor + data(row,run,loc+1);
-%             count = count+1;
-%         end
-%         noise_floor = noise_floor/count;
-%         for loc = 19:2:110
-%             if noise_floor == 0
-%                 num_carriers = nan;
-%             else
-%                 dif = data(row,run,loc) - noise_floor;
-%                 if(dif > threshold)
-%                     num_carriers = num_carriers + 1;
-%                 end
-%             end
-%         end
-        if data(1,row,run) == 0
+% % %         If you want to find it based on the average noise floor
+% % %         uncomment this code.
+% %         noise_floor = 0;
+% %         count = 0;
+% %         for loc = 19:2:110
+% % 
+% %             noise_floor = noise_floor + data(row,run,loc+1);
+% %             count = count+1;
+% %         end
+% %         noise_floor = noise_floor/count;
+% %         for loc = 19:2:110
+% %             if noise_floor == 0
+% %                 num_carriers = nan;
+% %             else
+% %                 dif = data(row,run,loc) - noise_floor;
+% %                 if(dif > threshold)
+% %                     num_carriers = num_carriers + 1;
+% %                 end
+% %             end
+% %         end
+        if isnan(data(1,row,run))
             num_carriers = nan;
 %         else
 %             for loc = 1:2:127
@@ -56,11 +56,6 @@ for row = 1:num_rows
                 end
             end
             num_carrier_list(spot,1) = num_carriers;
-            
-            %What does this do?
-            if(num_carriers == 45)
-                j = 1;
-            end
         end
         row_carriers(run) = num_carriers;
     end
