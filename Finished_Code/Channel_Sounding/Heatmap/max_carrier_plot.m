@@ -14,7 +14,7 @@ tx2smalley = signal(:,34:65,123:147); % separate the data from smalley's office
 tx2conference = signal(:,1:65,1:61); % separate the data from the conference room
 tx2chambers = signal(:,34:65,213:240); % separate the data from chamber's office
 
-num_loops = 200; % number of data points to test
+num_loops = 300; % number of data points to test
 cap_cam = zeros(num_loops,1); % capcity in camcho's office
 cap_cham = zeros(num_loops,1); % capacity in chamber's office
 cap_conf = zeros(num_loops,1); % capacity in the conference room
