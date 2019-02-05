@@ -3,12 +3,15 @@
 
 close all;
 
-load('tx2_pwelch.mat');
-load('tx2camacho_pwelch.mat');
-load('tx2chambers_pwelch.mat');
-load('tx2conference_pwelch.mat');
-load('tx2harrison_pwelch.mat');
-load('tx2smalley_pwelch.mat');
+load('Data/tx2dB.mat');
+
+    % Assigns the correct rows and columns to the appropriate room 
+tx2_pwelch = tx2dB;
+tx2conference_pwelch = tx2dB(:, 1:65, 1:61);
+tx2harrison_pwelch = tx2dB(:, 36:65, 65:98);
+tx2smalley_pwelch = tx2dB(:, 34:65, 123:148);
+tx2camacho_pwelch = tx2dB(:, 34:65, 154:179);
+tx2chambers_pwelch = tx2dB(:, 34:65, 213:240);
 
 min = 25;
 max = 32;
@@ -45,7 +48,10 @@ for dblimit = min:stepSize:max
     counter = counter + 1;
 end
 
-save('harrisonOnlyCarriers.mat','harrisonOnlyCarriers');
+figure()
+plot(harrisonOnlyCarriers(:,1), harrisonOnlyCarriers(:,2));
+
+% save('harrisonOnlyCarriers.mat','harrisonOnlyCarriers');
 function [specific_carriers_above, count] = specCarriers(file, scale, dblimit)
 %%%%% PART 1 - DETERMINES THE BEST LOCATION %%%%%
 

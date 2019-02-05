@@ -7,11 +7,11 @@ close all;
 %     load("CollectedData/pwelch_conference_array.mat");
 %     load("CollectedData/pwelch_chambers_array.mat");
 
-load("CollectedData/tx2harrison_pwelch.mat");
-load("CollectedData/tx2smalley_pwelch.mat");
-load("CollectedData/tx2camacho_pwelch.mat");
-load("CollectedData/tx2conference_pwelch.mat");
-load("CollectedData/tx2chambers_pwelch.mat");
+load("Data/tx2Data/tx2harrison_pwelch.mat");
+load("Data/tx2Data/tx2smalley_pwelch.mat");
+load("Data/tx2Data/tx2camacho_pwelch.mat");
+load("Data/tx2Data/tx2conference_pwelch.mat");
+load("Data/tx2Data/tx2chambers_pwelch.mat");
 
 total = 71;
 dBMin = 25;
