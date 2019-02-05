@@ -2,31 +2,31 @@
 clear; close all;
 %% Load Individual Arrays
 for i = 1:26 % Load in data from Camacho's office
-    eval(sprintf('load ../DataCollection/tx1Data/camacho_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/camacho_%d.mat;', i));
 end
 for i = 1:28 % Load in data from Chamber's office
-    eval(sprintf('load ../DataCollection/tx1Data/chambers_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/chambers_%d.mat;', i));
 end
 for i = 1:55 % Load in data from Conference room
-    eval(sprintf('load ../DataCollection/tx1Data/conference_main_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/conference_main_%d.mat;', i));
 end
 for i = 1:3 % Load in data from Conference room
-    eval(sprintf('load ../DataCollection/tx1Data/conference_north_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/conference_north_%d.mat;', i));
 end
 for i = 1:3 % Load in data from Conference room
-    eval(sprintf('load ../DataCollection/tx1Data/conference_south_pillar_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/conference_south_pillar_%d.mat;', i));
 end
 for i = 1:4 % Load in data from Conference room
-    eval(sprintf('load ../DataCollection/tx1Data/conference_south_wall_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/conference_south_wall_%d.mat;', i));
 end
 for i = 1:300 % Load in data from Hallway
-    eval(sprintf('load ../DataCollection/tx1Data/hallway_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/hallway_%d.mat;', i));
 end
 for i = 1:29 % Load in data from Harrison's office
-    eval(sprintf('load ../DataCollection/tx1Data/harrison_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/harrison_%d.mat;', i));
 end
 for i = 1:31 % Load in data from Smalley's office
-    eval(sprintf('load ../DataCollection/tx1Data/smalley_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/smalley_%d.mat;', i));
 end
 
 %% Combine Into One Array Per Room

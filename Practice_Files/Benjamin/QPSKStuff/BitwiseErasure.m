@@ -13,7 +13,8 @@
 % See GUI_Bitwise.mlapp for examples
 
 %% Set Up
-close all, clear all;
+close all;
+clear;
 
 sigmaSquared = .5;  % Sigma Squared ( = No/2)
 G = 1;              % Channel Gain (H in the likelihood equation, but we are using H for equivocation)
@@ -147,17 +148,16 @@ colormap([0,1,0;1,0,0;0,0,1]);
 hold off
 
 %% Mutual Information - Contours
-IMax = zeros(101, 101);
 IMax = max(I_imag, I_real);
 
-figure()
-contour(IMax)
-title("Max(Bit1, Bit2)");
-
-figure()
+% figure()
+% contour(IMax)
+% title("Max(Bit1, Bit2)");
+% 
+% figure()
 IMin = min(I_imag, I_real);
-contourf(IMin);
-title("Min(Bit1, Bit2)");
+% contourf(IMin);
+% title("Min(Bit1, Bit2)");
 
 figure()
 hold on 

@@ -6,19 +6,26 @@
 %% Loads in the data from paper 1 (snapshot of Clyde building fourth floor)    
     
 close all;  
-load('CollectedData/camacho_pwelch.mat');
-load('CollectedData/chambers_pwelch.mat');
-load('CollectedData/complete_pwelch.mat');
-load('CollectedData/conference_pwelch.mat');
-load('CollectedData/harrison_pwelch.mat');
-load('CollectedData/smalley_pwelch.mat');
 
-load('CollectedData/tx2_pwelch.mat');
-load('CollectedData/tx2camacho_pwelch.mat');
-load('CollectedData/tx2chambers_pwelch.mat');
-load('CollectedData/tx2conference_pwelch.mat');
-load('CollectedData/tx2harrison_pwelch.mat');
-load('CollectedData/tx2smalley_pwelch.mat');
+close all;  
+load('Data/tx2dB.mat');
+load('Data/tx1dB.mat');
+
+    % Assigns the correct rows and columns to the appropriate room 
+tx2_pwelch = tx2dB;
+tx2conference_pwelch = tx2dB(:, 1:65, 1:61);
+tx2harrison_pwelch = tx2dB(:, 36:65, 65:98);
+tx2smalley_pwelch = tx2dB(:, 34:65, 123:148);
+tx2camacho_pwelch = tx2dB(:, 34:65, 154:179);
+tx2chambers_pwelch = tx2dB(:, 34:65, 213:240);
+
+tx1_pwelch = tx1dB;
+tx1conference_pwelch = tx1dB(:, 1:65, 1:61);
+tx1harrison_pwelch = tx1dB(:, 37:65, 65:97);
+tx1smalley_pwelch = tx1dB(:, 34:65, 123:148);
+tx1camacho_pwelch = tx1dB(:, 34:65, 154:179);
+tx1chambers_pwelch = tx1dB(:, 34:65, 213:240);
+
 
 %% SET DBLIMIT 
 dblimit = 25.8;
