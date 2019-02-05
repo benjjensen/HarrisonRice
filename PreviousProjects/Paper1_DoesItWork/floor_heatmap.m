@@ -1,6 +1,6 @@
 clear;
 close all;
-
+addpath(genpath('Functions'))
 load ('Data/tx2Data/linear_signal.mat'); % loads in the signal data
 load ('Data/tx2Data/linear_noisefloor.mat'); % loads in the noise data
 
