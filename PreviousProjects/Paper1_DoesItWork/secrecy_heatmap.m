@@ -2,6 +2,7 @@
 %% at each SNR level
 clear;
 close all;
+addpath(genpath('Functions'))
 
 load linear_signal.mat; % loads in the signal data
 load linear_noisefloor.mat; % loads in the noise data
@@ -10,7 +11,7 @@ load linear_noisefloor.mat; % loads in the noise data
 
 tx2harrison = signal(:,36:65,65:98); % separate the data from harrison's office
 
-snr_db = 2.3;
+snr_db = 2.3; 
 snr = 10^(snr_db/10);
 db_threshold = 0; % the threshold to test in db
 threshold = 10^(db_threshold/10); % the threshold to test converted to linear 
