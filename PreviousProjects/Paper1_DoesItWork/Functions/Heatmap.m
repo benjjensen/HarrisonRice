@@ -1,7 +1,7 @@
 function [axis] = Heatmap(dataArray)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
-I = imread('../Data/HeatmapBackground.png');
+I = imread('Data/HeatmapBackground.png');
 figure();
 imshow(I);
 hold on
