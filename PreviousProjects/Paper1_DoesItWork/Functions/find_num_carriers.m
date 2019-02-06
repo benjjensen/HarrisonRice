@@ -1,3 +1,4 @@
+% Created by Dakota Flanary
 function [carrier_list,room] = find_num_carriers(data,snr,threshold)
 %find_num_carriers Finds the number of carriers above the specified
 %                   threshold
