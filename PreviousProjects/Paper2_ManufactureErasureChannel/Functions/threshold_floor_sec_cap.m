@@ -1,3 +1,4 @@
+% Created by Dakota Flanary
 function [carrier_list,room] = threshold_floor_sec_cap(bob,data,snr,threshold)
 %threshold_find_num_carriers Finds the number of carriers above the specified
 %                   threshold

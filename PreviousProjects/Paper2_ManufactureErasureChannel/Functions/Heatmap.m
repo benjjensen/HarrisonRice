@@ -1,3 +1,4 @@
+% Created by Kalin Norman
 function [axis] = Heatmap(dataArray)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here

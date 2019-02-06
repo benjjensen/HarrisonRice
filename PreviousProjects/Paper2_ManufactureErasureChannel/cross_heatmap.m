@@ -1,3 +1,4 @@
+% Created by Dakota Flanary
 clear;
 close all;
 addpath(genpath('Functions'))
@@ -62,47 +63,6 @@ end
 
 sec_cap = 2 * sec_cap; % multiply by two because two bits per symbol
 
-% bad_carriers = [];
-% i = 1;
-% harrison_carrier_p_e = map_p_e(:,36:65,65:98);
-% for carrier = 1:num_carriers
-%     if harrison_carrier_p_e(carrier,index(1),index(2)) > threshold
-%         bad_carriers(i) = carrier;
-%         i = i + 1;
-%     end
-% end
-% harrison_carrier_p_e(bad_carriers,:,:) = [];
-% map_p_e(bad_carriers,:,:) = [];
-%
-% [num_carriers,~,~] = size(map_p_e);
-% map_cap = zeros(num_rows,num_cols);
-% for row = 1:num_rows
-%     for col = 1:num_cols
-%         for carrier = 1:num_carriers
-%             if isnan(map_p_e(carrier,row,col))
-%                 map_cap(row,col) = nan;
-%                 break;
-%             else
-%                 map_cap(row,col) = map_cap(row,col) + (1 - map_p_e(carrier,row,col));
-%             end
-%         end
-%     end
-% end
-%
-% harrison_good_cap = map_cap(36:65,65:98);
-% [harrison_good_max,I] = max(harrison_good_cap);
-% [harrison_good_max,J] = max(harrison_good_max);
-%
-% good_cap = map_cap;
-% for row = 1:num_rows
-%     for col = 1:num_cols
-%         if isnan(map_cap(row,col))
-%             good_cap(row,col) = nan;
-%         else
-%             good_cap(row,col) = harrison_good_max - map_cap(row,col);
-%         end
-%     end
-% end
 %% HEATMAP
 
 Heatmap(sec_cap);

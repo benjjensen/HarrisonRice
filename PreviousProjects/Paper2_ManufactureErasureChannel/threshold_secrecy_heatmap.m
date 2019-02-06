@@ -1,3 +1,4 @@
+% Created by Dakota Flanary
 %% Plots the number of good carriers and unique good carriers for harrison 
 %% at each SNR level
 clear;
