@@ -33,4 +33,4 @@ secrecy_capacity = bob_cap - secrecy_capacity; % the secrecy capacity is
     % bob's capacity minus the matching good carriers of eve's
 %%
 
-clyde_heatmap(secrecy_capacity); % calls the heatmap function
+Heatmap(secrecy_capacity); % calls the heatmap function

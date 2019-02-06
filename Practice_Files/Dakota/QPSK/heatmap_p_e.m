@@ -1,24 +1,11 @@
 clear;
 close all;
 
-load('tx2_linear_signal.mat');
-load('linear_noisefloor.mat');
-for y = 1:90
-    for z = 1:345
-        tx2_linear_signal(:,y,z) = fftshift(tx2_linear_signal(:,y,z)); % correct way to fftshift
-    end
-end
-noise = linear_noisefloor(10:54,:,:);
-for y = 1:90
-    for z = 1:345
-        noise(:,y,z) = sum(noise(:,y,z)) ./ 45;
-    end
-end
-signal = tx2_linear_signal(11:55,:,:);
-signal = signal ./ noise;
-harrison = sqrt(signal(:,36:65,65:98)); % find g for harrisons room
-g_max = max(max(max(harrison))); % find his max
-signal = (sqrt(signal)/g_max); % normalize all of the gs
+load linear_signal.mat; % loads in the signal data
+load linear_noisefloor.mat; % loads in the noise data
+
+[signal,noise] = shift_normalize_signal_noise(linear_signal,linear_noisefloor); %signal = g^2 and noise is the fft shifted noise
+signal = sqrt(signal); % normalize all of the gs
 num_carriers = 45;
 % num_rows = 65; % for ignoring hallway
 % num_cols = 240; % for ignoring hallway
