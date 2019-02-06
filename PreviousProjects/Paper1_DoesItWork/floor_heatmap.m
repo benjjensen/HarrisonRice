@@ -1,3 +1,4 @@
+% Created by Dakota Flanary
 clear;
 close all;
 addpath(genpath('Functions'))

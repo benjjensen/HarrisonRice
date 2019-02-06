@@ -1,3 +1,4 @@
+% Created by Dakota Flanary/Kalin Norman
 function [signal,noise] = shift_normalize_signal_noise(signal, linear_noisefloor)
 %shift_normalize_signal_noise: Shifts and normalizes the signal and removes
 %the bad carriers

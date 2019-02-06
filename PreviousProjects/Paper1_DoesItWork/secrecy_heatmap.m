@@ -1,5 +1,6 @@
-%% Plots the number of good carriers and unique good carriers for harrison 
-%% at each SNR level
+% Created by Dakota Flanary
+%% Plots the number of good and unique carriers for harrison 
+%% at the given SNR level as a function of location
 clear;
 close all;
 addpath(genpath('Functions'))
