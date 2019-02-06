@@ -8,4 +8,3 @@ else
     sec_cap = bob_cap - eve_cap;
 end
 end
-
