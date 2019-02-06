@@ -1,36 +1,21 @@
 clear;
 load('linearSignalReducedCarriers.mat');
-load('tx2_linear_signal');
-load('linear_noisefloor.mat');
+load linear_signal.mat; % loads in the signal data
+load linear_noisefloor.mat; % loads in the noise data
+
+[signal,noise] = shift_normalize_signal_noise(linear_signal,linear_noisefloor); %signal = g^2 and noise is the fft shifted noise
 % load('har_best.mat');
 % load('sma_best.mat');
 close all
 tic;
 num_loops = 200;
 
-for y = 1:90
-    for z= 1:345
-        tx2_linear_signal(:,y,z) = fftshift(tx2_linear_signal(:,y,z)); % move the bad carriers to the edge
-        linear_noisefloor(:,y,z) = fftshift(linear_noisefloor(:,y,z)); % move the bad carriers to the edge
-    end
-end
-
-noise = linear_noisefloor(10:54,:,:); % remove the bad carriers from the noise
-for y = 1:90
-    for z = 1:345
-        noise(:,y,z) = sum(noise(:,y,z)) ./ 45; % average the noise floor
-    end
-end
-
-signal = tx2_linear_signal(11:55,:,:); % remove the bad carriers
-signal = signal ./ noise; % remove the noise from the signal
 signal = sqrt(signal); % find the g's
-signal = signal ./ max(max(max(signal(:,36:65,65:98)))); % find the best g in harrison's room
 
 harrison = signal(:,36:65,65:98); % get harrison's room
 smalley = signal(:,34:65,123:147); % get smalley's room
 camacho = signal(:,34:65,154:179); % get camcho's room
-tx2conference = signal(:,1:65,1:61);
+conference = signal(:,1:65,1:61);
 
 
 har_cap = zeros(1,num_loops); % vector of harrison's capacities
@@ -45,10 +30,7 @@ cam_best_x = zeros(1,num_loops);
 cam_best_y = zeros(1,num_loops);
 har_car = zeros(45,num_loops);
 sma_car = zeros(45,num_loops);
-% sigma2 = 1e-5;
 snr = logspace(-3,4,num_loops);
-% parfor sigma2 = logspace(-2,4,num_loops)
-% for sigma2 = linspace(200,450,num_loops)
 epsilon = 0.5;
 parfor index = 1:num_loops
     tic;
