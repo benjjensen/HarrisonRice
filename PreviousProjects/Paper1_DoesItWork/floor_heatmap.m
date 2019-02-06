@@ -18,4 +18,4 @@ snr = 10^(2.3/10); % chosen snr value
 
 [~,tx2Floor] = find_num_carriers(signal,snr,threshold); % finds the number of good carriers in each location
 
-clyde_heatmap(tx2Floor);
+Heatmap(tx2Floor);
