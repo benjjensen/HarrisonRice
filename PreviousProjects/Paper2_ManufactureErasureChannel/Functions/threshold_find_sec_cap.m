@@ -1,5 +1,5 @@
-function [sec_cap] = threshold_find_sec_cap(bob,eve)
 % Created by Dakota Flanary
+function [sec_cap] = threshold_find_sec_cap(bob,eve)
 %threshold_find_sec_cap Finds the number of carriers that are good for Harrison and the
 %others also finds the number of carriers that are only good for Harrison
 %   Detailed explanation goes here

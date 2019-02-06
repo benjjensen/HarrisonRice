@@ -1,3 +1,4 @@
+% Created by Dakota Flanary
 function [p_e] = probability_erasure(snr,G,epsilon)
 %probability_erasure calculates the probability of erasure for a given snr
 %G and epsilon values

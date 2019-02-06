@@ -1,3 +1,4 @@
+% Created by Dakota Flanary
 clear;
 load('Data/linear_signal.mat'); % loads in the signal data
 load('Data/linear_noisefloor.mat'); % loads in the noise data
