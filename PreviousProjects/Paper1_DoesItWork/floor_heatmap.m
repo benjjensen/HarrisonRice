@@ -13,9 +13,9 @@ tx2smalley = signal(:,34:65,123:147); % separate the data from smalley's office
 tx2conference = signal(:,1:65,1:61); % separate the data from the conference room
 tx2chambers = signal(:,34:65,213:240); % separate the data from chamber's office
 
-db_threshold = 0; % the threshold to test in db
+db_threshold = 5; % the threshold to test in db
 threshold = 10^(db_threshold/10); % the threshold to test converted to linear 
-snr = 10^(2.3/10); % chosen snr value
+snr = 10^(8/10); % chosen snr value
 
 [~,tx2Floor] = find_num_carriers(signal,snr,threshold); % finds the number of good carriers in each location
 

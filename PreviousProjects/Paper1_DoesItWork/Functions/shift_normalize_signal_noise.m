@@ -23,6 +23,7 @@ for y = 1:90
 end
 
 signal = signal(11:55,:,:); % remove the bad carriers
+noise = noise/min(min(min(noise)));
 signal = signal ./ noise; % normalizing to adjust for AGC
 signal = sqrt(signal); % find the g's
 signal = signal ./ max(max(max(signal(:,36:65,65:98)))); % find the best g in harrison's room
