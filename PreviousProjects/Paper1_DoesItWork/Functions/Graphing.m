@@ -1,4 +1,4 @@
-function [] = Graphing(dataArray,rawData,closeOtherFigures)
+function [] = Graphing(dataArray,isRawData,closeOtherFigures)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 if (closeOtherFigures)
@@ -23,7 +23,7 @@ else
     numCols = Z;
 end
 
-if (rawData)
+if (isRawData)
     for runs = 1:numPlots
         YY = pwelch(dataArray(:,runs),boxcar(Nfft),0,Nfft,'twosided');
         YYplot = 10*log10(abs(fftshift(YY)));
