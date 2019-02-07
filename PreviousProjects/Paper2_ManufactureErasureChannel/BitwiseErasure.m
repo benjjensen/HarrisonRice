@@ -150,14 +150,7 @@ hold off
 %% Mutual Information - Contours
 IMax = max(I_imag, I_real);
 
-% figure()
-% contour(IMax)
-% title("Max(Bit1, Bit2)");
-% 
-% figure()
 IMin = min(I_imag, I_real);
-% contourf(IMin);
-% title("Min(Bit1, Bit2)");
 
 figure()
 hold on 
@@ -184,7 +177,7 @@ end
 bits_imag = zeros(101,101);
 for c = 1:101
     for d = 1:101
-        if (I_imag(c,d) < epsilon)
+        if (I_imag(c,d) < epsilon) % Compares to a threshold
             bits_imag(c,d) = 1;
         else
             bits_imag (c,d) = 0;
