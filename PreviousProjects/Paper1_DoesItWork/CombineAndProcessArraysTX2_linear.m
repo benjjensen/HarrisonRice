@@ -2,22 +2,22 @@
 clear; close all;
 %% Load Individual Arrays
 for i = 1:26 % Load in data from Camacho's office
-    eval(sprintf('load ../DataCollection/tx2Data/tx2camacho_%d.mat;', i));
+    eval(sprintf('load Data/tx2Data/tx2camacho_%d.mat;', i));
 end
 for i = 1:28 % Load in data from Chamber's office
-    eval(sprintf('load ../DataCollection/tx2Data/tx2chambers_%d.mat;', i));
+    eval(sprintf('load Data/tx2Data/tx2chambers_%d.mat;', i));
 end
 for i = 1:65 % Load in data from Conference room
-    eval(sprintf('load ../DataCollection/tx2Data/tx2conference_%d.mat;', i));
+    eval(sprintf('load Data/tx2Data/tx2conference_%d.mat;', i));
 end
 for i = 1:23 % Load in data from Hallway
-    eval(sprintf('load ../DataCollection/tx2Data/tx2hallway_%d.mat;', i));
+    eval(sprintf('load Data/tx2Data/tx2hallway_%d.mat;', i));
 end
 for i = 1:30 % Load in data from Harrison's office
-    eval(sprintf('load ../DataCollection/tx2Data/tx2harrison_%d.mat;', i));
+    eval(sprintf('load Data/tx2Data/tx2harrison_%d.mat;', i));
 end
 for i = 1:32 % Load in data from Smalley's office
-    eval(sprintf('load ../DataCollection/tx2Data/tx2smalley_%d.mat;', i));
+    eval(sprintf('load Data/tx2Data/tx2smalley_%d.mat;', i));
 end
 
 %% Combine Into One Array Per Room
@@ -266,4 +266,16 @@ for temp = 1:23
     end
 end
 
-save tx2_linear.mat tx2_linear;
+%% Separate Signal and Noise Carriers
+
+tx2_signal_linear(:,:,:) = tx2_linear(1:2:end,:,:);
+tx2_noise_linear(:,:,:) = tx2_linear(2:2:end,:,:);
+
+tx2_signal_lin_gc(:,:,:) = tx2_signal_linear(11:55,:,:);
+tx2_noise_lin_gc(:,:,:) = tx2_noise_linear(10:54,:,:);
+
+save Data/tx2_linear.mat tx2_linear;
+save Data/tx2_signal_linear.mat tx2_signal_linear;
+save Data/tx2_noise_linear.mat tx2_noise_linear;
+save Data/tx2_signal_lin_gc.mat tx2_signal_lin_gc;
+save Data/tx2_noise_lin_gc.mat tx2_noise_lin_gc;
