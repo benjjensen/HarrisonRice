@@ -2,9 +2,9 @@
 function [signal,noise] = shift_normalize_signal_noise(signal, linear_noisefloor)
 %shift_normalize_signal_noise: Shifts and normalizes the signal and removes
 %the bad carriers
-%   fftshifts the signal and noise data, then removes the bad carriers, 
-%   then averages the noise, it then normalizes the data to adjust for
-%   AGC(Automatic Gain Control), it then normalizes the signal with the max
+%   fftshifts the signal and noise data, removes the bad (edge) carriers, 
+%   averages the noise, then normalizes the data to adjust for
+%   AGC(Automatic Gain Control). It then normalizes the signal with the max
 %   signal value in Bob's(Harrison's) location.  Returns g^2 and the
 %   averaged noise
 
