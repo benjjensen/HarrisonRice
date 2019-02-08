@@ -2,31 +2,31 @@
 clear; close all;
 %% Load Individual Arrays
 for i = 1:26 % Load in data from Camacho's office
-    eval(sprintf('load ../DataCollection/tx1Data/camacho_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/camacho_%d.mat;', i));
 end
 for i = 1:28 % Load in data from Chamber's office
-    eval(sprintf('load ../DataCollection/tx1Data/chambers_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/chambers_%d.mat;', i));
 end
 for i = 1:55 % Load in data from Conference room
-    eval(sprintf('load ../DataCollection/tx1Data/conference_main_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/conference_main_%d.mat;', i));
 end
 for i = 1:3 % Load in data from Conference room
-    eval(sprintf('load ../DataCollection/tx1Data/conference_north_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/conference_north_%d.mat;', i));
 end
 for i = 1:3 % Load in data from Conference room
-    eval(sprintf('load ../DataCollection/tx1Data/conference_south_pillar_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/conference_south_pillar_%d.mat;', i));
 end
 for i = 1:4 % Load in data from Conference room
-    eval(sprintf('load ../DataCollection/tx1Data/conference_south_wall_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/conference_south_wall_%d.mat;', i));
 end
 for i = 1:300 % Load in data from Hallway
-    eval(sprintf('load ../DataCollection/tx1Data/hallway_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/hallway_%d.mat;', i));
 end
 for i = 1:29 % Load in data from Harrison's office
-    eval(sprintf('load ../DataCollection/tx1Data/harrison_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/harrison_%d.mat;', i));
 end
 for i = 1:31 % Load in data from Smalley's office
-    eval(sprintf('load ../DataCollection/tx1Data/smalley_%d.mat;', i));
+    eval(sprintf('load Data/tx1Data/smalley_%d.mat;', i));
 end
 
 %% Combine Into One Array Per Room
@@ -280,4 +280,16 @@ for temp = 1:23
     end
 end
 
-save tx1_linear.mat tx1_linear;
+%% Separate Signal and Noise Carriers
+
+tx1_signal_linear(:,:,:) = tx1_linear(1:2:end,:,:);
+tx1_noise_linear(:,:,:) = tx1_linear(2:2:end,:,:);
+
+tx1_signal_lin_gc(:,:,:) = tx1_signal_linear(11:55,:,:);
+tx1_noise_lin_gc(:,:,:) = tx1_noise_linear(10:54,:,:);
+
+save Data/tx1_linear.mat tx1_linear;
+save Data/tx1_signal_linear.mat tx1_signal_linear;
+save Data/tx1_noise_linear.mat tx1_noise_linear;
+save Data/tx1_signal_lin_gc.mat tx1_signal_lin_gc;
+save Data/tx1_noise_lin_gc.mat tx1_noise_lin_gc;

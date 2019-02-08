@@ -21,7 +21,7 @@ for y = 1:90
         noise(:,y,z) = sum(noise(:,y,z)) ./ 45; % average the noise floor
     end
 end
-
+noise = noise/min(min(min(noise)));
 signal = signal(11:55,:,:); % remove the bad carriers
 signal = signal ./ noise; % normalizing to adjust for AGC
 signal = sqrt(signal); % find the g's
