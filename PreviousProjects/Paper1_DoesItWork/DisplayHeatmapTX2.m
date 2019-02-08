@@ -11,9 +11,11 @@ clear; close all;
 % noise floor.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-load tx2dB.mat; % Run CombineAndProcessArraysTX2.m to create this variable
+load Data/tx2dB.mat; % Run CombineAndProcessArraysTX2.m to create this variable
 
 dblimit = 27; % Change this to set the threshold for the heatmap
+startCarrier = 10;
+endCarrier = 54;
 
 tx2_signal = nan(64,91,345);
 tx2_noisefloor = nan(64,91,345);
@@ -30,9 +32,10 @@ for temp = 1:91
             difference(:,temp,loops) = abs(tx2_signal(:,temp,loops) - tx2_noisefloor(:,temp,loops));
         end
         count = 0;
-        for carriers = 1:64
+        for carriers = 10:54
             tx2_noise_avg(carriers,temp,loops) = sum(tx2_noisefloor(:,temp,loops));
-            tx2_noise_avg(carriers,temp,loops) = (tx2_noise_avg(carriers,temp,loops) / 64) + dblimit;
+            tx2_noise_avg(carriers,temp,loops) = (tx2_noise_avg(carriers,temp,loops) ...
+                                                / (endCarrier - startCarrier) + dblimit);
             if isnan(tx2_signal(carriers,temp,loops))
             else
                 tx2_snr_db(carriers,temp,loops) = tx2_signal(carriers,temp,loops) - tx2_noise_avg(carriers,temp,loops);
@@ -58,7 +61,7 @@ end
 % carriers that are a specified number of dB above the noise floor.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-I = imread('Clyde4thFloor.png');
+I = imread('Figures/Clyde4thFloor.png');
 figure();
 imshow(I);
 hold on
