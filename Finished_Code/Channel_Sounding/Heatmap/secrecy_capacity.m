@@ -7,17 +7,17 @@ load('tx2conference.mat');
 load('tx2hallway.mat');
 load('tx2harrison.mat');
 load('tx2smalley.mat');
-num_loops = 1000;
+num_loops = 200;
 har_max = zeros(1,num_loops);
 cam_max = zeros(1,num_loops);
 sma_max = zeros(1,num_loops);
 sec_cap = zeros(1,num_loops);
 conf = zeros(1,64);
 cham = zeros(1,64);
-[num_rows,num_cols,~] = size
+% [num_rows,num_cols,~] = size(;
 % q = -19.95:.05:30;
-q = linspace(1,30,1000);
-for index = 1:1000
+q = linspace(1,30,num_loops);
+for index = 1:num_loops
     tx2threshold = q(index);
     % Finds the max number of carriers in each room with the given threshold
     [cam2,cam_floor] = find_num_carriers(tx2camacho,tx2threshold);
