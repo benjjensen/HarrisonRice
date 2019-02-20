@@ -5,8 +5,8 @@ clear;
 close all;
 addpath(genpath('Functions'))
 
-load ('Data/tx2Data/linear_signal.mat'); % loads in the signal data
-load ('Data/tx2Data/linear_noisefloor.mat'); % loads in the noise data
+load ('Data/tx2_noise_lin_gc.mat'); % loads in the signal data
+load ('Data/tx2_signal_lin_gc.mat'); % loads in the noise data
 
 [signal,noise] = normalize_signal(tx2_signal_lin_gc,tx2_noise_lin_gc); %signal = g^2
 
