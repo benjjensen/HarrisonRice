@@ -8,7 +8,7 @@ addpath(genpath('Functions'))
 load ('Data/tx2Data/linear_signal.mat'); % loads in the signal data
 load ('Data/tx2Data/linear_noisefloor.mat'); % loads in the noise data
 
-[signal,noise] = shift_normalize_signal_noise(linear_signal,linear_noisefloor); %signal = g^2 and noise is the fft shifted noise
+[signal,noise] = normalize_signal(tx2_signal_lin_gc,tx2_noise_lin_gc); %signal = g^2
 
 tx2harrison = signal(:,36:65,65:98); % separate the data from harrison's office
 
