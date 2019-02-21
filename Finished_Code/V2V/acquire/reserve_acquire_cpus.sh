@@ -29,8 +29,9 @@ echo 0 > acquire/cpuset.mems
 echo 1 > acquire/cpuset.sched_load_balance
 echo 1 > acquire/cpuset.mem_hardwall
 
-for T in `cat tasks`; do
-    echo $T > sys/tasks;
+for T in `cat tasks`;
+    do
+        echo $T > sys/tasks;
 done
 
 exit 0

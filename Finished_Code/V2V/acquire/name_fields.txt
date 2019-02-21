@@ -26,21 +26,16 @@
 
 
 
-$ PROVO - Location
-- I15 I-15
-- PROVO Provo
-- CANYON Provo Canyon
-$ LOW _ Traffic Density
-- LOW Low
-- MED Medium
-- HIGH High 
-$ follow - Receiving Vehicle Position
-- follow Following closely
-- followfar Following distantly
-- preceed Preceeding closely
-- preceedfar Preceeding distantly
-$ straight ` Maneuver
-- left Turn left
-- right Turn right
-- straight Drive straight
+$ dry-run ` Test Point
+- dry-run Dry Run
+- test-point-A-V2V Test Point A
+- test-point-B-V2V Test Point B
+- test-point-C-Lindsey Test Point C
+- test-point-D-Lindsey Test Point D
+- test-point-E-Lindsey Test Point E
+- test-point-F-V2V Test Point F
+- test-point-G-V2V Test Point G
+- test-point-H-V2V Test Point H
+- test-point-I-V2V Test Point I
+- test-point-J-V2V Test Point J
 ~

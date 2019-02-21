@@ -3,21 +3,25 @@
 cd /cgroup/cpuset
 
 # move tasks back from sys-cpuset to root cpuset
-for T in `cat sys/tasks`; do
+for T in `cat sys/tasks`;
+    do
 	echo $T > tasks;
 done
 # try again
-for T in `cat sys/tasks`; do
+for T in `cat sys/tasks`;
+    do
 	echo $T > tasks;
 done
 rmdir sys
 
 # move tasks back from rt-cpuset to root cpuset
-for T in `cat acquire/tasks`; do
+for T in `cat acquire/tasks`;
+    do
 	echo $T > tasks;
 done
 # try again
-for T in `cat acquire/tasks`; do
+for T in `cat acquire/tasks`;
+    do
 	echo $T > tasks;
 done
 rmdir acquire

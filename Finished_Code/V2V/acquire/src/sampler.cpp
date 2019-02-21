@@ -15,6 +15,7 @@
 #include <unistd.h>
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
 #include "DataCapture.h"
 #include "NamingConvention.h"
@@ -366,6 +367,8 @@ static void cb_edit_notes_cancel(GtkWidget* widget, gpointer data);
  */
 static void cb_delete_capture(GtkWidget* widget, gpointer data);
 
+static bool cb_key_press(GtkWidget* widget, GdkEventKey *event, gpointer data);
+
 /**
  * Validates the code and the name for a new option that the user has
  * entered. Also trims whitespace off.
@@ -473,8 +476,14 @@ int main(int argc, char** argv) {
 
     std::cout << "Reserving a cpuset for acquire...";
     fflush(stdout);
-    system("/usr/bin/sudo ./reserve_acquire_cpus.sh >/dev/null 2>/dev/null");
-    std::cout << " done." << std::endl;
+    int error = system("/usr/bin/sudo ./reserve_acquire_cpus.sh >/dev/null"
+            " 2>/dev/null");
+    if(error == -1 || WEXITSTATUS(error)) {
+        std::cerr << "\nERROR: UNABLE TO RESERVE ACQUIRE CPUSET" << std::endl;
+    }
+    else {
+        std::cout << " done." << std::endl;
+    }
 
     std::cout << "Initializing GUI...";
     fflush(stdout);
@@ -697,9 +706,13 @@ static void init_main_window(SamplerState& state) {
             GTK_WIN_POS_CENTER_ALWAYS);
     gtk_window_set_default_size(GTK_WINDOW(gui.main_window),
             MAIN_WINDOW_DEFAULT_WIDTH, MAIN_WINDOW_DEFAULT_HEIGHT);
+
     // Set the callback for when the user closes this window:
     g_signal_connect(gui.main_window, "destroy", G_CALLBACK(cb_destroy),
             (gpointer)(&state));
+
+    g_signal_connect(G_OBJECT(gui.main_window), "key_press_event",
+            G_CALLBACK(cb_key_press), (gpointer)(&state));
 
     GtkWidget* layout_box = gtk_vbox_new(FALSE, NO_PADDING);
     gtk_container_add(GTK_CONTAINER(gui.main_window), layout_box);
@@ -795,6 +808,12 @@ static void init_main_window(SamplerState& state) {
     gui.current_capture_name = gtk_label_new("");
     gtk_box_pack_start(GTK_BOX(gui.current_capture_box),
             gui.current_capture_name, FALSE, FALSE, NO_PADDING);
+
+    PangoFontDescription* desc =
+            pango_font_description_from_string("Times New Roman");
+    pango_font_description_set_size(desc, 15 * PANGO_SCALE);
+    gtk_widget_modify_font(gui.current_capture_name, desc);
+
     gtk_widget_show(gui.current_capture_name);
 
     gui.current_capture_status = gtk_label_new("ready...");
@@ -828,6 +847,11 @@ static void init_main_window(SamplerState& state) {
             NO_PADDING);
     g_signal_connect(gui.new_button, "clicked", G_CALLBACK(cb_new_capture),
             (gpointer)(&state));
+
+    GdkColor bgColor;
+    gdk_color_parse("yellow", &bgColor);
+    gtk_widget_modify_bg(gui.new_button, GTK_STATE_NORMAL, &bgColor);
+
     gtk_widget_show(gui.new_button);
 
     // The reset button. The callback clears the current capture.
@@ -840,6 +864,10 @@ static void init_main_window(SamplerState& state) {
     gtk_widget_set_sensitive(gui.reset_button, FALSE);
     g_signal_connect(gui.reset_button, "clicked", G_CALLBACK(cb_reset_capture),
             (gpointer)(&state));
+
+    gdk_color_parse("#00bfff", &bgColor);
+    gtk_widget_modify_bg(gui.reset_button, GTK_STATE_NORMAL, &bgColor);
+
     gtk_widget_show(gui.reset_button);
 
     gtk_widget_show(sub_box);
@@ -854,6 +882,10 @@ static void init_main_window(SamplerState& state) {
     gtk_widget_set_sensitive(gui.start_button, FALSE);
     g_signal_connect(gui.start_button, "clicked", G_CALLBACK(cb_start_capture),
             (gpointer)(&state));
+
+    gdk_color_parse("#00bfff", &bgColor);
+    gtk_widget_modify_bg(gui.start_button, GTK_STATE_NORMAL, &bgColor);
+
     gtk_widget_show(gui.start_button);
 
     // The stop button stops the current capture when it's clicked:
@@ -863,6 +895,10 @@ static void init_main_window(SamplerState& state) {
     gtk_widget_set_sensitive(gui.stop_button, FALSE);
     g_signal_connect(gui.stop_button, "clicked", G_CALLBACK(cb_stop_capture),
             (gpointer)(&state));
+
+    gdk_color_parse("green", &bgColor);
+    gtk_widget_modify_bg(gui.stop_button, GTK_STATE_NORMAL, &bgColor);
+
     gtk_widget_show(gui.stop_button);
 
     gtk_widget_show(sub_box);
@@ -893,6 +929,9 @@ static void init_new_capture_window(SamplerState& state) {
     // The user can't close this window by pressing the x button at the top
     // right.
     gtk_window_set_deletable(GTK_WINDOW(gui.new_capture_window), FALSE);
+
+    g_signal_connect(G_OBJECT(gui.new_capture_window), "key_press_event",
+            G_CALLBACK(cb_key_press), (gpointer)(&state));
 
     GtkWidget* layout_box = gtk_vbox_new(FALSE, NO_PADDING);
     gtk_container_add(GTK_CONTAINER(gui.new_capture_window), layout_box);
@@ -1162,17 +1201,21 @@ static void populate_fields_and_options(SamplerState& state) {
                 // If this is the first radio button in this field, create the
                 // new radio button in a new radio group (with the option name
                 // as its label).
-                option_radio_button = gtk_radio_button_new_with_label(NULL,
-                        option_name.c_str());
+                //option_radio_button = gtk_radio_button_new_with_label(NULL,
+                //        option_name.c_str());
+                option_radio_button = gtk_radio_button_new(NULL);
             }
             else {
                 // Otherwise, if this is not the first radio button, create the
                 // new radio button in the same radio group as the previous one
                 // (with the option name as its label).
+                //option_radio_button =
+                //        gtk_radio_button_new_with_label_from_widget(
+                //        GTK_RADIO_BUTTON(option_radio_button),
+                //        option_name.c_str());
                 option_radio_button =
-                        gtk_radio_button_new_with_label_from_widget(
-                        GTK_RADIO_BUTTON(option_radio_button),
-                        option_name.c_str());
+                        gtk_radio_button_new_from_widget(
+                        GTK_RADIO_BUTTON(option_radio_button));
             }
 
             if(option_code == selected_option) {
@@ -1180,7 +1223,21 @@ static void populate_fields_and_options(SamplerState& state) {
                 // button.
                 gtk_toggle_button_set_active(
                         GTK_TOGGLE_BUTTON(option_radio_button), TRUE);
+                gtk_widget_grab_focus(option_radio_button);
             }
+
+            GtkWidget* option_label = gtk_label_new(option_name.c_str());
+
+            PangoFontDescription* desc =
+                    pango_font_description_from_string("Times New Roman");
+            pango_font_description_set_size(desc, 30 * PANGO_SCALE);
+            gtk_widget_modify_font(option_label, desc);
+
+            gtk_widget_show(option_label);
+            gtk_container_add(GTK_CONTAINER(option_radio_button), option_label);
+
+            //GtkRadioButton b;
+            //b.check_button.
 
             gtk_box_pack_start(GTK_BOX(field_box), option_radio_button, FALSE,
                     FALSE, NO_PADDING);
@@ -1693,6 +1750,60 @@ static void cb_delete_capture(GtkWidget* widget, gpointer data) {
     ss << state.total_data_captured / 1024 << " GB captured in total";
     gtk_label_set_text(GTK_LABEL(state.gui.label_total_data_captured),
             ss.str().c_str());
+}
+
+static bool cb_key_press(GtkWidget* widget, GdkEventKey *event, gpointer data) {
+    SamplerState& state = *((SamplerState*)data);
+
+    switch(event->keyval) {
+    case GDK_space:
+        if(event->state & GDK_SHIFT_MASK && event->state & GDK_CONTROL_MASK) {
+            if(gtk_widget_get_sensitive(state.gui.stop_button)) {
+                cb_stop_capture(state.gui.stop_button, data);
+                return true;
+            }
+        }
+        else if(event->state & GDK_CONTROL_MASK) {
+            if(gtk_widget_get_sensitive(state.gui.start_button)) {
+                cb_start_capture(state.gui.start_button, data);
+                return true;
+            }
+        }
+        break;
+    case GDK_N:
+    case GDK_n:
+        if(event->state & GDK_CONTROL_MASK) {
+            if(gtk_widget_get_sensitive(state.gui.new_button)) {
+                cb_new_capture(state.gui.new_button, data);
+                return true;
+            }
+        }
+        break;
+    case GDK_R:
+    case GDK_r:
+        if(event->state & GDK_CONTROL_MASK) {
+            if(gtk_widget_get_sensitive(state.gui.reset_button)) {
+                cb_reset_capture(state.gui.reset_button, data);
+                return true;
+            }
+        }
+        break;
+    case GDK_Return:
+        if(gtk_widget_get_visible(state.gui.new_capture_window) &&
+                !gtk_widget_get_visible(state.gui.add_option_window)) {
+            cb_create_new_capture(NULL, data);
+            return true;
+        }
+        break;
+    case GDK_Escape:
+        if(gtk_widget_get_visible(state.gui.new_capture_window) &&
+                !gtk_widget_get_visible(state.gui.add_option_window)) {
+            cb_cancel_new_capture(NULL, data);
+            return true;
+        }
+        break;
+    }
+    return false;
 }
 
 static bool validate_new_option_and_trim(SamplerState& state,
