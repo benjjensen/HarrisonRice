@@ -72,8 +72,8 @@ int main(int argc, char** argv) {
     // Check the return status for errors.
 #ifdef __linux__
     if(!WIFEXITED(status)) {
-        std::cerr << "ERROR: failed to capture gps data. Exiting." << std::endl;
-        std::exit(1);
+//        std::cerr << "ERROR: failed to capture gps data. Exiting." << std::endl;
+  //      std::exit(1);
     }
     else if(WEXITSTATUS(status)) {
         int exitCode = WEXITSTATUS(status);

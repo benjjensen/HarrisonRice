@@ -12,7 +12,7 @@ tx.BasebandSampleRate = 20e6;
 tx.Gain = 0;
 
 tx.ShowAdvancedProperties = true;
-tx.FrequencyCorrection = 8.71;
+tx.FrequencyCorrection = 5.33;
 
 df = 0.3125; % subcarrier separation in MHz
 BW = 20; % BW in MHz
