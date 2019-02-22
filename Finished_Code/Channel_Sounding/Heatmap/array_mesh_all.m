@@ -1,8 +1,64 @@
 % Created by Dakota Flanary
-% Combines all of the data from the separate rooms into one matrix.
+% Combines all of the data from the separate rooms into one matrix (Tx1).
 
 Nfft = 2*64;
 xx = zeros(90,345,Nfft);
+
+% Adds the conference room data to the whole array
+num_rows = 65;
+num_runs = 61;
+for row = 1:num_rows
+    for run = 1:num_runs
+        xx(row,run,:) = conference(num_rows+1-row,num_runs+1-run,:);
+    end
+end
+
+% Adds the hallway data to the whole array
+num_rows = 23;
+num_runs = 300;
+for row = 1:num_rows
+    for run = 1:num_runs
+        xx(row+67,run+40,:) = hall_pwelch(run,num_rows+1-row,:);
+    end
+end
+
+% Adds the data from Dr. Harrison's room to the array
+num_rows = 29;
+num_runs = 33;
+for row = 1:num_rows
+    for run = 1:num_runs
+        xx(36+row,63+run,:) = harrison(num_rows+1-row,run,:);
+    end    
+end
+
+% Adds the data from Dr. Smalley's office to the whole array
+num_rows = 31;
+num_runs = 26;
+for row = 1:num_rows
+    for run = 1:num_runs
+        xx(34+row,119+run,:) = smalley(num_rows+1-row,num_runs+1-run,:);
+    end
+end
+
+% Adds the data from Dr. Camacho's office to the whole array
+num_rows = 32;
+num_runs = 26;
+for row = 1:num_rows
+    for run = 1:num_runs
+        xx(33+row,149+run,:) = camacho(num_rows+1-row,run,:);
+    end
+end
+
+% Adds the data from Michael Chambers office to the whole array
+num_rows = 32;
+num_runs = 28;
+for row = 1:num_rows
+    for run = 1:num_runs
+        xx(33+row, 207+run,:) = chambers(row,run,:);
+    end
+end
+
+
 % 
 % num_rows = 26;
 % num_runs = 32;
@@ -113,53 +169,3 @@ xx = zeros(90,345,Nfft);
 %         end 
 %     end
 % end
-
-% Adds the conference room data to the whole array
-num_rows = 65;
-num_runs = 61;
-for row = 1:num_rows
-    for run = 1:num_runs
-        xx(row,run,:) = conference(num_rows+1-row,num_runs+1-run,:);
-    end
-end
-% Adds the hallway data to the whole array
-num_rows = 23;
-num_runs = 300;
-for row = 1:num_rows
-    for run = 1:num_runs
-        xx(row+67,run+40,:) = hall_pwelch(run,num_rows+1-row,:);
-    end
-end
-% Adds the data from Dr. Harrison's room to the array
-num_rows = 29;
-num_runs = 33;
-for row = 1:num_rows
-    for run = 1:num_runs
-        xx(36+row,63+run,:) = harrison(num_rows+1-row,run,:);
-    end
-    
-end
-% Adds the data from Dr. Smalley's office to the whole array
-num_rows = 31;
-num_runs = 26;
-for row = 1:num_rows
-    for run = 1:num_runs
-        xx(34+row,119+run,:) = smalley(num_rows+1-row,num_runs+1-run,:);
-    end
-end
-% Adds the data from Dr. Camacho's office to the whole array
-num_rows = 32;
-num_runs = 26;
-for row = 1:num_rows
-    for run = 1:num_runs
-        xx(33+row,149+run,:) = camacho(num_rows+1-row,run,:);
-    end
-end
-% Adds the data from Michael Chambers office to the whole array
-num_rows = 32;
-num_runs = 28;
-for row = 1:num_rows
-    for run = 1:num_runs
-        xx(33+row, 207+run,:) = chambers(row,run,:);
-    end
-end
