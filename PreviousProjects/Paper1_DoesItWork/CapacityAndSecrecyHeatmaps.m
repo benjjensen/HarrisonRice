@@ -6,8 +6,8 @@ addpath('Functions');
 
 SNR = 10^(2.3/10);
 [capacity, secrecyCapacity] = GaussianCapacity(tx2_linear, SNR);
-Heatmap(capacity);
-Heatmap(secrecyCapacity);
+CustomFloorHeatmap(capacity);
+CustomFloorHeatmap(secrecyCapacity);
 
 MinSmalley = min(min(secrecyCapacity(34:65,123:148)));
 MinConference = min(min(secrecyCapacity(5:65,1:61)));
