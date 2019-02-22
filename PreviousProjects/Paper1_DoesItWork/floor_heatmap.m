@@ -1,3 +1,5 @@
+% Generates the data for the threshold heatmap and then calls the heatmap
+% function to plot the data
 % Created by Dakota Flanary
 clear;
 close all;
