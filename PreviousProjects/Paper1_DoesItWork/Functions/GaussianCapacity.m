@@ -14,16 +14,29 @@ bob = g(:,36:65,65:98);
 gNormalized = g ./ max(max(max(bob)));
 gSquared = gNormalized .^ 2;
 
-% Capacity Calculations
+%% Capacity Calculations
 capacityPerCarrier = (1/2) * log2(1 + (gSquared .* SNR));
 
 bobCapacity = capacityPerCarrier(:,36:65,65:98);
-bobMaxCapacity = max(max(max(bobCapacity)));
-% Secrecy Capacity Calculation
+bobMaxCarrier = max(max(max(bobCapacity)));
+[bobcarriers, bobrows, bobcolumns] = size(bobCapacity);
+for y = 1:bobrows
+    for z = 1:bobcolumns
+        for x = 1:bobcarriers
+            if (bobCapacity(x,y,z) == bobMaxCarrier)
+                bobMaxRow = y;
+                bobMaxCol = z;
+            end
+        end
+    end
+end
+bobMaxCapacity = bobCapacity(:,bobMaxRow,bobMaxCol);
+
+%% Secrecy Capacity Calculation
 for y = 1:numRows
     for z = 1:numColumns
         for x = 1:numCarriers
-            secrecyCapacityPerCarrier(x,y,z) = bobMaxCapacity - capacityPerCarrier(x,y,z);
+            secrecyCapacityPerCarrier(x,y,z) = bobMaxCapacity(x) - capacityPerCarrier(x,y,z);
             if (secrecyCapacityPerCarrier(x,y,z) < 0)
                 secrecyCapacityPerCarrier(x,y,z) = 0;
             end
@@ -31,7 +44,7 @@ for y = 1:numRows
     end
 end
 
-% Final Capacity and Secrecy Capacity Arrays
+%% Final Capacity and Secrecy Capacity Arrays
 for y = 1:numRows
     for z = 1:numColumns
         capacity(y,z) = sum(capacityPerCarrier(:,y,z));
@@ -39,5 +52,6 @@ for y = 1:numRows
     end
 end
 
+disp('done');
 end
 
