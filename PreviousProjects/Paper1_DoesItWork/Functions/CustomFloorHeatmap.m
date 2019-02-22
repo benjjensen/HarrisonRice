@@ -1,4 +1,4 @@
-function [axis] = Heatmap(dataArray)
+function [axis] = CustomFloorHeatmap(dataArray)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 I = imread('Data/HeatmapBackground.png');
