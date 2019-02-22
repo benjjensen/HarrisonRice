@@ -12,7 +12,7 @@ tx.BasebandSampleRate = 20e6;
 tx.Gain = 0;
 
 tx.ShowAdvancedProperties = true;
-tx.FrequencyCorrection = 8.71;
+tx.FrequencyCorrection = 5.33;
 
 F0 = 1/20;
 x = exp(1i*2*pi*F0*(0:199)'); % 10 periods

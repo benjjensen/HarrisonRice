@@ -162,24 +162,22 @@ for index = 1:num_index - 10
             
             %%%All on different Plots%%%%
             if (~samePlot)
-                scatter3(plotRate(i), plotPercentH(i), plotdB(i));
-                
+                scatter3(plotRate(i), plotPercentH(i), plotdB(i));              
                 if istrue
                     scatter3(plotOneRate, plotOnePercentH,plotOnedB,50,'k', '*');
                     istrue = false;
                 end
                 scatter(uncodedRate, uncodedSecrecy, [], 'r', 'd', 'DisplayName', 'Uncoded');
             end
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%        
         end
         %%%All on same Plot%%%%
         if (samePlot)
             %plot all the points
-            scatter3(plotRate, plotPercentH,plotdB,[],colors(34-counter,:),'DisplayName', sprintf('%.1f dB Limit', dB(index)));
+            scatter3(plotRate, plotPercentH,plotdB,[],colors(counter,:),'DisplayName', sprintf('%.1f dB Limit', dB(index)));
              %plot the best code in a black star (hard coded in)
-            if (dB(index) == 270)
-                scatter3(21.75,100,plotdB(1),[],'k','*');
+            if index == 147
+                scatter3(17.5,100,plotdB(1),[],'k','*');
             end
         end
         %%%%%%%%%%%%%%%%%%%%%%%
@@ -214,7 +212,9 @@ if (samePlot)
     ylim([0 100]);
     xlim([0 50]);
     %legend;
+    scatter(17.5,100,100,'k','*');
     saveas(gcf,'ThroughputGraph','epsc');
+    
     hold off;
 end
 %%%%%%%%%%%%%%%%%%%%%%%
