@@ -25,15 +25,3 @@ mxm = max(abs(x));
 if mxm > 1
     x = x ./ mxm;
 end
-
-%% Nathan's edits below
-
-n = (0:N0 - 1);
-
-xl2 = repmat(x, 1000, 1);
-xl3 = real(xl2.*exp(1i*2*pi*F0*(0:length(xl2)-1)'));
-
-figure(2);
-subplot(311); plot(n,real(x)); grid on;
-subplot(312); plot(n,abs(x)); grid on;
-subplot(313); plot(n,xl3(1:N0)); grid on;

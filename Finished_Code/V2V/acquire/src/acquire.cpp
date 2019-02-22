@@ -197,7 +197,7 @@ static void exit_signal_handler(int signal) {
  */
 static std::string get_timestamped_filename(AcquireEnvironment environment,
         DataCapture& capture, boost::atomic<bool>& first_gps_position_recorded,
-        GPSPosition& first_gps_position);
+        GPSPosition& first_gps_position, boost::mutex& current_position_mutex);
 
 /**
  * The thread that writes the buffers to the file.
@@ -236,7 +236,7 @@ static boost::thread* start_gps_thread(DataCapture& capture_info,
         boost::atomic<bool>& continue_recording_gps,
         boost::atomic<bool>& currently_saving_data,
         boost::atomic<bool>& first_gps_position_recorded,
-        GPSPosition& first_gps_position);
+        GPSPosition& first_gps_position, boost::mutex& current_position_mutex);
 
 /**
  * The main function of the gps thread.
@@ -258,7 +258,8 @@ static void gps_thread_main_function(const pid_t gps_process_id,
         boost::mutex& gps_mutex,
         boost::atomic<bool>& currently_saving_data,
         boost::atomic<bool>& first_gps_position_recorded,
-        GPSPosition& first_gps_position);
+        GPSPosition& current_gps_position,
+        boost::mutex& current_position_mutex);
 
 /**
  * This function sends the abort signal to the parent process, if there is one.
@@ -288,10 +289,11 @@ static void stdin_command_listener_thread_main_function(
         boost::atomic<bool>& currently_saving_data,
         boost::atomic<bool>& ready_to_save_buffer,
         boost::mutex& writing_mutex, boost::mutex& gps_mutex,
+        boost::mutex& current_position_mutex,
         DataCapture& capture_info, volatile HANDLE& outfile_fd,
         boost::atomic_uint_fast32_t& blocks_captured,
         boost::atomic<bool>& first_gps_position_recorded,
-        GPSPosition& first_gps_position) {
+        GPSPosition& current_gps_position) {
 
     unsigned int starting_blocks_captured_value = blocks_captured.load();
     timespec start_time;
@@ -309,8 +311,7 @@ static void stdin_command_listener_thread_main_function(
 
             capture_info.data_filename = get_timestamped_filename(environment,
                     capture_info, first_gps_position_recorded,
-                    first_gps_position);
-            // TODO update first_gps_position every time through the gps loop
+                    current_gps_position, current_position_mutex);
 
             if(outfile_fd != INVALID_HANDLE_VALUE) {
                 close(outfile_fd);
@@ -434,7 +435,7 @@ int main(int argc, char** argv) {
     // exit_signal_handler(int, boost::atomic<bool>*), so don't be confused.)
     signal(SIGINT, &exit_signal_handler);
 
-    std::cout << "acquire continuously v1.1" << std::endl << std::endl;
+    std::cout << "acquire continuously v2.0" << std::endl << std::endl;
 
     // The API that wraps the DAQ card.
     uvAPI uv;
@@ -608,14 +609,16 @@ int main(int argc, char** argv) {
 
     //----------------GPS THREAD START----------------
     boost::atomic<bool> first_gps_position_recorded(false);
-    GPSPosition first_gps_position;
+    GPSPosition current_gps_position;
+    boost::mutex current_position_mutex;
 
     boost::thread* gps_thread = NULL;
     if(environment.record_gps_data) {
         // Start up the thread that will record the gps data.
         gps_thread = start_gps_thread(capture_info, blocks_captured,
                 continue_reading_data, gps_mutex, currently_saving_data,
-                first_gps_position_recorded, first_gps_position);
+                first_gps_position_recorded, current_gps_position,
+                current_position_mutex);
         if(gps_thread == NULL) {
             std::cerr << "ERROR: UNABLE TO START GPS THREAD" << std::endl;
         }
@@ -636,7 +639,8 @@ int main(int argc, char** argv) {
 
     // Get the timestamped filename.
     std::string filename = get_timestamped_filename(environment, capture_info,
-            first_gps_position_recorded, first_gps_position);
+            first_gps_position_recorded, current_gps_position,
+            current_position_mutex);
 
     capture_info.data_filename = filename;
 
@@ -1201,7 +1205,8 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
         boost::mutex& gps_mutex,
         boost::atomic<bool>& currently_saving_data,
         boost::atomic<bool>& first_gps_position_recorded,
-        GPSPosition& first_gps_position) {
+        GPSPosition& current_gps_position,
+        boost::mutex& current_position_mutex) {
     const int READ_FD = 0;
     const int WRITE_FD = 1;
 
@@ -1271,7 +1276,8 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
             boost::ref(gps_mutex),
             boost::ref(currently_saving_data),
             boost::ref(first_gps_position_recorded),
-            boost::ref(first_gps_position));
+            boost::ref(current_gps_position),
+            boost::ref(current_position_mutex));
     return gps_thread;
 }
 
@@ -1282,7 +1288,8 @@ void gps_thread_main_function(const pid_t gps_process_id,
         boost::mutex& gps_mutex,
         boost::atomic<bool>& currently_saving_data,
         boost::atomic<bool>& first_gps_position_recorded,
-        GPSPosition& first_gps_position) {
+        GPSPosition& current_gps_position,
+        boost::mutex& current_position_mutex) {
     // Get an istream from the pipe file descriptor.
     __gnu_cxx::stdio_filebuf<char> *sb =
             new __gnu_cxx::stdio_filebuf<char>(gps_output_fd, std::ios::in);
@@ -1308,11 +1315,17 @@ void gps_thread_main_function(const pid_t gps_process_id,
 
         if(!first_gps_position_recorded.load()) {
             set_gps_position_time(position, lastPosition, false);
-            first_gps_position = position;
+            
+            boost::lock_guard<boost::mutex> current_position_guard(
+                    current_position_mutex);
+            current_gps_position = position;
             first_gps_position_recorded.store(true);
         }
         else {
             set_gps_position_time(position, lastPosition, true);
+            boost::lock_guard<boost::mutex> current_position_guard(
+                    current_position_mutex);
+            current_gps_position = position;
         }
 
         lastPosition = position;
@@ -1368,12 +1381,14 @@ std::string get_current_timestamp(DataCapture& capture) {
 
 std::string get_timestamped_filename(AcquireEnvironment environment,
         DataCapture& capture, boost::atomic<bool>& first_gps_position_recorded,
-        GPSPosition& first_gps_position) {
+        GPSPosition& first_gps_position, boost::mutex& current_position_mutex) {
     std::string timestamp = "";
     if(environment.record_gps_data) {
         while(!first_gps_position_recorded.load()) {
             SLEEP(1); // sleep for 1 millisecond
         }
+        boost::lock_guard<boost::mutex> current_position_guard(
+                current_position_mutex);
         if(first_gps_position.is_valid_fix()) {
             timestamp = first_gps_position.get_timestamp();
             capture.year = first_gps_position.year;

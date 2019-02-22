@@ -20,10 +20,15 @@ tx = sdrtx('Pluto');
 tx.RadioID = 'usb:0';
 tx.CenterFrequency = 5900e6;
 tx.BasebandSampleRate = 20e6;
-tx.Gain = -20;
+tx.Gain = 0;
 tx.ShowAdvancedProperties = true;
 
-% x = channel_sounder_src;
-channel_sounder_src;
+tx.FrequencyCorrection = 8.586;
 
-tx.transmitRepeat(x); % this is the object oriented way
+% V2V Signal:
+% channel_sounder_src;
+
+% Lindsey's signal:
+channel_sounder_single_tone;
+
+tx.transmitRepeat(x);
