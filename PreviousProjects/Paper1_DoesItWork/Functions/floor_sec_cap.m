@@ -1,4 +1,3 @@
-% Created by Dakota Flanary
 function [carrier_list,room] = floor_sec_cap(bob,data,snr,threshold)
 %find_num_carriers Finds the number of carriers above the specified
 %                   threshold
@@ -8,6 +7,8 @@ function [carrier_list,room] = floor_sec_cap(bob,data,snr,threshold)
 %   carriers. Stores the number of carriers in a single column to make
 %   finding the max easier, also stores it in the grid form that represents
 %   the room
+% Created by Dakota Flanary
+
 [~,num_rows,num_runs] = size(data);
 carrier_list = zeros(num_rows*num_runs,1); % initializes the column vector to 0s
 index = 0; % initializes the index counter

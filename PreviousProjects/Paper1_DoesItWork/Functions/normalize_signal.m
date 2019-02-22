@@ -1,10 +1,10 @@
-% Created by Dakota Flanary/Kalin Norman
 function [signal,noise] = normalize_signal(signal, noisefloor)
 % normalize_signal: Normalizes the signal
 %   Averages the noise, it then divides the noise out of the signal to
 %   account for the AGC (Automatic Gain Control). It then normalizes the
 %   signal using the max signal value in Bob's known region. The function
 %   returns g^2 and the averaged noise
+% Created by Dakota Flanary/Kalin Norman
 
 
 for y = 1:91
