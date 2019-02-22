@@ -214,7 +214,9 @@ if (samePlot)
     ylim([0 100]);
     xlim([0 50]);
     %legend;
+    scatter(17.5,100,100,'k','*');
     saveas(gcf,'ThroughputGraph','epsc');
+    
     hold off;
 end
 %%%%%%%%%%%%%%%%%%%%%%%
