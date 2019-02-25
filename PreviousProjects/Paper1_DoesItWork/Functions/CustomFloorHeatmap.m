@@ -11,13 +11,22 @@ set(hm,'AlphaData',~isnan(dataArray));
 colormap(jet);
 q = colorbar;
 q.Position = [.855 .4 .016 .3];
-ylabel(q, 'bits per channel use');
+ylabel(q, '  bits per channel use');
 hm.XData = [36; 380];
 hm.YData = [49; 139];
 hold off
-cf = gcf;
-cf.PaperSize = [5 4];
-cf.PaperPosition = [-.05521 0.2240 -0.5521+5 0.2240+4];
 axis = gca;
+axis.FontName = 'Times New Roman';
+ff = gcf;
+homer = ff.Units;
+ff.Units = 'inches';
+bart = ff.Position;
+ff.Position = [bart(1:2) 5 4];
+ff.PaperPositionMode = 'auto';
+ff.Units = homer;
+% cf = gcf;
+% cf.PaperSize = [5 4];
+% cf.PaperPosition = [-.05521 0.2240 -0.5521+5 0.2240+4];
+
 end
 

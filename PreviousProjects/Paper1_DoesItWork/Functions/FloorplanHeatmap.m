@@ -2,8 +2,7 @@ function [axis] = FloorplanHeatmap(dataArray)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 I = imread('Data/FloorplanBackground.png');
-font = 'Times New Roman';
-figure('DefaultTextFontName', font, 'DefaultAxesFontName', font);
+figure();
 imshow(I);
 hold on
 text(114, 172, '*', 'Color', 'red', 'FontSize', 16);
@@ -17,10 +16,14 @@ hm.XData = [16; 333];
 hm.YData = [68; 151];
 hold off
 axis = gca;
-
-
-
-
+axis.FontName = 'Times New Roman';
+ff = gcf;
+homer = ff.Units;
+ff.Units = 'inches';
+bart = ff.Position;
+ff.Position = [bart(1:2) 5 4];
+ff.PaperPositionMode = 'auto';
+ff.Units = homer;
 % hold on
 % text(142, 157, 'tx', 'Color', 'black', 'FontSize', 8);
 % hm = imagesc(dataArray);
