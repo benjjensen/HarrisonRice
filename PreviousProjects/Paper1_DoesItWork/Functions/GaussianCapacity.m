@@ -52,6 +52,5 @@ for y = 1:numRows
     end
 end
 
-disp('done');
 end
 

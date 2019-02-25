@@ -4,7 +4,7 @@ load Data/tx2_linear.mat;
 
 addpath('Functions');
 
-SNR = 10^(2.3/10);
+SNR = 10^(2.4/10);
 [capacity, secrecyCapacity] = GaussianCapacity(tx2_linear, SNR);
 CustomFloorHeatmap(capacity);
 CustomFloorHeatmap(secrecyCapacity);

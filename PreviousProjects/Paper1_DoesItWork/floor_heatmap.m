@@ -3,7 +3,7 @@
 % Created by Dakota Flanary
 clear;
 close all;
-addpath(genpath('Functions'))
+addpath('Functions');
 load ('Data/tx2_noise_lin_gc.mat'); % loads in the signal data
 load ('Data/tx2_signal_lin_gc.mat'); % loads in the noise data
 
