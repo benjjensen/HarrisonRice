@@ -10,8 +10,9 @@ text(110, 178, 'tx', 'Color', 'red', 'FontSize', 7);
 hm = imagesc(dataArray);
 set(hm,'AlphaData',~isnan(dataArray));
 q = colorbar;
+q.Position = [0.9067 0.2460 0.016 .5579];
 colormap(jet);
-ylabel(q, 'Number of sub-carriers such that SNR \geq \tau');
+ylabel(q, {'Number of sub-carriers', 'such that SNR\geq \tau'});
 hm.XData = [16; 333];
 hm.YData = [68; 151];
 hold off
