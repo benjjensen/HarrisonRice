@@ -215,6 +215,16 @@ if (samePlot)
     scatter(17.5,100,100,'k','*');
     saveas(gcf,'ThroughputGraph','epsc');
     
+    axis = gca;
+    axis.FontName = 'Times New Roman';
+    ff = gcf;
+    homer = ff.Units;
+    ff.Units = 'inches';
+    bart = ff.Position;
+    ff.Position = [bart(1:2) 5 4];
+    ff.PaperPositionMode = 'auto';
+    ff.Units = homer;
+    
     hold off;
 end
 %%%%%%%%%%%%%%%%%%%%%%%
