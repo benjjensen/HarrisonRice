@@ -7,7 +7,8 @@ addpath('Functions');
 SNR = 10^(2.4/10);
 [capacity, secrecyCapacity] = GaussianCapacity(tx2_linear, SNR);
 CustomFloorHeatmap(capacity, false);
-secrecyCapacity(39:41,74:76) = nan;
+% The following line allows bob's best location to be seen in black in the Heatmap
+secrecyCapacity(39:41,74:76) = nan; % Sets 3x3 around Bob's best location to nan
 CustomFloorHeatmap(secrecyCapacity, true);
 
 MinSmalley = min(min(secrecyCapacity(34:65,123:148)));
