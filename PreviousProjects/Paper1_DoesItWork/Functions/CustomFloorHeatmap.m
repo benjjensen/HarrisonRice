@@ -1,4 +1,4 @@
-function [axis] = CustomFloorHeatmap(dataArray)
+function [axis] = CustomFloorHeatmap(dataArray, indicateRx)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 I = imread('Data/HeatmapBackground.png');
@@ -8,6 +8,9 @@ hold on
 text(142, 157, 'tx', 'Color', 'black', 'FontSize', 8);
 hm = imagesc(dataArray);
 set(hm,'AlphaData',~isnan(dataArray));
+if (indicateRx)
+    text(108, 75, 'rx', 'Color', 'black', 'FontSize', 8);
+end
 colormap(jet);
 q = colorbar;
 q.Position = [.855 .4 .016 .3];
