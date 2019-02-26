@@ -12,7 +12,7 @@ set(hm,'AlphaData',~isnan(dataArray));
 q = colorbar;
 q.Position = [0.9067 0.2460 0.016 .5579];
 colormap(jet);
-ylabel(q, {'Number of sub-carriers', 'such that SNR\geq \tau'});
+ylabel(q, {'Number of sub-carriers such that SNR \geq \tau'}, 'FontName', 'Times New Roman');
 hm.XData = [16; 333];
 hm.YData = [68; 151];
 hold off

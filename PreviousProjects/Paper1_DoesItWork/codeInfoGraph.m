@@ -205,15 +205,16 @@ if (samePlot)
     %title('Code Efficiency');
     %xlabel('Throughput Rate', 'FontSize', 12);
     xt = get(gca, 'XTick');
-    set(gca, 'FontSize', 14)
-    xlabel('bits per channel use', 'FontSize', 12);
-    ylabel('Equivocation H(M|Z^n) (%)', 'FontSize', 12);
+    set(gca, 'FontName', 'Times New Roman', 'FontSize', 14)
+    xlabel('bits per channel use', 'FontName', 'Times New Roman', 'FontSize', 12);
+    ylabel('Equivocation H(M|Z^n) (%)', 'FontName', 'Times New Roman', 'FontSize', 12);
     zlabel('dB Level');
     ylim([0 100]);
     xlim([0 50]);
     %legend;
     scatter(17.5,100,100,'k','*');
     saveas(gcf,'ThroughputGraph','epsc');
+    hold off;
     
     axis = gca;
     axis.FontName = 'Times New Roman';
@@ -224,8 +225,6 @@ if (samePlot)
     ff.Position = [bart(1:2) 5 4];
     ff.PaperPositionMode = 'auto';
     ff.Units = homer;
-    
-    hold off;
 end
 %%%%%%%%%%%%%%%%%%%%%%%
 toc;
