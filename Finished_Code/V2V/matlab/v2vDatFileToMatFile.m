@@ -4,6 +4,11 @@ function v2vDatFileToMatFile(datFilename)
     
     matFilename = getMatFilenameFromDatFilename(datFilename);
     
+    if exist(matFilename, 'file') == 2
+        fprintf('%s already exists.', matFilename);
+        return;
+    end
+    
     dat = fopen(datFilename);
     mat = matfile(matFilename,'Writable',true);
     
