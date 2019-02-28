@@ -1,9 +1,13 @@
-function [] = GraphingV2V(dataArray,closeOtherFigures)
+function [] = GraphingV2V(dataArray,closeOtherFigures, convertdB)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 if (closeOtherFigures)
     close all;
 end
+
+Nfft = 64; % Number of sub-carriers
+FF = -0.5:1/Nfft:0.5-1/Nfft;
+FF = 20*FF;
 
 [X,Y,Z] = size(dataArray);
 if (Y * Z > 20)
@@ -24,7 +28,11 @@ end
 
 for Row = 1:numRows
     for Col = 1:numCols
-        YYplot = dataArray(Row,:,Col);
+        if (convertdB)
+            YYplot = 10*log10(abs(dataArray(Row,:,Col)));
+        else
+            YYplot = dataArray(Row,:,Col);
+        end
         figure();
         stem(FF,YYplot);
         title('(' + string(Row) + ',' + string(Col) + ')');
@@ -32,10 +40,9 @@ for Row = 1:numRows
         xlabel('frequency (MHz)');
         ylabel('Magnitude (dB)');
         ax = gca;
-        ax.Children.BaseValue = -80;
-        hold on;
-%         plot(FF(1:2:end),YYplot(1:2:end),'o','MarkerFaceColor','k');
-        hold off;
+        if (convertdB)
+            ax.Children.BaseValue = -80;
+        end
     end
 end
 
