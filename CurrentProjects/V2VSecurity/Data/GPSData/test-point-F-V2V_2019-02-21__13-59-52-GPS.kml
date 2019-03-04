@@ -1,0 +1,3120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"
+	xmlns:gx="http://www.google.com/kml/ext/2.2">
+  <Document>
+    <name>GPS device</name>
+    <snippet>Created Thu Feb 21 14:01:52 2019</snippet>
+    <LookAt>
+      <gx:TimeSpan>
+        <begin>2019-02-21T20:59:52Z</begin>
+        <end>2019-02-21T21:01:52Z</end>
+      </gx:TimeSpan>
+      <longitude>-111.660818</longitude>
+      <latitude>40.233029</latitude>
+      <range>1300.000000</range>
+    </LookAt>
+<!-- Normal track style -->
+    <Style id="track_n">
+      <IconStyle>
+        <scale>.5</scale>
+        <Icon>
+          <href>http://earth.google.com/images/kml-icons/track-directional/track-none.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+<!-- Highlighted track style -->
+    <Style id="track_h">
+      <IconStyle>
+        <scale>1.2</scale>
+        <Icon>
+          <href>http://earth.google.com/images/kml-icons/track-directional/track-none.png</href>
+        </Icon>
+      </IconStyle>
+    </Style>
+    <StyleMap id="track">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#track_n</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#track_h</styleUrl>
+      </Pair>
+    </StyleMap>
+<!-- Normal waypoint style -->
+    <Style id="waypoint_n">
+      <IconStyle>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/pal4/icon61.png</href>
+        </Icon>
+      </IconStyle>
+    </Style>
+<!-- Highlighted waypoint style -->
+    <Style id="waypoint_h">
+      <IconStyle>
+        <scale>1.2</scale>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/pal4/icon61.png</href>
+        </Icon>
+      </IconStyle>
+    </Style>
+    <StyleMap id="waypoint">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#waypoint_n</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#waypoint_h</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="lineStyle">
+      <LineStyle>
+        <color>99ffac59</color>
+        <width>6</width>
+      </LineStyle>
+    </Style>
+    <Folder>
+      <name>Tracks</name>
+      <Folder>
+        <snippet/>
+        <description>
+<![CDATA[<table>
+            <tr><td><b>Distance</b> 1594.1 ft </td></tr>
+            <tr><td><b>Min Alt</b> 4478.000 ft </td></tr>
+            <tr><td><b>Max Alt</b> 4495.000 ft </td></tr>
+            <tr><td><b>Max Speed</b> 16.8 mph </td></tr>
+            <tr><td><b>Avg Speed</b> 9.1 mph </td></tr>
+            <tr><td><b>Start Time</b> 2019-02-21T20:59:52Z  </td></tr>
+            <tr><td><b>End Time</b> 2019-02-21T21:01:52Z  </td></tr>
+          </table>]]>
+        </description>
+        <TimeSpan>
+          <begin>2019-02-21T20:59:52Z</begin>
+          <end>2019-02-21T21:01:52Z</end>
+        </TimeSpan>
+        <Folder>
+          <name>Points</name>
+          <Placemark>
+            <name>WPT001</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660793 </td></tr>
+                <tr><td>Latitude: 40.232378 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 0.0 mph </td></tr>
+                <tr><td>Heading: 312.3 </td></tr>
+                <tr><td>Time: 2019-02-21T20:59:52Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660793</longitude>
+              <latitude>40.232378</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T20:59:52Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660793,40.232378,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT002</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660859 </td></tr>
+                <tr><td>Latitude: 40.232377 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 12.7 mph </td></tr>
+                <tr><td>Heading: 268.5 </td></tr>
+                <tr><td>Time: 2019-02-21T20:59:53Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660859</longitude>
+              <latitude>40.232377</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T20:59:53Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660859,40.232377,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT003</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660934 </td></tr>
+                <tr><td>Latitude: 40.232376 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 14.2 mph </td></tr>
+                <tr><td>Heading: 268.5 </td></tr>
+                <tr><td>Time: 2019-02-21T20:59:54Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660934</longitude>
+              <latitude>40.232376</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T20:59:54Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660934,40.232376,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT004</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661013 </td></tr>
+                <tr><td>Latitude: 40.232374 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 15.0 mph </td></tr>
+                <tr><td>Heading: 268.5 </td></tr>
+                <tr><td>Time: 2019-02-21T20:59:55Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661013</longitude>
+              <latitude>40.232374</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T20:59:55Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661013,40.232374,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT005</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661094 </td></tr>
+                <tr><td>Latitude: 40.232373 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 15.4 mph </td></tr>
+                <tr><td>Heading: 269.0 </td></tr>
+                <tr><td>Time: 2019-02-21T20:59:56Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661094</longitude>
+              <latitude>40.232373</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T20:59:56Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661094,40.232373,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT006</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661177 </td></tr>
+                <tr><td>Latitude: 40.232372 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 15.8 mph </td></tr>
+                <tr><td>Heading: 269.4 </td></tr>
+                <tr><td>Time: 2019-02-21T20:59:57Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661177</longitude>
+              <latitude>40.232372</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T20:59:57Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661177,40.232372,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT007</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661262 </td></tr>
+                <tr><td>Latitude: 40.232372 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 16.1 mph </td></tr>
+                <tr><td>Heading: 269.8 </td></tr>
+                <tr><td>Time: 2019-02-21T20:59:58Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661262</longitude>
+              <latitude>40.232372</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T20:59:58Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661262,40.232372,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT008</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661346 </td></tr>
+                <tr><td>Latitude: 40.232372 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 15.9 mph </td></tr>
+                <tr><td>Heading: 270.0 </td></tr>
+                <tr><td>Time: 2019-02-21T20:59:59Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661346</longitude>
+              <latitude>40.232372</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T20:59:59Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661346,40.232372,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT009</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661429 </td></tr>
+                <tr><td>Latitude: 40.232374 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 15.9 mph </td></tr>
+                <tr><td>Heading: 271.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:00Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661429</longitude>
+              <latitude>40.232374</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:00Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661429,40.232374,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT010</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661514 </td></tr>
+                <tr><td>Latitude: 40.232376 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 16.1 mph </td></tr>
+                <tr><td>Heading: 272.3 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:01Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661514</longitude>
+              <latitude>40.232376</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:01Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661514,40.232376,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT011</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661597 </td></tr>
+                <tr><td>Latitude: 40.232380 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 15.9 mph </td></tr>
+                <tr><td>Heading: 273.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:02Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661597</longitude>
+              <latitude>40.232380</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:02Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661597,40.232380,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT012</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661682 </td></tr>
+                <tr><td>Latitude: 40.232382 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 16.3 mph </td></tr>
+                <tr><td>Heading: 272.3 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:03Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661682</longitude>
+              <latitude>40.232382</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:03Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661682,40.232382,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT013</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661771 </td></tr>
+                <tr><td>Latitude: 40.232384 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 16.8 mph </td></tr>
+                <tr><td>Heading: 271.5 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:04Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661771</longitude>
+              <latitude>40.232384</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:04Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661771,40.232384,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT014</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661854 </td></tr>
+                <tr><td>Latitude: 40.232386 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 15.9 mph </td></tr>
+                <tr><td>Heading: 271.7 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:05Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661854</longitude>
+              <latitude>40.232386</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:05Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661854,40.232386,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT015</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661928 </td></tr>
+                <tr><td>Latitude: 40.232386 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 13.9 mph </td></tr>
+                <tr><td>Heading: 270.7 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:06Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661928</longitude>
+              <latitude>40.232386</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:06Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661928,40.232386,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT016</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661990 </td></tr>
+                <tr><td>Latitude: 40.232386 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 11.9 mph </td></tr>
+                <tr><td>Heading: 270.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:07Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661990</longitude>
+              <latitude>40.232386</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:07Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661990,40.232386,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT017</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662045 </td></tr>
+                <tr><td>Latitude: 40.232388 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 10.4 mph </td></tr>
+                <tr><td>Heading: 271.8 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:08Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662045</longitude>
+              <latitude>40.232388</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:08Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662045,40.232388,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT018</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662093 </td></tr>
+                <tr><td>Latitude: 40.232394 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 9.4 mph </td></tr>
+                <tr><td>Heading: 279.4 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:09Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662093</longitude>
+              <latitude>40.232394</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:09Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662093,40.232394,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT019</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662136 </td></tr>
+                <tr><td>Latitude: 40.232410 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 9.0 mph </td></tr>
+                <tr><td>Heading: 296.5 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:10Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662136</longitude>
+              <latitude>40.232410</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:10Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662136,40.232410,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT020</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662168 </td></tr>
+                <tr><td>Latitude: 40.232438 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 9.4 mph </td></tr>
+                <tr><td>Heading: 318.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:11Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662168</longitude>
+              <latitude>40.232438</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:11Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662168,40.232438,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT021</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662187 </td></tr>
+                <tr><td>Latitude: 40.232482 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 11.3 mph </td></tr>
+                <tr><td>Heading: 342.1 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:12Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662187</longitude>
+              <latitude>40.232482</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:12Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662187,40.232482,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT022</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662191 </td></tr>
+                <tr><td>Latitude: 40.232539 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 14.4 mph </td></tr>
+                <tr><td>Heading: 356.9 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:13Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662191</longitude>
+              <latitude>40.232539</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:13Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662191,40.232539,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT023</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662188 </td></tr>
+                <tr><td>Latitude: 40.232604 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 16.2 mph </td></tr>
+                <tr><td>Heading: 1.5 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:14Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662188</longitude>
+              <latitude>40.232604</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:14Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662188,40.232604,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT024</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662185 </td></tr>
+                <tr><td>Latitude: 40.232670 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 16.5 mph </td></tr>
+                <tr><td>Heading: 1.9 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:15Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662185</longitude>
+              <latitude>40.232670</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:15Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662185,40.232670,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT025</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662182 </td></tr>
+                <tr><td>Latitude: 40.232735 </td></tr>
+                <tr><td>Altitude: 4478.000 ft </td></tr>
+                <tr><td>Speed: 16.0 mph </td></tr>
+                <tr><td>Heading: 2.4 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:16Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662182</longitude>
+              <latitude>40.232735</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:16Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662182,40.232735,1364.89</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT026</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662179 </td></tr>
+                <tr><td>Latitude: 40.232799 </td></tr>
+                <tr><td>Altitude: 4478.000 ft </td></tr>
+                <tr><td>Speed: 16.0 mph </td></tr>
+                <tr><td>Heading: 2.1 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:17Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662179</longitude>
+              <latitude>40.232799</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:17Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662179,40.232799,1364.89</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT027</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662177 </td></tr>
+                <tr><td>Latitude: 40.232865 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 16.5 mph </td></tr>
+                <tr><td>Heading: 1.1 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:18Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662177</longitude>
+              <latitude>40.232865</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:18Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662177,40.232865,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT028</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662175 </td></tr>
+                <tr><td>Latitude: 40.232929 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 15.9 mph </td></tr>
+                <tr><td>Heading: 1.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:19Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662175</longitude>
+              <latitude>40.232929</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:19Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662175,40.232929,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT029</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662173 </td></tr>
+                <tr><td>Latitude: 40.232987 </td></tr>
+                <tr><td>Altitude: 4479.000 ft </td></tr>
+                <tr><td>Speed: 14.5 mph </td></tr>
+                <tr><td>Heading: 1.7 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:20Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662173</longitude>
+              <latitude>40.232987</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:20Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662173,40.232987,1365.20</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT030</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662172 </td></tr>
+                <tr><td>Latitude: 40.233041 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 13.5 mph </td></tr>
+                <tr><td>Heading: 1.1 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:21Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662172</longitude>
+              <latitude>40.233041</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:21Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662172,40.233041,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT031</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662170 </td></tr>
+                <tr><td>Latitude: 40.233093 </td></tr>
+                <tr><td>Altitude: 4480.000 ft </td></tr>
+                <tr><td>Speed: 12.9 mph </td></tr>
+                <tr><td>Heading: 1.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:22Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662170</longitude>
+              <latitude>40.233093</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:22Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662170,40.233093,1365.50</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT032</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662170 </td></tr>
+                <tr><td>Latitude: 40.233143 </td></tr>
+                <tr><td>Altitude: 4481.000 ft </td></tr>
+                <tr><td>Speed: 12.4 mph </td></tr>
+                <tr><td>Heading: 0.7 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:23Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662170</longitude>
+              <latitude>40.233143</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:23Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662170,40.233143,1365.81</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT033</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662168 </td></tr>
+                <tr><td>Latitude: 40.233194 </td></tr>
+                <tr><td>Altitude: 4481.000 ft </td></tr>
+                <tr><td>Speed: 12.7 mph </td></tr>
+                <tr><td>Heading: 1.1 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:24Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662168</longitude>
+              <latitude>40.233194</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:24Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662168,40.233194,1365.81</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT034</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662167 </td></tr>
+                <tr><td>Latitude: 40.233246 </td></tr>
+                <tr><td>Altitude: 4481.000 ft </td></tr>
+                <tr><td>Speed: 13.0 mph </td></tr>
+                <tr><td>Heading: 1.1 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:25Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662167</longitude>
+              <latitude>40.233246</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:25Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662167,40.233246,1365.81</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT035</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662167 </td></tr>
+                <tr><td>Latitude: 40.233296 </td></tr>
+                <tr><td>Altitude: 4481.000 ft </td></tr>
+                <tr><td>Speed: 12.5 mph </td></tr>
+                <tr><td>Heading: 359.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:26Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662167</longitude>
+              <latitude>40.233296</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:26Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662167,40.233296,1365.81</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT036</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662168 </td></tr>
+                <tr><td>Latitude: 40.233343 </td></tr>
+                <tr><td>Altitude: 4482.000 ft </td></tr>
+                <tr><td>Speed: 11.8 mph </td></tr>
+                <tr><td>Heading: 359.1 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:27Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662168</longitude>
+              <latitude>40.233343</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:27Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662168,40.233343,1366.11</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT037</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662169 </td></tr>
+                <tr><td>Latitude: 40.233387 </td></tr>
+                <tr><td>Altitude: 4483.000 ft </td></tr>
+                <tr><td>Speed: 10.8 mph </td></tr>
+                <tr><td>Heading: 359.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:28Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662169</longitude>
+              <latitude>40.233387</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:28Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662169,40.233387,1366.42</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT038</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662169 </td></tr>
+                <tr><td>Latitude: 40.233424 </td></tr>
+                <tr><td>Altitude: 4483.000 ft </td></tr>
+                <tr><td>Speed: 9.2 mph </td></tr>
+                <tr><td>Heading: 0.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:29Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662169</longitude>
+              <latitude>40.233424</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:29Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662169,40.233424,1366.42</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT039</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662168 </td></tr>
+                <tr><td>Latitude: 40.233452 </td></tr>
+                <tr><td>Altitude: 4484.000 ft </td></tr>
+                <tr><td>Speed: 7.2 mph </td></tr>
+                <tr><td>Heading: 0.7 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:30Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662168</longitude>
+              <latitude>40.233452</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:30Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662168,40.233452,1366.72</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT040</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662168 </td></tr>
+                <tr><td>Latitude: 40.233473 </td></tr>
+                <tr><td>Altitude: 4484.000 ft </td></tr>
+                <tr><td>Speed: 5.2 mph </td></tr>
+                <tr><td>Heading: 0.5 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:31Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662168</longitude>
+              <latitude>40.233473</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:31Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662168,40.233473,1366.72</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT041</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662168 </td></tr>
+                <tr><td>Latitude: 40.233487 </td></tr>
+                <tr><td>Altitude: 4485.000 ft </td></tr>
+                <tr><td>Speed: 3.6 mph </td></tr>
+                <tr><td>Heading: 0.4 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:32Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662168</longitude>
+              <latitude>40.233487</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:32Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662168,40.233487,1367.03</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT042</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662167 </td></tr>
+                <tr><td>Latitude: 40.233496 </td></tr>
+                <tr><td>Altitude: 4485.000 ft </td></tr>
+                <tr><td>Heading: 5.1 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:33Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662167</longitude>
+              <latitude>40.233496</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:33Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662167,40.233496,1367.03</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT043</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662167 </td></tr>
+                <tr><td>Latitude: 40.233500 </td></tr>
+                <tr><td>Altitude: 4485.000 ft </td></tr>
+                <tr><td>Heading: 1.7 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:34Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662167</longitude>
+              <latitude>40.233500</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:34Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662167,40.233500,1367.03</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT044</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662167 </td></tr>
+                <tr><td>Latitude: 40.233500 </td></tr>
+                <tr><td>Altitude: 4485.000 ft </td></tr>
+                <tr><td>Heading: 0.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:35Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662167</longitude>
+              <latitude>40.233500</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:35Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662167,40.233500,1367.03</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT045</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662167 </td></tr>
+                <tr><td>Latitude: 40.233500 </td></tr>
+                <tr><td>Altitude: 4485.000 ft </td></tr>
+                <tr><td>Heading: 0.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:36Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662167</longitude>
+              <latitude>40.233500</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:36Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662167,40.233500,1367.03</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT046</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662167 </td></tr>
+                <tr><td>Latitude: 40.233500 </td></tr>
+                <tr><td>Altitude: 4485.000 ft </td></tr>
+                <tr><td>Heading: 0.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:37Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662167</longitude>
+              <latitude>40.233500</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:37Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662167,40.233500,1367.03</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT047</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662169 </td></tr>
+                <tr><td>Latitude: 40.233523 </td></tr>
+                <tr><td>Altitude: 4485.000 ft </td></tr>
+                <tr><td>Speed: 5.8 mph </td></tr>
+                <tr><td>Heading: 356.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:38Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662169</longitude>
+              <latitude>40.233523</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:38Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662169,40.233523,1367.03</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT048</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662170 </td></tr>
+                <tr><td>Latitude: 40.233554 </td></tr>
+                <tr><td>Altitude: 4486.000 ft </td></tr>
+                <tr><td>Speed: 7.6 mph </td></tr>
+                <tr><td>Heading: 357.9 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:39Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662170</longitude>
+              <latitude>40.233554</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:39Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662170,40.233554,1367.33</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT049</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662170 </td></tr>
+                <tr><td>Latitude: 40.233586 </td></tr>
+                <tr><td>Altitude: 4486.000 ft </td></tr>
+                <tr><td>Speed: 8.0 mph </td></tr>
+                <tr><td>Heading: 0.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:40Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662170</longitude>
+              <latitude>40.233586</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:40Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662170,40.233586,1367.33</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT050</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662168 </td></tr>
+                <tr><td>Latitude: 40.233616 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 7.5 mph </td></tr>
+                <tr><td>Heading: 3.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:41Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662168</longitude>
+              <latitude>40.233616</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:41Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662168,40.233616,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT051</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662158 </td></tr>
+                <tr><td>Latitude: 40.233643 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 7.1 mph </td></tr>
+                <tr><td>Heading: 14.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:42Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662158</longitude>
+              <latitude>40.233643</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:42Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662158,40.233643,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT052</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662138 </td></tr>
+                <tr><td>Latitude: 40.233667 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 7.1 mph </td></tr>
+                <tr><td>Heading: 33.7 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:43Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662138</longitude>
+              <latitude>40.233667</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:43Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662138,40.233667,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT053</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662099 </td></tr>
+                <tr><td>Latitude: 40.233681 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 8.1 mph </td></tr>
+                <tr><td>Heading: 64.7 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:44Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662099</longitude>
+              <latitude>40.233681</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:44Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662099,40.233681,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT054</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.662046 </td></tr>
+                <tr><td>Latitude: 40.233685 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 10.1 mph </td></tr>
+                <tr><td>Heading: 84.5 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:45Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.662046</longitude>
+              <latitude>40.233685</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:45Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.662046,40.233685,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT055</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661992 </td></tr>
+                <tr><td>Latitude: 40.233685 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 10.4 mph </td></tr>
+                <tr><td>Heading: 90.4 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:46Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661992</longitude>
+              <latitude>40.233685</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:46Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661992,40.233685,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT056</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661937 </td></tr>
+                <tr><td>Latitude: 40.233684 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 10.3 mph </td></tr>
+                <tr><td>Heading: 91.1 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:47Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661937</longitude>
+              <latitude>40.233684</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:47Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661937,40.233684,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT057</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661882 </td></tr>
+                <tr><td>Latitude: 40.233683 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 10.5 mph </td></tr>
+                <tr><td>Heading: 91.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:48Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661882</longitude>
+              <latitude>40.233683</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:48Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661882,40.233683,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT058</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661826 </td></tr>
+                <tr><td>Latitude: 40.233683 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 10.6 mph </td></tr>
+                <tr><td>Heading: 90.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:49Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661826</longitude>
+              <latitude>40.233683</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:49Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661826,40.233683,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT059</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661771 </td></tr>
+                <tr><td>Latitude: 40.233684 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 10.5 mph </td></tr>
+                <tr><td>Heading: 88.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:50Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661771</longitude>
+              <latitude>40.233684</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:50Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661771,40.233684,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT060</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661718 </td></tr>
+                <tr><td>Latitude: 40.233684 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 10.1 mph </td></tr>
+                <tr><td>Heading: 89.5 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:51Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661718</longitude>
+              <latitude>40.233684</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:51Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661718,40.233684,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT061</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661664 </td></tr>
+                <tr><td>Latitude: 40.233685 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 10.2 mph </td></tr>
+                <tr><td>Heading: 88.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:52Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661664</longitude>
+              <latitude>40.233685</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:52Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661664,40.233685,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT062</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661606 </td></tr>
+                <tr><td>Latitude: 40.233686 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 11.2 mph </td></tr>
+                <tr><td>Heading: 89.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:53Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661606</longitude>
+              <latitude>40.233686</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:53Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661606,40.233686,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT063</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661542 </td></tr>
+                <tr><td>Latitude: 40.233685 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 12.1 mph </td></tr>
+                <tr><td>Heading: 90.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:54Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661542</longitude>
+              <latitude>40.233685</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:54Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661542,40.233685,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT064</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661475 </td></tr>
+                <tr><td>Latitude: 40.233685 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 12.6 mph </td></tr>
+                <tr><td>Heading: 90.4 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:55Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661475</longitude>
+              <latitude>40.233685</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:55Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661475,40.233685,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT065</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661408 </td></tr>
+                <tr><td>Latitude: 40.233685 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 12.8 mph </td></tr>
+                <tr><td>Heading: 89.5 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:56Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661408</longitude>
+              <latitude>40.233685</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:56Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661408,40.233685,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT066</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661338 </td></tr>
+                <tr><td>Latitude: 40.233685 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 13.4 mph </td></tr>
+                <tr><td>Heading: 89.9 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:57Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661338</longitude>
+              <latitude>40.233685</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:57Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661338,40.233685,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT067</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661266 </td></tr>
+                <tr><td>Latitude: 40.233684 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 13.5 mph </td></tr>
+                <tr><td>Heading: 91.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:58Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661266</longitude>
+              <latitude>40.233684</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:58Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661266,40.233684,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT068</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661199 </td></tr>
+                <tr><td>Latitude: 40.233683 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 12.8 mph </td></tr>
+                <tr><td>Heading: 91.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:00:59Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661199</longitude>
+              <latitude>40.233683</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:00:59Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661199,40.233683,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT069</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661137 </td></tr>
+                <tr><td>Latitude: 40.233682 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 11.9 mph </td></tr>
+                <tr><td>Heading: 91.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:00Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661137</longitude>
+              <latitude>40.233682</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:00Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661137,40.233682,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT070</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661075 </td></tr>
+                <tr><td>Latitude: 40.233680 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 11.7 mph </td></tr>
+                <tr><td>Heading: 92.1 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:01Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661075</longitude>
+              <latitude>40.233680</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:01Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661075,40.233680,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT071</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.661010 </td></tr>
+                <tr><td>Latitude: 40.233679 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 12.3 mph </td></tr>
+                <tr><td>Heading: 91.1 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:02Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.661010</longitude>
+              <latitude>40.233679</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:02Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.661010,40.233679,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT072</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660949 </td></tr>
+                <tr><td>Latitude: 40.233678 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 11.6 mph </td></tr>
+                <tr><td>Heading: 90.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:03Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660949</longitude>
+              <latitude>40.233678</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:03Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660949,40.233678,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT073</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660898 </td></tr>
+                <tr><td>Latitude: 40.233678 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 9.6 mph </td></tr>
+                <tr><td>Heading: 90.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:04Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660898</longitude>
+              <latitude>40.233678</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:04Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660898,40.233678,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT074</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660865 </td></tr>
+                <tr><td>Latitude: 40.233679 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 6.4 mph </td></tr>
+                <tr><td>Heading: 89.3 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:05Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660865</longitude>
+              <latitude>40.233679</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:05Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660865,40.233679,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT075</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660847 </td></tr>
+                <tr><td>Latitude: 40.233679 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 3.4 mph </td></tr>
+                <tr><td>Heading: 86.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:06Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660847</longitude>
+              <latitude>40.233679</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:06Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660847,40.233679,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT076</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660837 </td></tr>
+                <tr><td>Latitude: 40.233682 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Heading: 71.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:07Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660837</longitude>
+              <latitude>40.233682</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:07Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660837,40.233682,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT077</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660837 </td></tr>
+                <tr><td>Latitude: 40.233682 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Heading: 0.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:08Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660837</longitude>
+              <latitude>40.233682</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:08Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660837,40.233682,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT078</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660837 </td></tr>
+                <tr><td>Latitude: 40.233682 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Heading: 0.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:09Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660837</longitude>
+              <latitude>40.233682</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:09Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660837,40.233682,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT079</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660837 </td></tr>
+                <tr><td>Latitude: 40.233682 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Heading: 0.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:10Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660837</longitude>
+              <latitude>40.233682</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:10Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660837,40.233682,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT080</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660815 </td></tr>
+                <tr><td>Latitude: 40.233683 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 4.3 mph </td></tr>
+                <tr><td>Heading: 87.1 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:11Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660815</longitude>
+              <latitude>40.233683</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:11Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660815,40.233683,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT081</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660782 </td></tr>
+                <tr><td>Latitude: 40.233682 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 6.2 mph </td></tr>
+                <tr><td>Heading: 90.5 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:12Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660782</longitude>
+              <latitude>40.233682</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:12Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660782,40.233682,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT082</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660743 </td></tr>
+                <tr><td>Latitude: 40.233682 </td></tr>
+                <tr><td>Altitude: 4487.000 ft </td></tr>
+                <tr><td>Speed: 7.5 mph </td></tr>
+                <tr><td>Heading: 90.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:13Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660743</longitude>
+              <latitude>40.233682</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:13Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660743,40.233682,1367.64</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT083</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660696 </td></tr>
+                <tr><td>Latitude: 40.233681 </td></tr>
+                <tr><td>Altitude: 4488.000 ft </td></tr>
+                <tr><td>Speed: 9.0 mph </td></tr>
+                <tr><td>Heading: 91.5 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:14Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660696</longitude>
+              <latitude>40.233681</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:14Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660696,40.233681,1367.94</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT084</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660643 </td></tr>
+                <tr><td>Latitude: 40.233680 </td></tr>
+                <tr><td>Altitude: 4488.000 ft </td></tr>
+                <tr><td>Speed: 10.0 mph </td></tr>
+                <tr><td>Heading: 92.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:15Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660643</longitude>
+              <latitude>40.233680</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:15Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660643,40.233680,1367.94</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT085</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660589 </td></tr>
+                <tr><td>Latitude: 40.233678 </td></tr>
+                <tr><td>Altitude: 4488.000 ft </td></tr>
+                <tr><td>Speed: 10.2 mph </td></tr>
+                <tr><td>Heading: 91.9 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:16Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660589</longitude>
+              <latitude>40.233678</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:16Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660589,40.233678,1367.94</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT086</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660533 </td></tr>
+                <tr><td>Latitude: 40.233677 </td></tr>
+                <tr><td>Altitude: 4488.000 ft </td></tr>
+                <tr><td>Speed: 10.8 mph </td></tr>
+                <tr><td>Heading: 92.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:17Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660533</longitude>
+              <latitude>40.233677</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:17Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660533,40.233677,1367.94</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT087</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660474 </td></tr>
+                <tr><td>Latitude: 40.233675 </td></tr>
+                <tr><td>Altitude: 4488.000 ft </td></tr>
+                <tr><td>Speed: 11.1 mph </td></tr>
+                <tr><td>Heading: 91.9 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:18Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660474</longitude>
+              <latitude>40.233675</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:18Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660474,40.233675,1367.94</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT088</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660413 </td></tr>
+                <tr><td>Latitude: 40.233675 </td></tr>
+                <tr><td>Altitude: 4489.000 ft </td></tr>
+                <tr><td>Speed: 11.7 mph </td></tr>
+                <tr><td>Heading: 90.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:19Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660413</longitude>
+              <latitude>40.233675</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:19Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660413,40.233675,1368.25</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT089</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660349 </td></tr>
+                <tr><td>Latitude: 40.233676 </td></tr>
+                <tr><td>Altitude: 4489.000 ft </td></tr>
+                <tr><td>Speed: 12.2 mph </td></tr>
+                <tr><td>Heading: 89.7 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:20Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660349</longitude>
+              <latitude>40.233676</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:20Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660349,40.233676,1368.25</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT090</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660284 </td></tr>
+                <tr><td>Latitude: 40.233675 </td></tr>
+                <tr><td>Altitude: 4489.000 ft </td></tr>
+                <tr><td>Speed: 12.4 mph </td></tr>
+                <tr><td>Heading: 90.9 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:21Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660284</longitude>
+              <latitude>40.233675</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:21Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660284,40.233675,1368.25</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT091</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660219 </td></tr>
+                <tr><td>Latitude: 40.233674 </td></tr>
+                <tr><td>Altitude: 4489.000 ft </td></tr>
+                <tr><td>Speed: 12.3 mph </td></tr>
+                <tr><td>Heading: 90.4 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:22Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660219</longitude>
+              <latitude>40.233674</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:22Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660219,40.233674,1368.25</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT092</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660159 </td></tr>
+                <tr><td>Latitude: 40.233674 </td></tr>
+                <tr><td>Altitude: 4489.000 ft </td></tr>
+                <tr><td>Speed: 11.5 mph </td></tr>
+                <tr><td>Heading: 90.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:23Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660159</longitude>
+              <latitude>40.233674</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:23Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660159,40.233674,1368.25</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT093</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660106 </td></tr>
+                <tr><td>Latitude: 40.233673 </td></tr>
+                <tr><td>Altitude: 4490.000 ft </td></tr>
+                <tr><td>Speed: 10.1 mph </td></tr>
+                <tr><td>Heading: 92.3 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:24Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660106</longitude>
+              <latitude>40.233673</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:24Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660106,40.233673,1368.55</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT094</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660060 </td></tr>
+                <tr><td>Latitude: 40.233672 </td></tr>
+                <tr><td>Altitude: 4490.000 ft </td></tr>
+                <tr><td>Speed: 8.7 mph </td></tr>
+                <tr><td>Heading: 91.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:25Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660060</longitude>
+              <latitude>40.233672</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:25Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660060,40.233672,1368.55</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT095</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.660021 </td></tr>
+                <tr><td>Latitude: 40.233672 </td></tr>
+                <tr><td>Altitude: 4490.000 ft </td></tr>
+                <tr><td>Speed: 7.5 mph </td></tr>
+                <tr><td>Heading: 90.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:26Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.660021</longitude>
+              <latitude>40.233672</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:26Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.660021,40.233672,1368.55</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT096</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659987 </td></tr>
+                <tr><td>Latitude: 40.233674 </td></tr>
+                <tr><td>Altitude: 4490.000 ft </td></tr>
+                <tr><td>Speed: 6.5 mph </td></tr>
+                <tr><td>Heading: 84.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:27Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659987</longitude>
+              <latitude>40.233674</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:27Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659987,40.233674,1368.55</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT097</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659957 </td></tr>
+                <tr><td>Latitude: 40.233678 </td></tr>
+                <tr><td>Altitude: 4490.000 ft </td></tr>
+                <tr><td>Speed: 5.6 mph </td></tr>
+                <tr><td>Heading: 81.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:28Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659957</longitude>
+              <latitude>40.233678</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:28Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659957,40.233678,1368.55</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT098</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659930 </td></tr>
+                <tr><td>Latitude: 40.233678 </td></tr>
+                <tr><td>Altitude: 4490.000 ft </td></tr>
+                <tr><td>Speed: 5.1 mph </td></tr>
+                <tr><td>Heading: 89.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:29Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659930</longitude>
+              <latitude>40.233678</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:29Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659930,40.233678,1368.55</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT099</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659905 </td></tr>
+                <tr><td>Latitude: 40.233678 </td></tr>
+                <tr><td>Altitude: 4490.000 ft </td></tr>
+                <tr><td>Speed: 4.9 mph </td></tr>
+                <tr><td>Heading: 91.3 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:30Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659905</longitude>
+              <latitude>40.233678</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:30Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659905,40.233678,1368.55</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT100</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659879 </td></tr>
+                <tr><td>Latitude: 40.233677 </td></tr>
+                <tr><td>Altitude: 4490.000 ft </td></tr>
+                <tr><td>Speed: 5.0 mph </td></tr>
+                <tr><td>Heading: 92.8 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:31Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659879</longitude>
+              <latitude>40.233677</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:31Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659879,40.233677,1368.55</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT101</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659854 </td></tr>
+                <tr><td>Latitude: 40.233677 </td></tr>
+                <tr><td>Altitude: 4491.000 ft </td></tr>
+                <tr><td>Speed: 4.7 mph </td></tr>
+                <tr><td>Heading: 89.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:32Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659854</longitude>
+              <latitude>40.233677</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:32Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659854,40.233677,1368.86</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT102</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659830 </td></tr>
+                <tr><td>Latitude: 40.233676 </td></tr>
+                <tr><td>Altitude: 4493.000 ft </td></tr>
+                <tr><td>Speed: 4.6 mph </td></tr>
+                <tr><td>Heading: 93.4 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:33Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659830</longitude>
+              <latitude>40.233676</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:33Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659830,40.233676,1369.47</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT103</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659809 </td></tr>
+                <tr><td>Latitude: 40.233676 </td></tr>
+                <tr><td>Altitude: 4494.000 ft </td></tr>
+                <tr><td>Speed: 4.0 mph </td></tr>
+                <tr><td>Heading: 90.5 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:34Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659809</longitude>
+              <latitude>40.233676</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:34Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659809,40.233676,1369.77</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT104</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659791 </td></tr>
+                <tr><td>Latitude: 40.233675 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Speed: 3.4 mph </td></tr>
+                <tr><td>Heading: 91.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:35Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659791</longitude>
+              <latitude>40.233675</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:35Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659791,40.233675,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT105</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659781 </td></tr>
+                <tr><td>Latitude: 40.233674 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Heading: 96.9 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:36Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659781</longitude>
+              <latitude>40.233674</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:36Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659781,40.233674,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT106</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659779 </td></tr>
+                <tr><td>Latitude: 40.233674 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Heading: 115.9 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:37Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659779</longitude>
+              <latitude>40.233674</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:37Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659779,40.233674,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT107</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659779 </td></tr>
+                <tr><td>Latitude: 40.233674 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Heading: 0.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:38Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659779</longitude>
+              <latitude>40.233674</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:38Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659779,40.233674,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT108</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659779 </td></tr>
+                <tr><td>Latitude: 40.233674 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Heading: 0.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:39Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659779</longitude>
+              <latitude>40.233674</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:39Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659779,40.233674,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT109</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659773 </td></tr>
+                <tr><td>Latitude: 40.233674 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Heading: 94.2 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:40Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659773</longitude>
+              <latitude>40.233674</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:40Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659773,40.233674,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT110</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659765 </td></tr>
+                <tr><td>Latitude: 40.233673 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Heading: 93.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:41Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659765</longitude>
+              <latitude>40.233673</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:41Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659765,40.233673,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT111</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659759 </td></tr>
+                <tr><td>Latitude: 40.233672 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Heading: 103.3 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:42Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659759</longitude>
+              <latitude>40.233672</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:42Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659759,40.233672,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT112</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659754 </td></tr>
+                <tr><td>Latitude: 40.233672 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Heading: 95.0 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:43Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659754</longitude>
+              <latitude>40.233672</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:43Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659754,40.233672,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT113</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659748 </td></tr>
+                <tr><td>Latitude: 40.233671 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Heading: 97.7 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:44Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659748</longitude>
+              <latitude>40.233671</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:44Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659748,40.233671,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT114</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659739 </td></tr>
+                <tr><td>Latitude: 40.233670 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Heading: 99.9 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:45Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659739</longitude>
+              <latitude>40.233670</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:45Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659739,40.233670,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT115</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659723 </td></tr>
+                <tr><td>Latitude: 40.233671 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Speed: 3.1 mph </td></tr>
+                <tr><td>Heading: 85.4 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:46Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659723</longitude>
+              <latitude>40.233671</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:46Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659723,40.233671,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT116</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659695 </td></tr>
+                <tr><td>Latitude: 40.233672 </td></tr>
+                <tr><td>Altitude: 4494.000 ft </td></tr>
+                <tr><td>Speed: 5.3 mph </td></tr>
+                <tr><td>Heading: 87.6 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:47Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659695</longitude>
+              <latitude>40.233672</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:47Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659695,40.233672,1369.77</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT117</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659658 </td></tr>
+                <tr><td>Latitude: 40.233673 </td></tr>
+                <tr><td>Altitude: 4494.000 ft </td></tr>
+                <tr><td>Speed: 7.0 mph </td></tr>
+                <tr><td>Heading: 88.8 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:48Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659658</longitude>
+              <latitude>40.233673</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:48Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659658,40.233673,1369.77</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT118</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659614 </td></tr>
+                <tr><td>Latitude: 40.233673 </td></tr>
+                <tr><td>Altitude: 4494.000 ft </td></tr>
+                <tr><td>Speed: 8.4 mph </td></tr>
+                <tr><td>Heading: 89.1 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:49Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659614</longitude>
+              <latitude>40.233673</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:49Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659614,40.233673,1369.77</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT119</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659562 </td></tr>
+                <tr><td>Latitude: 40.233673 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Speed: 9.8 mph </td></tr>
+                <tr><td>Heading: 89.5 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:50Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659562</longitude>
+              <latitude>40.233673</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:50Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659562,40.233673,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT120</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659505 </td></tr>
+                <tr><td>Latitude: 40.233673 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Speed: 10.8 mph </td></tr>
+                <tr><td>Heading: 89.9 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:51Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659505</longitude>
+              <latitude>40.233673</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:51Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659505,40.233673,1370.08</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>WPT121</name>
+            <snippet/>
+            <description><![CDATA[
+              <table>
+                <tr><td>Longitude: -111.659446 </td></tr>
+                <tr><td>Latitude: 40.233673 </td></tr>
+                <tr><td>Altitude: 4495.000 ft </td></tr>
+                <tr><td>Speed: 11.3 mph </td></tr>
+                <tr><td>Heading: 90.7 </td></tr>
+                <tr><td>Time: 2019-02-21T21:01:52Z </td></tr>
+              </table>
+            ]]></description>
+            <LookAt>
+              <longitude>-111.659446</longitude>
+              <latitude>40.233673</latitude>
+              <tilt>66</tilt>
+            </LookAt>
+            <TimeStamp><when>2019-02-21T21:01:52Z</when></TimeStamp>
+            <styleUrl>#track</styleUrl>
+            <Point>
+              <coordinates>-111.659446,40.233673,1370.08</coordinates>
+            </Point>
+          </Placemark>
+        </Folder>
+        <Placemark>
+          <name>Path</name>
+          <styleUrl>#lineStyle</styleUrl>
+          <LineString>
+            <tessellate>1</tessellate>
+            <coordinates>
+              -111.660793,40.232378,1365.50
+              -111.660859,40.232377,1365.50
+              -111.660934,40.232376,1365.20
+              -111.661013,40.232374,1365.50
+              -111.661094,40.232373,1365.50
+              -111.661177,40.232372,1365.50
+              -111.661262,40.232372,1365.50
+              -111.661346,40.232372,1365.50
+              -111.661429,40.232374,1365.20
+              -111.661514,40.232376,1365.20
+              -111.661597,40.232380,1365.20
+              -111.661682,40.232382,1365.20
+              -111.661771,40.232384,1365.20
+              -111.661854,40.232386,1365.20
+              -111.661928,40.232386,1365.50
+              -111.661990,40.232386,1365.50
+              -111.662045,40.232388,1365.50
+              -111.662093,40.232394,1365.50
+              -111.662136,40.232410,1365.50
+              -111.662168,40.232438,1365.20
+              -111.662187,40.232482,1365.20
+              -111.662191,40.232539,1365.20
+              -111.662188,40.232604,1365.20
+              -111.662185,40.232670,1365.20
+              -111.662182,40.232735,1364.89
+              -111.662179,40.232799,1364.89
+              -111.662177,40.232865,1365.20
+              -111.662175,40.232929,1365.20
+              -111.662173,40.232987,1365.20
+              -111.662172,40.233041,1365.50
+              -111.662170,40.233093,1365.50
+              -111.662170,40.233143,1365.81
+              -111.662168,40.233194,1365.81
+              -111.662167,40.233246,1365.81
+              -111.662167,40.233296,1365.81
+              -111.662168,40.233343,1366.11
+              -111.662169,40.233387,1366.42
+              -111.662169,40.233424,1366.42
+              -111.662168,40.233452,1366.72
+              -111.662168,40.233473,1366.72
+              -111.662168,40.233487,1367.03
+              -111.662167,40.233496,1367.03
+              -111.662167,40.233500,1367.03
+              -111.662167,40.233500,1367.03
+              -111.662167,40.233500,1367.03
+              -111.662167,40.233500,1367.03
+              -111.662169,40.233523,1367.03
+              -111.662170,40.233554,1367.33
+              -111.662170,40.233586,1367.33
+              -111.662168,40.233616,1367.64
+              -111.662158,40.233643,1367.64
+              -111.662138,40.233667,1367.64
+              -111.662099,40.233681,1367.64
+              -111.662046,40.233685,1367.64
+              -111.661992,40.233685,1367.64
+              -111.661937,40.233684,1367.64
+              -111.661882,40.233683,1367.64
+              -111.661826,40.233683,1367.64
+              -111.661771,40.233684,1367.64
+              -111.661718,40.233684,1367.64
+              -111.661664,40.233685,1367.64
+              -111.661606,40.233686,1367.64
+              -111.661542,40.233685,1367.64
+              -111.661475,40.233685,1367.64
+              -111.661408,40.233685,1367.64
+              -111.661338,40.233685,1367.64
+              -111.661266,40.233684,1367.64
+              -111.661199,40.233683,1367.64
+              -111.661137,40.233682,1367.64
+              -111.661075,40.233680,1367.64
+              -111.661010,40.233679,1367.64
+              -111.660949,40.233678,1367.64
+              -111.660898,40.233678,1367.64
+              -111.660865,40.233679,1367.64
+              -111.660847,40.233679,1367.64
+              -111.660837,40.233682,1367.64
+              -111.660837,40.233682,1367.64
+              -111.660837,40.233682,1367.64
+              -111.660837,40.233682,1367.64
+              -111.660815,40.233683,1367.64
+              -111.660782,40.233682,1367.64
+              -111.660743,40.233682,1367.64
+              -111.660696,40.233681,1367.94
+              -111.660643,40.233680,1367.94
+              -111.660589,40.233678,1367.94
+              -111.660533,40.233677,1367.94
+              -111.660474,40.233675,1367.94
+              -111.660413,40.233675,1368.25
+              -111.660349,40.233676,1368.25
+              -111.660284,40.233675,1368.25
+              -111.660219,40.233674,1368.25
+              -111.660159,40.233674,1368.25
+              -111.660106,40.233673,1368.55
+              -111.660060,40.233672,1368.55
+              -111.660021,40.233672,1368.55
+              -111.659987,40.233674,1368.55
+              -111.659957,40.233678,1368.55
+              -111.659930,40.233678,1368.55
+              -111.659905,40.233678,1368.55
+              -111.659879,40.233677,1368.55
+              -111.659854,40.233677,1368.86
+              -111.659830,40.233676,1369.47
+              -111.659809,40.233676,1369.77
+              -111.659791,40.233675,1370.08
+              -111.659781,40.233674,1370.08
+              -111.659779,40.233674,1370.08
+              -111.659779,40.233674,1370.08
+              -111.659779,40.233674,1370.08
+              -111.659773,40.233674,1370.08
+              -111.659765,40.233673,1370.08
+              -111.659759,40.233672,1370.08
+              -111.659754,40.233672,1370.08
+              -111.659748,40.233671,1370.08
+              -111.659739,40.233670,1370.08
+              -111.659723,40.233671,1370.08
+              -111.659695,40.233672,1369.77
+              -111.659658,40.233673,1369.77
+              -111.659614,40.233673,1369.77
+              -111.659562,40.233673,1370.08
+              -111.659505,40.233673,1370.08
+              -111.659446,40.233673,1370.08
+            </coordinates>
+          </LineString>
+        </Placemark>
+      </Folder>
+    </Folder>
+  </Document>
+</kml>
