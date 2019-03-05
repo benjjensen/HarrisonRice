@@ -22,7 +22,7 @@ for m = 1 : 10
         weights = RMWeightHier(u,m,false);
         
         for index = 1:num_index - 10
-            if cap_har(index,1)- cap_har(index+1,1) ~= 0 && ratio(index) < 1
+            if cap_har(index,1)- cap_har(index+1,1) ~= 0 && ratio(index) <= 1
                 %creates object
                 eval(sprintf('codeInfo_%d_%d_%d = codeInfo;', index , u, m));
                 
@@ -61,7 +61,7 @@ for m = 1 : 10
                 eval(sprintf('codeInfo_%d_%d_%d.mu = %d;', index , u, m, mu));
                 
                 %assigns H to the object
-                H = weights(1,mu+1);
+                H = weights(1,mu+1);    % +1 to account for index shift 
                 eval(sprintf('codeInfo_%d_%d_%d.H = %d;', index , u, m, H));
                 
                 %assigns percentLeaked to the object
@@ -87,7 +87,7 @@ codesPerdB = (m)*(m/2);
 %find all the variables in the workspace that are of the same dB range so
 %the colors on the plot match
 for index = 1:num_index - 10
-    if cap_har(index,1)- cap_har(index+1,1) ~= 0 && ratio(index) < 1
+    if cap_har(index,1)- cap_har(index+1,1) ~= 0 && ratio(index) <= 1
         workspace = who;
         eval(sprintf('outStr = regexpi(workspace, "codeInfo_%d_");', index));
         ind = ~cellfun('isempty',outStr);
@@ -206,8 +206,10 @@ if (samePlot)
     %xlabel('Throughput Rate', 'FontSize', 12);
     xt = get(gca, 'XTick');
     set(gca, 'FontName', 'Times New Roman', 'FontSize', 14)
-    xlabel('bits per channel use', 'FontName', 'Times New Roman', 'FontSize', 12);
-    ylabel('Equivocation H(M|Z^n) (%)', 'FontName', 'Times New Roman', 'FontSize', 12);
+%     xlabel('    ');
+%     ylabel('    ');
+    xlabel('Throughput (bits per channel use)', 'FontName', 'Times New Roman', 'FontSize', 12);
+    ylabel('Equivocation $H(M|Z^n)$ (\%)', 'FontName', 'Times New Roman', 'FontSize', 12, 'interpreter', 'latex');
     zlabel('dB Level');
     ylim([0 100]);
     xlim([0 50]);
