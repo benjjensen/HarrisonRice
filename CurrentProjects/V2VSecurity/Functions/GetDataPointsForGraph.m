@@ -6,7 +6,7 @@ function data = GetDataPointsForGraph(distances, blocks, pwelchedData, deltaD, m
     currentIteration = 1;
     idx = 1;
     for D = minD:deltaD:maxD
-        while distances(idx) < D
+        while distances(idx) <= D
             idx = idx + 1;
             lastD = distances(idx-1);
             nextD = distances(idx);
@@ -19,6 +19,9 @@ function data = GetDataPointsForGraph(distances, blocks, pwelchedData, deltaD, m
         proportion = (D-lastD) / DIntervalWidth;
         
         frameIndex = lastFrame + proportion*frameIntervalWidth;
+        if frameIndex == 0
+            frameIndex = 1;
+        end
         
         frameIndices(currentIteration) = frameIndex;
         currentIteration = currentIteration + 1;
