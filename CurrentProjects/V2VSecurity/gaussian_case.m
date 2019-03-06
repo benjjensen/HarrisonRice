@@ -29,23 +29,18 @@ india = india/normalize_max;
 juliet = juliet/normalize_max;
 
 num_loops = 20; % number of data points to test
+numLocations= 2290;
 
-[foxtrotColumns,~] = size(foxtrot);
-[golfColumns,~] = size(golf);
-[hotelColumns,~] = size(hotel);
-[indiaColumns,~] = size(india);
-[julietColumns,~] = size(juliet);
 
-foxtrot_cap = zeros(foxtrotColumns,num_loops); % vector for harrison's capacity
-golf_cap = zeros(golfColumns,num_loops); % vector for sma
-hotel_cap = zeros(hotelColumns,num_loops);
-india_cap = zeros(indiaColumns,num_loops);
-juliet_cap = zeros(julietColumns,num_loops);
-golf_sec_cap = zeros(golfColumns,num_loops); % vector for sma
-hotel_sec_cap = zeros(hotelColumns,num_loops);
-india_sec_cap = zeros(indiaColumns,num_loops);
-juliet_sec_cap = zeros(julietColumns,num_loops);
-
+foxtrot_cap = zeros(numLocations,num_loops); % vector for harrison's capacity
+golf_cap = zeros(numLocations,num_loops); % vector for sma
+hotel_cap = zeros(numLocations,num_loops);
+india_cap = zeros(numLocations,num_loops);
+juliet_cap = zeros(numLocations,num_loops);
+golf_sec_cap = zeros(numLocations,num_loops); % vector for sma
+hotel_sec_cap = zeros(numLocations,num_loops);
+india_sec_cap = zeros(numLocations,num_loops);
+juliet_sec_cap = zeros(numLocations,num_loops);
 snr = logspace(-3,5,num_loops); % snr values to test(in linear)
 tic;
 for index = 1:num_loops
@@ -57,7 +52,7 @@ for index = 1:num_loops
     [juliet_cap(:,index), juliet_carrier_capacity] = gaussian_capacity(juliet,snr(index));
  
     %% Secrecy Capacity
-    for x = 1 : foxtrotColumns
+    for x = 1 : numLocations
         for carrier = 1:32
             g_sec = foxtrot_carrier_capacity(x,carrier) - ...
                 golf_carrier_capacity(x,carrier);
