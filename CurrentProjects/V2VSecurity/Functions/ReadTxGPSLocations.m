@@ -1,30 +1,15 @@
-function [distances, blocks, startingTime] = ReadGPSDataPositions(filename)
+function distances = ReadTxGPSLocations(filename, startingTime, count)
     file = fopen(filename);
     
     line = fgetl(file);
-    while ~strcmp(line(1:5), 'notes')
-        line = fgetl(file);
-    end
-    while ~contains(line,'`')
-        line = fgetl(file);
-    end
-    line = fgetl(file);
-    while ~strcmp(line(1:9), 'positions')
+    while ~contains(line, startingTime)
         line = fgetl(file);
     end
     
-    positionCount = str2double(line(11:end));
-    blocks = zeros(positionCount, 1);
-    latitudes = zeros(positionCount, 1);
-    longitudes = zeros(positionCount, 1);
-    for idx = 1:positionCount
-        line = fgetl(file);
+    latitudes = zeros(count, 1);
+    longitudes = zeros(count, 1);
+    for idx = 1:count
         words = split(line);
-        if idx == 1
-            startingTime = char(words(2));
-        end
-        
-        blocks(idx) = str2double(words(3));
         
         lat = char(words(5));
         lat = str2double(lat(1:end-1));
@@ -50,6 +35,8 @@ function [distances, blocks, startingTime] = ReadGPSDataPositions(filename)
         
         latitudes(idx) = latDeg + latFrac;
         longitudes(idx) = lonDeg + lonFrac;
+        
+        line = fgetl(file);
     end
     
     r = 6.371e6; % radius of earth in meters
@@ -58,8 +45,8 @@ function [distances, blocks, startingTime] = ReadGPSDataPositions(filename)
     latitudes = deg2rad(latitudes);
     longitudes = deg2rad(longitudes);
     
-    distances = zeros(positionCount, 1);
-    for idx = 2:positionCount
+    distances = zeros(count, 1);
+    for idx = 2:count
         % This is the formula for distance between two points given the
         % gps coordinates for those two points.
         iterativeDistance = 2 * r * ...
