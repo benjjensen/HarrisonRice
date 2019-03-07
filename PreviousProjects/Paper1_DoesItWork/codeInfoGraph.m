@@ -15,13 +15,14 @@ ratio = eve./cap_har;
 num_index = 300;
 dB = logspace(-.2,.7,num_index);
 dB = 10*log10(dB);
+codesPerdB = 0;
 %iterate through all the codes
 for m = 1 : 10
     for u = 1 : m
         %call function and save off the weigths of the codes
         weights = RMWeightHier(u,m,false);
-        
-        for index = 1:num_index - 10
+        codesPerdB = codesPerdB + 1;
+        for index = 1:num_index - 1
             if cap_har(index,1)- cap_har(index+1,1) ~= 0 && ratio(index) <= 1
                 %creates object
                 eval(sprintf('codeInfo_%d_%d_%d = codeInfo;', index , u, m));
@@ -50,9 +51,7 @@ for m = 1 : 10
                 %assigns dB to the object
                 RdB = dB(index);
                 eval(sprintf('codeInfo_%d_%d_%d.dBLevel = %f;', index , u, m, RdB));
-                if u == m
-                    zz = 0;
-                end
+
                 %assigns mu to the object
                 mu = ceil(ratio(index) * n);
                 if mu > n
@@ -81,12 +80,10 @@ for m = 1 : 10
     end
 end
 
-%calculates the number of codes at a given dB for a loop used later
-codesPerdB = (m)*(m/2);
 
 %find all the variables in the workspace that are of the same dB range so
 %the colors on the plot match
-for index = 1:num_index - 10
+for index = 1:num_index - 1
     if cap_har(index,1)- cap_har(index+1,1) ~= 0 && ratio(index) <= 1
         workspace = who;
         eval(sprintf('outStr = regexpi(workspace, "codeInfo_%d_");', index));
@@ -116,7 +113,7 @@ plotIndex = zeros(1,55);
 
 
 
-for index = 1:num_index - 10
+for index = 1:num_index - 1
     
     %checks to make sure the carriers used on the graphs are changing with
     %dB level
@@ -139,7 +136,7 @@ for index = 1:num_index - 10
         end
         
         %plot the
-        for i = 1:codesPerdB - 5
+        for i = 1:codesPerdB
             eval(sprintf('name = vars%d{%d,1};',index,i));
             
             searchName = name(14:end);
