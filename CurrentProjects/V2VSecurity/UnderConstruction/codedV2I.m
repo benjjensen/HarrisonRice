@@ -4,17 +4,18 @@
 addpath('../Functions');
 addpath('../Data');
 load('BradfordShouldPayAttention.mat');
-number = 32;
-for i = 1:number
-    if i == 31
-        fakeData(1,i) = mod(i+1,33);
-    else
-        fakeData(1,i) = mod(i,33);
-    end
-end
+% number = 32;
+% for i = 1:number
+%     if i == 31 || i == 30
+%         fakeData(1,i) = mod(32,33);
+%     else
+%         fakeData(1,i) = mod(i,33);
+%     end
+% end
 maxNumberOfCarriers = 32;
-secrecyCapacityPerLocation = floor(capacity(1:10:length(capacity),1)' * maxNumberOfCarriers);
-secrecyCapacityPerLocation = fakeData;
+secrecyCapacityPerLocation = floor(capacity(1:10:length(capacity),1)'...
+    * maxNumberOfCarriers);
+% secrecyCapacityPerLocation = fakeData;
 numberOfSpots = length(secrecyCapacityPerLocation);
 r = 2;
 m = 5;
@@ -30,7 +31,7 @@ for i = 1:numberOfSpots
         bobsKnowledge(:,i) = NaN;
     end
 end
-figure(100);
+figure(101);
 hold on;
 % bob = surf(flipud(bobsKnowledge));%-maxNumberOfCarriers);
 % grid off;
@@ -48,7 +49,7 @@ hold on;
 eavesKnowledge = zeros(numberOfSpots);
 
 for i = 1:numberOfSpots
-    eavesKnowledge(i,:) = RMWeights(ceil(secrecyCapacityPerLocation(i)+1));
+    eavesKnowledge(i,:) = RMWeights(33-(ceil(secrecyCapacityPerLocation(i)+1)));
 end
 
 [eavey eavex] = size(eavesKnowledge);
@@ -89,6 +90,13 @@ colormap(myColorMapScatter);
 
 eave = pcolor(eavesKnowledge);
 set(eave,'EdgeAlpha',0);
+colorBar = colorbar;
+colorBar.Label.String = 'bits revealed to Eave';
+colorBar.Label.FontSize = 15;
+xlabel('Bobs Position');
+ylabel('Eaves Position');
+title('RM(2,5)');
+% clabel('bits revealed to Eave');
 hold off;
 
 % xlim([0 32]);
@@ -102,24 +110,21 @@ cf.PaperPosition = [-.05521 0.2240 -0.5521+5 0.2240+4];
 % imagesc(flipud(eavesKnowledge), 'AlphaData', .4)
 
 % close all
-bobPatch1 = patch([32 32 31 31],[1 32 32 1],'white');
+bobPatch1 = patch([232 232 231 231],[1 eavex eavex 1],'white');
 
 % Get patch objects from CONTOURGROUP
 bobHandle = findobj(bobPatch1, 'Type', 'patch');
 
 % Apply Hatch Fill
-bobHatch1 = hatchfill(bobHandle, 'single', 45, 5);
+bobHatch1 = hatchfill(bobHandle, 'cross', 45, 4);
 
 % Remove outline
 set(bobPatch1, 'LineStyle', 'none');
 
 % Change the cross hatch to white
-set(bobHatch1, 'Color', 'black');
+set(bobHatch1, 'Color', 'white');
 
-xlim([0 32]);
-ylim([0 32]);
+% xlim([1 32]);
+% ylim([1 32]);
 hold off;
 
-
-%% 
-figure(10101010);
