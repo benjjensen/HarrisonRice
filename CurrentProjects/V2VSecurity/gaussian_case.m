@@ -96,8 +96,8 @@ for i = 1:num_loops
     plot(hotel_cap(:,i),'y');
     plot(india_cap(:,i),'r');
     plot(juliet_cap(:,i),'k');
-%     figure()
-%     hold on
+    figure()
+    hold on
     plot(golf_sec_cap(:,i));
     plot(hotel_sec_cap(:,i));
     plot(india_sec_cap(:,i));
