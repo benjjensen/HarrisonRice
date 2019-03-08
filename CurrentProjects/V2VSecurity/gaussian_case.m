@@ -21,31 +21,26 @@ golf_max = max(max(golf));
 hotel_max = max(max(hotel));
 india_max = max(max(india));
 juliet_max = max(max(juliet));
-normalize_max = max([fox_max,golf_max,hotel_max,india_max,juliet_max]);
-foxtrot = foxtrot/normalize_max;
-golf = golf/normalize_max;
-hotel = hotel/normalize_max;
-india = india/normalize_max;
-juliet = juliet/normalize_max;
+normalize_max = sqrt(max([fox_max,golf_max,hotel_max,india_max,juliet_max]));
+foxtrot = (sqrt(foxtrot)/normalize_max).^2;
+golf = (sqrt(golf)/normalize_max).^2;
+hotel = (sqrt(hotel)/normalize_max).^2;
+india = (sqrt(india)/normalize_max).^2;
+juliet = (sqrt(juliet)/normalize_max).^2;
 
 num_loops = 20; % number of data points to test
+numLocations= 2290;
 
-[foxtrotColumns,~] = size(foxtrot);
-[golfColumns,~] = size(golf);
-[hotelColumns,~] = size(hotel);
-[indiaColumns,~] = size(india);
-[julietColumns,~] = size(juliet);
 
-foxtrot_cap = zeros(foxtrotColumns,num_loops); % vector for harrison's capacity
-golf_cap = zeros(golfColumns,num_loops); % vector for sma
-hotel_cap = zeros(hotelColumns,num_loops);
-india_cap = zeros(indiaColumns,num_loops);
-juliet_cap = zeros(julietColumns,num_loops);
-golf_sec_cap = zeros(golfColumns,num_loops); % vector for sma
-hotel_sec_cap = zeros(hotelColumns,num_loops);
-india_sec_cap = zeros(indiaColumns,num_loops);
-juliet_sec_cap = zeros(julietColumns,num_loops);
-
+foxtrot_cap = zeros(numLocations,num_loops); % vector for harrison's capacity
+golf_cap = zeros(numLocations,num_loops); % vector for sma
+hotel_cap = zeros(numLocations,num_loops);
+india_cap = zeros(numLocations,num_loops);
+juliet_cap = zeros(numLocations,num_loops);
+golf_sec_cap = zeros(numLocations,num_loops); % vector for sma
+hotel_sec_cap = zeros(numLocations,num_loops);
+india_sec_cap = zeros(numLocations,num_loops);
+juliet_sec_cap = zeros(numLocations,num_loops);
 snr = logspace(-3,5,num_loops); % snr values to test(in linear)
 tic;
 for index = 1:num_loops
@@ -57,7 +52,7 @@ for index = 1:num_loops
     [juliet_cap(:,index), juliet_carrier_capacity] = gaussian_capacity(juliet,snr(index));
  
     %% Secrecy Capacity
-    for x = 1 : foxtrotColumns
+    for x = 1 : numLocations
         for carrier = 1:32
             g_sec = foxtrot_carrier_capacity(x,carrier) - ...
                 golf_carrier_capacity(x,carrier);
@@ -92,26 +87,50 @@ end
 toc;
 
 snr = 10*log10(snr);
+nmax = 10;
+for n = 1:nmax
+   b_k(n) = 1/nmax; 
+end
 %%
 for i = 1:num_loops
-    figure()
-    hold on;
-    plot(foxtrot_cap(:,i),'b');
-    plot(golf_cap(:,i),'g');
-    plot(hotel_cap(:,i),'y');
-    plot(india_cap(:,i),'r');
-    plot(juliet_cap(:,i),'k');
 %     figure()
-%     hold on
+%     hold on;
+%     plot(foxtrot_cap(:,i),'b');
+%     plot(golf_cap(:,i),'g');
+%     plot(hotel_cap(:,i),'y');
+%     plot(india_cap(:,i),'r');
+%     plot(juliet_cap(:,i),'k');
+    figure()
+    hold on
     plot(golf_sec_cap(:,i));
     plot(hotel_sec_cap(:,i));
     plot(india_sec_cap(:,i));
     plot(juliet_sec_cap(:,i));
     ylabel('Bits per channel use')
     xlabel('location');
-    legend('Foxtrot Capacity','Golf Capacity','Hotel Capacity','India Capacity'...
-        ,'Juliet Capacity','Golf Sec Cap','Hotel Sec Cap',...
-        'India Sec Cap','Juliet Sec Cap');
+    legend('Golf Sec Cap','Hotel Sec Cap','India Sec Cap','Juliet Sec Cap');
     hold off
+    
+    sgolf_sec_cap(:,i) = conv(golf_sec_cap(:,i),b_k);
+    shotel_sec_cap(:,i) = conv(hotel_sec_cap(:,i),b_k);
+    sindia_sec_cap(:,i) = conv(india_sec_cap(:,i),b_k);
+    sjuliet_sec_cap(:,i) = conv(juliet_sec_cap(:,i),b_k);
+    
+    figure()
+    hold on
+    plot(sgolf_sec_cap(:,i));
+    plot(shotel_sec_cap(:,i));
+    plot(sindia_sec_cap(:,i));
+    plot(sjuliet_sec_cap(:,i));
+    ylabel('Bits per channel use')
+    xlabel('location');
+    legend('Golf Sec Cap','Hotel Sec Cap','India Sec Cap','Juliet Sec Cap');
+    hold off
+    
 end
+
+
+
+
+
 
