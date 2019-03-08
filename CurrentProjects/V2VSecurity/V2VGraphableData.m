@@ -2,6 +2,10 @@
 % Takes the data from a V2V test point that is arranged with respect to
 % time and converts it to data that is arranged according to transmitter
 % location.
+%
+% Author: Nathan Nelson
+
+addpath('Functions');
 
 % The files where the data is stored. Change these if you want to do a
 % different test point.

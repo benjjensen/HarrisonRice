@@ -1,4 +1,9 @@
 function distances = ReadTxGPSLocations(filename, startingTime, count)
+% Return the locations of the transmitter starting at a certain time.
+% Very similar to ReadGPSDataPositions, but this file starts at a certain
+% time and only reads a certain number of positions. See that file for more
+% details.
+% Author: Nathan Nelson
     file = fopen(filename);
     
     line = fgetl(file);

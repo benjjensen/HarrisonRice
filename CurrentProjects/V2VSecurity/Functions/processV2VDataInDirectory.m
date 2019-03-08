@@ -1,10 +1,13 @@
 function processV2VDataInDirectory(directoryPath, includeTimestamp)
+% Run processV2VData on all V2V data files in a directory.
+% Author: Nathan Nelson
     pathLength = length(directoryPath);
     if directoryPath(pathLength) ~= '/'
         directoryPath = strcat(directoryPath, '/');
     end
     
     searchPattern = strcat(directoryPath, '*.mat');
+    % Get a list of all .mat files in the given directory.
     matFiles = dir(searchPattern);
     
     numMatFiles = size(matFiles);
@@ -12,6 +15,8 @@ function processV2VDataInDirectory(directoryPath, includeTimestamp)
     matFilenames = strings(numMatFiles(1), 1);
     
     correctSize = 0;
+    % Find only the .mat files that have variables named data; these are
+    % the V2V files.
     for i = 1:numMatFiles
         matFile = matFiles(i);
         matFilename = strcat(directoryPath, matFile.name);
@@ -22,6 +27,7 @@ function processV2VDataInDirectory(directoryPath, includeTimestamp)
         end
     end
     
+    % If none were found, print a message and return.
     if correctSize == 0
         disp('No V2V data files found in this directory.\n');
         return;
@@ -30,6 +36,7 @@ function processV2VDataInDirectory(directoryPath, includeTimestamp)
     matFilenames = matFilenames(1:correctSize);
     
     numMatFiles = size(matFilenames);
+    % For each V2V .mat file, process it.
     for i = 1:numMatFiles
         matFilename = matFilenames(i);
         if i ~= 1
