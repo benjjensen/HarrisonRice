@@ -4,80 +4,101 @@ load('../Data/GraphPwelchedData/test-point-A_graph-pwelched-data.mat');
 data = graphPwelchedData;
 [numRows, numCarriers] = size(data);
 
-    %% Calculate capacity
+    %% Calculate capacity  
     
 capacityPerCarrier = zeros(numRows, numCarriers);
-normCapacityPerCarrier = zeros(numRows, numCarriers);
-normCapacityPerLocation = zeros(numRows, 1);
 capacityPerLocation = zeros(numRows, 1);
 
     % Calculate the capacity per carrier, then sum up for location capacity
+    
+SNR = 1000;       % Arbitrary
+data = sqrt(data);
+maxValue = max(max(data));
+data = data ./ maxValue;
+data = data.^2;
+
 for location = 1:numRows
     for carrier = 1:numCarriers
-        capacityPerCarrier(location, carrier) = 0.5*log2(1+data(location, carrier));
+        capacityPerCarrier(location, carrier) = 0.5*log2(1+SNR*data(location, carrier));
     end
 end
-    
-    % Normalize 
-maxValue = max(max(capacityPerCarrier));
-normCapacityPerCarrier = capacityPerCarrier ./ maxValue;
-
+   
 for location = 1:numRows
-    normCapacityPerLocation(location) = sum(normCapacityPerCarrier(location,:));
-    capacityPerLocation(location) = sum(capacityPerCarrier(location,:));
+    temp = 0;
+    for carrier = 1:numCarriers
+        temp = temp + capacityPerCarrier(location,carrier);
+    end
+    capacityPerLocation(location) = temp;
 end
-
-
 
     % Plot in dB to see differences better
 capacity_dB = mag2db(capacityPerLocation);
-normCapacity_dB = mag2db(normCapacityPerLocation);
+
+[maxCapacity, indexOfMaxCapacity] = max(capacityPerLocation);  % Tx is at indexOfMaxCapacity (hopefully)
+
+% figure()
+% plot(capacity_dB);
+% xlabel("Location");
+% ylabel("Capacity (dB)");
 
 figure()
-plot(capacity_dB);
-% [maxCapacity, indexOfMaxCapacity] = max(capacity);  % Tx is at indexOfMaxCapacity (hopefully)
+plot(capacityPerLocation);
+xlabel("Location");
+ylabel("Capacity (linear)");
 
-figure()
-plot(normCapacity_dB);
+
     %% Calculate secrecy capacity
-    
-% capacity = capacity(1:10:end);
-% numRows = 436;
 
 secrecyCapacity = zeros(numRows);
 
 for bobsLocation = 1:numRows
     for evesLocation = 1:numRows
-        if (normCapacityPerLocation(bobsLocation) <= normCapacityPerLocation(evesLocation))
-            secrecyCapacity(bobsLocation, evesLocation) = 0;
-        else 
-            secrecyCapacity(bobsLocation, evesLocation) = ...
-                normCapacityPerLocation(bobsLocation) - normCapacityPerLocation(evesLocation);
+        temp = 0;
+        for carrier = 1:numCarriers
+            if (capacityPerCarrier(bobsLocation, carrier) > capacityPerCarrier(evesLocation, carrier))
+                temp = temp + (capacityPerCarrier(bobsLocation, carrier) ...
+                    - capacityPerCarrier(evesLocation, carrier));
+            end 
         end
+        secrecyCapacity(bobsLocation, evesLocation) = temp;
     end
 end
 
+
+%% Plot Figures
+
 secrecyCapacity_dB = mag2db(secrecyCapacity);
-figure()
-h = surf(secrecyCapacity_dB);
-set(h, 'LineStyle','none');     % Removes black lines so you can see the data
-xlabel("Bob's Location");
-ylabel("Eve's Location");
-xlim([0 4352]);
-ylim([0 4352]);
-zlim([-150 0]);
-view(45, 60);
-colormap(jet);
 
 figure()
 h = surf(secrecyCapacity);
 set(h, 'LineStyle','none');     % Removes black lines so you can see the data
-xlabel("Bob's Location");
-ylabel("Eve's Location");
+ylabel("Bob's Location");
+xlabel("Eve's Location");
+zlabel("Secrecy Capacity (linear)");
+title("Secrecy Capacity, linear");
+xticks([indexOfMaxCapacity-2000 indexOfMaxCapacity-1000 indexOfMaxCapacity indexOfMaxCapacity+1000 indexOfMaxCapacity+2000]);
+xticklabels({'-2000', '-1000', '0', '1000', '2000'});
+yticks([indexOfMaxCapacity-2000 indexOfMaxCapacity-1000 indexOfMaxCapacity indexOfMaxCapacity+1000 indexOfMaxCapacity+2000]);
+yticklabels({'-2000', '-1000', '0', '1000', '2000'});
 xlim([0 4352]);
 ylim([0 4352]);
 view(45, 60);
-colormap(jet);
+colorbar;
+
+figure()
+contour(secrecyCapacity);
+ylabel("Bob's Location");
+xlabel("Eve's Location");
+title("Secrecy Capacity Contour, linear");
+xticks([indexOfMaxCapacity-2000 indexOfMaxCapacity-1000 indexOfMaxCapacity indexOfMaxCapacity+1000 indexOfMaxCapacity+2000]);
+xticklabels({'-2000', '-1000', '0', '1000', '2000'});
+yticks([indexOfMaxCapacity-2000 indexOfMaxCapacity-1000 indexOfMaxCapacity indexOfMaxCapacity+1000 indexOfMaxCapacity+2000]);
+yticklabels({'-2000', '-1000', '0', '1000', '2000'});
+xlim([0 4352]);
+ylim([0 4352]);
+colorbar;
+
+
 
 
 
