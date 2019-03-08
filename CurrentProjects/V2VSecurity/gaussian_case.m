@@ -21,12 +21,12 @@ golf_max = max(max(golf));
 hotel_max = max(max(hotel));
 india_max = max(max(india));
 juliet_max = max(max(juliet));
-normalize_max = max([fox_max,golf_max,hotel_max,india_max,juliet_max]);
-foxtrot = foxtrot/normalize_max;
-golf = golf/normalize_max;
-hotel = hotel/normalize_max;
-india = india/normalize_max;
-juliet = juliet/normalize_max;
+normalize_max = sqrt(max([fox_max,golf_max,hotel_max,india_max,juliet_max]));
+foxtrot = (sqrt(foxtrot)/normalize_max).^2;
+golf = (sqrt(golf)/normalize_max).^2;
+hotel = (sqrt(hotel)/normalize_max).^2;
+india = (sqrt(india)/normalize_max).^2;
+juliet = (sqrt(juliet)/normalize_max).^2;
 
 num_loops = 20; % number of data points to test
 numLocations= 2290;
@@ -87,15 +87,19 @@ end
 toc;
 
 snr = 10*log10(snr);
+nmax = 10;
+for n = 1:nmax
+   b_k(n) = 1/nmax; 
+end
 %%
 for i = 1:num_loops
-    figure()
-    hold on;
-    plot(foxtrot_cap(:,i),'b');
-    plot(golf_cap(:,i),'g');
-    plot(hotel_cap(:,i),'y');
-    plot(india_cap(:,i),'r');
-    plot(juliet_cap(:,i),'k');
+%     figure()
+%     hold on;
+%     plot(foxtrot_cap(:,i),'b');
+%     plot(golf_cap(:,i),'g');
+%     plot(hotel_cap(:,i),'y');
+%     plot(india_cap(:,i),'r');
+%     plot(juliet_cap(:,i),'k');
     figure()
     hold on
     plot(golf_sec_cap(:,i));
@@ -104,9 +108,29 @@ for i = 1:num_loops
     plot(juliet_sec_cap(:,i));
     ylabel('Bits per channel use')
     xlabel('location');
-    legend('Foxtrot Capacity','Golf Capacity','Hotel Capacity','India Capacity'...
-        ,'Juliet Capacity','Golf Sec Cap','Hotel Sec Cap',...
-        'India Sec Cap','Juliet Sec Cap');
+    legend('Golf Sec Cap','Hotel Sec Cap','India Sec Cap','Juliet Sec Cap');
     hold off
+    
+    sgolf_sec_cap(:,i) = conv(golf_sec_cap(:,i),b_k);
+    shotel_sec_cap(:,i) = conv(hotel_sec_cap(:,i),b_k);
+    sindia_sec_cap(:,i) = conv(india_sec_cap(:,i),b_k);
+    sjuliet_sec_cap(:,i) = conv(juliet_sec_cap(:,i),b_k);
+    
+    figure()
+    hold on
+    plot(sgolf_sec_cap(:,i));
+    plot(shotel_sec_cap(:,i));
+    plot(sindia_sec_cap(:,i));
+    plot(sjuliet_sec_cap(:,i));
+    ylabel('Bits per channel use')
+    xlabel('location');
+    legend('Golf Sec Cap','Hotel Sec Cap','India Sec Cap','Juliet Sec Cap');
+    hold off
+    
 end
+
+
+
+
+
 
