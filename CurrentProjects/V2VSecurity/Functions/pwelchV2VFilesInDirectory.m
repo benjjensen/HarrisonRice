@@ -1,4 +1,6 @@
 function pwelchV2VFilesInDirectory(directoryPath)
+% Run pwelchV2VFile on all V2V data files in a directory.
+% Author: Nathan Nelson
     pathLength = length(directoryPath);
     if directoryPath(pathLength) ~= '/'
         directoryPath = strcat(directoryPath, '/');
@@ -12,6 +14,8 @@ function pwelchV2VFilesInDirectory(directoryPath)
     matFilenames = strings(numMatFiles(1), 1);
     
     correctSize = 0;
+    % Only pwelch the files that have already been processed by the
+    % processV2VData function.
     for i = 1:numMatFiles
         matFile = matFiles(i);
         matFilename = strcat(directoryPath, matFile.name);
