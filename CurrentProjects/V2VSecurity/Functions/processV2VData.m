@@ -1,5 +1,5 @@
 function processV2VData(inFilename, outFilename)
-    %%% processV2VData
+    % Downsample data from 100 MSamples/s to 20 MSamples/s, shift from 30 MHz to baseband, and convert real-values to I/Q values
 
     % This file converts the data captured by the receiver and data
     % acquisition card to approximately the same type of data output by 

@@ -1,4 +1,8 @@
 function pwelchV2VFile(v2vMatFilename)
+% Pwelch the V2V data in the given file.
+% The data must have already been processed by the processV2VData function.
+% The pwelched data is written to a new file.
+% Author: Nathan Nelson
     framesPerCycle = 1000;
     samplesPerFrame = 14912;
     
@@ -7,6 +11,7 @@ function pwelchV2VFile(v2vMatFilename)
     middle32CarriersOutputFilename = ...
         getMiddle32FilenameFromInputFilename(v2vMatFilename);
     
+    % Don't pwelch it if it already has been:
     if exist(allCarriersOutputFilename, 'file') == 2
         fprintf('%s has already been pwelched.\n', v2vMatFilename);
         return;
@@ -22,6 +27,8 @@ function pwelchV2VFile(v2vMatFilename)
     
     index = 1;
     count = 1;
+    % Because the data set is probably too large to fit in memory, we're
+    % going to pwelch it piece by piece.
     while ~isDone(input)
         disp(string(count));
         count = count + 1;
@@ -33,15 +40,19 @@ function pwelchV2VFile(v2vMatFilename)
         samples = size(inputData);
         samples = samples(2);
         frames = samples/samplesPerFrame;
+        % If we're at the end of the file, just ignore the last fraction of
+        % a frame.
         if mod(samples, samplesPerFrame) ~= 0
             frames = floor(frames);
             samples = samplesPerFrame * frames;
             inputData = inputData(1, samples);
         end
         
+        % Pwelch the data.
         [allCarriers, middle32Carriers] = ...
             PwelchData(inputData, samplesPerFrame, false);
         
+        % Write the pwelched data to the file.
         allCarriersOutput.pwelched(index:index+frames-1,1:64) = ...
             allCarriers;
 
