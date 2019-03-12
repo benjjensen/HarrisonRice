@@ -38,7 +38,7 @@ addpath(genpath('Functions'))
 [v2v_num_locations,v2v_num_carriers] = size(foxtrot);
 
 
-num_loops = 50; % number of snr values to test
+num_loops = 100; % number of snr values to test
 cap_alpha = zeros(v2i_num_locations,num_loops);
 cap_foxtrot = zeros(v2v_num_locations,num_loops);
 cap_golf = zeros(v2v_num_locations,num_loops); % capcity in camcho's office
@@ -46,7 +46,7 @@ cap_hotel = zeros(v2v_num_locations,num_loops); % capacity in chamber's office
 cap_india = zeros(v2v_num_locations,num_loops); % capacity in the conference room
 cap_juliet = zeros(v2v_num_locations,num_loops); % capacity in harrison's office
 
-snr = logspace(-0,3,num_loops); % snr values to test(in linear)
+snr = logspace(-0,5,num_loops); % snr values to test(in linear)
 db_threshold = 0; % the threshold to test in db
 threshold = 10^(db_threshold/10); % the threshold to test converted to linear
 for index = 1:num_loops
@@ -68,8 +68,8 @@ for index = 1:num_loops
         hold off
     end
 end
-num_loops_carriers_per_location = 100;
-v2i_snr = logspace(2.5,5,num_loops_carriers_per_location);
+num_loops_carriers_per_location = 50;
+v2i_snr = logspace(3,5,num_loops_carriers_per_location);
 for index = 1:num_loops_carriers_per_location
     cap_alpha(:,index) = find_num_carriers(alpha,v2i_snr(index),threshold);
     if (iWantFigures)
@@ -80,7 +80,6 @@ for index = 1:num_loops_carriers_per_location
     end
 end
 
-% save('V2InumCarriersPerLocation.mat','cap_alpha');
 %%
 
 % % plot the capacities and secrecy capacities

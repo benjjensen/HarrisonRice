@@ -7,12 +7,11 @@
 close all
 addpath('../Functions');
 addpath('../Data');
-load('V2InumCarriersPerLocation.mat');
-load('SNRForV2I.mat');
+load('dataForCodedCases.mat');
 
 syms x;
 
-for k = 30:30
+for k = 1:1
     
     maxNumberOfCarriers = 32;
     carriersPerLocation = cap_alpha(1:10:end,k);
@@ -126,7 +125,7 @@ for k = 30:30
     colorBar.Label.String = 'Eaves bits of equivocation';
     xlabel('Bobs Position (m)');
     ylabel('Eaves Position (m)');
-    title(sprintf('Carriers Below %.2f dB are Erasures Coded With RM(%d,5)',10*log10(v2i_snr(k)),u));
+    title(sprintf('Carriers Below %.2f dB are Bits Coded With RM(%d,5)',10*log10(v2i_snr(k)),u));
     xlim([0 maxPosition]);
     ylim([0 maxPosition]);
     
