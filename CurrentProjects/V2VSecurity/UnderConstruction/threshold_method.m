@@ -36,12 +36,12 @@ addpath(genpath('Functions'))
 
 
 num_loops = 50; % number of snr values to test
-cap_alpha = zeros(v2i_num_locations,num_loops);
-cap_foxtrot = zeros(v2v_num_locations,num_loops);
-cap_golf = zeros(v2v_num_locations,num_loops); % capcity in camcho's office
-cap_hotel = zeros(v2v_num_locations,num_loops); % capacity in chamber's office
-cap_india = zeros(v2v_num_locations,num_loops); % capacity in the conference room
-cap_juliet = zeros(v2v_num_locations,num_loops); % capacity in harrison's office
+cap_alpha = zeros(v2i_num_locations,num_loops); % capacity from the alpha run
+cap_foxtrot = zeros(v2v_num_locations,num_loops); % capacity from the foxtrot run
+cap_golf = zeros(v2v_num_locations,num_loops); % capacity from the golf run
+cap_hotel = zeros(v2v_num_locations,num_loops); % capacity from the hotel run
+cap_india = zeros(v2v_num_locations,num_loops); % capacity from the india run
+cap_juliet = zeros(v2v_num_locations,num_loops); % capacity from the juliet run
 
 snr = logspace(-0,3,num_loops); % snr values to test(in linear)
 db_threshold = 0; % the threshold to test in db
