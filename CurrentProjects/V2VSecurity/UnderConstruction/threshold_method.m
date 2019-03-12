@@ -16,6 +16,9 @@ india = graphPwelchedData;
 load('../Data/GraphPwelchedData/test-point-J_graph-pwelched-data.mat'); % loads in the signal data
 juliet = graphPwelchedData;
 clear graphPwelchedData;
+
+iWantFigures = false;
+
 alpha_max = max(max(alpha));
 alpha = (alpha/alpha_max).^2;
 fox_max = max(max(foxtrot));
@@ -43,7 +46,7 @@ cap_hotel = zeros(v2v_num_locations,num_loops); % capacity from the hotel run
 cap_india = zeros(v2v_num_locations,num_loops); % capacity from the india run
 cap_juliet = zeros(v2v_num_locations,num_loops); % capacity from the juliet run
 
-snr = logspace(-0,3,num_loops); % snr values to test(in linear)
+snr = logspace(-0,5,num_loops); % snr values to test(in linear)
 db_threshold = 0; % the threshold to test in db
 threshold = 10^(db_threshold/10); % the threshold to test converted to linear
 for index = 1:num_loops
@@ -54,26 +57,29 @@ for index = 1:num_loops
     cap_india(:,index) = find_num_carriers(india,snr(index),threshold);
     cap_juliet(:,index) = find_num_carriers(juliet,snr(index),threshold);
     
-    figure()
-    hold on
-    plot(cap_foxtrot(:,index));
-    plot(cap_golf(:,index));
-    plot(cap_hotel(:,index));
-    plot(cap_india(:,index));
-    plot(cap_juliet(:,index));
-    
-    hold off
+    if (iWantFigures)
+        figure()
+        hold on
+        plot(cap_foxtrot(:,index));
+        plot(cap_golf(:,index));
+        plot(cap_hotel(:,index));
+        plot(cap_india(:,index));
+        plot(cap_juliet(:,index));
+        hold off
+    end
+end
+num_loops_carriers_per_location = 50;
+v2i_snr = logspace(3,5,num_loops_carriers_per_location);
+for index = 1:num_loops_carriers_per_location
+    cap_alpha(:,index) = find_num_carriers(alpha,v2i_snr(index),threshold);
+    if (iWantFigures)
+        figure()
+        hold on
+        plot(cap_alpha(:,index));
+        hold off
+    end
 end
 
-v2i_snr = logspace(3.5,5,num_loops);
-for index = 1:num_loops
-    cap_alpha(:,index) = find_num_carriers(alpha,v2i_snr(index),threshold);
-    figure()
-    hold on
-    plot(cap_alpha(:,index));
-    
-    hold off
-end
 %%
 
 % % plot the capacities and secrecy capacities
