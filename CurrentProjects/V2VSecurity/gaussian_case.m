@@ -87,7 +87,7 @@ end
 toc;
 
 snr = 10*log10(snr);
-nmax = 10;
+nmax = 200;
 for n = 1:nmax
    b_k(n) = 1/nmax; 
 end
