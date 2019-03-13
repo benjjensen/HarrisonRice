@@ -35,31 +35,31 @@ function V2VGraphableData(testPoint, stepSize, averageWidth)
     
     if testPoint == 'F'
         metadataFilename = 'Data/Metadata/test-point-F-V2V_2019-02-21__13-59-52-meta.txt';
-        rawDataFilename = 'Data/PwelchedData/test-point-F-V2V_pwelched-mid32.mat';
+        rawDataFilename = '/media/V2V/2019-02-21_data-collection/test-point-F-V2V_processed.mat';
         
         referenceIndex = 53;
-        referenceDistance = 2.46;
+        referenceDistance = 2.5;
     elseif testPoint == 'G'
         metadataFilename = 'Data/Metadata/test-point-G-V2V_2019-02-21__14-04-26-meta.txt';
-        rawDataFilename = 'Data/PwelchedData/test-point-G-V2V_pwelched-mid32.mat';
+        rawDataFilename = '/media/V2V/2019-02-21_data-collection/test-point-G-V2V_processed.mat';
         
         referenceIndex = 1;
         referenceDistance = 0;
     elseif testPoint == 'H'
         metadataFilename = 'Data/Metadata/test-point-H-V2V_2019-02-21__14-07-35-meta.txt';
-        rawDataFilename = 'Data/PwelchedData/test-point-H-V2V_pwelched-mid32.mat';
+        rawDataFilename = '/media/V2V/2019-02-21_data-collection/test-point-H-V2V_processed.mat';
         
         referenceIndex = 4;
         referenceDistance = 0.08;
     elseif testPoint == 'I'
         metadataFilename = 'Data/Metadata/test-point-I-V2V_2019-02-21__14-10-46-meta.txt';
-        rawDataFilename = 'Data/PwelchedData/test-point-I-V2V_pwelched-mid32.mat';
+        rawDataFilename = '/media/V2V/2019-02-21_data-collection/test-point-I-V2V_processed.mat';
         
         referenceIndex = 10;
         referenceDistance = 6.23;
     elseif testPoint == 'J'
         metadataFilename = 'Data/Metadata/test-point-J-V2V_2019-02-21__14-15-49-meta.txt';
-        rawDataFilename = 'Data/PwelchedData/test-point-J-V2V_pwelched-mid32.mat';
+        rawDataFilename = '/media/V2V/2019-02-21_data-collection/test-point-J-V2V_processed.mat';
         
         referenceIndex = 2;
         referenceDistance = 3.25;
@@ -77,7 +77,13 @@ function V2VGraphableData(testPoint, stepSize, averageWidth)
     % transmitter has traveled from location 0.
     TxDistances = TxDistances - TxDistances(referenceIndex) + referenceDistance;
     
-    pwelchBoundaries = GetPwelchBoundaries(TxDistances, blocks, deltaD, minD, maxD);
+    dataMatFile = matfile(rawDataFilename);
+    info = whos(dataMatFile, 'y');
+    totalSamples = max(info.size);
+    clear dataMatFile
+    clear info
+    
+    pwelchBoundaries = GetPwelchBoundaries(TxDistances, blocks, deltaD, minD, maxD, totalSamples);
     if averageWidth ~= 1
         pwelchBoundaries = GetAveragedPwelchBoundaries(pwelchBoundaries, averageWidth);
     end

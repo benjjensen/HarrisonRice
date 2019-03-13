@@ -24,7 +24,7 @@ while (x < sizey) % Run to the end of the dataArray
     % numSamplesPerFrame long
     if (z > sizey) % If z is beyond the end of the data
         z = sizey; % Sets z to the end of of the data
-        disp('Last input did not match 14912 samples');
+        disp('Last input did not match samples per frame');
     end
     YY = pwelch(dataArray(x:z),boxcar(Nfft),0,Nfft,'twosided');
     YY = YY';

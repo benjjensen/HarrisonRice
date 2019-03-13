@@ -1,6 +1,5 @@
-function frameBoundaries = GetPwelchBoundaries(distances, blocks, deltaD, minD, maxD)
+function frameBoundaries = GetPwelchBoundaries(distances, blocks, deltaD, minD, maxD, totalSamples)
     filePositions = blocks * 2^19 / 5;
-    totalSamples = max(size(filePositions));
     sampleRate = 20e6;
     
     DIndex = 1;
@@ -48,6 +47,7 @@ function frameBoundaries = GetPwelchBoundaries(distances, blocks, deltaD, minD, 
         
         frameStart = max(1, round(frameStart,0));
         frameEnd = min(totalSamples, round(frameEnd,0));
+        frameStart = min(frameStart, frameEnd);
         
         frameWidth = frameEnd - frameStart + 1;
         while mod(frameWidth,64)
