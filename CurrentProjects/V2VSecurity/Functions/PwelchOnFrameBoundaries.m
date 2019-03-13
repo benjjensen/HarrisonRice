@@ -1,7 +1,7 @@
 function PwelchOnFrameBoundaries(rawDataFilename, allCarriersFilename, ...
     middle32Filename, boundaries)
 
-    if exist(allCarriersOutputFilename, 'file') == 2
+    if exist(allCarriersFilename, 'file') == 2
         fprintf('%s has already been pwelched.\n', rawDataFilename);
         return;
     end
@@ -14,9 +14,11 @@ function PwelchOnFrameBoundaries(rawDataFilename, allCarriersFilename, ...
     middle32 = zeros(frameCount, 32);
     
     for idx = 1:frameCount
-        [frameStart frameEnd] = boundaries(idx, :);
-        data = input.y(frameStart:frameEnd);
-        [allCarriers(idx, :) middle32(idx, :)] = PwelchData(data, frameStart-frameEnd+1, false);
+        frameStart = boundaries(idx,1); 
+        frameEnd = boundaries(idx, 2);
+        data = input.y(frameStart:frameEnd,:);
+        data = data';
+        [allCarriers(idx, :) middle32(idx, :)] = PwelchData(data, frameEnd-frameStart+1, false);
     end
     
     pwelched = allCarriers;
