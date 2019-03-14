@@ -14,7 +14,7 @@ syms x;
 for k = 50:50
     
     maxNumberOfCarriers = 32;
-    carriersPerLocation = cap_alpha(1:10:end,k);
+    carriersPerLocation = cap_alpha(1:end,k);
     numberOfSpots = length(carriersPerLocation);
     
     %find scale values for Eves and bobs graphs
