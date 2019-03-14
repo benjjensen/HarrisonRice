@@ -1,6 +1,6 @@
 %% Created by Bradford Clark
 % March 6, 2019
-% This file creates figures that show at what position Eave gets a given
+% This file creates figures that show at what position Eve gets a given
 % revealed number of bits and where bob can recieve all of the given bits
 
 %% Actual File
@@ -11,18 +11,21 @@ load('dataForCodedCases.mat');
 
 syms x;
 
-for k = 1:1
+for k = 50:50
     
     maxNumberOfCarriers = 32;
     carriersPerLocation = cap_alpha(1:10:end,k);
     numberOfSpots = length(carriersPerLocation);
     
-    %find scale values for eaves and bobs graphs
+    %find scale values for Eves and bobs graphs
     maxPosition = 435.2;
-    scaleEave = double(solve(maxPosition == x * numberOfSpots,x));
+    scaleEve = double(solve(maxPosition == x * numberOfSpots,x));
     scaleBob = double(solve(maxPosition == x * numberOfSpots*2,x));
+    midPosition = 229.7;
     
-    %find RM weights 
+    
+    
+    %find RM weights
     u = 2;
     m = 5;
     kBits = 0;
@@ -30,7 +33,7 @@ for k = 1:1
         kBits = kBits + nchoosek(m,i);
     end
     RMWeights = RMWeightHier(u,m,false);
-
+    
     %set bobs knowledge to maxNumberOfCarriers only if he gets all carriers
     bobsKnowledge = zeros(numberOfSpots*2);
     for i = 1:numberOfSpots
@@ -42,16 +45,16 @@ for k = 1:1
     end
     
     %find Eves Equivocation matrix
-    eavesEquivocation = zeros(numberOfSpots);
+    EvesEquivocation = zeros(numberOfSpots);
     
     for i = 1:numberOfSpots
-        eavesEquivocation(i,:) = RMWeights(1+(carriersPerLocation(i)));
+        EvesEquivocation(i,:) = RMWeights(1+(carriersPerLocation(i)));
     end
     
     %create axis for graphs
-    [eavey eavex] = size(eavesEquivocation);
-    xaxis = zeros(eavex);
-    yaxis = zeros(eavey);
+    [Evey Evex] = size(EvesEquivocation);
+    xaxis = zeros(Evex);
+    yaxis = zeros(Evey);
     for i = 1:32
         xaxis(:,i) = i;
         yaxis(i,:) = i;
@@ -82,27 +85,31 @@ for k = 1:1
         
     end
     
-    %% plot Bobs and Eaves things
+    %% plot Bobs and Eves things
     figure(100+k);
     hold on;
-
+    
     %create colormap
     myColorMapScatter = flipud(gray(kBits+1));
     colormap(myColorMapScatter);
     
     %find the xy axis
-    xyaxis = 0:scaleEave:eavex * scaleEave - scaleEave;
+    xyaxis = 0:scaleEve:Evex * scaleEve - scaleEve;
     
-    %plot eaves equivocation
-    eave = pcolor(xyaxis,xyaxis,eavesEquivocation);
-    set(eave,'EdgeAlpha',0);
-
+    [minValue,closestIndex] = min(abs(xyaxis-midPosition));
+    closestValue = xyaxis(closestIndex);
+    xyaxis = xyaxis-closestValue;
+    
+    %plot Eves equivocation
+    Eve = pcolor(xyaxis,xyaxis,EvesEquivocation);
+    set(Eve,'EdgeAlpha',0);
+    
     %create hatch marks for bob
     for i = 1:2:length(placesBobGetsAllArea)
-        firstSpot = placesBobGetsAllArea(i) * scaleBob;
-        secondSpot = placesBobGetsAllArea(i+1) * scaleBob;
+        firstSpot = placesBobGetsAllArea(i) * scaleBob - closestValue;
+        secondSpot = placesBobGetsAllArea(i+1) * scaleBob - closestValue;
         bobPatch1 = patch([firstSpot firstSpot secondSpot secondSpot],...
-            [scaleEave eavex*scaleEave eavex*scaleEave scaleEave],'white');
+            [xyaxis(1) xyaxis(end) xyaxis(end) xyaxis(1)],'white');
         
         % Get patch objects from CONTOURGROUP
         bobHandle = findobj(bobPatch1, 'Type', 'patch');
@@ -122,12 +129,12 @@ for k = 1:1
     caxis([0 kBits]);
     colorBar = colorbar;
     colorBar.Label.FontSize = 15;
-    colorBar.Label.String = 'Eaves bits of equivocation';
+    colorBar.Label.String = 'Equivocation at Eve (bits/channel use)';
     xlabel('Bobs Position (m)');
-    ylabel('Eaves Position (m)');
-    title(sprintf('Carriers Below %.2f dB are Bits Coded With RM(%d,5)',10*log10(v2i_snr(k)),u));
-    xlim([0 maxPosition]);
-    ylim([0 maxPosition]);
+    ylabel('Eves Position (m)');
+%     title(sprintf('Carriers Below %.0f dB are Bits Coded With RM(%d,5)',10*log10(v2i_snr(k)),u));
+    xlim([-200 200]);
+    ylim([-200 200]);
     
     %sets the paper layout
     cf = gcf;
