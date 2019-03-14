@@ -20,7 +20,7 @@ function V2VGraphableData(testPoint, stepSize, averageWidth)
         % The files where the data is stored. Change these if you want to do a
         % different test point.
         metadataFilename = 'Data/Metadata/test-point-A-V2V_2019-02-21__13-29-40-meta.txt';
-        rawDataFilename = 'Data/PwelchedData/test-point-A-V2V_pwelched-mid32.mat';
+        rawDataFilename = '/media/V2V/2019-02-21_data-collection/test-point-A-V2V_processed.mat';
 
         % In order for this to work, we need to assign a particular location to be
         % equal to zero. However, this location will probably be between our GPS
@@ -34,7 +34,7 @@ function V2VGraphableData(testPoint, stepSize, averageWidth)
         % The files where the data is stored. Change these if you want to do a
         % different test point.
         metadataFilename = 'Data/Metadata/test-point-B-V2V_2019-02-21__13-35-21-meta.txt';
-        rawDataFilename = 'Data/PwelchedData/test-point-B-V2V_pwelched-mid32.mat';
+        rawDataFilename = '/media/V2V/2019-02-21_data-collection/test-point-B-V2V_processed.mat';
 
         % In order for this to work, we need to assign a particular location to be
         % equal to zero. However, this location will probably be between our GPS
