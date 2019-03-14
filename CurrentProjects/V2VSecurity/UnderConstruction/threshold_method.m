@@ -69,7 +69,7 @@ for index = 1:num_loops
     end
 end
 num_loops_carriers_per_location = 50;
-v2i_snr = logspace(3,5,num_loops_carriers_per_location);
+v2i_snr = logspace(2,3,num_loops_carriers_per_location);
 for index = 1:num_loops_carriers_per_location
     cap_alpha(:,index) = find_num_carriers(alpha,v2i_snr(index),threshold);
     if (iWantFigures)
