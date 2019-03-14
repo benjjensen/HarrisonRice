@@ -3,19 +3,35 @@
 %% at each SNR level
 clear;
 close all;
-load('../Data/GraphPwelchedData/test-point-A_graph-pwelched-data.mat'); % loads in the signal data
-alpha = sqrt(graphPwelchedData);
-load('../Data/GraphPwelchedData/test-point-F_graph-pwelched-data.mat'); % loads in the signal data
-foxtrot = graphPwelchedData;
-load('../Data/GraphPwelchedData/test-point-G_graph-pwelched-data.mat'); % loads in the signal data
-golf = graphPwelchedData;
-load('../Data/GraphPwelchedData/test-point-H_graph-pwelched-data.mat'); % loads in the signal data
-hotel = graphPwelchedData;
-load('../Data/GraphPwelchedData/test-point-I_graph-pwelched-data.mat'); % loads in the signal data
-india = graphPwelchedData;
-load('../Data/GraphPwelchedData/test-point-J_graph-pwelched-data.mat'); % loads in the signal data
-juliet = graphPwelchedData;
-clear graphPwelchedData;
+% load('../Data/GraphPwelchedData/test-point-A_graph-pwelched-data.mat'); % loads in the signal data
+% alpha = sqrt(graphPwelchedData);
+% load('../Data/GraphPwelchedData/test-point-F_graph-pwelched-data.mat'); % loads in the signal data
+% foxtrot = graphPwelchedData;
+% load('../Data/GraphPwelchedData/test-point-G_graph-pwelched-data.mat'); % loads in the signal data
+% golf = graphPwelchedData;
+% load('../Data/GraphPwelchedData/test-point-H_graph-pwelched-data.mat'); % loads in the signal data
+% hotel = graphPwelchedData;
+% load('../Data/GraphPwelchedData/test-point-I_graph-pwelched-data.mat'); % loads in the signal data
+% india = graphPwelchedData;
+% load('../Data/GraphPwelchedData/test-point-J_graph-pwelched-data.mat'); % loads in the signal data
+% juliet = graphPwelchedData;
+% clear graphPwelchedData;
+
+
+load('../Data/CorrectlyAveragedData/test-point-A_jagged-mid32.mat');
+alpha = sqrt(pwelched);
+load('../Data/CorrectlyAveragedData/test-point-F_jagged-mid32.mat');
+foxtrot = pwelched;
+load('../Data/CorrectlyAveragedData/test-point-F_jagged-mid32.mat');
+golf = pwelched;
+load('../Data/CorrectlyAveragedData/test-point-F_jagged-mid32.mat');
+hotel = pwelched;
+load('../Data/CorrectlyAveragedData/test-point-F_jagged-mid32.mat');
+india = pwelched;
+load('../Data/CorrectlyAveragedData/test-point-F_jagged-mid32.mat');
+juliet = pwelched;
+clear pwelched;
+
 
 iWantFigures = false;
 
