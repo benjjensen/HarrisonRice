@@ -1,10 +1,11 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% Rx Data Collection %%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Setup for Sound on a Linux Machine (beep doesn't work on Linux)
+res = 22050; 
+len = 0.2 * res; 
+hz = 400; 
 %%%
-res = 22050; % setup for linux sound
-len = 0.2 * res; % setup for linux sound
-hz = 400; % setup for linux sound
-%%%
+
 timeDelay = 0; % delay between each sample
 startDelay = 0; % delay before the first sample is taken
 samples = 10; % number of locations
@@ -27,5 +28,4 @@ end
 for transfer = 1:samples % This for loop goes through and keeps only one of the 8 frames
     test(:,transfer) = frames(:,transfer,8); % previously mentioned.
 end
-% Graphing; % This file is found in Data Processing folder. Visualizes data
 save(string(i) + '.mat',string(i)); % Saves data array with custom name
