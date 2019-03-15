@@ -48,30 +48,30 @@ for j = 10:5:30
     
     %create array for moving average
     movingAve = [];
-    averageOver = 1;
+    averageOver = 50;
     for i = 1:averageOver
         movingAve(i) = 1/averageOver;
     end
     
-    %calculate moving average and give bobs worst case and Eaves best
-    revealedBitsAveRun1 = ceil(conv(revealedBitsRun1,movingAve));
-    revealedBitsAveRun2 = floor(conv(revealedBitsRun2,movingAve));
-    revealedBitsAveRun3 = floor(conv(revealedBitsRun3,movingAve));
-    revealedBitsAveRun4 = floor(conv(revealedBitsRun4,movingAve));
-    revealedBitsAveRun5 = floor(conv(revealedBitsRun5,movingAve));
+    %calculate moving average and give bobs worst case and Eves best
+    revealedBitsAveRun1 = conv(revealedBitsRun1,movingAve);
+    revealedBitsAveRun2 = conv(revealedBitsRun2,movingAve);
+    revealedBitsAveRun3 = conv(revealedBitsRun3,movingAve);
+    revealedBitsAveRun4 = conv(revealedBitsRun4,movingAve);
+    revealedBitsAveRun5 = conv(revealedBitsRun5,movingAve);
     
     %plot data
     figure(20+j);
     hold on;
-    plot(revealedBitsAveRun1);
-    plot(revealedBitsAveRun2);
-    plot(revealedBitsAveRun3);
-    plot(revealedBitsAveRun4);
-    plot(revealedBitsAveRun5);
-    legend('Bob','Eave1','Eave2','Eave3','Eave4');
+    plot(revealedBitsAveRun1, '-');
+    plot(revealedBitsAveRun2, '-');
+    plot(revealedBitsAveRun3, '-');
+    plot(revealedBitsAveRun4, '-');
+    plot(revealedBitsAveRun5, '-');
+    legend('Bob','Eve1','Eve2','Eve3','Eve4');
     hold off;
     grid on;
-    xlabel('Location');
+    xlabel("Alice's Location");
     ylabel('Equivocation in bits');
     title(sprintf('V2V Coded With RM(%d,5) and \nMoving Average Over %d Locations at %.2f dB',...
         r,averageOver, 10*log10(snr(snrIndex))));

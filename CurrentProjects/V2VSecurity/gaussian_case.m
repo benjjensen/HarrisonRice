@@ -5,17 +5,17 @@ close all;
 addpath(genpath('Functions'))
 
 
-load('Data/GraphPwelchedData/test-point-F_graph-pwelched-data.mat'); % loads in the signal data
-foxtrot = graphPwelchedData;
-load('Data/GraphPwelchedData/test-point-G_graph-pwelched-data.mat'); % loads in the signal data
-golf = graphPwelchedData;
-load('Data/GraphPwelchedData/test-point-H_graph-pwelched-data.mat'); % loads in the signal data
-hotel = graphPwelchedData;
-load('Data/GraphPwelchedData/test-point-I_graph-pwelched-data.mat'); % loads in the signal data
-india = graphPwelchedData;
-load('Data/GraphPwelchedData/test-point-J_graph-pwelched-data.mat'); % loads in the signal data
-juliet = graphPwelchedData;
-clear graphPwelchedData;
+load('Data/CorrectlyAveragedData/test-point-F_jagged-mid32.mat'); % loads in the signal data
+foxtrot = pwelched;
+load('Data/CorrectlyAveragedData/test-point-G_jagged-mid32.mat'); % loads in the signal data
+golf = pwelched;
+load('Data/CorrectlyAveragedData/test-point-H_jagged-mid32.mat'); % loads in the signal data
+hotel = pwelched;
+load('Data/CorrectlyAveragedData/test-point-I_jagged-mid32.mat'); % loads in the signal data
+india = pwelched;
+load('Data/CorrectlyAveragedData/test-point-J_jagged-mid32.mat'); % loads in the signal data
+juliet = pwelched;
+clear pwelched;
 fox_max = max(max(foxtrot));
 golf_max = max(max(golf));
 hotel_max = max(max(hotel));
