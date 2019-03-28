@@ -62,9 +62,9 @@ chambers_pwelch = chambers_pwelch(21:108,:);
 conference_pwelch = conference_pwelch(21:108,:);
 harrison_pwelch = harrison_pwelch(21:108,:);
 smalley_pwelch = smalley_pwelch(21:108,:);
-
-save Data/camacho_pwelch camacho_pwelch;
-save Data/chambers_pwelch chambers_pwelch;
-save Data/conference_pwelch conference_pwelch;
-save Data/harrison_pwelch harrison_pwelch;
-save Data/smalley_pwelch smalley_pwelch;
+% 
+% save Data/camacho_pwelch camacho_pwelch;
+% save Data/chambers_pwelch chambers_pwelch;
+% save Data/conference_pwelch conference_pwelch;
+% save Data/harrison_pwelch harrison_pwelch;
+% save Data/smalley_pwelch smalley_pwelch;
