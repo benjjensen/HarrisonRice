@@ -3,18 +3,28 @@ close all;
 addpath('Functions');
 
     % Plot Test Point A
-load('Data/GraphPwelchedData/test-point-A_graph-pwelched-data.mat');
-axisTicks = [-2000 -1000 0 1000 2000];
+% load('Data/GraphPwelchedData/test-point-A_graph-pwelched-data.mat');
+load('Data/CorrectlyAveragedData/test-point-A_jagged-mid32.mat');
+% load('Data/CorrectlyAveragedData/test-point-A_jagged.mat');
 
-    % Plot Test Point B
-% load('Data/GraphPwelchedData/test-point-B_graph-pwleched-data.mat');
-% axisTicks = [-1500 -750 0 750 1500];
-
-gSquared = graphPwelchedData;
+gSquared = pwelched;
 [numRows, numCarriers] = size(gSquared);
 SNR = 1000;
 
 normalizedGSquared = normalizeChannelGain(gSquared);
+
+        % With new data - find the average normalized g^2 value
+sum = 0;
+count = 0;
+for loc = 1:numRows
+    for carrier = 1:numCarriers
+        sum = sum + normalizedGSquared(loc, carrier);
+        count = count + 1;
+    end
+end
+
+averageGSquared = sum/count;
+
 [capacityPerLocation, capacityPerCarrier] = gaussian_capacity(normalizedGSquared, SNR);
 [secrecyCapacityPerLocation, secrecyCapacityPerCarrier] = ...
     calculateSecrecyCapacity(capacityPerCarrier, capacityPerCarrier);
@@ -30,41 +40,37 @@ ylabel("Bob's distance from Alice (m)");
 xlabel("Eve's distance from Alice (m)");
 zlabel("Secrecy Capacity");
 title("Secrecy Capacity");
-xticks([indexOfMaxCapacity+axisTicks(1) indexOfMaxCapacity+axisTicks(2) ...
-        indexOfMaxCapacity+axisTicks(3) indexOfMaxCapacity+axisTicks(4) ...
-        indexOfMaxCapacity+axisTicks(5)]);
-xticklabels({string(axisTicks(1)/10), string(axisTicks(2)/10), string(axisTicks(3)/10), ...
-        string(axisTicks(4)/10), string(axisTicks(5)/10)});
-yticks([indexOfMaxCapacity+axisTicks(1) indexOfMaxCapacity+axisTicks(2) ...
-        indexOfMaxCapacity+axisTicks(3) indexOfMaxCapacity+axisTicks(4) ...
-        indexOfMaxCapacity+axisTicks(5)]);
-yticklabels({string(axisTicks(1)/10), string(axisTicks(2)/10), string(axisTicks(3)/10), ...
-        string(axisTicks(4)/10), string(axisTicks(5)/10)});
-xlim([0 numRows]);
-ylim([0 numRows]);
+xticks([indexOfMaxCapacity-2000 indexOfMaxCapacity-1000 ...
+        indexOfMaxCapacity indexOfMaxCapacity+1000 ...
+        indexOfMaxCapacity+2000]);
+xticklabels([-200, -100, 0, 100, 200]); 
+yticks([indexOfMaxCapacity-2000 indexOfMaxCapacity-1000 ...
+        indexOfMaxCapacity indexOfMaxCapacity+1000 ...
+        indexOfMaxCapacity+2000]);
+yticklabels([-200, -100, 0, 100, 200]);
+xlim([indexOfMaxCapacity-2000 indexOfMaxCapacity+2000]);
+ylim([indexOfMaxCapacity-2000 indexOfMaxCapacity+2000]);
 view(45, 60);
 y = colorbar;
-ylabel(y, 'Bits per channel use');
+ylabel(y, 'Equivocation at Eve (bits/channel use)');
 
 figure()
 imagesc(secrecyCapacityPerLocation);
 ylabel("Bob's distance from Alice (m)");
 xlabel("Eve's distance from Alice (m)");
 title("Secrecy Capacity");
-xticks([indexOfMaxCapacity+axisTicks(1) indexOfMaxCapacity+axisTicks(2) ...
-        indexOfMaxCapacity+axisTicks(3) indexOfMaxCapacity+axisTicks(4) ...
-        indexOfMaxCapacity+axisTicks(5)]);
-xticklabels({string(axisTicks(1)/10), string(axisTicks(2)/10), string(axisTicks(3)/10), ...
-        string(axisTicks(4)/10), string(axisTicks(5)/10)});
-yticks([indexOfMaxCapacity+axisTicks(1) indexOfMaxCapacity+axisTicks(2) ...
-        indexOfMaxCapacity+axisTicks(3) indexOfMaxCapacity+axisTicks(4) ...
-        indexOfMaxCapacity+axisTicks(5)]);
-yticklabels({string(axisTicks(1)/10), string(axisTicks(2)/10), string(axisTicks(3)/10), ...
-        string(axisTicks(4)/10), string(axisTicks(5)/10)});
-xlim([0 numRows]);
-ylim([0 numRows]);
+xticks([indexOfMaxCapacity-2000 indexOfMaxCapacity-1000 ...
+        indexOfMaxCapacity indexOfMaxCapacity+1000 ...
+        indexOfMaxCapacity+2000]);
+xticklabels([-200, -100, 0, 100, 200]); 
+yticks([indexOfMaxCapacity-2000 indexOfMaxCapacity-1000 ...
+        indexOfMaxCapacity indexOfMaxCapacity+1000 ...
+        indexOfMaxCapacity+2000]);
+yticklabels([-200, -100, 0, 100, 200]);
+xlim([indexOfMaxCapacity-2000 indexOfMaxCapacity+2000]);
+ylim([indexOfMaxCapacity-2000 indexOfMaxCapacity+2000]);
 y = colorbar;
-ylabel(y, 'Bits per channel use');
+ylabel(y, 'Equivocation at Eve (bits/channel use)');
 
 
 
