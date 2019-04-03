@@ -41,7 +41,7 @@ function V2VGraphableData(testPoint, stepSize, averageWidth)
         referenceDistance = 2.5;
     elseif testPoint == 'G'
         metadataFilename = 'Data/Metadata/test-point-G-V2V_2019-02-21__14-04-26-meta.txt';
-        rawDataFilename = '/media/V2V/2019-02-21_data-collection/test-point-G-V2V_processed.mat';
+        rawDataFilename = '/media/V2VData02/2019-02-21_data-collection/test-point-G-V2V_processed.mat';
         
         referenceIndex = 1;
         referenceDistance = 0;
@@ -70,6 +70,11 @@ function V2VGraphableData(testPoint, stepSize, averageWidth)
     
     [RxDistances, blocks, startingTime] = ReadGPSDataPositions(metadataFilename);
     TxDistances = ReadTxGPSLocations(txGPSFilename, startingTime, max(size(RxDistances)));
+    if testPoint == 'G'
+        load('/media/V2VData02/2019-02-21_data-collection/test-point-G-V2V_2019-02-21__14-04-26.mat', 'samplesStoredBeforeEachGPSFix');
+        blocks = samplesStoredBeforeEachGPSFix / 2^19;
+        clear samplesStoredBeforeEachGPSFix;
+    end
 
     % Right now, TxDistances contain the distance that the transmitter has
     % traveled from when we started recording data.

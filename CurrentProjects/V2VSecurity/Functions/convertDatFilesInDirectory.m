@@ -25,7 +25,8 @@ function convertDatFilesInDirectory(directoryPath)
            fprintf(' Done.\n');
         end
         fprintf('Working on %s (%d/%d)...', datFilename, i, numDatFiles);
+        drawnow
         v2vDatFileToMatFile(datFilename);
     end
-    fprintf(' Done.\nAll files converted.');
+    fprintf(' Done.\nAll files converted./n');
 end
