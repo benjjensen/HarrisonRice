@@ -1,5 +1,5 @@
 tic;
-close all;
+% close all;
 clear;
 samePlot = true; %do you want all points on the same plot?
 % addpath('CollectedData/');
@@ -17,13 +17,14 @@ dB = logspace(-.2,.7,num_index);
 dB = 10*log10(dB);
 codesPerdB = 0;
 %iterate through all the codes
-for m = 1 : 10
+for m = 1 : 6
     for u = 1 : m
         %call function and save off the weigths of the codes
         weights = RMWeightHier(u,m,false);
         codesPerdB = codesPerdB + 1;
         for index = 1:num_index - 1
-            if cap_har(index,1)- cap_har(index+1,1) ~= 0 && ratio(index) <= 1
+            if ((cap_har(index,1)- cap_har(index+1,1) ~= 0 && ratio(index) <= 1) || ...
+                (eve(index,1)- eve(index+1,1) ~= 0 && ratio(index) <= 1))
                 %creates object
                 eval(sprintf('codeInfo_%d_%d_%d = codeInfo;', index , u, m));
                 
@@ -84,7 +85,8 @@ end
 %find all the variables in the workspace that are of the same dB range so
 %the colors on the plot match
 for index = 1:num_index - 1
-    if cap_har(index,1)- cap_har(index+1,1) ~= 0 && ratio(index) <= 1
+    if ((cap_har(index,1)- cap_har(index+1,1) ~= 0 && ratio(index) <= 1) || ...
+        (eve(index,1)- eve(index+1,1) ~= 0 && ratio(index) <= 1))
         workspace = who;
         eval(sprintf('outStr = regexpi(workspace, "codeInfo_%d_");', index));
         ind = ~cellfun('isempty',outStr);
@@ -93,7 +95,7 @@ for index = 1:num_index - 1
 end
 
 %sets the color scheme
-colors = jet(33);
+colors = jet(66);
 
 %initialize counter
 counter = 0;
@@ -117,7 +119,8 @@ for index = 1:num_index - 1
     
     %checks to make sure the carriers used on the graphs are changing with
     %dB level
-    if cap_har(index)- cap_har(index + 1) ~= 0 && ratio(index) < 1
+    if ((cap_har(index,1)- cap_har(index+1,1) ~= 0 && ratio(index) <= 1) || ...
+        (eve(index,1)- eve(index+1,1) ~= 0 && ratio(index) <= 1))
         counter = counter + 1;
         
         %%%All on different Plots%%%%
@@ -173,8 +176,8 @@ for index = 1:num_index - 1
             %plot all the points
             scatter3(plotRate, plotPercentH,plotdB,[],colors(counter,:),'DisplayName', sprintf('%.1f dB Limit', dB(index)));
              %plot the best code in a black star (hard coded in)
-            if index == 147
-                scatter3(17.5,100,plotdB(1),[],'k','*');
+            if index == 167
+                scatter3(19,100,plotdB(1),[],'k','*');
             end
         end
         %%%%%%%%%%%%%%%%%%%%%%%
@@ -211,8 +214,8 @@ if (samePlot)
     ylim([0 100]);
     xlim([0 50]);
     %legend;
-    scatter(17.5,100,100,'k','*');
-    saveas(gcf,'ThroughputGraph','epsc');
+    scatter(19,100,100,'k','*', 'LineWidth',.5);
+%     saveas(gcf,'ThroughputGraph','epsc');
     hold off;
     
     axis = gca;

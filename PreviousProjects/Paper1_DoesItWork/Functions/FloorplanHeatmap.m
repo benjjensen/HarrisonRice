@@ -1,6 +1,11 @@
 function [axis] = FloorplanHeatmap(dataArray)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+% Created by Kalin Norman
+
+% Very similar to CustomFloorHeatmap (see that file for a more detailed
+% explanation). The major difference being that this heatmap uses the
+% blueprint of the Clyde building as the background and the images are
+% scaled appropriately to fit atop that image. 
+
 I = imread('Data/FloorplanBackground.png');
 figure();
 imshow(I);
@@ -16,6 +21,9 @@ ylabel(q, {'Number of sub-carriers such that SNR \geq \tau'}, 'FontName', 'Times
 hm.XData = [16; 333];
 hm.YData = [68; 151];
 hold off
+
+% Sets the text of the figure to Times New Roman and sizes the figure
+% appropriately to fit into a double column paper. 
 axis = gca;
 axis.FontName = 'Times New Roman';
 ff = gcf;
@@ -25,20 +33,5 @@ bart = ff.Position;
 ff.Position = [bart(1:2) 5 4];
 ff.PaperPositionMode = 'auto';
 ff.Units = homer;
-% hold on
-% text(142, 157, 'tx', 'Color', 'black', 'FontSize', 8);
-% hm = imagesc(dataArray);
-% set(hm,'AlphaData',~isnan(dataArray));
-% colormap(jet);
-% q = colorbar;
-% q.Position = [.855 .4 .016 .3];
-% ylabel(q, 'bits per channel use');
-% hm.XData = [36; 380];
-% hm.YData = [49; 139];
-% hold off
-% cf = gcf;
-% cf.PaperSize = [5 4];
-% cf.PaperPosition = [-.05521 0.2240 -0.5521+5 0.2240+4];
-% axis = gca;
 end
 
