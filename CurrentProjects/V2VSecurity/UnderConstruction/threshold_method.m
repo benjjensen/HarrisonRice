@@ -80,7 +80,7 @@ for index = 1:num_loops_carriers_per_location
     end
 end
 
-save('../Data/dataForCodedCases41.mat', 'cap_alpha', 'cap_foxtrot', 'cap_golf', ...
+save('../Data/dataForCodedCases41-correct.mat', 'cap_alpha', 'cap_foxtrot', 'cap_golf', ...
     'cap_hotel', 'cap_india', 'cap_juliet', 'snr', 'v2i_snr');
 
 %%
