@@ -94,7 +94,6 @@ for index = 1:num_loops_carriers_per_location
     end
 end
 
-<<<<<<< HEAD:CurrentProjects/V2VSecurity/UnderConstruction/threshold_method.m
 save('../Data/dataForCodedCases41-correct.mat', 'cap_alpha', 'cap_foxtrot', 'cap_golf', ...
     'cap_hotel', 'cap_india', 'cap_juliet', 'snr', 'v2i_snr');
 
@@ -111,5 +110,3 @@ save('../Data/dataForCodedCases41-correct.mat', 'cap_alpha', 'cap_foxtrot', 'cap
 % ylabel('Bits per channel use');
 % legend;
 % hold off;
-=======
->>>>>>> a1059f0b845fad8bcbdf5cbbfd7318be7fb30dad:CurrentProjects/V2VSecurity/threshold_method.m
