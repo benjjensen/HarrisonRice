@@ -1,4 +1,5 @@
 clear;
+warning('off','all')
 
 plutoradiosetup();
 rx = sdrrx('Pluto');
