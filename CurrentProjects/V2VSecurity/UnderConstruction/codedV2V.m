@@ -1,7 +1,7 @@
-close all;
+% close all;
 addpath('../Functions');
 addpath('../Data');
-load('dataForCodedCases.mat');
+load('dataForCodedCases41.mat');
 
 %expecting a column vector (0-32)
 fakeData1 = ceil(32*rand([4000,1]));
@@ -9,7 +9,7 @@ fakeData2 = ceil(32*rand([4000,1]));
 fakeData3 = ceil(32*rand([4000,1]));
 fakeData4 = ceil(32*rand([4000,1]));
 fakeData5 = ceil(32*rand([4000,1]));
-for j = 10:5:30
+for j = [16]%1:10:length(snr)
     %move incomming data into variables
     snrIndex = j;
     takeEveryXSamples = 1;
@@ -48,7 +48,7 @@ for j = 10:5:30
     
     %create array for moving average
     movingAve = [];
-    averageOver = 50;
+    averageOver = 1;
     for i = 1:averageOver
         movingAve(i) = 1/averageOver;
     end
@@ -61,7 +61,7 @@ for j = 10:5:30
     revealedBitsAveRun5 = conv(revealedBitsRun5,movingAve);
     
     %plot data
-    figure(20+j);
+    figure();%21+j);
     hold on;
     plot(revealedBitsAveRun1, '-');
     plot(revealedBitsAveRun2, '-');

@@ -1,5 +1,6 @@
 function [secrecyCapacityPerLocation, secrecyCapacityPerCarrier] = calculateSecrecyCapacity(bobsData, evesData)
 %calculateSecrecyCapacity Determines the difference in bob and eves capacity
+
 %   Compares each of Bob's carriers to Eve's carriers. For carriers where
 %   Bob's capacity is greater than Eve's, the secrecy capacity is the
 %   difference. When Eve's capacity is greater than Bob's, the secrecy
@@ -26,7 +27,6 @@ function [secrecyCapacityPerLocation, secrecyCapacityPerCarrier] = calculateSecr
             secrecyCapacityPerLocation(bobsLocation, evesLocation) = temp;
         end
     end
-
 
 end
 

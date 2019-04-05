@@ -3,20 +3,18 @@
 %% Created by Dakota Flanary
 
 clear;
-close all;
-
-% load in the data
-load('Data/CorrectlyAveragedData/test-point-A_jagged-mid32.mat');
+% close all;
+load('../Data/CorrectlyAveragedData/test-point-A_jagged-mid32.mat'); % loads in the signal data
 alpha = sqrt(pwelched);
-load('Data/CorrectlyAveragedData/test-point-F_jagged-mid32.mat');
+load('../Data/CorrectlyAveragedData/test-point-F_average41-mid32.mat'); % loads in the signal data
 foxtrot = pwelched;
-load('Data/CorrectlyAveragedData/test-point-F_jagged-mid32.mat');
+load('../Data/CorrectlyAveragedData/test-point-G_average41-mid32.mat'); % loads in the signal data
 golf = pwelched;
-load('Data/CorrectlyAveragedData/test-point-F_jagged-mid32.mat');
+load('../Data/CorrectlyAveragedData/test-point-H_average41-mid32.mat'); % loads in the signal data
 hotel = pwelched;
-load('Data/CorrectlyAveragedData/test-point-F_jagged-mid32.mat');
+load('../Data/CorrectlyAveragedData/test-point-I_average41-mid32.mat'); % loads in the signal data
 india = pwelched;
-load('Data/CorrectlyAveragedData/test-point-F_jagged-mid32.mat');
+load('../Data/CorrectlyAveragedData/test-point-J_average41-mid32.mat'); % loads in the signal data
 juliet = pwelched;
 clear pwelched;
 
@@ -96,3 +94,19 @@ for index = 1:num_loops_carriers_per_location
     end
 end
 
+save('../Data/dataForCodedCases41-correct.mat', 'cap_alpha', 'cap_foxtrot', 'cap_golf', ...
+    'cap_hotel', 'cap_india', 'cap_juliet', 'snr', 'v2i_snr');
+
+%%
+
+% % plot the capacities and secrecy capacities
+% snr = 10*log10(snr);
+% figure()
+% hold on;
+% plot(snr,cap_har,'DisplayName','Bob');
+% plot(snr,eve,'DisplayName','Eve');
+% plot(snr,sec_har, 'DisplayName', 'Secrecy Capacity');
+% xlabel('SNR (dB)');
+% ylabel('Bits per channel use');
+% legend;
+% hold off;
