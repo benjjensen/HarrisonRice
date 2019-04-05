@@ -1,6 +1,6 @@
 clear;
 programstart = datetime;
-waitduration = duration('00:00:30');
+waitduration = duration('00:00:20');
 warning('off','all')
 
 plutoradiosetup();
@@ -11,7 +11,7 @@ rx.BasebandSampleRate = 20e6;
 rx.SamplesPerFrame = 32*64;
 rx.OutputDataType = 'double';
 rx.ShowAdvancedProperties = true;
-    % Do we want to freeze the gain?
+    % Freeze the gain on the receiver
     rx.GainSource = 'Manual';
     rx.Gain = 62;
 
@@ -20,7 +20,7 @@ for init = 1:100
     ignore(:,1) = rx();
 end
 
-frames = 45000; % 5 Min of Data
+frames = 40000; % 5 Min of Data
 buffer = zeros(2048,1); % Accounts for the buffer in the radios whenever a pause occurs between requests for data
 
 i = 'test'; % name of data array
@@ -41,9 +41,6 @@ end
 starttime = datetime;
 for sections = 1:numDivisions
     begintime = datetime;
-    for clearbuffer = 1:7
-        buffer(:,1) = rx();
-    end
     for runs = split(sections)-(framesPerRun-1):split(sections)
         test(:,runs) = rx();
         % pause(.001); % for the computers that run too fast...
@@ -56,11 +53,4 @@ runtime = stoptime - starttime
 % save(string(i) + '.mat',string(i)); % Saves data array with custom name
 beep;
 
-tic;
-for checkduplicate = 1:frames-1
-    if (test(:,checkduplicate) == test(:,checkduplicate+1))
-        disp(string(checkduplicate) + 'is equal to ' + string(iterate));
-    end
-end
-toc;
 
