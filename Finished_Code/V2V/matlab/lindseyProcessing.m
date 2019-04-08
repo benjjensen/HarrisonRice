@@ -17,7 +17,7 @@ firdownsample = dsp.FIRDecimator(1000,h);
 % file
 
 % This is where the transmitter was stationary
-inFilename = '/media/V2VData02/2019-02-21_data-collection/test-point-D-Lindsey_2019-02-21__13-47-21.mat';
+%inFilename = '/media/V2VData02/2019-02-21_data-collection/test-point-D-Lindsey_2019-02-21__13-47-21.mat';
 
 % This file is no good
 % inFilename = '/media/V2VData02/2019-02-21_data-collection/test-point-C-Lindsey_2019-02-21__13-39-03.mat';
@@ -30,7 +30,7 @@ inFilename = '/media/V2VData02/2019-02-21_data-collection/test-point-D-Lindsey_2
 %inFilename = '/media/V2VData02/2019-02-21_data-collection/test-point-D-Lindsey_2019-02-21__13-50-52.mat';
 
 % Carlos's data:
-%inFilename = '/media/V2V/corrected-data/delta-1.mat';
+inFilename = '/media/V2V/corrected-data/beta-3.mat';
 
 mfr = dsp.MatFileReader(inFilename,'VariableName','data','SamplesPerFrame',N1);
 
@@ -38,9 +38,9 @@ mfr = dsp.MatFileReader(inFilename,'VariableName','data','SamplesPerFrame',N1);
 Nfft = 2048; % frequency resoltion = 11200/2048 = 4.46875 Hz
 
 % downconverter sinusoid
-ee = exp(-1i*pi/1.9*(0:N1-1)');
+ee = exp(-1i*pi/1.95*(0:N1-1)');
 
-Nsec = 50;
+Nsec = 40;
 S = zeros(Nsec,Nfft);
 
  %for idx = 1:5
@@ -59,9 +59,9 @@ release(mfr);
 
 %%
 FF = (-0.5:1/Nfft:0.5-1/Nfft)*Fs2*1e6;
-figure(41); contourf(FF+440,1:Nsec,10*log10(S)+100,'lineStyle','none'); 
+figure(41); contourf(FF+1088,1:Nsec,10*log10(S)+100,'lineStyle','none'); 
 set(gca,'XLim',[-2500,2500]);
-set(gca,'yLim',[4,34]);
+set(gca,'yLim',[7,37]);
 colorbar;
 
 

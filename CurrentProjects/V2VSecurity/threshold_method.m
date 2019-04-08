@@ -4,17 +4,17 @@
 
 clear;
 % close all;
-load('../Data/CorrectlyAveragedData/test-point-A_jagged-mid32.mat'); % loads in the signal data
+load('Data/CorrectlyAveragedData/test-point-A_jagged-mid32.mat'); % loads in the signal data
 alpha = sqrt(pwelched);
-load('../Data/CorrectlyAveragedData/test-point-F_average41-mid32.mat'); % loads in the signal data
+load('Data/CorrectlyAveragedData/test-point-F_average41-mid32.mat'); % loads in the signal data
 foxtrot = pwelched;
-load('../Data/CorrectlyAveragedData/test-point-G_average41-mid32.mat'); % loads in the signal data
+load('Data/CorrectlyAveragedData/test-point-G_average41-mid32.mat'); % loads in the signal data
 golf = pwelched;
-load('../Data/CorrectlyAveragedData/test-point-H_average41-mid32.mat'); % loads in the signal data
+load('Data/CorrectlyAveragedData/test-point-H_average41-mid32.mat'); % loads in the signal data
 hotel = pwelched;
-load('../Data/CorrectlyAveragedData/test-point-I_average41-mid32.mat'); % loads in the signal data
+load('Data/CorrectlyAveragedData/test-point-I_average41-mid32.mat'); % loads in the signal data
 india = pwelched;
-load('../Data/CorrectlyAveragedData/test-point-J_average41-mid32.mat'); % loads in the signal data
+load('Data/CorrectlyAveragedData/test-point-J_average41-mid32.mat'); % loads in the signal data
 juliet = pwelched;
 clear pwelched;
 
@@ -67,7 +67,7 @@ for index = 1:num_loops
     cap_juliet(:,index) = find_num_carriers(juliet,snr(index),threshold);
     
     % code for displaying figures of the capacities
-    if (iWantFigures)
+    if iWantFigures && index == 16
         figure()
         hold on
         plot(cap_foxtrot(:,index));
@@ -86,15 +86,15 @@ for index = 1:num_loops_carriers_per_location
     cap_alpha(:,index) = find_num_carriers(alpha,v2i_snr(index),threshold);
     
     % code for displaying a figure for each SNR value
-    if (iWantFigures)
-        figure()
-        hold on
-        plot(cap_alpha(:,index));
-        hold off
-    end
+%     if (iWantFigures)
+%         figure()
+%         hold on
+%         plot(cap_alpha(:,index));
+%         hold off
+%     end
 end
 
-save('../Data/dataForCodedCases41-correct.mat', 'cap_alpha', 'cap_foxtrot', 'cap_golf', ...
+save('Data/dataForCodedCases41-correct.mat', 'cap_alpha', 'cap_foxtrot', 'cap_golf', ...
     'cap_hotel', 'cap_india', 'cap_juliet', 'snr', 'v2i_snr');
 
 %%
