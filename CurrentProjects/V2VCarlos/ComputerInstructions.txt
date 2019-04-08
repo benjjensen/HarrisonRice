@@ -1,0 +1,31 @@
+To unhook the lab computer from the lab setup:
+
+1. Turn off the computer & the signal generator, microwave receiver, and spectrum analyzer.
+2. Unplug the two green VGA cables from the back of the computer
+3. Unplug the black ethernet cable from the back of the computer
+4. On the keyboard-monitor combo unit (which is at the very top of the 19" rack), near the left side of the back panel, there is a greyish cable in a slot labeled "AUX USB". Unplug this cable. (This is where the GPS will be plugged in later.)
+5. Also on the keyboard-monitor combo unit, there is a VGA cable (black cable with white connectors), one end of which is plugged in to the monitor unit and the other end of which is wrapped around the 19" rack. Unwrap it a few times and plug it in to the VGA output jack of the computer (where the green VGA cables were plugged in before). Plug it in to the upper of the two jacks.
+6. Turn off the power strip
+7. Unplug the power strip
+
+To put the computer back together in the lab:
+
+1. Unplug the white VGA cable from the back of the computer and wrap it around the top of the 19" rack
+2. Plug the light green VGA cable into the upper VGA output jack
+3. Plug the dark green VGA cable into the lower VGA output jack
+4. Plug the ethernet cable into the UPPER ethernet jack (it will not work in the lower ethernet jack because of how Chambers et. al. set up the internet connection with this computer in the lab).
+5. Plug the greyish USB cable into the AUX USB port on the keyboard-monitor combo unit (this MUST be done before the power stip is turned on)
+6. Plug in the power strip
+7. Turn on the power strip
+
+
+To set up everything in the vehicle:
+
+1. Once the case is in position in the vehicle, open the monitor. (If you don't open the monitor before you turn on the power stip, it can be really hard to get it to display the video from the computer, so just do it before anything else.)
+2. Plug in the GPS to the AUX USB port on the monitor setup. (Also do this before you turn on the power strip.)
+3. Connect the SMA cable from the antenna to the RF In jack on the microwave receiver
+4. Plug in the power strip to the generator (once the generator is powered on)
+5. Turn on the power strip
+6. Turn on the spectrum analyzer, the microwave receiver, and the signal generator
+7. Press the RF ON/OFF button on the signal generator so that the words "RF OFF" are NOT present at the bottom-right of the signal generator screen. (The word OFF will still be displayed a little to the left, but that's referring to modulation, which should be off.)
+
