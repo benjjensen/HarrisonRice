@@ -1,5 +1,5 @@
 clear;
-name = "smalley"; % Change the name on this line
+name = "chambers"; % Change the name on this line
 
 eval(sprintf('load Data/LightMediumHeavy/%s_heavy.mat;',name)); % Update the path for loading
 eval(sprintf('load Data/LightMediumHeavy/%s_medium.mat;',name)); % Update the path for loading
