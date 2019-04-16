@@ -1,6 +1,6 @@
 clear; close all;
 programstart = datetime;
-waitduration = duration('00:00:20');
+waitduration = duration('00:00:05');
 warning('off','all')
 %% Radio Setup
 plutoradiosetup();
@@ -50,11 +50,11 @@ for shifting = 1:frames
 end
 % Use from 21:108 and all odd carriers are noise, even carriers are signal
 testLinearMod = testLinear(21:108,:); % Remove attenuated data
-signal = testLinear(2:2:end,:);
-noise = testLinear(1:2:end,:);
+signal = testLinearMod(2:2:end,:);
+noise = testLinearMod(1:2:end,:);
 for samples = 1:frames
     for carriers = 1:44
-        noiseAvg(carriers,frames) = sum(noise(carriers,:)) / 44;
+        noiseAvg(carriers,samples) = sum(noise(:,samples)) / 44;
     end
 end
 testLinearSignal = signal ./ noiseAvg;
