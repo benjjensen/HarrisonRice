@@ -18,7 +18,7 @@ sec_cap_sma = zeros(1,num_loops);
 sec_cap = zeros(1,num_loops);
 eve_cap = zeros(1,num_loops);
 index = 0;
-snr = logspace(-3,5,num_loops); % snr values to test(in linear)
+snr = logspace(-3,4,num_loops); % snr values to test(in linear) - make sure to match cross and thresh
 % for sigma2 = logspace(-2,4,num_loops)
 tic;
 for index = 1:num_loops

@@ -1,5 +1,5 @@
 % Created by Dakota Flanary
-clear;
+% clear;
 load('Data/linear_signal.mat'); % loads in the signal data
 load('Data/linear_noisefloor.mat'); % loads in the noise data
 addpath(genpath('Functions'))
@@ -9,7 +9,7 @@ addpath(genpath('Functions'))
 % load('sma_best.mat');
 close all
 tic;
-num_loops = 20;
+num_loops = 200;
 
 signal = sqrt(signal); % find the g's
 
@@ -31,7 +31,7 @@ cam_best_x = zeros(1,num_loops);
 cam_best_y = zeros(1,num_loops);
 har_car = zeros(45,num_loops);
 sma_car = zeros(45,num_loops);
-snr = logspace(-3,4,num_loops);
+snr = logspace(-3,4,num_loops);     % Make sure this matches the threshold and gaussian case
 epsilon = 0.5;
 parfor index = 1:num_loops
     tic;
