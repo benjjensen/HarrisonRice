@@ -29,7 +29,7 @@ eval(sprintf("lightTraffic = %s_light_%s;",roomName,type));
         figure(1)
         subplot(3,1,1)
         sgtitle(roomName +": " + count + "th point");
-        plot(heavyTraffic(:,count),'g');
+        stem(heavyTraffic(:,count),'g');
         title("Heavy");
         if (type == "linear")
             axis([0 128 0 0.025]);
@@ -40,7 +40,7 @@ eval(sprintf("lightTraffic = %s_light_%s;",roomName,type));
         ylabel("Magnitude (" + type + ")");
         
         subplot(3,1,2)
-        plot(mediumTraffic(:,count),'b');
+        stem(mediumTraffic(:,count),'b');
         title("Medium");
         if (type == "linear")
             axis([0 128 0 0.025]);
@@ -51,7 +51,7 @@ eval(sprintf("lightTraffic = %s_light_%s;",roomName,type));
         ylabel("Magnitude (" + type + ")");
         
         subplot(3,1,3)
-        plot(lightTraffic(:,count),'r');
+        stem(lightTraffic(:,count),'r');
         title("Light");
         if (type == "linear")
             axis([0 128 0 0.025]);
