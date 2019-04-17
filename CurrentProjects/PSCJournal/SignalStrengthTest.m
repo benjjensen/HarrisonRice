@@ -1,6 +1,6 @@
 clear; close all;
-% programstart = datetime;
-% waitduration = duration('00:00:05');
+programstart = datetime;
+waitduration = duration('00:00:18');
 warning('off','all')
 %% Radio Setup
 plutoradiosetup();
@@ -26,11 +26,11 @@ end
 test = zeros(2048,frames);
 buffer = zeros(2048,1);
 timePerSection = duration('00:00:03');
-% while((datetime - programstart) < waitduration)
-%     disp('waiting');
-%     pause(1);
-% end
-for eh = 1:2
+while((datetime - programstart) < waitduration)
+    disp('waiting');
+    pause(1);
+end
+
 for sections = 1:5
     begintime = datetime;
     for clearbuffer = 1:7
@@ -72,14 +72,13 @@ testAvg = testSum / frames;
 mx = max(testAvg); mn = min(testAvg); av = sum(testAvg) / 44;
 figure(); stem(testAvg); title({'Average Carrier Strengths (linear) run '+string(eh),...
     'Max:'+string(mx)+' || Min:'+string(mn)+' || Avg:'+string(av)});
-% figure();
-% mx = max(testMaxCarrier); mn = min(testMaxCarrier); av = sum(testMaxCarrier) / frames;
-% subplot(3,1,1); plot(testMaxCarrier); title({'Max Carrier Values Per Frame (linear) run '+string(eh)',...
-%     'Max:'+string(mx)+' || Min:'+string(mn)+' || Avg:'+string(av)});
-% mx = max(testMinCarrier); mn = min(testMinCarrier); av = sum(testMinCarrier) / frames;
-% subplot(3,1,2); plot(testMinCarrier); title({'Min Carrier Values Per Frame (linear) run '+string(eh)',...
-%     'Max:'+string(mx)+' || Min:'+string(mn)+' || Avg:'+string(av)});
-% mx = max(testAvgCarrier); mn = min(testAvgCarrier); av = sum(testAvgCarrier) / frames;
-% subplot(3,1,3); plot(testAvgCarrier); title({'Avg Carrier values Per Frame (linear) run '+string(eh)',...
-%     'Max:'+string(mx)+' || Min:'+string(mn)+' || Avg:'+string(av)});
-end
+figure();
+mx = max(testMaxCarrier); mn = min(testMaxCarrier); av = sum(testMaxCarrier) / frames;
+subplot(3,1,1); plot(testMaxCarrier); title({'Max Carrier Values Per Frame (linear) run '+string(eh)',...
+    'Max:'+string(mx)+' || Min:'+string(mn)+' || Avg:'+string(av)});
+mx = max(testMinCarrier); mn = min(testMinCarrier); av = sum(testMinCarrier) / frames;
+subplot(3,1,2); plot(testMinCarrier); title({'Min Carrier Values Per Frame (linear) run '+string(eh)',...
+    'Max:'+string(mx)+' || Min:'+string(mn)+' || Avg:'+string(av)});
+mx = max(testAvgCarrier); mn = min(testAvgCarrier); av = sum(testAvgCarrier) / frames;
+subplot(3,1,3); plot(testAvgCarrier); title({'Avg Carrier values Per Frame (linear) run '+string(eh)',...
+    'Max:'+string(mx)+' || Min:'+string(mn)+' || Avg:'+string(av)});
