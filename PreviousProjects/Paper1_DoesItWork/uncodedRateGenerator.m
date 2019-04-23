@@ -50,6 +50,10 @@ end
 
 figure()
 plot(harrisonOnlyCarriers(:,1), harrisonOnlyCarriers(:,2));
+xlabel('dB threshold');
+ylabel('Number of Carriers');
+title({'Threshold Case: Number of "good" carriers', ...
+    'that Bob has and Eve does not'});
 
 % save('harrisonOnlyCarriers.mat','harrisonOnlyCarriers');
 function [specific_carriers_above, count] = specCarriers(file, scale, dblimit)

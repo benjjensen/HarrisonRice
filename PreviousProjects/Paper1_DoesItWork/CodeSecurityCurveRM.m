@@ -1,5 +1,5 @@
 %Created by Bradford Clark % Used by Benjamin Jensen
-%This code calculates security curves for different RM codes.
+%This code calculates security curves for different Reed-Muller (RM) codes.
 %closes all figure windows
 close all;
 for m = 2 : 10   %cycles through a range of m values

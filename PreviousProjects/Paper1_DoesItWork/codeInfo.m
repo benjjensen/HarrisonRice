@@ -1,4 +1,5 @@
-%This file is an object for each of the codes.
+%This file is an object for each of the codes. It is intended for use with
+%codeInfoGraph.m
 classdef codeInfo
     properties
         u %parameter of a Reed-Muller code
