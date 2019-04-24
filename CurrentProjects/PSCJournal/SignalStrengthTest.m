@@ -1,16 +1,18 @@
-clear; close all;
+clearvars -except rx; close all;
 % programstart = datetime;
 % waitduration = duration('00:00:18');
 warning('off','all')
 %% Radio Setup
-plutoradiosetup();
-rx = sdrrx('Pluto');
-rx.RadioID = 'usb:0';
-rx.CenterFrequency = 1250e6;
-rx.BasebandSampleRate = 20e6;
-rx.SamplesPerFrame = 32*64;
-rx.OutputDataType = 'double';
-rx.ShowAdvancedProperties = true;
+if (exist('rx','var') ~= 1)
+    plutoradiosetup();
+    rx = sdrrx('Pluto');
+    rx.RadioID = 'usb:0';
+    rx.CenterFrequency = 1250e6;
+    rx.BasebandSampleRate = 20e6;
+    rx.SamplesPerFrame = 32*64;
+    rx.OutputDataType = 'double';
+    rx.ShowAdvancedProperties = true;
+end
 %% Data Collection
 ignore = zeros(2048,1);
 for init = 1:100
@@ -30,9 +32,9 @@ timePerSection = duration('00:00:03');
 %     disp('waiting');
 %     pause(1);
 % end
-numSpots = 10;
+numSpots = 1;
 for locations = 1:numSpots
-    beep;
+%     beep;
     for sections = 1:5
         begintime = datetime;
         for clearbuffer = 1:7
@@ -76,7 +78,7 @@ for locations = 1:numSpots
     MaxPerLocation(:,locations) = testMaxCarrier;
     MinPerLocation(:,locations) = testMinCarrier;
     AvgPerLocation(:,locations) = testAvgCarrier;
-    pause(2);
+    pause(1);
 end
 %% Plot Results
 for locations = 1:numSpots
