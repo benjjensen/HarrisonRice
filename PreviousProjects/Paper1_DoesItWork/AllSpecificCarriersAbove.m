@@ -1,5 +1,6 @@
 % Determines which specific carriers are above a set dblimit for each room
     % Graphs them on a graph, scaled so you can see each room. Uses Tx2
+    % needs to be updated, data is processed in the old way
     
 close all;  
 load('Data/tx2dB.mat');
