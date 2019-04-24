@@ -4,7 +4,7 @@ clear;
 samePlot = true; %do you want all points on the same plot?
 % addpath('CollectedData/');
 % addpath('Functions/');
-load('Data/cap_har.mat');
+load('Data/cap_har.mat'); % this data was calculated using functions from paper2
 load('Data/eve.mat');
 
 %save off the part of the array that is needed for calculations
