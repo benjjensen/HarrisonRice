@@ -25,12 +25,7 @@ normalized_signal_db = mag2db(normalized_signal_linear);
 graph_plot(normalized_signal_linear, normalized_signal_db, noise_db);
 
 
-
 %% Save ?
-
-
-
-
 
 function graph_plot(signal_linear, signal_db, noise_db)
 %graph_plot generates time plots for heavy, medium,and light data 
