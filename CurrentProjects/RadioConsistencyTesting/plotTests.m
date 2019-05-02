@@ -18,50 +18,6 @@ for num = 1:12
         
     end
 end
-% load('Tests/Radio1_DakotaAuto0.mat');
-% load('Tests/Radio1_DakotaManual0.mat');
-% load('Tests/Radio2_DakotaAuto0.mat');
-% load('Tests/Radio2_DakotaManual0.mat');
-% load('Tests/Radio3_DakotaAuto0.mat');
-% load('Tests/Radio3_DakotaManual0.mat');
-% load('Tests/Radio4_DakotaAuto0.mat');
-% load('Tests/Radio4_DakotaManual0.mat');
-% load('Tests/Radio5_DakotaAuto0.mat');
-% load('Tests/Radio5_DakotaManual0.mat');
-% load('Tests/Radio6_DakotaAuto0.mat');
-% load('Tests/Radio6_DakotaManual0.mat');
-% load('Tests/Radio8_DakotaAuto0.mat');
-% load('Tests/Radio8_DakotaManual0.mat');
-% load('Tests/Radio9_DakotaAuto0.mat');
-% load('Tests/Radio9_DakotaManual0.mat');
-% load('Tests/Radio10_DakotaAuto0.mat');
-% load('Tests/Radio10_DakotaManual0.mat');
-% load('Tests/Radio11_DakotaAuto0.mat');
-% load('Tests/Radio11_DakotaManual0.mat');
-% load('Tests/Radio12_DakotaAuto0.mat');
-% load('Tests/Radio12_DakotaManual0.mat');
-% agc1 = Radio1_DakotaAuto0;
-% man1 = Radio1_DakotaManual0;
-% agc2 = Radio2_DakotaAuto0;
-% man2 = Radio2_DakotaManual0;
-% agc3 = Radio3_DakotaAuto0;
-% man3 = Radio3_DakotaManual0;
-% agc4 = Radio4_DakotaAuto0;
-% man4 = Radio4_DakotaManual0;
-% agc5 = Radio5_DakotaAuto0;
-% man5 = Radio5_DakotaManual0;
-% agc6 = Radio6_DakotaAuto0;
-% man6 = Radio6_DakotaManual0;
-% agc8 = Radio8_DakotaAuto0;
-% man8 = Radio8_DakotaManual0;
-% agc9 = Radio9_DakotaAuto0;
-% man9 = Radio9_DakotaManual0;
-% agc10 = Radio10_DakotaAuto0;
-% man10 = Radio10_DakotaManual0;
-% agc11 = Radio11_DakotaAuto0;
-% man11 = Radio11_DakotaManual0;
-% agc12 = Radio12_DakotaAuto0;
-% man12 = Radio12_DakotaManual0;
 
 frames = 200;
 Nfft = 128;
