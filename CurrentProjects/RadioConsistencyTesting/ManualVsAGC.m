@@ -1,5 +1,5 @@
 clear; close all;
-
+warning('off','all')
 Computer = input('Please enter your name\n','s');
 TestNum = input('Enter the number of times that you have run this test (eg. "1", "2", etc.)\n');
 
@@ -38,7 +38,7 @@ while radios ~= 12
         rx.ShowAdvancedProperties = true;
         if ((ManualGainFirst && (runsPerRadio == 1)) || (~ManualGainFirst && (runsPerRadio == 2)))
             rx.GainSource = 'Manual';
-            rx.Gain = 62;
+            rx.Gain = 20;
             gainType = 'Manual';
         else
             rx.GainSource = 'AGC Slow Attack';
