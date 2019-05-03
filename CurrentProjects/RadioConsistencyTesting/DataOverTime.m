@@ -30,7 +30,7 @@ for i = 1:8
     for runs = 1:frames
         test(:,runs) = rx();
     end
-    save(['Tests\' Radio '_test_' num2str(i) '.mat'], 'test');
+    save(['Tests/' Radio '_test_' num2str(i) '.mat'], 'test');
     % This is a very useful way to save multiple files in a loop. This will
     % produce files like Radio#test1,2,3,4, etc. Simple substitute for
     % sprintf and eval!
