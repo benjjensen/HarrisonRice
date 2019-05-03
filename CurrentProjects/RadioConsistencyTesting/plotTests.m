@@ -1,48 +1,23 @@
 clear; close all;
-load('Tests/Radio1_DakotaAuto0.mat');
-load('Tests/Radio1_DakotaManual0.mat');
-load('Tests/Radio2_DakotaAuto0.mat');
-load('Tests/Radio2_DakotaManual0.mat');
-load('Tests/Radio3_DakotaAuto0.mat');
-load('Tests/Radio3_DakotaManual0.mat');
-load('Tests/Radio4_DakotaAuto0.mat');
-load('Tests/Radio4_DakotaManual0.mat');
-load('Tests/Radio5_DakotaAuto0.mat');
-load('Tests/Radio5_DakotaManual0.mat');
-load('Tests/Radio6_DakotaAuto0.mat');
-load('Tests/Radio6_DakotaManual0.mat');
-load('Tests/Radio8_DakotaAuto0.mat');
-load('Tests/Radio8_DakotaManual0.mat');
-load('Tests/Radio9_DakotaAuto0.mat');
-load('Tests/Radio9_DakotaManual0.mat');
-load('Tests/Radio10_DakotaAuto0.mat');
-load('Tests/Radio10_DakotaManual0.mat');
-load('Tests/Radio11_DakotaAuto0.mat');
-load('Tests/Radio11_DakotaManual0.mat');
-load('Tests/Radio12_DakotaAuto0.mat');
-load('Tests/Radio12_DakotaManual0.mat');
-agc1 = Radio1_DakotaAuto0;
-man1 = Radio1_DakotaManual0;
-agc2 = Radio2_DakotaAuto0;
-man2 = Radio2_DakotaManual0;
-agc3 = Radio3_DakotaAuto0;
-man3 = Radio3_DakotaManual0;
-agc4 = Radio4_DakotaAuto0;
-man4 = Radio4_DakotaManual0;
-agc5 = Radio5_DakotaAuto0;
-man5 = Radio5_DakotaManual0;
-agc6 = Radio6_DakotaAuto0;
-man6 = Radio6_DakotaManual0;
-agc8 = Radio8_DakotaAuto0;
-man8 = Radio8_DakotaManual0;
-agc9 = Radio9_DakotaAuto0;
-man9 = Radio9_DakotaManual0;
-agc10 = Radio10_DakotaAuto0;
-man10 = Radio10_DakotaManual0;
-agc11 = Radio11_DakotaAuto0;
-man11 = Radio11_DakotaManual0;
-agc12 = Radio12_DakotaAuto0;
-man12 = Radio12_DakotaManual0;
+
+Computer = input('Please enter your name\n','s');
+TestNum = input('Enter the number of times that you have run this test (eg. "1", "2", etc.)\n');
+for num = 1:12
+    if num == 7
+    else
+        eval('agcname = ''Radio'' + string(num) + ''_'' + Computer + ''Auto'' + string(TestNum);');
+        eval('manname = ''Radio'' + string(num) + ''_'' + Computer + ''Manual'' + string(TestNum);');
+        loadname = 'Tests/' + agcname + '.mat';
+        load(loadname);
+        savename = sprintf('agc%d',num);
+        eval(savename + " = " + agcname + ";");
+        loadname = 'Tests/' + manname + '.mat';
+        load(loadname);
+        savename = sprintf('man%d',num);
+        eval(savename + " = " + manname + ";");
+        
+    end
+end
 
 frames = 200;
 Nfft = 128;
@@ -98,7 +73,7 @@ for num = 1:12
         title(titlestring);
         xlabel('Carrier Number')
         stem(testAvg);
-        ylim([0,450]);
+        ylim([0,800]);
 
         hold off
         %% plot manual
@@ -138,10 +113,10 @@ for num = 1:12
         title(titlestring);
         xlabel('Carrier Number')
         stem(testAvg);
-        ylim([0,150]);
+        ylim([0,200]);
         hold off
     end
-    
+
     figure(13)
     sgtitle('AGC');
     figure(14)
