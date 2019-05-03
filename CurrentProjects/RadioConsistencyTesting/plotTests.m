@@ -73,7 +73,7 @@ for num = 1:12
         title(titlestring);
         xlabel('Carrier Number')
         stem(testAvg);
-        ylim([0,450]);
+        ylim([0,800]);
 
         hold off
         %% plot manual
@@ -113,7 +113,7 @@ for num = 1:12
         title(titlestring);
         xlabel('Carrier Number')
         stem(testAvg);
-        ylim([0,150]);
+        ylim([0,200]);
         hold off
     end
 
