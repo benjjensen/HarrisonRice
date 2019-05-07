@@ -18,8 +18,8 @@
 
 load myFilterDataSingleCarrier.mat; % h1 g1 h2
 
-inFilename = 'singleCarrierData/echo_2019-03-19__14-26-56.mat';
-outFilename = 'singleCarrierData/echo_2019-03-19__14-26-56_downsample.mat';
+inFilename = 'Data/RawMatFiles/singleCarrierData/echo_2019-03-19__14-26-56.mat';
+outFilename = 'Data/ProcessedData/singleCarrierData/echo_2019-03-19__14-26-56_downsample.mat';
 
 firdownsample4 = dsp.FIRDecimator(4,g1);
 firdownsample250 = dsp.FIRDecimator(250,h2);
