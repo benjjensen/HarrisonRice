@@ -1,5 +1,15 @@
 Description of the Data found in PreviousProjects\Paper2...\Data:
 
+General Information:
+
+    - When working with data, we generally ignored the edge carriers and only used 10-55 (?)
+    - The boundaries for each office are as follows:
+        Conference: 5:65, 1:61
+        Harrisons: 36:65, 65:98
+        Smalley: 34:65, 123:148
+        Camacho: 34:65, 154:179
+        Chambers: 34:65, 213:240
+
 completeDataMatrix: 
 
        The data matrix used to generate Fig. 6 in Paper 2. This matrix is 10x200 
@@ -17,4 +27,5 @@ completeDataMatrix:
                    (Rows 8-10 were generated in cross_method.m, which takes 2-3 hours).
 
     All data was gathered based off of an SNR logspace from -3 to 4, and 200 loops
+
 

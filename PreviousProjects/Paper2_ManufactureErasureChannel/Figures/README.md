@@ -1,4 +1,4 @@
-This folder contains the figures that are were generated to Paper 2, 
+This folder contains the figures that are were generated for Paper 2, 
 "Manufacturing an Erasure Wiretap Channel from Channel Sounding Measurement", 
 as well as information on the files used to generate them. 
 
@@ -12,7 +12,11 @@ as well as information on the files used to generate them.
     
     QPSKContour.eps (Fig. 4) - Made by Prof. Rice using ___
 
-(Fig. 6 - three subplots comparing Bob's cap, Eve's cap, and Sec Cap for the three different models):
-    Dr. Rice generated the plots (see "The Ox" email chain), but the data used was 'completeDataMatrix' 
-    located in '..\Data'. See the readMe in Data for additional information.
+    (Fig. 5)
+
+    (Fig. 6 - three subplots comparing Bob's cap, Eve's cap, and Sec Cap for the three different models):
+                Dr. Rice generated the plots (see "The Ox" email chain), but the data used was 
+                'completeDataMatrix' located in '..\Data'. See the readMe in Data for additional information.
+
+    (Fig. 7) 
 
