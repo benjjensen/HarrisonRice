@@ -9,7 +9,7 @@ Nfft = 1024; % FFT length
 %%% modify as necessary
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-inFilename = 'singleCarrierData/echo_2019-03-19__14-22-56_downsample.mat';
+inFilename = 'Data/ProcessedData/echo-2_downsample.mat';
 skip = 15*Fs; % eliminate the bad data at the beginning
 
 % inFilename = 'singleCarrierData/echo_2019-03-19__14-26-56_downsample.mat';
