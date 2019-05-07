@@ -19,8 +19,9 @@ skip = 15*Fs; % eliminate the bad data at the beginning
 
 load(inFilename); % y
 
-y = y(skip+1:end); % this will not be necessay if you use the files
-                   % Nathan has corrected.
+        % We are using the corrected data     
+% y = y(skip+1:end); % this will not be necessay if you use the files
+%                    % Nathan has corrected.
 
 FF = (-0.5:1/Nfft:0.5-1/Nfft)';
 
