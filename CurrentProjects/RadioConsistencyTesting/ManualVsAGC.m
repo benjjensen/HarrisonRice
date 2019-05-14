@@ -53,7 +53,13 @@ while radios ~= 12
             temp(:,frames) = rx();
         end
         eval(sprintf('%s = temp;',testname));
-        eval(sprintf('save Tests/%s.mat %s;', testname, testname));
+        
     end
     radios = radios + 1;
 end
+savenameManual = Computer+'Manual'+string(TestNum);
+savenameAuto = Computer+'Auto'+string(TestNum);
+savename = 'Radio*_' + Computer + 'Manual*';
+eval(sprintf('save Tests/%s.mat %s;', savenameManual, savename));
+savename = 'Radio*_' + Computer + 'Auto*';
+eval(sprintf('save Tests/%s.mat %s;', savenameAuto, savename));
