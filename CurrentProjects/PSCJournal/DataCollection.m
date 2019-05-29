@@ -9,8 +9,8 @@ timeDelay = 5; % delay between each sample
 startDelay = 5; % delay before the first sample is taken
 samples = 31; % number of locations
 frames = zeros(2048,samples,8);
-i = 'Room433_Column1'; % name of data array
-Room433_Column1 = zeros(2048,samples); %% match name of this to previous line (change both instances of the name)
+i = 'Room433_Column10'; % name of data array
+Room433_Column10 = zeros(2048,samples); %% match name of this to previous line (change both instances of the name)
 
 pause(startDelay);
 % close all; % when graphing is also run, this closes all previous figures
@@ -27,6 +27,6 @@ for yAxis = 1:samples
     pause(timeDelay); % allows for time to move the receiver to the next location
 end
 for transfer = 1:samples % This for loop goes through and keeps only one of the 8 frames
-    Room433_Column1(:,transfer) = frames(:,transfer,8); % previously mentioned.
+    Room433_Column10(:,transfer) = frames(:,transfer,8); % previously mentioned.
 end
 save('SPECIALFOLDER/'+string(i) + '.mat',string(i)); % Saves data array with custom name
