@@ -9,19 +9,19 @@ Nfft = 1024; % FFT length
 %%% modify as necessary
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-inFilename = 'Data/ProcessedData/echo-2_downsample.mat';
+inFilename = 'Data/ProcessedData/echo-1_downsample.mat';
 skip = 15*Fs; % eliminate the bad data at the beginning
 
 % inFilename = 'singleCarrierData/echo_2019-03-19__14-26-56_downsample.mat';
-% skip = 5*Fs; % eliminate the bad data at the beginning
+skip = 10*Fs; % eliminate the bad data at the beginning
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-load(inFilename); % y
+load(inFilename); % y 
 
         % We are using the corrected data     
-% y = y(skip+1:end); % this will not be necessay if you use the files
-%                    % Nathan has corrected.
+y = y(skip+1:end); % this will not be necessay if you use the files
+                   % Nathan has corrected.
 
 FF = (-0.5:1/Nfft:0.5-1/Nfft)';
 
@@ -45,8 +45,8 @@ idx4avg = find(YYshift > YYshift(Nfft/2+1));
 Foffset = FF(idx4avg)'*YYshift(idx4avg)/sum(YYshift(idx4avg));
 
 % remove the frequency offset
-
-y2 = y.*exp(-1i*2*pi*Foffset*(0:length(y)-1)');
+                
+y2 = y.*exp(-1i*2*pi*Foffset*(0:length(y )-1)');
 
 % plot the DPS of the frequency-corrected data
 
@@ -81,7 +81,7 @@ end
 %%% make the plots
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-figure(3);
+figure();
 contourf(FF*Fs,(1:numBlocks)*secondsPerBlock,10*log10(YYm'));
 grid on;
 ax = gca;
