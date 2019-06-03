@@ -14,3 +14,9 @@ rx.BasebandSampleRate = 20e6;
 rx.SamplesPerFrame = 32*64;
 rx.OutputDataType = 'double';
 rx.ShowAdvancedProperties = true;
+
+% Burst Mode
+rx.EnableBurstMode = true;
+rx.NumFramesInBurst = 1;
+
+temp = rx();
