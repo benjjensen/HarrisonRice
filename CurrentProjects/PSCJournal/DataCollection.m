@@ -1,5 +1,6 @@
 %%%%%%% Rx Data Collection (code from previous project) %%%%%%%%
-if (exist('rx','var')
+warning('OFF');
+if (exist('rx','var'))
 else
     plutoradiosetup();
     rx = sdrrx('Pluto');
