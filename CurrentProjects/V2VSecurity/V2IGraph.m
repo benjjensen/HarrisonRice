@@ -44,6 +44,7 @@ ylim([indexOfMaxCapacity-2000 indexOfMaxCapacity+2000]);
 view(45, 60);
 y = colorbar;
 ylabel(y, 'Equivocation at Eve (bits/channel use)');
+% saveas(gcf,'V2ISecrecyCapacity3D','epsc');
 
 figure()
 imagesc(secrecyCapacityPerLocation);
@@ -62,7 +63,7 @@ xlim([indexOfMaxCapacity-2000 indexOfMaxCapacity+2000]);
 ylim([indexOfMaxCapacity-2000 indexOfMaxCapacity+2000]);
 y = colorbar;
 ylabel(y, 'Equivocation at Eve (bits/channel use)');
-% saveas(gcf,'V2ISecrecyCapacity','epsc');
+% saveas(gcf,'V2ISecrecyCapacity2D','epsc');
 
 
 %% Functions
