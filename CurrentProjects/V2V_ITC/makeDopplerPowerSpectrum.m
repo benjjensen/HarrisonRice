@@ -9,7 +9,7 @@ Nfft = 1024; % FFT length
 %%% modify as necessary
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-inFilename = 'Data/ProcessedData/echo-2_downsample.mat';
+inFilename = 'Data/ProcessedData/trimmed_delta-1_downsample.mat';
 skip = 15*Fs; % eliminate the bad data at the beginning
 
 % inFilename = 'singleCarrierData/echo_2019-03-19__14-26-56_downsample.mat';
@@ -99,7 +99,7 @@ ax2.XLim = [-500 500];
 ax2.XLabel.String = 'frequency (Hz)';
 ax2.YLabel.String = 'time (s)';
 
-figure(5);
+figure(6);
 plot(FF*Fs,10*log10(sum(YYm,2)));
 grid on;
 ax3 = gca;
