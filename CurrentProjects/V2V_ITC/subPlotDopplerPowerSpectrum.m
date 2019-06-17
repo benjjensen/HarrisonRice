@@ -133,10 +133,10 @@ end
 ax.PaperUnits = 'inches';
 ax.PaperPosition = [0 0 6.5 5];
 
-fig = gcf;
-fig.PaperUnits = 'inches';
-fig.PaperPosition = [0 0 6.5 5];
+ax3 = gcf;
+ax3.PaperUnits = 'inches';
+ax3.PaperPosition = [0 0 6.5 5];
 % fig.Title = "Testing";
 
-saveas(ax,'DopplerContour','epsc');
-saveas(ax3,'DopplerPowerSpectrums','epsc');
+saveas(ax,'Figures\DopplerContour','epsc');
+saveas(ax3,'Figures\DopplerPowerSpectrums','epsc');
