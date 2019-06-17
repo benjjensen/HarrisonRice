@@ -1,3 +1,6 @@
+% Continuously gathers data and plots it. Allows for a quick look at the
+% channel
+
 clearvars -except rx; close all;
 % programstart = datetime;
 % waitduration = duration('00:00:18');

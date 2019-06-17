@@ -1,3 +1,8 @@
+% This file is loads in data and generates heatmaps for Harrison's,
+% Smalley's, and Camacho's old offices.
+% This was done using new data gathered in the empty offices, and used to
+% ensure that Harrison's office still has an advantage over the other two
+
 clear; close all;
 load SPECIALFOLDER/processed.mat;
 
