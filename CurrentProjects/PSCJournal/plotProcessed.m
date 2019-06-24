@@ -6,27 +6,27 @@
 clear; close all;
 load SPECIALFOLDER/processed.mat;
 
+hmax = max(max(harrisonComplete));
+smax = max(max(smalleyComplete));
+cmax = max(max(camachoComplete));
+
 figure();
 imagesc(harrisonComplete);
-ax1 = gca; title('Harrison');
+ax1 = gca; title('Harrison (Max = ' + string(hmax) + ')');
 colorbar;
-caxis([0 500]);
+% caxis([0 500]);
 ax1.YDir = 'normal'; drawnow;
 
 figure();
 imagesc(smalleyComplete);
-ax2 = gca; title('Smalley');
+ax2 = gca; title('Smalley (Max = ' + string(smax) + ')');
 colorbar;
-caxis([0 500]);
+% caxis([0 500]);
 ax2.YDir = 'normal'; drawnow;
 
 figure();
 imagesc(camachoComplete);
-ax3 = gca; title('Camacho');
+ax3 = gca; title('Camacho (Max = ' + string(cmax) + ')');
 colorbar;
-caxis([0 500]);
+% caxis([0 500]);
 ax3.YDir = 'normal'; drawnow;
-
-hmax = max(max(harrisonComplete));
-smax = max(max(smalleyComplete));
-cmax = max(max(camachoComplete));
