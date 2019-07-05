@@ -53,7 +53,7 @@ test3 = zeros(2048,2000);
 tic;
 for temp = 1:400
     test3(:,temp) = rx();
-%     pause();
+    pause(0.00106);
 end
 toc;
 % while ((datetime - test3begin) < test3length)

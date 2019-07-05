@@ -21,7 +21,7 @@ ignore = zeros(2048,1);
 for init = 1:100
     ignore(:,1) = rx();
 end
-frames = 200;
+frames = 400;
 test = zeros(2048,frames);
 count = 0;
 while(1)

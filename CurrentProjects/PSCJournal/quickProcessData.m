@@ -1,10 +1,11 @@
 %% Process Data (Pwelch + FFT)
 
-dataArray = camacho_heavy;
-numSamples = 40000;
+dataArray = test;
 startCarrier = 10;
 endCarrier = 55;
 
+
+[~, numSamples] = size(dataArray);
 [processedData_linear, processedData_db] = processArray(dataArray, numSamples);
 
 %% Separate noise and signal

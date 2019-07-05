@@ -1,3 +1,11 @@
+%%%%% RxStationary.m
+% Used to gather X minutes of data in a stationary location
+% Does ..... stuff
+
+% Note - to keep differnt computers on the same pace, a pause command was
+% added in towards the end of the file. The amount of time to pause can be
+% found with the RxTest.m file
+
 clear;
 programstart = datetime;
 waitduration = duration('00:00:20');
@@ -17,13 +25,15 @@ for init = 1:100
     ignore(:,1) = rx();
 end
 
-frames = 40000; % 5 Min of Data
+minOfData = 1;
+framesPerMin = 8000;
+frames = minOfData * framesPerMin; % # of Min of Data
 
-i = 'harrison_light'; % name of data array
-harrison_light = zeros(2048,frames); %% match name of this to previous line (change both instances of the name)
+i = 'HarrisonTest'; % name of data array
+HarrisonTest = zeros(2048,frames); %% match name of this to previous line (change both instances of the name)
 
 timePerSection = duration('00:00:03');
-numDivisions = (60*5)/3; 
+numDivisions = (60*minOfData)/3; 
 framesPerRun = frames/numDivisions;
 split(numDivisions) = zeros;
 for init = 1:numDivisions
@@ -38,8 +48,8 @@ starttime = datetime;
 for sections = 1:numDivisions
     begintime = datetime;
     for runs = split(sections)-(framesPerRun-1):split(sections)
-        harrison_light(:,runs) = rx();
-        % pause(.001); % for the computers that run too fast...
+        HarrisonTest(:,runs) = rx();
+        pause(.00106); % for the computers that run too fast...
     end
     while ((datetime - begintime) <= timePerSection)
     end

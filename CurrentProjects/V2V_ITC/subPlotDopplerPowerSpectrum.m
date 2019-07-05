@@ -8,8 +8,6 @@ Nfft = 1024; % FFT length
 skip = 20*Fs; % eliminate the bad data at the beginning
 
 % Array of the four single-carrier data file paths
-    % Note - Charlie-2 is bad, but charlie-1 is worse
-    % These may need to be shifted. This can be done below in the 'for' loop
 inFilename = ["Data/ProcessedData/beta-3_downsample.mat", "Data/ProcessedData/trimmed_charlie-2_downsample.mat" ...
     "Data/ProcessedData/trimmed_delta-1_downsample.mat", "Data/ProcessedData/trimmed_echo-1_downsample.mat"];
 
@@ -73,37 +71,19 @@ for file = 1:4
     ax = gca;
     colorbar;
     bar = colorbar;
-    ylabel(bar,'magnitude (dB)','FontSize',10);
+    ylabel(bar,'magnitude (dB)','FontName','Times New Roman','FontSize',10);
     ax.Children.LineStyle = 'none';
     ax.XLim = [-500 500];
     ax.XLabel.String = 'frequency (Hz)';
-    ax.XLabel.FontSize = 12;
+    ax.XLabel.FontName = 'Times New Roman';
+    ax.XLabel.FontSize = 9.5;
     ax.YLabel.String = 'time (s)';
-    ax.YLabel.FontSize = 12;
-    title(fileTitles(file));
-    
+    ax.YLabel.FontSize = 9.5;
+    ax.YLabel.FontName = 'Times New Roman';
+    title(fileTitles(file));  
     ax = gcf;
+   
     
-%     fig = gcf;
-%     fig.PaperUnits = 'inches';
-%     fig.PaperPosition = [0 0 6.5 5];
-    
-%     figure(2);
-%     subplot(1,4,file);
-%     contourf(FF*Fs,(1:numBlocks)*secondsPerBlock,10*log10(YYm'));
-%     grid on;
-%     ax = gca;
-%     ax.Children.LineStyle = 'none';
-%     ax.XLim = [-500 500];
-%     ax.XLabel.String = 'frequency (Hz)';
-%     ax.YLabel.String = 'time (s)';
-%     title(fileTitles(file));
-%     if (file == 4)
-%       colorbar;
-%     end
-%     saveas(gcf,'DopplerPowerSpectrums','epsc');
-
-
     figure(3);    
     subplot(2,2,file);
     plot(FF*Fs,10*log10(sum(YYm,2)));
@@ -111,32 +91,23 @@ for file = 1:4
     ax3 = gca;
     ax3.XLim = [-500 500];
     ax3.XLabel.String = 'frequency (Hz)';
-    ax3.XLabel.FontSize = 12;
+    ax3.XLabel.FontSize = 10;
+    ax3.XLabel.FontName = 'Times New Roman';
     ax3.YLabel.String = 'magnitude (dB)';
-    ax3.YLabel.FontSize = 12;
-    title(fileTitles(file));
-    
+    ax3.YLabel.FontSize = 10;
+    ax3.YLabel.FontName = 'Times New Roman';
+    title(fileTitles(file));    
     ax3 = gcf;
 
-
-%     figure(4);
-%     subplot(1,4,file);
-%     plot(FF*Fs,10*log10(sum(YYm,2)));
-%     grid on;
-%     ax3 = gca;
-%     ax3.XLim = [-500 500];
-%     ax3.XLabel.String = 'frequency (Hz)';
-%     ax3.YLabel.String = 'magnitude (dB)';
-%     title(fileTitles(file));
 end
 
+%% Formatting for ITC 2019 Paper 
 ax.PaperUnits = 'inches';
 ax.PaperPosition = [0 0 6.5 5];
 
 ax3 = gcf;
 ax3.PaperUnits = 'inches';
 ax3.PaperPosition = [0 0 6.5 5];
-% fig.Title = "Testing";
 
-saveas(ax,'Figures\DopplerContour','epsc');
-saveas(ax3,'Figures\DopplerPowerSpectrums','epsc');
+% saveas(ax,'Figures\DopplerContour','epsc');
+% saveas(ax3,'Figures\DopplerPowerSpectrums','epsc');
