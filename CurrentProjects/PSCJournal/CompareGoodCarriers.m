@@ -4,6 +4,8 @@ startCarrier = 11;
 endCarrier = 55;
 
 addpath 'Functions'
+
+    % Uses RAW data (it is processed by this file)
 load('HarrisonTest.mat');
 load('smalleyTest.mat');
 load('CamachoTest.mat');
