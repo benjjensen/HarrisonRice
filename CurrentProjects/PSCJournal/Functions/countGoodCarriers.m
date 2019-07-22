@@ -1,4 +1,4 @@
-function [aveNumGoodCarriers] = countGoodCarriers(signal, noise, threshold, startCar, endCar)
+function [aveNumGoodCarriers, numGoodCarriers] = countGoodCarriers(signal, noise, threshold, startCar, endCar)
 
     [numCarriers, numSamples] = size(signal);
     numGoodCarriers = zeros(numSamples, 1);
