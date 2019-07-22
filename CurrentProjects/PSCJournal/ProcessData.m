@@ -11,9 +11,9 @@ endCarrier = 55;
 addpath 'Functions'
 
     % Uses RAW data (it is processed by this file)
-load('HarrisonTest.mat');
-load('smalleyTest.mat');
-load('CamachoTest.mat');
+load('Testing/July17thTesting/HarrisonTest.mat');
+load('Testing/July17thTesting/smalleyTest.mat');
+load('Testing/July17thTesting/CamachoTest.mat');
 
 harrison = HarrisonTest;
 smalley = smalleyTest;
@@ -66,3 +66,10 @@ camSignal = camSignal ./ trueMax;
 smaSignal = smaSignal ./ trueMax;
     smaSignal = smaSignal .^2;
     
+    
+save('Testing/July17thTesting/ProcessedNormalized/harProcessed.mat','harSignal');
+save('Testing/July17thTesting/ProcessedNormalized/aveNoiseHar.mat','aveNoiseHar');
+save('Testing/July17thTesting/ProcessedNormalized/smaProcessed.mat','smaSignal');
+save('Testing/July17thTesting/ProcessedNormalized/aveNoiseSma.mat','aveNoiseSma');
+save('Testing/July17thTesting/ProcessedNormalized/camProcessed.mat','camSignal');
+save('Testing/July17thTesting/ProcessedNormalized/aveNoiseCam.mat','aveNoiseCam');
