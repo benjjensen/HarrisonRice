@@ -60,12 +60,14 @@ camSignal = camSignal ./ trueMax;
     camSignal = camSignal .^2;
 smaSignal = smaSignal ./ trueMax;
     smaSignal = smaSignal .^2;
+    
+    %%
 
     % Count number of carriers above a threshold for a range of thresholds
 for SNR = 1:100
-    counts(1, SNR) = countGoodCarriers(harSignal, aveNoiseHar, SNR, startCarrier, endCarrier);
-    counts(2, SNR) = countGoodCarriers(smaSignal, aveNoiseSma, SNR, startCarrier, endCarrier);
-    counts(3, SNR) = countGoodCarriers(camSignal, aveNoiseCam, SNR, startCarrier, endCarrier);
+    [counts(1, SNR), ~] = countGoodCarriers(harSignal, aveNoiseHar, SNR, startCarrier, endCarrier);
+    [counts(2, SNR), ~] = countGoodCarriers(smaSignal, aveNoiseSma, SNR, startCarrier, endCarrier);
+    [counts(3, SNR), ~] = countGoodCarriers(camSignal, aveNoiseCam, SNR, startCarrier, endCarrier);
 end
 
 difference = min((counts(1,:) - counts(2,:)),(counts(1,:) - counts(3,:)));
