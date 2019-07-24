@@ -14,6 +14,8 @@ endCarrier = 64;
 %%%%%%%%%%%%%%%%%%%%%%
     
     % Load in appropriate data
+addpath 'Functions'    
+
 load('Testing/July17thTesting/ProcessedNormalized/harProcessed');
     load('Testing/July17thTesting/ProcessedNormalized/aveNoiseHar');
 load('Testing/July17thTesting/ProcessedNormalized/smaProcessed');
