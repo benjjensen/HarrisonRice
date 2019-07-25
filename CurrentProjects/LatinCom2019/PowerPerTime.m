@@ -4,8 +4,7 @@ disp(string(datetime));
 
 %%%%% User Inputs %%%%%
 
-% filename = '/media/V2V/Sundance-To-US189-25June2019_20Msps.mat'; % Down
-filename = '/media/V2V/US189-To-Sundance-25June2019_20Msps.mat'; % Up
+filename = '/media/V2V/Sundance-To-US189-25June2019_20Msps.mat';        
 nfft = 2048;
 sampleRate = 20;    % in MSamples/sec (10)
 numSeconds = 0.001; % How many seconds we average over (0.001)
@@ -54,13 +53,17 @@ while ~isDone(mfr)
             index = index + 1;
             
             % And the user is notified
-            if (displayCounter == 1000*30)
+            if (displayCounter == 1000)
                 counterCounter = counterCounter + 1;
-                disp('Finished 30 seconds of data, for a total of ' + string(counterCounter));
+                disp('Finished 1 second of data, for a total of ' + string(counterCounter));
                 displayCounter = 0;
             end
         end
     end
+    if (counterCounter == 5)
+        break;
+    end
+    
    
 end
 
