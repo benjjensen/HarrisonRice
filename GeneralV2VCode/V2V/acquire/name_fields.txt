@@ -27,21 +27,6 @@
 
 
 $ PROVO - Location
-- I15 I-15
-- PROVO Provo
-- CANYON Provo Canyon
+- T t
 - APSK APSK
-$ LOW _ Traffic Density
-- LOW Low
-- MED Medium
-- HIGH High 
-$ follow - Receiving Vehicle Position
-- follow Following closely
-- followfar Following distantly
-- preceed Preceeding closely
-- preceedfar Preceeding distantly
-$ straight ` Maneuver
-- left Turn left
-- right Turn right
-- straight Drive straight
 ~
