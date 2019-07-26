@@ -1,5 +1,4 @@
 *.o
-dos2unix.sh
 acquire/acquire
 */nbproject
 sampler
