@@ -1,4 +1,4 @@
-function convertDatFilesInDirectory(directoryPath)
+ function convertDatFilesInDirectory(directoryPath, sampleRate)
 % Convert the raw V2V data files in a folder into .mat files
 % This function searches through a directory and converts all of the .dat
 % files in that directory to .mat files. Files that have already been
@@ -11,7 +11,8 @@ function convertDatFilesInDirectory(directoryPath)
         directoryPath = strcat(directoryPath, '/');
     end
     
-    searchPattern = strcat(directoryPath, '*.dat');
+    searchPattern = strcat(directoryPath, '*Reference.dat');
+%     searchPattern = strcat(directoryPath, '*.dat');
     % Get a list of all the files in the directory that have the .dat file
     % extension.
     datFiles = dir(searchPattern);
@@ -26,7 +27,7 @@ function convertDatFilesInDirectory(directoryPath)
         end
         fprintf('Working on %s (%d/%d)...', datFilename, i, numDatFiles);
         drawnow
-        v2vDatFileToMatFile(datFilename);
+        v2vDatFileToMatFile(datFilename,sampleRate);
     end
     fprintf(' Done.\nAll files converted.\n');
 end
