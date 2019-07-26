@@ -5,8 +5,8 @@ disp(string(datetime));
 
 %%%%% User Inputs %%%%%
 
-% filename = '/media/V2V/Sundance-To-US189-25June2019_20Msps.mat'; % Down
-filename = '/media/V2V/US189-To-Sundance-25June2019_20Msps.mat'; % Up
+filename = '/media/V2V/Sundance-To-US189-25June2019_20Msps.mat'; % Down
+% filename = '/media/V2V/US189-To-Sundance-25June2019_20Msps.mat'; % Up
 nfft = 2048;
 sampleRate = 20;    % in MSamples/sec (20)
 numSeconds = 0.001; % How many seconds we average over (0.001)
@@ -86,9 +86,6 @@ while ~isDone(mfr)
                 displayCounter = 0;
             end
         end
-    end
-    if (counterCounter == 5)
-        break;
     end
     
 end

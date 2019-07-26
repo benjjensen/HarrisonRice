@@ -6,7 +6,7 @@ disp(string(datetime));
 
 filename = '/media/V2V/Sundance-To-US189-25June2019_20Msps.mat';        
 nfft = 2048;
-sampleRate = 20;    % in MSamples/sec (10)
+sampleRate = 20;    % in MSamples/sec (20)
 numSeconds = 0.001; % How many seconds we average over (0.001)
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -16,7 +16,7 @@ load('carrierIndices.mat')
 samplesPerMegasample = 10^6;
 
 % Calculate nfft's per numSeconds
-samplesPerTime = sampleRate * samplesPerMegasample * numSeconds; % (10000)
+samplesPerTime = sampleRate * samplesPerMegasample * numSeconds; % (20000)
 
 mfr = dsp.MatFileReader(filename,'VariableName','y','SamplesPerFrame',nfft);
 count = 0;      % Keeps track of samples accumulated
@@ -36,7 +36,7 @@ while ~isDone(mfr)
         data = abs(data) .^ 2;
         
         % Sum up over carriers;
-        for carrierCount = 1:64
+          for carrierCount = 1:64
             total = total + data(a(carrierCount,1),1);
         end
         count = count + nfft;

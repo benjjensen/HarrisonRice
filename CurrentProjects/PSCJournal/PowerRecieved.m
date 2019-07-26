@@ -1,16 +1,10 @@
 % Power Received 
 
-% Load in the powerArray array
-% Average over every (100 ms)    -> (cant this be done with a convolution?)
-    % Average in linear
-    % Plot (in dB)
-
-clear; close all;
+% clear; close all;
 
 stepSize = 100; % Milliseconds
     
-    
-load('powerArray.mat')
+% load('powerArray.mat')
 
 dataCount = length(powerArray);
 averages = zeros(ceil(dataCount/stepSize),1);
@@ -26,8 +20,8 @@ end
 
 figure()
 plot(averages)
-xlim([0, 2260]);
-ylim([0, 10e5]);
+xlim([0, 300000]);
+ylim([0, 15e6]);
 
 figure()
 plot(powerArray)

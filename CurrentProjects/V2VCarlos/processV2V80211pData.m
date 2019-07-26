@@ -18,8 +18,9 @@
 
 load myFilterData80211p.mat; % h g
 
-inFilename = '/media/V2V/dry-run_2019-03-18__18-36-24.mat';
-outFilename = 'mdrTest.mat';
+% inFilename = '/media/V2V/dry-run_2019-03-18__18-36-24.mat';
+inFilename = 'TestData/PROVO-LOW_follow-straight_2019-06-12__17-25-20.mat';
+outFilename = 'mdrTest3.mat';
 
 firdownsample = dsp.FIRDecimator(10,g);
 
