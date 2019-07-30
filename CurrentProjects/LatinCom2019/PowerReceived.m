@@ -4,14 +4,14 @@ clear; close all;
 
 timeToAverage = 100; % Average 100 ms
 
-load('powerArray.mat');
-dataCount = length(powerArray);
+load('powerPerMilliSecondArray.mat');
+dataCount = length(powerPerMilliSecondArray);
 saveIndex = 1;
 
 for index = 1:(timeToAverage):(dataCount - timeToAverage)
     startPoint = index;
     endPoint = startPoint + timeToAverage - 1;
-    averagedData(saveIndex) = mean(powerArray(1, startPoint:endPoint));
+    averagedData(saveIndex) = mean(powerPerMilliSecondArray(1, startPoint:endPoint));
     saveIndex = saveIndex + 1;
 end
 NANs = nan(1, (3000 - 2372));
