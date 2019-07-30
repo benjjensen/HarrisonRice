@@ -17,6 +17,8 @@ end
 NANs = nan(1, (3000 - 2372));
 averagedData = [averagedData, NANs];
 
+averagedData = mag2db(averagedData);
+
 figure()
 subplot(2,1,1)
 plot(averagedData);
@@ -24,7 +26,7 @@ title('Power Received (' + string(timeToAverage) + ' ms)');
 xlabel('Time (ms)');
 ylabel('Power...?');
 xlim([0 3000]);
-ylim([0 (10^6)]);
+% ylim([0 (10^6)]);
 
 %% Data from VehicleLineOfSightToUS189
 
@@ -41,4 +43,27 @@ ylabel('Line of Sight');
 xlabel('Time Elapsed (s)');
 
 
+%%
+% averagedData = averagedData(1, 53:end);
+figure()
+hold on
+plot(averagedData, 'k');
+ax1 = gca; % current axes
+ax1.XColor = 'k';
+ax1.YColor = 'k';
+ylim([0 180])
+ylabel('Power (dB)');
+
+
+ax1_pos = ax1.Position; % position of first axes
+ax2 = axes('Position',ax1_pos,...
+    'YAxisLocation','right',...
+    'Color','none');
+% plot(X1,Y1,'Parent',ax2,'Color','k')
+line(X1,Y1, 'color', 'b');
+ylim([0 1.5]);
+ax2 = gca;
+ax2.XColor = 'b';
+ax2.YColor = 'b';
+hold off
 
