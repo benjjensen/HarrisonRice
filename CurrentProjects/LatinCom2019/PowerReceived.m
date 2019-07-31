@@ -45,25 +45,17 @@ xlabel('Time Elapsed (s)');
 
 %%
 % averagedData = averagedData(1, 53:end);
-figure()
-hold on
-plot(averagedData, 'k');
-ax1 = gca; % current axes
-ax1.XColor = 'k';
-ax1.YColor = 'k';
-ylim([0 180])
-ylabel('Power (dB)');
 
+figure();
+yyaxis left;
 
-ax1_pos = ax1.Position; % position of first axes
-ax2 = axes('Position',ax1_pos,...
-    'YAxisLocation','right',...
-    'Color','none');
-% plot(X1,Y1,'Parent',ax2,'Color','k')
-line(X1,Y1, 'color', 'b');
-ylim([0 1.5]);
-ax2 = gca;
-ax2.XColor = 'b';
-ax2.YColor = 'b';
-hold off
+plot(averagedData(1,122:end));
+ylabel('Power Received (per ms)');
+ylim([60 160]);
 
+yyaxis right;
+X1 = X1*10-349;
+plot(X1, Y1, 'r');
+ylabel('Line of Sight');
+ylim([0 2]);
+xlim([0 2450]);
