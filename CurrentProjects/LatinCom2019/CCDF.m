@@ -30,13 +30,13 @@ cumulative = cumsum(yp);
 % ylabel('Probability');
 % grid on
 
-% figure()
-% % semilogy(1-cummulative); grid on;
-% plot(xaxis, 1-cumulative); grid on;
-% title('CCDF');
-% xlabel('Power Received');
-% ylabel('Probability');
-% grid on
+figure()
+% semilogy(1-cummulative); grid on;
+plot(xaxis, 1-cumulative); grid on;
+title('CCDF');
+xlabel('Power Received');
+ylabel('Probability');
+grid on
 
 figure()
 semilogy(xaxis(1:end-1), 1-cumulative(1:end-1)); grid on;

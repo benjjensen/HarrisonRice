@@ -59,3 +59,7 @@ plot(X1, Y1, 'r');
 ylabel('Line of Sight');
 ylim([0 2]);
 xlim([0 2450]);
+xticklabels({'0','50','100','150','200'})
+xlabel('Time (s)');
+saveas(gcf,'PowerReceived','epsc');
+
