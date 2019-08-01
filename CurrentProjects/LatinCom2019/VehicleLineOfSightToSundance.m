@@ -1,4 +1,5 @@
-%X1 values represent points where we had line of sight in seconds
+%This data comes from the GoPro US 189 to Sundance Video on box
+% X1 values represent points where we had line of sight in seconds
 X1 = [0.00 43 43 80 80 94.3 94.3 134 134 139 139 192 192 205.43 205.43 210 210 212.3 212.3];
 
 Y1 = [1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0]; %1 means we had line of sight, and 0 means we did not, corresponding to the X1 value times
