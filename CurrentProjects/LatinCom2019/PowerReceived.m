@@ -50,8 +50,8 @@ figure();
 yyaxis left;
 
 plot(averagedData(1,122:end));
-ylabel('Power Received (per ms)');
-ylim([60 160]);
+ylabel('Power Received (per 100 ms)');
+% ylim([60 160]);
 
 yyaxis right;
 X1 = X1*10-349;
