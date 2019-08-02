@@ -26,6 +26,6 @@ release(mfr);
 e = d / index;
 
 x = e;
-save avgDelaySpreadResults.mat x;
+save Data/avgDelaySpreadResults.mat x;
 
 % plot(e);

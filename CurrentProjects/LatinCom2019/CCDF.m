@@ -1,7 +1,7 @@
 %%%%%% CCDF %%%%%%%%
 clear; close all;
 
-load('powerPerMilliSecondArray.mat');
+load('Data/powerPerMilliSecondArray.mat');
 temp = powerPerMilliSecondArray(1,1.266e4:end);
 temp = temp / max(temp);
 

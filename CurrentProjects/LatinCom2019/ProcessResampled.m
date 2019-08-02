@@ -53,6 +53,6 @@ processed = processed ./ count;
 shifted = fftshift(processed);
 
 % save Processed-Sundance-US189-25June2019.mat processed shifted; % Down Canyon
-save Processed-US189-Sundance-25June2019.mat processed shifted; % Up Canyon
+save Data/Processed-US189-Sundance-25June2019.mat processed shifted; % Up Canyon
 
 disp('Finished manual pwelch at ' + string(datetime));

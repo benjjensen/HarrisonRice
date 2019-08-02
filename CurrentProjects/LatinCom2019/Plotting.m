@@ -4,7 +4,7 @@
 
 clear; close all;
 
-load('Processed-Sundance-US189-25June2019.mat');
+load('Data/Processed-Sundance-US189-25June2019.mat');
 
 shifted = mag2db(shifted);
 

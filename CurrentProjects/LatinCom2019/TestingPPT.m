@@ -13,7 +13,7 @@ numSeconds = 0.001; % How many seconds we average over (0.001)
 
 %%%%%%%%%%%%%%%%%%%%%%%
 
-load('carrierIndices.mat')   % Contain indices of the 64 carriers (not noise)
+load('Data/carrierIndices.mat')   % Contain indices of the 64 carriers (not noise)
 
 samplesPerMegasample = 10^6;
 

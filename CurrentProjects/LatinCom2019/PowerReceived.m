@@ -4,7 +4,7 @@ clear; close all;
 
 timeToAverage = 100; % Average 100 ms
 
-load('powerPerMilliSecondArray.mat');
+load('Data/powerPerMilliSecondArray.mat');
 dataCount = length(powerPerMilliSecondArray);
 saveIndex = 1;
 
