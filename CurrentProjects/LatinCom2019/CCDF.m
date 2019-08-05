@@ -25,17 +25,28 @@ yp = y.Values / length(temp);
     % Accumulates the values 
 cumulative = cumsum(yp);
 
-% figure()
-% % semilogy(1-cummulative); grid on;
-% plot(xaxis, 1-cumulative); grid on;
-% title('CCDF');
-% xlabel('Power Received');
-% ylabel('Probability');
-% grid on
-
 figure()
 semilogy(xaxis(1:end-1), 1-cumulative(1:end-1)); grid on;
-xlabel('Power Received');
-ylabel('Probability');
 grid on
+
+ % Formats the axes
+ax = gca;
+ax.FontName = 'Times New Roman';
+ax.XLabel.String = 'Received Power (dB)';
+ax.YLabel.String = 'P(X > x)';
+ax.Children.Color = 'k';
+ax.Children.LineWidth = 1; 
+
+
+ % Formats the figure before saving
+fig = gcf;
+tempUnits = f.Units;
+f.Units = 'inches';
+tempPosition = f.Position;
+f.Position = [tempPosition(1:2) 5 4];   % 5" x 4" - MDR's preferred sizing
+f.PaperPositionMode = 'auto';
+f.Units = tempUnits;
+
+
 saveas(gcf,'Figures/CCDF','epsc');
+
