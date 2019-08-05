@@ -1,11 +1,10 @@
-% Delay Spread (updated with MDR's notes)
+%%%%% DELAY SPREAD %%%%%
 clear; 
 % close all;
-% 1) Load in ms data (should be 2048 x 237,000 ish, not summed like power array)
 
 mfr = dsp.MatFileReader('ds_PowerArray.mat','VariableName','ds_PowerArray','SamplesPerFrame',1);
 
-% 1b) Downsample Ref to 20 Ms, pwelch first chunk
+% Downsample Ref Signal to 20 Ms, pwelch first chunk
 
 Nfft = 2048;
 
@@ -70,7 +69,7 @@ refSignal = pwelch(ref,boxcar(Nfft),0,Nfft,'twosided'); % Pwelch it
 % 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% 2) Looping through the file, set up an array of zeros, then copy over
+% Looping through the file, set up an array of zeros, then copy over
 % ONLY the carriers from the ms data ./ carriers from reference signal
 
 index = 1;

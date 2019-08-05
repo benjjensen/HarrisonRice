@@ -32,21 +32,20 @@ grid on
  % Formats the axes
 ax = gca;
 ax.FontName = 'Times New Roman';
-ax.XLabel.String = 'Received Power (dB)';
-ax.YLabel.String = 'P(X > x)';
+ax.XLabel.String = 'Power Received (dB)';
+ax.YLabel.String = 'CCDF of Power Received';
 ax.Children.Color = 'k';
 ax.Children.LineWidth = 1; 
 
 
  % Formats the figure before saving
 fig = gcf;
-tempUnits = f.Units;
-f.Units = 'inches';
-tempPosition = f.Position;
-f.Position = [tempPosition(1:2) 5 4];   % 5" x 4" - MDR's preferred sizing
-f.PaperPositionMode = 'auto';
-f.Units = tempUnits;
+tempUnits = fig.Units;
+fig.Units = 'inches';
+tempPosition = fig.Position;
+fig.Position = [tempPosition(1:2) 5 4];   % 5" x 4" - MDR's preferred sizing
+fig.PaperPositionMode = 'auto';
+fig.Units = tempUnits;
 
-
-saveas(gcf,'Figures/CCDF','epsc');
+% saveas(gcf,'Figures/CCDF','epsc');
 
