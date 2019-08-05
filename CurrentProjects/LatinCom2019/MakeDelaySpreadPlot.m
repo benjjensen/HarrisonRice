@@ -1,4 +1,4 @@
-%%% makeDelaySpreadPlot
+%%% makeDelaySpreadPlot (MDR)
 
 load Data/avgDelaySpreadResults.mat
 

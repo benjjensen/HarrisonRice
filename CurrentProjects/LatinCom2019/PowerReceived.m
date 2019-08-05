@@ -20,28 +20,11 @@ averagedData = [averagedData, NANs];
 
 averagedData = 10*log10(averagedData); % Converts to dB
 
-% figure()
-% subplot(2,1,1)
-% plot(averagedData);
-% title('Power Received (' + string(timeToAverage) + ' ms)');
-% xlabel('Time (ms)');
-% ylabel('Power...?');
-% xlim([0 3000]);
-% ylim([0 (10^6)]);
-
 %% Data from VehicleLineOfSightToUS189
 
 X = [527 552 552 566 566 568.3 568.3 571 571 575 575 581 581 584.8 584.8 596 596 603 603 611 611 629 629 656 656 661 661 680 680 682 682 722 722 732 732 771.5 771.5 805 805];
 X1 = X - 527;
 Y1 = [1 1  0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 nan];
-
-
-subplot(2,1,2);
-plot(X1, Y1, 'LineWidth',2);
-ylim([0 1.5]);
-xlim([0 300]);
-ylabel('Line of Sight');
-xlabel('Time Elapsed (s)');
 
 
 %% Plot 
