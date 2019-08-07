@@ -44,7 +44,7 @@ ax1 = gca;
 ax1.FontName = 'Times New Roman';
 ax1.XTick = 0:30:length(plotPower)-1;
 ax1.Children.Color = 0*[1 1 1]; %0.67*[1 1 1];
-ax1.YLabel.String = 'Received Power (dB)';
+ax1.YLabel.String = 'Received Power (dBmax)';
 ax1.YColor = 'k';
 
     % Plots the LOS 
@@ -78,7 +78,7 @@ bart = f.Position;
 f.Position = [bart(1:2) 10 4];
 f.PaperPositionMode = 'auto';
 f.Units = homer;
-% saveas(gcf,'Figures/PowerReceived','epsc');
+saveas(gcf,'Figures/PowerReceived','epsc');
 
 
     % Option 2 - Plots the LOS underneath the power received data

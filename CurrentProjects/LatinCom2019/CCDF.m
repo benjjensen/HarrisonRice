@@ -32,7 +32,7 @@ grid on
  % Formats the axes
 ax = gca;
 ax.FontName = 'Times New Roman';
-ax.XLabel.String = 'Power Received (dB)';
+ax.XLabel.String = 'Power Received (dBmax)';
 ax.YLabel.String = 'CCDF of Power Received';
 ax.Children.Color = 'k';
 ax.Children.LineWidth = 1; 
@@ -47,5 +47,5 @@ fig.Position = [tempPosition(1:2) 5 4];   % 5" x 4" - MDR's preferred sizing
 fig.PaperPositionMode = 'auto';
 fig.Units = tempUnits;
 
-% saveas(gcf,'Figures/CCDF','epsc');
+saveas(gcf,'Figures/CCDF','epsc');
 
