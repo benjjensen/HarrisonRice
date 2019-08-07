@@ -1,10 +1,10 @@
-% Make Plots
+% Make Plots - NOT USED?
 
 %% 1) Power Spectral Density 
 
 clear; close all;
 
-load('Processed-Sundance-US189-25June2019.mat');
+load('Data/Processed-Sundance-US189-25June2019.mat');
 
 shifted = mag2db(shifted);
 

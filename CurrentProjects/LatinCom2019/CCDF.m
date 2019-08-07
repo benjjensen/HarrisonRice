@@ -1,18 +1,20 @@
 %%%%%% CCDF %%%%%%%%
 clear; close all;
 
-load('powerPerMilliSecondArray.mat');
-temp = powerPerMilliSecondArray(1,1.266e4:end);
-temp = temp / max(temp);
+load('Data/powerPerMilliSecondArray.mat');
+temp = powerPerMilliSecondArray(1,1.266e4:end); % Cuts off the beginning b/c it is weird
+temp = temp / max(temp); % Normalized to max 
 
 % figure()
 % plot(10*log10(temp))
 % title('Power Array')
 
+    % Generates a Histogram 
 figure()
 y = histogram(10*log10(temp));
 title('Histogram')
 
+    % Averages bins
 [~, edgeVals] = size(y.BinEdges);
 for i = 1:edgeVals-1
     xaxis(i) = mean(y.BinEdges(i:i+1));
@@ -20,31 +22,30 @@ end
 
 yp = y.Values / length(temp);
    
-
+    % Accumulates the values 
 cumulative = cumsum(yp);
-
-% figure()
-% plot(xaxis, cumulative);
-% title('CDF');
-% xlabel('Power Received');
-% ylabel('Probability');
-% grid on
-
-% figure()
-% % semilogy(1-cummulative); grid on;
-% plot(xaxis, 1-cumulative); grid on;
-% title('CCDF');
-% xlabel('Power Received');
-% ylabel('Probability');
-% grid on
 
 figure()
 semilogy(xaxis(1:end-1), 1-cumulative(1:end-1)); grid on;
-% plot(1-cummulative); grid on;
-title('CCDF (semilogy)');
-xlabel('Power Received');
-ylabel('Probability');
 grid on
 
-% Normalized it so that 0 dB power is when the vans are right next to one
-% another. (dB relative to when they are side by side)
+ % Formats the axes
+ax = gca;
+ax.FontName = 'Times New Roman';
+ax.XLabel.String = 'Power Received (dB)';
+ax.YLabel.String = 'CCDF of Power Received';
+ax.Children.Color = 'k';
+ax.Children.LineWidth = 1; 
+
+
+ % Formats the figure before saving
+fig = gcf;
+tempUnits = fig.Units;
+fig.Units = 'inches';
+tempPosition = fig.Position;
+fig.Position = [tempPosition(1:2) 5 4];   % 5" x 4" - MDR's preferred sizing
+fig.PaperPositionMode = 'auto';
+fig.Units = tempUnits;
+
+% saveas(gcf,'Figures/CCDF','epsc');
+
