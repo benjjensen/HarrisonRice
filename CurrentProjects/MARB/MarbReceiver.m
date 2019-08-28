@@ -3,6 +3,7 @@
 % (Sets up the radio, accounts for the buffer error)
 
 clear; close all;
+tic
 
 %%% USER INFORMATION %%%%%%
 frames = 8000; % approximately 8000 frames per minute, depending on the computer
@@ -46,7 +47,10 @@ temp = zeros(2048, frames);
 % for sections = 1:numDivisions
 %     begintime = datetime;
 %     for runs = split(sections)-(framesPerRun-1):split(sections)
-%         temp(:,runs) = rx();
+
+for count = 1:frames
+    temp(:, count) = rx();
+end 
 %     end
 % %     while ((datetime - begintime) <= timePerSection)
 % %     end
@@ -56,5 +60,6 @@ eval(sprintf("%s = temp;",string(nameOfArray)));
 
 save(string(i) + '.mat',string(i)); % Saves data array with custom name
 beep;
+toc
 
 
