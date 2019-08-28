@@ -5,15 +5,11 @@
 clear; close all;
 
 %%% USER INFORMATION %%%%%%
-minOfData = 1;
-nameOfArray = harrisonTest;
-waitduration = duration('00:00:20');
+frames = 8000; % approximately 8000 frames per minute, depending on the computer
+nameOfArray = "harrisonTest";
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-    % Ensures that all computers start at similar times
-programstart = datetime;
-warning('off','all')
+% warning('off','all')   % Gets rid of the super annoying version warnings
 
     %% Radio setup
 plutoradiosetup();
@@ -31,36 +27,33 @@ for init = 1:100
     ignore(:,1) = rx();
 end
 
-framesPerMin = 8000;
-frames = minOfData * framesPerMin; % # of Min of Data
+% framesPerMin = 8000;
+% frames = minOfData * framesPerMin; % # of Min of Data
 
 i = string(nameOfArray); % name of data array
 
-eval(sprintf("%s = zeros(2048, frames);",string(nameOfArray)));
+temp = zeros(2048, frames);
 
-timePerSection = duration('00:00:03');
-numDivisions = (60*minOfData)/3; 
-framesPerRun = frames/numDivisions;
-split(numDivisions) = zeros;
-for init = 1:numDivisions
-    split(init) = init * framesPerRun;
-end
+% timePerSection = duration('00:00:03');
+% numDivisions = (60*minOfData)/3; 
+% framesPerRun = frames/numDivisions;
+% split(numDivisions) = zeros;
 
-while((datetime - programstart) < waitduration)
-    disp('waiting');
-    pause(1);
-end
-starttime = datetime;
-for sections = 1:numDivisions
-    begintime = datetime;
-    for runs = split(sections)-(framesPerRun-1):split(sections)
-        eval(sprintf("%s(:,runs) = rx();",string(nameOfArray)));
-    end
-    while ((datetime - begintime) <= timePerSection)
-    end
-end
-stoptime = datetime;
-runtime = stoptime - starttime
+% for init = 1:numDivisions
+%     split(init) = init * framesPerRun;
+% end
+
+% for sections = 1:numDivisions
+%     begintime = datetime;
+%     for runs = split(sections)-(framesPerRun-1):split(sections)
+%         temp(:,runs) = rx();
+%     end
+% %     while ((datetime - begintime) <= timePerSection)
+% %     end
+% end
+
+eval(sprintf("%s = temp;",string(nameOfArray)));
+
 save(string(i) + '.mat',string(i)); % Saves data array with custom name
 beep;
 
