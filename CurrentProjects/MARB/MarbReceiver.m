@@ -10,7 +10,7 @@ frames = 8000; % approximately 8000 frames per minute, depending on the computer
 nameOfArray = "harrisonTest";
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% warning('off','all')   % Gets rid of the super annoying version warnings
+warning('off','all')   % Gets rid of the super annoying version warnings
 
     %% Radio setup
 plutoradiosetup();
@@ -24,16 +24,14 @@ rx.ShowAdvancedProperties = true;
 
     % Buffer
 ignore = zeros(2048,1);
+temp = zeros(2048, frames);
+
 for init = 1:100
     ignore(:,1) = rx();
 end
 
 % framesPerMin = 8000;
 % frames = minOfData * framesPerMin; % # of Min of Data
-
-i = string(nameOfArray); % name of data array
-
-temp = zeros(2048, frames);
 
 % timePerSection = duration('00:00:03');
 % numDivisions = (60*minOfData)/3; 
@@ -58,6 +56,7 @@ end
 
 eval(sprintf("%s = temp;",string(nameOfArray)));
 
+i = string(nameOfArray); % name of data array
 save(string(i) + '.mat',string(i)); % Saves data array with custom name
 beep;
 toc
