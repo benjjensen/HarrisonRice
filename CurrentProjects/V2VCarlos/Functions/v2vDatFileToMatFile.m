@@ -143,8 +143,8 @@ function v2vDatFileToMatFile(datFilename, sampleRate)
     
     index = 1;
     
-    indexesPerFile = 1.2e10;
-    fileNum = 1;
+%     indexesPerFile = 1.2e10;
+%     fileNum = 1;
     lengthFilename = length(matFilename);
     
     % Read in and save a small number of samples at a time; we can't read
@@ -152,20 +152,20 @@ function v2vDatFileToMatFile(datFilename, sampleRate)
     while ~feof(dat)
         [data, count] = fread(dat, SAMPLES_PER_ITERATION, DAT_PRECISION);
         if count ~= 0
-            if index < indexesPerFile
+%             if index < indexesPerFile
                 
-            else
-                fileNum = fileNum + 1;
-                index = 1;
-                if fileNum < 10
-                    matFilename(lengthFilename-4) = string(fileNum);
-                elseif fileNum == 10
-                    matFilename = [matFilename(1:lenthFilename-5) string(fileNum) '.mat'];
-                else
-                    matFilename(lengthFilename-5:lengthFilename-4) = string(fileNum);
-                end
+%             else
+%                 fileNum = fileNum + 1;
+%                 index = 1;
+%                 if fileNum < 10
+%                     matFilename(lengthFilename-4) = string(fileNum);
+%                 elseif fileNum == 10
+%                     matFilename = [matFilename(1:lenthFilename-5) string(fileNum) '.mat'];
+%                 else
+%                     matFilename(lengthFilename-5:lengthFilename-4) = string(fileNum);
+%                 end
                 mat = matfile(matFilename,'Writable',true);
-            end
+%             end
             mat.data(index:index+count-1,1) = data(:,1);
             index = index + count;
         end
@@ -176,9 +176,9 @@ end
 
 function matFilename = getMatFilenameFromDatFilename(datFilename)
     filenameLength = length(datFilename);
-    matFilename = [datFilename(1:filenameLength-4) '_file1.mat'];
-%     matFilename = datFilename;
-%     matFilename(filenameLength-2:filenameLength) = 'mat';
+%     matFilename = [datFilename(1:filenameLength-4) '_file1.mat'];
+    matFilename = datFilename;
+    matFilename(filenameLength-2:filenameLength) = 'mat';
 end
 
 function metaFilename = getMetaFilenameFromDatFilename(datFilename)
