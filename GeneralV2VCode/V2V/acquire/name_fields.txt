@@ -1,6 +1,6 @@
 # Naming conventions are stored in a text file. The format of this file is as follows:
 # Each line is one of a comment, a blank line, a field entry, an option entry, or the end of file marker line.
-#
+# 
 # Comment lines start with '#' and are ignored.
 #     # This is a comment. I can write anything here.
 # Note: comment lines are not preserved when a member of this class overwrites the naming convention file.
@@ -11,7 +11,7 @@
 # The default value must be a code for one of the options listed below this field.
 # The separator here cannot be empty, but if an empty separator in the name is desired use the string "`" here.
 # Field entries should appear in the order in which their codes are used for the naming convention.
-#
+# 
 # Option entries start with '-' and are in this format:
 #     - [option code] [option name]
 # Where option code is exactly one word and option name is any number of words.
@@ -27,6 +27,10 @@
 
 
 $ PROVO - Location
-- T t
+- AL_pt1 Alpine Loop Pt 1
+- AL_pt2 Alpine Loops Pt 2
 - APSK APSK
+- PROVO Provo
+- T t
+- TEST Testing
 ~

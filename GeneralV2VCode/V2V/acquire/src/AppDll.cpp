@@ -203,6 +203,8 @@ EXPORTED_FUNCTION void x_Close(HANDLE fd)
 }
 
 
+#include <iostream>
+
 ////////////////////////////////////////////////////////////////////////////////////
 //I/O Primitives
 
@@ -224,6 +226,8 @@ EXPORTED_FUNCTION int x_Read (unsigned short BoardNum, void * sysMem, size_t rd_
 #endif
 #ifndef _WINDOWS
 	//	makeAtomic[BoardNum].lock();
+//	std::cout << "+++++ In x_Read function; " << BoardNum << " handle " << pAPI->m_AllDeviceHandles[BoardNum] << " sysmem " << sysMem << " rd_size " << rd_size << std::endl;
+
 	return read(pAPI->m_AllDeviceHandles[BoardNum], sysMem, rd_size);
 	//	makeAtomic[BoardNum].unlock();
 #else

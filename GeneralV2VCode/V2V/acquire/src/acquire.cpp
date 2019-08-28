@@ -42,7 +42,8 @@
 #include <boost/atomic.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/core/ref.hpp>
+//#include <boost/core/ref.hpp>
+#include <boost/ref.hpp>
 
 #include "DataCapture.h"
 #include "uvAPI.h"
@@ -234,10 +235,17 @@ static void write_thread_main_function(volatile HANDLE& disk_fd,
 static boost::thread* start_gps_thread(DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
         boost::atomic<bool>& continue_recording_gps,
+        boost::mutex& gps_mutex,
         boost::atomic<bool>& currently_saving_data,
         boost::atomic<bool>& first_gps_position_recorded,
-        GPSPosition& first_gps_position, boost::mutex& current_position_mutex);
+        GPSPosition& current_gps_position,
+        boost::mutex& current_position_mutex);
 
+
+struct gps_thread_args{
+	pid_t gps_process_id;
+	HANDLE gps_output_fd;
+	};
 /**
  * The main function of the gps thread.
  *
@@ -251,8 +259,7 @@ static boost::thread* start_gps_thread(DataCapture& capture_info,
  * When continue_recording_gps becomes false, this thread kills the gpsbabel
  * process and exits.
  */
-static void gps_thread_main_function(const pid_t gps_process_id,
-        const HANDLE gps_output_fd, DataCapture& capture_info,
+static void gps_thread_main_function(gps_thread_args thread_args, DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
         boost::atomic<bool>& continue_recording_gps,
         boost::mutex& gps_mutex,
@@ -307,7 +314,8 @@ static void stdin_command_listener_thread_main_function(
 
         if(input == "--resume") {
             // TODO start new capture
-            std::cin >> capture_info.name();
+            //std::cin >> capture_info.name(); CHANGEDIT
+	    std::cin >> capture_info.name;
 
             capture_info.data_filename = get_timestamped_filename(environment,
                     capture_info, first_gps_position_recorded,
@@ -317,7 +325,7 @@ static void stdin_command_listener_thread_main_function(
                 close(outfile_fd);
                 outfile_fd = INVALID_HANDLE_VALUE;
             }
-            outfile_fd = open(capture_info.data_filename,
+            outfile_fd = open(capture_info.data_filename.c_str(),
                     O_CREAT | O_WRONLY | O_TRUNC, 0666);
             // TODO check/handle error
 
@@ -475,7 +483,7 @@ int main(int argc, char** argv) {
         std::stringstream command;
         // This is a safe command to pass to system() because it contains the
         // absolute path of echo.
-        command << "/bin/echo " << process_id << " > /cgroup/cpuset/" <<
+        command << "/bin/echo " << process_id << " > /sys/fs/cgroup/cpuset/" <<
                 cpuset << "/tasks";
         int error = system(command.str().c_str());
         if(error == -1 || WEXITSTATUS(error)) {
@@ -538,10 +546,14 @@ int main(int argc, char** argv) {
     // BLOCKS_PER_SETUP_ACQUIRE.
     uv.SetupAcquire(environment.board_num, BLOCKS_PER_SETUP_ACQUIRE);
 
+    std::cout << "---- 1" << std::endl;
+
     // Acquire and discard the first block of data. Once this happens, the DAQ
     // card starts saving the incoming data to its internal buffer until it has
     // saved BLOCKS_PER_SETUP_ACQUIRE blocks.
     uv.X_Read(environment.board_num, first_buffer, READ_SIZE);
+
+    std::cout << "---- 2" << std::endl;
 
     // ----------IMPORTANT----------
     // For some reason, the DAQ card does not always work properly if we don't
@@ -553,6 +565,8 @@ int main(int argc, char** argv) {
     // the DAQ card can't take the pressure and often skips some data in the
     // first 8 GB of captured data.
     sleep(SECONDS_TO_SLEEP); // Sleep for 3 seconds.
+
+    std::cout << "---- 3" << std::endl;
 
     // If the user already told us to stop,
     if(!continue_reading_data.load()) {
@@ -566,6 +580,8 @@ int main(int argc, char** argv) {
         }
         return 0;
     }
+
+    std::cout << "---- 4" << std::endl;
 
 
 
@@ -612,6 +628,8 @@ int main(int argc, char** argv) {
     GPSPosition current_gps_position;
     boost::mutex current_position_mutex;
 
+    std::cout << "---- 5" << std::endl;
+
     boost::thread* gps_thread = NULL;
     if(environment.record_gps_data) {
         // Start up the thread that will record the gps data.
@@ -623,6 +641,7 @@ int main(int argc, char** argv) {
             std::cerr << "ERROR: UNABLE TO START GPS THREAD" << std::endl;
         }
     }
+    std::cout << "---- 6" << std::endl;
 
 
 
@@ -672,6 +691,8 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    std::cout << "---- 7" << std::endl;
+
     // Open the data disk file.
     HANDLE outfile_fd = uv.X_CreateFile((char*)filename.c_str());
     // outfile_fd will be less than zero if the open operation failed.
@@ -685,6 +706,9 @@ int main(int argc, char** argv) {
 
         return -1;
     }
+
+
+    std::cout << "---- 8" << std::endl;
 
 
 
@@ -724,6 +748,8 @@ int main(int argc, char** argv) {
             boost::ref(writing_to_first_buffer),
             boost::ref(blocks_in_buffer_ready_to_save), first_buffer,
             second_buffer, boost::ref(write_thread_status));
+
+    std::cout << "---- 9" << std::endl;
 
 
 
@@ -769,7 +795,7 @@ int main(int argc, char** argv) {
                 BLOCKS_PER_SETUP_ACQUIRE * setup_acquire_call_count;
         for(; blocks_captured.load() < block_limit &&
                 continue_reading_data.load();
-                blocks_captured.add(BLOCKS_PER_READ)) {
+                blocks_captured.fetch_add(BLOCKS_PER_READ)) {
             // Read a block from the board.
             uv.X_Read(environment.board_num, current_buffer, READ_SIZE);
             blocks_in_current_buffer += BLOCKS_PER_READ;
@@ -818,7 +844,7 @@ int main(int argc, char** argv) {
 
                     // Forget about the blocks we were about to save from this
                     // buffer.
-                    blocks_captured.sub(blocks_in_current_buffer);
+                    blocks_captured.fetch_sub(blocks_in_current_buffer);
                     // If the write thread managed to save any data at all,
                     if(write_thread_status > 0) {
                         // Calculate how many blocks the write thread managed
@@ -828,13 +854,13 @@ int main(int argc, char** argv) {
                         int blocks_written = write_thread_status / size;
                         int blocks_not_written =
                                 blocks_in_buffer_ready_to_save - blocks_written;
-                        blocks_captured.sub(blocks_not_written);
+                        blocks_captured.fetch_sub(blocks_not_written);
                     }
                         // If the write thread didn't save any data,
                     else {
                         // Forget about all the blocks we thought we saved from
                         // the last buffer.
-                        blocks_captured.sub(
+                        blocks_captured.fetch_sub(
                                 blocks_in_buffer_ready_to_save);
                     }
 
@@ -917,7 +943,7 @@ int main(int argc, char** argv) {
 
             // Forget about the blocks we were about to save from the
             // partially-full buffer.
-            blocks_captured.sub(blocks_in_current_buffer);
+            blocks_captured.fetch_sub(blocks_in_current_buffer);
 
             // If the write thread managed to save any data at all,
             if(write_thread_status > 0) {
@@ -927,13 +953,13 @@ int main(int argc, char** argv) {
                 int blocks_written = write_thread_status / size;
                 int blocks_not_written = blocks_in_buffer_ready_to_save -
                         blocks_written;
-                blocks_captured.sub(blocks_not_written);
+                blocks_captured.fetch_sub(blocks_not_written);
             }
                 // If the write thread didn't save any data,
             else {
                 // Forget about all the blocks we thought we saved from the last
                 // buffer.
-                blocks_captured.sub(blocks_in_buffer_ready_to_save);
+                blocks_captured.fetch_sub(blocks_in_buffer_ready_to_save);
             }
 
             // Have the write thread go ahead and exit.
@@ -998,13 +1024,13 @@ int main(int argc, char** argv) {
                     int blocks_written = write_thread_status / size;
                     int blocks_not_written = blocks_in_buffer_ready_to_save -
                             blocks_written;
-                    blocks_captured.sub(blocks_not_written);
+                    blocks_captured.fetch_sub(blocks_not_written);
                 }
                     // If the write thread didn't save any data,
                 else {
                     // Forget about all the blocks we thought we saved from the
                     // last buffer.
-                    blocks_captured.sub(blocks_in_buffer_ready_to_save);
+                    blocks_captured.fetch_sub(blocks_in_buffer_ready_to_save);
                 }
 
                 fatal_write_error = true;
@@ -1150,7 +1176,7 @@ int main(int argc, char** argv) {
 }
 
 void change_file_owner_permissions(std::string filename) {
-    passwd* user_info = getpwnam((char*)"adm85");
+    passwd* user_info = getpwnam((char*)"ra");
 
     chown(filename.c_str(), user_info->pw_uid, user_info->pw_gid);
     // Set file permissions to 644
@@ -1247,7 +1273,7 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
 
         // Not necessary to change directories because gpsbabel is on the path
         // and gpsbabel_xcsv_format.txt is in the current directory.
-        execl("/usr/local/bin/gpsbabel", "gpsbabel", "-T", "-i", "garmin", "-f",
+        execl("/usr/bin/gpsbabel", "gpsbabel", "-T", "-i", "garmin", "-f",
                 "usb:", "-o", "xcsv,style=gpsbabel_xcsv_format.txt", "-F",
                 "/dev/stdout", NULL);
 
@@ -1270,8 +1296,11 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
     const HANDLE gps_output_fd = output_pipe[READ_FD];
 
     // Start the gps thread and pass in the information it needs to function.
+    gps_thread_args thread_args;
+    thread_args.gps_process_id = gps_process_id;
+    thread_args.gps_output_fd = gps_output_fd;
     boost::thread *gps_thread = new boost::thread(gps_thread_main_function,
-            gps_process_id, gps_output_fd, boost::ref(capture_info),
+            thread_args, boost::ref(capture_info),
             boost::ref(blocks_acquired), boost::ref(continue_recording_gps),
             boost::ref(gps_mutex),
             boost::ref(currently_saving_data),
@@ -1281,8 +1310,7 @@ boost::thread* start_gps_thread(DataCapture& capture_info,
     return gps_thread;
 }
 
-void gps_thread_main_function(const pid_t gps_process_id,
-        const HANDLE gps_output_fd, DataCapture& capture_info,
+void gps_thread_main_function(gps_thread_args thread_args, DataCapture& capture_info,
         boost::atomic_uint_fast32_t& blocks_acquired,
         boost::atomic<bool>& continue_recording_gps,
         boost::mutex& gps_mutex,
@@ -1290,6 +1318,9 @@ void gps_thread_main_function(const pid_t gps_process_id,
         boost::atomic<bool>& first_gps_position_recorded,
         GPSPosition& current_gps_position,
         boost::mutex& current_position_mutex) {
+	const pid_t gps_process_id = thread_args.gps_process_id;
+	const HANDLE gps_output_fd = thread_args.gps_output_fd;
+
     // Get an istream from the pipe file descriptor.
     __gnu_cxx::stdio_filebuf<char> *sb =
             new __gnu_cxx::stdio_filebuf<char>(gps_output_fd, std::ios::in);

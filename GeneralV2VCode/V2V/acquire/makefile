@@ -10,8 +10,10 @@ all: acquire sampler gpstracker
 acquire: src/acquire.o src/AppDll.o src/DllDriverApi.o src/DllLibMain.o src/DllLibLoadSvf.o src/DataCapture.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ /usr/lib64/libboost_thread-mt.so
 
-src/acquire.o: src/acquire.cpp
-	$(CXX) $(CXXFLAGS) -I/home/adm85/boost/boost_atomic -c -o $@ $^
+#src/acquire.o: src/acquire.cpp
+	#$(CXX) $(CXXFLAGS) -c -o $@ $^
+
+	#$(CXX) $(CXXFLAGS) -I/home/adm85/boost/boost_atomic -c -o $@ $^
 
 
 

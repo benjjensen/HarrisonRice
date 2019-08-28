@@ -1,10 +1,11 @@
 #!/bin/bash
 
-cd /cgroup/cpuset
+#cd /cgroup/cpuset
+cd /sys/fs/cgroup/cpuset
 
-echo 0-1 > libvirt/lxc/cpuset.cpus
-echo 0-1 > libvirt/qemu/cpuset.cpus
-echo 0-1 > libvirt/cpuset.cpus
+#echo 0-1 > libvirt/lxc/cpuset.cpus
+#echo 0-1 > libvirt/qemu/cpuset.cpus
+#echo 0-1 > libvirt/cpuset.cpus
 
 mkdir -p sys
 if [ $? -ne 0 ]

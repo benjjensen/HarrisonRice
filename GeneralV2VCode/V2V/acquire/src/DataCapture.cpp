@@ -357,7 +357,7 @@ int DataCapture::save_gps_to_google_earth_file(std::string filename) {
 
     std::stringstream command;
     command <<
-            "/usr/local/bin/gpsbabel -i xcsv,style=gpsbabel_xcsv_format.txt -f "
+            "/usr/bin/gpsbabel -i xcsv,style=gpsbabel_xcsv_format.txt -f "
             << gps_filename << " -x transform,trk=w,del -o kml -F " <<
             gps_filename;
     system(command.str().c_str());

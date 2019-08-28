@@ -1,6 +1,7 @@
 #!/bin/bash
 
-cd /cgroup/cpuset
+#cd /cgroup/cpuset
+cd /sys/fs/cgroup/cpuset
 
 # move tasks back from sys-cpuset to root cpuset
 for T in `cat sys/tasks`;
@@ -26,8 +27,8 @@ for T in `cat acquire/tasks`;
 done
 rmdir acquire
 
-echo 0-3 > libvirt/cpuset.cpus
-echo 0-3 > libvirt/lxc/cpuset.cpus
-echo 0-3 > libvirt/qemu/cpuset.cpus
+#echo 0-3 > libvirt/cpuset.cpus
+#echo 0-3 > libvirt/lxc/cpuset.cpus
+#echo 0-3 > libvirt/qemu/cpuset.cpus
 
 exit 0
