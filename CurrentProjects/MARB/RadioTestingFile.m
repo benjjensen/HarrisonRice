@@ -44,26 +44,49 @@ while(1)
     for shifting = 1:frames
         testLinear(:,shifting) = fftshift(a(:,shifting));
     end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Trim Edges and Isolate Signal Carriers
+% All odd carriers are noise, even carriers are signal
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%     testLinearMod = testLinear(21:108,:); % Remove attenuated data
+%     signal = testLinearMod(2:2:end,:);
+%     noise = testLinearMod(1:2:end,:);
+%     for samples = 1:frames
+%         for carriers = 1:44
+%             noiseAvg(carriers,samples) = sum(noise(:,samples)) / 44;
+%         end
+%     end
+%     testLinearSignal = signal ./ noiseAvg;
+%     for carrierStats = 1:frames
+%         testMaxCarrier(carrierStats) = max(testLinearSignal(:,carrierStats));
+%         testMinCarrier(carrierStats) = min(testLinearSignal(:,carrierStats));
+%         testAvgCarrier(carrierStats) = sum(testLinearSignal(:,carrierStats)) / 44;
+%     end
+%     for sumCarriers = 1:44
+%         testSum(sumCarriers) = sum(testLinearSignal(sumCarriers,:));
+%     end
     
-    % Ignore edge carriers. All odd carriers are noise, even carriers are signal
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Keep Edges and Show Signal Carriers
+% All odd carriers are noise, even carriers are signal
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    testLinearMod = testLinear(21:108,:); % Remove attenuated data
-    signal = testLinearMod(2:2:end,:);
-    noise = testLinearMod(1:2:end,:);
-    for samples = 1:frames
-        for carriers = 1:44
-            noiseAvg(carriers,samples) = sum(noise(:,samples)) / 44;
-        end
-    end
-    testLinearSignal = signal ./ noiseAvg;
+    % Get stats for the signal carriers
     for carrierStats = 1:frames
-        testMaxCarrier(carrierStats) = max(testLinearSignal(:,carrierStats));
-        testMinCarrier(carrierStats) = min(testLinearSignal(:,carrierStats));
-        testAvgCarrier(carrierStats) = sum(testLinearSignal(:,carrierStats)) / 44;
+        testMaxCarrier(carrierStats) = max(testLinear(2:2:end,carrierStats));
+        testMinCarrier(carrierStats) = min(testLinear(2:2:end,carrierStats));
+        testAvgCarrier(carrierStats) = sum(testLinear(2:2:end,carrierStats)) / 64;
     end
-    for sumCarriers = 1:44
-        testSum(sumCarriers) = sum(testLinearSignal(sumCarriers,:));
+    index = 1;
+    for sumCarriers = 2:2:128
+        testSum(index) = sum(testLinear(sumCarriers,:));
+        index = index + 1;
     end
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     testAvg = testSum / frames;
     
     AveragePerLocation(:,count) = testAvg;
@@ -75,7 +98,7 @@ while(1)
     
     mx = max(AveragePerLocation(:,count)); mn = min(AveragePerLocation(:,count));
     av = sum(AveragePerLocation(:,count)) / 44;
-    figure(1); stem(AveragePerLocation(:,count)); title({'Average Carrier Strengths (linear)',...
+    figure(1); a = stem(AveragePerLocation(:,count)); title({'Average Carrier Strengths (linear)',...
         'Max:'+string(mx)+' || Min:'+string(mn)+' || Avg:'+string(av)});
     drawnow;
     pause(1);
