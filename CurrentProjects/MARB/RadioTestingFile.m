@@ -80,7 +80,8 @@ while(1)
         testAvgCarrier(carrierStats) = sum(testLinear(2:2:end,carrierStats)) / 64;
     end
     index = 1;
-    for sumCarriers = 2:2:128
+%     for sumCarriers = 2:2:128
+    for sumCarriers = 1:128
         testSum(index) = sum(testLinear(sumCarriers,:));
         index = index + 1;
     end
@@ -96,8 +97,11 @@ while(1)
     
     %% Plot Results
     
-    mx = max(AveragePerLocation(:,count)); mn = min(AveragePerLocation(:,count));
-    av = sum(AveragePerLocation(:,count)) / 44;
+%     mx = max(AveragePerLocation(:,count)); mn = min(AveragePerLocation(:,count));
+%     av = sum(AveragePerLocation(:,count)) / 44;
+    AveragePerLocation(:,count) = 10*log10(abs(AveragePerLocation(:,count)));
+    mx = max(AveragePerLocation(22:2:108,count)); mn = min(AveragePerLocation(22:2:108,count));
+    av = sum(AveragePerLocation(22:2:108,count)) / 44;
     figure(1); a = stem(AveragePerLocation(:,count)); title({'Average Carrier Strengths (linear)',...
         'Max:'+string(mx)+' || Min:'+string(mn)+' || Avg:'+string(av)});
     drawnow;
