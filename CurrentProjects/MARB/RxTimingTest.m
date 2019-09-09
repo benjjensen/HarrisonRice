@@ -36,3 +36,16 @@ for getNumerousTimeVals = 1:10
     
     toc
 end
+
+% Radio 1 - Dr Harrison
+% Radio 2 - Farah - Setup Time: 19.26 seconds, Run Time Max: 2.54 seconds
+% Radio 3 - Kalin
+% Radio 4 - Benj
+% Radio 5 - ?
+% Radio 6 - ?
+% Radio 7 - Autumn (Work Laptop)
+% Radio 8 - ?
+% Radio 9 - Bryan
+% Radio 10 - Tx (do not need to test)
+% Radio 11 - Spencer
+% Radio 12 - Morteza
