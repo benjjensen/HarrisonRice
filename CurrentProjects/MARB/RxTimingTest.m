@@ -47,5 +47,5 @@ end
 % Radio 8 - ?
 % Radio 9 - Bryan
 % Radio 10 - Tx (do not need to test)
-% Radio 11 - Spencer
+% Radio 11 - Spencer - Setup Time: 23.3 seconds, Run Time Max: 2.2 seconds
 % Radio 12 - Morteza
