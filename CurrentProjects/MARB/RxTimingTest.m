@@ -40,7 +40,7 @@ end
 % Radio 1 - Dr Harrison
 % Radio 2 - Farah - Setup Time: 19.26 seconds, Run Time Max: 2.54 seconds
 % Radio 3 - Kalin
-% Radio 4 - Benj
+% Radio 4 - Benj - Setup Time: 6-35 seconds, Run Time Max: 1.3-2.4 seconds
 % Radio 5 - ?
 % Radio 6 - ?
 % Radio 7 - Autumn (Work Laptop)
