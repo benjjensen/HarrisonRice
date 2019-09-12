@@ -39,7 +39,7 @@ end
 
 % Radio 1 - Dr Harrison
 % Radio 2 - Farah - Setup Time: 19.26 seconds, Run Time Max: 2.54 seconds
-% Radio 3 - Kalin
+% Radio 3 - Kalin - Setup Time: 57.43 secdonds, Run Time Max: 3.39 seconds
 % Radio 4 - Benj - Setup Time: 6-35 seconds, Run Time Max: 1.3-2.4 seconds
 % Radio 5 - ?
 % Radio 6 - ?
@@ -48,4 +48,4 @@ end
 % Radio 9 - Bryan
 % Radio 10 - Tx (do not need to test)
 % Radio 11 - Spencer - Setup Time: 23.3 seconds, Run Time Max: 2.2 seconds
-% Radio 12 - Morteza
+% Radio 12 - Morteza - Setup Time: 27.62 seconds, Run Time Max: 2.1 seconds
