@@ -43,7 +43,7 @@ end
 % Radio 4 - Benj - Setup Time: 6-35 seconds, Run Time Max: 1.3-2.4 seconds
 % Radio 5 - ?
 % Radio 6 - ?
-% Radio 7 - Autumn (Work Laptop)
+% Radio 7 - Autumn (Work Laptop) - Setup Time: 25 , Run Time Max: 2-2.7 seconds
 % Radio 8 - ?
 % Radio 9 - Bryan - Setup Time: 32 seconds, Run Time Max: 2.7 seconds
 % Radio 10 - Tx (do not need to test)
