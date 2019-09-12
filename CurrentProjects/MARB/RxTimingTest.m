@@ -45,7 +45,7 @@ end
 % Radio 6 - ?
 % Radio 7 - Autumn (Work Laptop)
 % Radio 8 - ?
-% Radio 9 - Bryan
+% Radio 9 - Bryan - Setup Time: 32 seconds, Run Time Max: 2.7 seconds
 % Radio 10 - Tx (do not need to test)
 % Radio 11 - Spencer - Setup Time: 23.3 seconds, Run Time Max: 2.2 seconds
 % Radio 12 - Morteza - Setup Time: 27.62 seconds, Run Time Max: 2.1 seconds
