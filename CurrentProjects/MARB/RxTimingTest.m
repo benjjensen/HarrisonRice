@@ -37,12 +37,12 @@ for getNumerousTimeVals = 1:10
     toc
 end
 
-% Radio 1 - Dr Harrison
+% Radio 1 - Dr Harrison - Setup Time: 35.5 seconds, Run Time Max: 1.9 seconds
 % Radio 2 - Farah - Setup Time: 19.26 seconds, Run Time Max: 2.54 seconds
 % Radio 3 - Kalin - Setup Time: 57.43 secdonds, Run Time Max: 3.39 seconds
 % Radio 4 - Benj - Setup Time: 6-35 seconds, Run Time Max: 1.3-2.4 seconds
-% Radio 5 - ?
-% Radio 6 - ?
+% Radio 5 - Amy (Harrison's Spare) - Setup Time: 64.5 seconds, Run Time Max: 1.7 seconds
+% Radio 6 - Nathan?
 % Radio 7 - Autumn (Work Laptop) - Setup Time: 25 , Run Time Max: 2-2.7 seconds
 % Radio 8 - ?
 % Radio 9 - Bryan - Setup Time: 32 seconds, Run Time Max: 2.7 seconds
