@@ -1,5 +1,5 @@
 clear; close all;
-warnings('off','all');
+warning('off','all');
 
 %%% User Inputs
 refSignalName = 'Radio1_ref';
