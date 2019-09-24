@@ -2,7 +2,7 @@ clear; close all;
 warning('off','all');
 
 %%% User Inputs
-refSignalName = 'Radio1_ref';
+refSignalName = 'Radio9_ref';
 %%%%%%%%%%%%%%%
 
 %% Radio Setup
