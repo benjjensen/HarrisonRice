@@ -6,7 +6,7 @@
 % inFilename = 'Sundance-To-US189-25June2019_file1.mat';
 % outFilename = '/media/V2V/Sundance-To-US189-25June2019_20Msps_file1.mat';
 % outFilename = '/media/V2V/Sundance-To-US189-25June2019_20Msps.mat'; % Down the canyon
-outFilename = '/media/V2V/US189-To-Sundance-25June2019_20Msps.mat'; % Up the canyon
+% outFilename = '/media/V2V/US189-To-Sundance-25June2019_20Msps.mat'; % Up the canyon
 
 Ndata = 10000000; % Originally was 160000
 
@@ -24,7 +24,7 @@ ee = repmat(eetemp,Ndata/length(eetemp),1);
 
 %%% read and write file objects
 % mfr = dsp.MatFileReader(inFilename,'VariableName','data','SamplesPerFrame',Ndata);
-mfw = dsp.MatFileWriter(outFilename,'VariableName','y');
+% mfw = dsp.MatFileWriter(outFilename,'VariableName','y');
 
 %%% load raw data, Ndata samples at a time, resample, and write resampled
 %%% data in output file
@@ -62,20 +62,31 @@ mfw = dsp.MatFileWriter(outFilename,'VariableName','y');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% end optional
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+ 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% New Section (uncomment out everything else if not using this)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-numFiles = 2;
+numFiles = 3;
 count = 0;
 outFilenum = 1;
 
+infilenames = ["/media/V2VData01/AlpineLoop_pt1A.mat", "/media/V2VData01/AlpineLoop_pt2A.mat", "/media/V2VData01/AlpineLoop_pt2B.mat"];
+outfilenames = ["/media/V2VData01/AlpineLoop_pt1A_20Msps.mat", "/media/V2VData01/AlpineLoop_pt2A_20Msps.mat",  "/media/V2VData01/AlpineLoop_pt2B_20Msps.mat"];
+
 disp(datetime);
 for i = 1:numFiles
-    inFilename = ['/media/V2V/US189-To-Sundance-25June2019_file' num2str(i) '.mat'];
+
+    inFilename = string(infilenames(i));
+    outFilename = string(outfilenames(i));
+    
+    matObj = matfile(inFilename);
+    dataSize = size(matObj, 'data');
+    numLoops = dataSize(1) / Ndata;
+    
     mfr = dsp.MatFileReader(inFilename,'VariableName','data','SamplesPerFrame',Ndata);
+    mfw = dsp.MatFileWriter(outFilename,'VariableName','y');
 
     while ~isDone(mfr)
         count = count + 1;
@@ -95,12 +106,16 @@ for i = 1:numFiles
 %                 count = 0;
 %             end
         end
+        if ~mod(count, 100)
+            disp('Working on ' + inFilename + ' ' + string(count) + ' / ' + string(numLoops) + ' at ' + string(datetime));
+        end
     end
 release(mfr);
 disp('Finished one file');
 disp(datetime);
 end
 disp('Done with ResampleData');
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% End New Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
