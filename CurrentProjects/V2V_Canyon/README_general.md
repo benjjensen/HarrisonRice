@@ -32,7 +32,16 @@ Processing Process:
     downsampled to 20 Msps using resampleData.m. From there, the following figures/
     information was calculated:
 
-        Power Spectral Density: 
+        Power Spectral Density: Performs a non-parametric manual pwelch on data files
+  
+            1) Reads in a block of data (n = NFFT)
+            2) Windows the data (Blackman window)
+            3) Takes the FFT, and then the magnitude squared
+            4) Shifts by NFFT/2 and repeats, summing the results
+            5) Divides by the total number lf length NFFT blocks 
+
+                (Note that the current method to do this uses a special process
+                    described in the file.)
 
         Average Power per Millisecond:
 
