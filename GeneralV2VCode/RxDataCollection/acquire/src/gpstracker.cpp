@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
     GPSFile.close();
 
     std::ofstream GPSFileRetimed(environment.outputFilename.c_str());
-    for(int i = 0; i < positions.size(); ++i) {
+    for(unsigned int i = 0; i < positions.size(); ++i) {
         GPSFileRetimed << positions.at(i) << std::endl;
     }
     GPSFileRetimed.close();

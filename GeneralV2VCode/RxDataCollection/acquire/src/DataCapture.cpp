@@ -13,9 +13,10 @@
 
 #include <fcntl.h>
 #include <stdlib.h>
-#include <unistd.h>
 
-#include <boost/algorithm/string.hpp>
+#ifdef __linux__
+#include <unistd.h>
+#endif
 
 DataCapture::DataCapture() {
     // Set some reasonable defaults for the member fields:
@@ -278,6 +279,7 @@ int DataCapture::reserve_meta_file_space() {
         return -1;
     }
 
+#ifdef __linux__
     int meta_file_descriptor = open(meta_filename.c_str(), O_WRONLY | O_CREAT);
     if(meta_file_descriptor < 0) {
         return -1;
@@ -290,6 +292,12 @@ int DataCapture::reserve_meta_file_space() {
     meta_file_descriptor = -1;
 
     return result;
+#else
+    std::stringstream ss;
+    ss << "fsutil file createnew " << meta_filename << " " << META_FILE_RESERVE_SIZE;
+    system(ss.str().c_str());
+    return 0;
+#endif
 }
 
 bool DataCapture::generate_gps_filename() {
@@ -371,6 +379,7 @@ int DataCapture::reserve_gps_file_space() {
         return -1;
     }
 
+#ifdef __linux__
     int gps_file_descriptor = open(gps_filename.c_str(), O_WRONLY | O_CREAT);
     if(gps_file_descriptor < 0) {
         return -1;
@@ -382,6 +391,12 @@ int DataCapture::reserve_gps_file_space() {
     gps_file_descriptor = -1;
 
     return result;
+#else
+    std::stringstream ss;
+    ss << "fsutil file createnew " << gps_filename << " " << META_FILE_RESERVE_SIZE;
+    system(ss.str().c_str());
+    return 0;
+#endif
 }
 
 GPSPosition::GPSPosition() {
@@ -515,7 +530,10 @@ std::string GPSPosition::get_timestamp() {
 }
 
 bool GPSPosition::is_valid_fix() {
-    return boost::algorithm::to_lower_copy(fix_type) != "none";
+    return !(fix_type.length() == 4 && (fix_type[0] == 'n' || fix_type[0] == 'N')
+        && (fix_type[1] == 'o' || fix_type[1] == 'O')
+        && (fix_type[2] == 'n' || fix_type[2] == 'N')
+        && (fix_type[3] == 'e' || fix_type[3] == 'E'));
 }
 
 std::istream & operator>>(std::istream &in, GPSPosition &position) {
@@ -563,7 +581,7 @@ void set_gps_position_time(GPSPosition& position,
             position.date += position.hour / 24;
             position.hour %= 24;
 
-            int month_length = days_in_month(position.month, position.year);
+            int month_length = days_in_month((int)position.month, (int)position.year);
             if(position.date > month_length) {
                 ++position.month;
                 position.date = 1;
