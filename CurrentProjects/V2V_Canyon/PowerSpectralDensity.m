@@ -36,8 +36,8 @@ disp('Beginning to manually pwelch at ' + string(datetime));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % User Inputs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-inFilename = '/media/V2VData01/DiamondForkA_20Msps.mat'; % Up the canyon
-outFilename = '/media/V2VData01/temp.mat'; 
+inFilename = '/media/V2VData01/AlpineLoop_pt2B_20Msps.mat'; % Up the canyon
+outFilename = '/media/V2VData01/AlpineLoo_pt2B_psd.mat'; 
 nfft = 2048;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -2,16 +2,19 @@
 %%%%%%%%%%%%%%% Power Per Time %%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% IN TESTING - Sept 26 2019   -> Try the other fiels
+% IN TESTING - Sept 26 2019   -> Try the other fields
 
 %%%%% Overview %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Calculates the (average ?) power per a specified time unit
-%   1)
-% 
+%   1) Pulls in one ms of data (largeData)
+%   2) Pulls out length n = nfft small chunks of data from largeData
+%   3) FFTs the small data and takes magnitude squared
+%   4) Sums over carrier indices 
+%   5) When largeData is done, stores and repeats 
 % 
 %
 % Files Used:
-%A
+%
 %   - CarrierIndices.mat   ----> How?  Note that the indices are one off of
 %   the latinCom indices for some reason -----------------
 %   - Data files downampled to 20 Msamples per second (result of resampleData.m) 
@@ -28,7 +31,7 @@ disp(string(datetime));
 
 %%%%% User Inputs %%%%%
 
-filename = '/media/V2VData01/DiamondForkB_20Msps.mat'; % 
+filename = '/media/V2VData01/AlpineLoop_pt2A_20Msps.mat'; % 
 nfft = 2048;
 sampleRate = 20;    % in MSamples/sec (20)
 numSeconds = 0.001; % How many seconds we average over (0.001)
