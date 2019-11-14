@@ -7,12 +7,19 @@
 
 #ifdef __linux__
 #include <sys/wait.h>
+#elif _WIN32
+#include <windows.h>
+#include <tchar.h>
 #endif
 
 #include "DataCapture.h"
 
 const std::string DEFAULT_OUTPUT_FILENAME = "gps.kml";
+#ifdef __linux__
 const std::string DEFAULT_GPSBABEL_CALL = "gpsbabel";
+#elif _WIN32
+const std::string DEFAULT_GPSBABEL_CALL = "C:\\Program Files (x86)\\GPSBabel\\gpsbabel.exe";
+#endif
 const std::string DEFAULT_XCSV_FORMAT_FILENAME = "gpsbabel_xcsv_format.txt";
 
 const std::string DEFAULT_OUTPUT_EXTENSION = ".kml";
@@ -49,6 +56,33 @@ static std::string applyTimestamp(std::string filename,
  */
 static std::string applyDefaultFileExtension(std::string filename);
 
+#ifdef _WIN32
+
+bool gpsbabel_running = false;
+
+
+BOOL WINAPI CtrlHandler(DWORD fdwCtrlType)
+{
+    switch (fdwCtrlType)
+    {
+        // Handle the CTRL-C signal. 
+    case CTRL_C_EVENT:
+        if (gpsbabel_running)
+        {
+            gpsbabel_running = false;
+            return TRUE;
+        }
+        else
+        {
+            return FALSE;
+        }
+    default:
+        return FALSE;
+    }
+}
+
+#endif
+
 int main(int argc, char** argv) {
     // Parse the command-line arguments.
     GPSTrackerEnvironment environment = GPSTrackerParser(argc, argv);
@@ -60,19 +94,19 @@ int main(int argc, char** argv) {
 
     // Call gpsbabel.
     std::stringstream command;
-    command << environment.gpsbabelCall << " -T -i garmin -f usb: -o" <<
+    command << '"' << environment.gpsbabelCall << "\" -T -i garmin -f usb: -o" <<
             " xcsv,style=" << environment.xcsvFormatFilename << " -F " <<
             environment.outputFilename;
 
     std::time_t t = std::time(0);
     std::tm* start_time = std::localtime(&t);
 
+#ifdef __linux__
     int status = system(command.str().c_str());
 
     // Check the return status for errors.
-#ifdef __linux__
     if(!WIFEXITED(status)) {
-//        std::cerr << "ERROR: failed to capture gps data. Exiting." << std::endl;
+        //        std::cerr << "ERROR: failed to capture gps data. Exiting." << std::endl;
   //      std::exit(1);
     }
     else if(WEXITSTATUS(status)) {
@@ -91,10 +125,51 @@ int main(int argc, char** argv) {
         std::exit(1);
     }
 #elif _WIN32
-    if(status) {
+    if (!SetConsoleCtrlHandler(CtrlHandler, TRUE))
+    {
+        printf("\nERROR: Could not set control handler. Exiting.");
+        return 1;
+    }
+
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+
+    TCHAR* command_line = new TCHAR[command.str().size() + 1];
+    for (unsigned int i = 0; i < command.str().size(); ++i)
+    {
+        command_line[i] = command.str()[i];
+    }
+    command_line[command.str().size()] = '\0';
+
+    if (!CreateProcess(NULL,   // No module name (use command line)
+        command_line,        // Command line
+        NULL,           // Process handle not inheritable
+        NULL,           // Thread handle not inheritable
+        false,          // Set handle inheritance to FALSE
+        0,              // No creation flags
+        NULL,           // Use parent's environment block
+        NULL,           // Use parent's starting directory 
+        &si,            // Pointer to STARTUPINFO structure
+        &pi)           // Pointer to PROCESS_INFORMATION structure
+        )
+    {
         std::cerr << "ERROR: failed to capture gps data. Exiting." << std::endl;
         std::exit(1);
     }
+
+    gpsbabel_running = true;
+    // Wait until child process exits.
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    // Close process and thread handles. 
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+    delete[] command_line;
+    command_line = nullptr;
 #endif
 
     // Check to make sure that gpsbabel actually gave some output:
@@ -149,7 +224,7 @@ int main(int argc, char** argv) {
 
     // Convert the gpsbabel output to kml format.
     command.str("");
-    command << environment.gpsbabelCall << " -i " <<
+    command << '"' << environment.gpsbabelCall << "\" -i " <<
             "xcsv,style=" << environment.xcsvFormatFilename << " -f " <<
             environment.outputFilename << " -x transform,trk=w,del -o kml -F "
             << newFilename;
